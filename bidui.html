@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>文本比对工具 V3.0 - 响应式美化版</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --success-hover: #059669;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --border: #e5e7eb;
+            --del-bg: #fee2e2;
+            --del-text: #b91c1c;
+            --ins-bg: #d1fae5;
+            --ins-text: #047857;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 头部样式 */
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h2 { font-size: 1.8rem; margin-bottom: 8px; color: #111827; }
+        p.subtitle { color: var(--text-sub); font-size: 0.95rem; }
+
+        /* 编辑区域布局 */
+        .editor-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 默认双栏 */
+            gap: 20px;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        /* 输入框美化 */
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #f9fafb;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            background-color: #fff;
+        }
+
+        /* 按钮组 */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            position: sticky;
+            top: 10px;
+            z-index: 10;
+            background: rgba(243, 244, 246, 0.9); /* 半透明背景防止遮挡时看不清 */
+            padding: 10px 0;
+            backdrop-filter: blur(5px);
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px; /* 胶囊按钮 */
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button:active { transform: translateY(1px); }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3); }
+
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: var(--success-hover); box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3); }
+
+        /* 结果区域 */
+        #result-container { margin-top: 10px; }
+        #result {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 150px;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        /* 差异高亮样式 */
+        del {
+            background-color: var(--del-bg);
+            color: var(--del-text);
+            text-decoration: line-through;
+            padding: 1px 2px;
+            border-radius: 2px;
+        }
+        ins {
+            background-color: var(--ins-bg);
+            color: var(--ins-text);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 1px 2px;
+            border-radius: 2px;
+            border-bottom: 2px solid var(--ins-text);
+        }
+
+        /* --- 移动端适配核心代码 --- */
+        @media (max-width: 768px) {
+            .editor-group {
+                grid-template-columns: 1fr; /* 变为单栏 */
+                gap: 15px;
+            }
+            
+            textarea {
+                height: 200px; /* 手机上减小高度，避免滚屏太累 */
+            }
+
+            .button-group {
+                flex-direction: column; /* 按钮垂直排列 */
+                width: 100%;
+                gap: 10px;
+            }
+
+            button {
+                width: 100%; /* 按钮全宽 */
+                justify-content: center;
+                padding: 14px;
+            }
+            
+            h2 { font-size: 1.5rem; }
+            .container { padding: 0 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2>⚖️ 文本比对工具</h2>
+        <p class="subtitle">支持手机操作 • 自动保存 • Word导出</p>
+    </header>
+    
+    <div class="editor-group">
+        <div class="card">
+            <label>📝 原始文本 (版本 A)</label>
+            <textarea id="textA" placeholder="在此粘贴原始内容..."></textarea>
+        </div>
+        <div class="card">
+            <label>📝 修改后文本 (版本 B)</label>
+            <textarea id="textB" placeholder="在此粘贴修改后内容..."></textarea>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="btn-primary" onclick="compareText()">🔍 立即比对差异</button>
+        <button class="btn-success" onclick="exportToWord()">📥 导出比对结果</button>
+    </div>
+
+    <div class="card" id="result-container">
+        <label>📊 比对结果预览</label>
+        <div id="result">
+            <span style="color: #9ca3af; font-style: italic;">点击“立即比对”查看结果...</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 自动加载历史记录
+    window.onload = () => {
+        document.getElementById('textA').value = localStorage.getItem('legal_text_a') || '';
+        document.getElementById('textB').value = localStorage.getItem('legal_text_b') || '';
+    };
+
+    function compareText() {
+        const a = document.getElementById('textA').value;
+        const b = document.getElementById('textB').value;
+        
+        // 保存到本地存储
+        localStorage.setItem('legal_text_a', a);
+        localStorage.setItem('legal_text_b', b);
+
+        if(!a && !b) {
+            alert("请至少输入一些文本内容。");
+            return;
+        }
+
+        // 使用字符级比对
+        const diff = Diff.diffChars(a, b);
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '';
+
+        const fragment = document.createDocumentFragment();
+
+        diff.forEach((part) => {
+            const tagName = part.added ? 'ins' : part.removed ? 'del' : 'span';
+            const element = document.createElement(tagName);
+            element.textContent = part.value;
+            fragment.appendChild(element);
+        });
+        
+        resultDiv.appendChild(fragment);
+        
+        // 手机端优化：点击比对后自动滚动到结果区域
+        if(window.innerWidth < 768) {
+            document.getElementById('result-container').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function exportToWord() {
+        const resultDiv = document.getElementById('result');
+        let contentHtml = resultDiv.innerHTML;
+
+        // 简单的检查
+        if (!contentHtml || contentHtml.includes("点击“立即比对”查看结果")) {
+            alert("请先进行比对！");
+            return;
+        }
+
+        // 处理换行符，确保 Word 中显示正确
+        contentHtml = contentHtml.replace(/\n/g, '<br/>');
+
+        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                        <head><meta charset='utf-8'><style>
+                        body { font-family: 'SimSun', serif; font-size: 12pt; line-height: 150%; }
+                        del { background-color: #fee2e2; color: #b91c1c; text-decoration: line-through; }
+                        ins { background-color: #d1fae5; color: #047857; font-weight: bold; text-decoration: none; border-bottom: 1px solid #047857; }
+                        h3 { text-align: center; color: #333; }
+                        .footer { font-size: 10pt; color: #666; text-align: right; margin-top: 20px; }
+                        </style></head><body>`;
+        
+        const footerInfo = `<div class='footer'>导出时间：${new Date().toLocaleString()}</div>`;
+        const footer = `${footerInfo}</body></html>`;
+        
+        const finalHtml = header + "<h3>文本比对记录</h3><hr/>" + contentHtml + footer;
+        
+        const blob = new Blob([finalHtml], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `比对结果_${getTimestamp()}.doc`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function getTimestamp() {
+        const now = new Date();
+        return `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+    }
+</script>
+
+</body>
+</html>
