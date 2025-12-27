@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DeepSeek Writer - Pro V15</title>
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --card: #ffffff;
+            --text: #1d1d1f;
+            --text-sub: #86868b;
+            --accent: #0071e3; /* 经典蓝，用于按钮 */
+            --danger: #ff3b30;
+            --success: #34c759;
+            --border: #d2d2d7;
+            --wiki-bg: #f2faff;
+            --fact-bg: #fffcf0; /* 事实档案微黄背景，做区分 */
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            margin: 0; padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            background: var(--bg); color: var(--text);
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* 顶部导航 */
+        #mobile-tabs {
+            display: none; background: var(--card);
+            border-bottom: 1px solid var(--border);
+            justify-content: space-around; padding: 8px 0;
+            flex-shrink: 0; z-index: 1000;
+        }
+        .tab-item { font-size: 14px; font-weight: 600; color: var(--text-sub); padding: 6px 16px; border-radius: 20px; transition: 0.2s; }
+        .tab-item.active { color: #fff; background: var(--accent); }
+
+        /* 布局容器 */
+        #layout-wrapper { display: flex; flex: 1; overflow: hidden; height: 100%; }
+
+        /* 通用面板 */
+        .panel { display: flex; flex-direction: column; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        #static-sidebar { width: 300px; background: #fbfbfd; border-right: 1px solid var(--border); }
+        #dynamic-sidebar { width: 340px; background: #fbfbfd; border-left: 1px solid var(--border); }
+        
+        /* 主创作区 */
+        #main-container { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; position: relative; }
+
+        #editor-wrapper { 
+            height: 16%; min-height: 150px;
+            display: flex; flex-direction: column; 
+            border-bottom: 1px solid var(--border); 
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 10; flex-shrink: 0;
+        }
+        #novel-content { flex: 1; padding: 20px; border: none; font-size: 14px; line-height: 1.2; outline: none; resize: none; background: transparent; }
+
+        #history-wrapper { flex: 1; padding: 20px; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; background: #f5f5f7; }
+
+        #control-bar { 
+            padding: 12px 15px; display: flex; gap: 10px; align-items: center; 
+            background: var(--card); border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        /* UI 组件 */
+        h3 { font-size: 11px; font-weight: 700; color: var(--text-sub); margin: 0 0 10px 0; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+        label { display: block; font-size: 13px; font-weight: 600; margin: 15px 0 5px 0; color: #333; }
+        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; color: white; margin-left: 5px; background: #999; }
+        .tips { font-size: 10px; color: #86868b; margin-bottom: 4px; line-height: 1.4; }
+        
+        textarea, input, select { 
+            width: 100%; border: 1px solid var(--border); border-radius: 8px; 
+            padding: 10px; font-size: 14px; background: var(--card); 
+            transition: border 0.2s; font-family: inherit;
+        }
+        textarea:focus, input:focus, select:focus { border-color: var(--accent); outline: none; }
+        
+        /* 特殊输入框样式 */
+        .input-wiki { background-color: var(--wiki-bg) !important; border-color: #bce3ff; color: #004085; font-size: 13px; font-family: "Menlo", monospace; }
+        .input-fact { background-color: var(--fact-bg) !important; }
+        .input-must { background-color: #fff1f0 !important; border-color: #ffbaba; }
+
+        /* 按钮 */
+        .btn { padding: 0 16px; height: 42px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; transition: opacity 0.2s; }
+        .btn:active { opacity: 0.7; }
+        .btn-primary { background: var(--accent); color: white; }
+        /* 修复：使用强制深色背景，确保可见性 */
+        .btn-update { background: #0071e3 !important; color: white !important; width: 100%; margin-bottom: 15px; padding: 12px; height: auto; box-shadow: 0 2px 5px rgba(0,113,227,0.2); }
+        .btn-outline { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+        .btn-sm { height: 32px; font-size: 12px; padding: 0 10px; }
+        .btn-stop { background: var(--danger); color: white; }
+
+        /* 卡片 */
+        .history-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.05); }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
+        .history-body { font-size: 16px; line-height: 1.6; white-space: pre-wrap; transition: max-height 0.3s ease; overflow: hidden; }
+        .collapsed .history-body { max-height: 80px; mask-image: linear-gradient(to bottom, black 50%, transparent 100%); }
+        .serial-number { color: var(--danger); font-size: 24px; font-weight: 800; display: inline-block; margin-right: 8px; }
+
+        /* 统计栏 */
+        .stats-bar { margin-top: 15px; padding: 12px; background: #fff; border: 1px solid #ddd; border-radius: 10px; font-size: 12px; color: #666; display: flex; justify-content: space-between; }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            #mobile-tabs { display: flex; }
+            #layout-wrapper { flex-direction: column; }
+            .panel, #main-container { display: none; width: 100% !important; height: 100%; }
+            .active-panel { display: flex !important; }
+            #editor-wrapper { height: 16%; margin: 0; }
+            #history-wrapper { padding: 15px; background: #f2f2f7; }
+            #control-bar { padding: 10px 15px 25px 15px; } 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="mobile-tabs">
+        <div class="tab-item" onclick="switchTab('static-sidebar', this)">设定</div>
+        <div class="tab-item active" onclick="switchTab('main-container', this)">创作</div>
+        <div class="tab-item" onclick="switchTab('dynamic-sidebar', this)">导演</div>
+    </div>
+
+    <div id="layout-wrapper">
+        
+        <div class="panel" id="static-sidebar">
+            <span class="badge" style="background:#86868b; align-self: flex-start; margin-bottom:10px;">Static Settings</span>
+            
+            <label>API Key</label>
+            <input type="password" id="apiKey" placeholder="sk-...">
+            <label>小说名字</label>
+            <input type="text" id="novel-title" value="请输入小说名">
+
+            <hr style="width:100%; border:0; border-top:1px solid #e5e5e5; margin:15px 0;">
+
+            <label>📘 智能知识库 (Auto-Wiki)</label>
+            <div class="tips">* AI 自动提取新的人/物/伏笔，保持连贯性。</div>
+            <textarea id="entityMemory" rows="8" class="input-wiki" placeholder="[物品] 玉佩：白玉莲花..."></textarea>
+            
+            <label>🌍 世界观 (Worldview)</label>
+            <textarea id="worldView" rows="4" placeholder="物理规则、地理环境、力量体系..."></textarea>
+            
+            <label>👤 核心角色档案 (Bible)</label>
+            <textarea id="characterBible" rows="5" placeholder="姓名、核心性格、绝对不能崩的人设..."></textarea>
+            
+            <label>🎨 文学风格 (Style)</label>
+            <textarea id="styleRef" rows="2">例如：权谋，冷峻，节奏紧凑。</textarea>
+            
+            <label>🚫 避坑指令 (Negative)</label>
+            <textarea id="negativePrompt" rows="2">例如：少写“眼神一冷”；拒绝流水账。</textarea>
+        </div>
+
+        <div id="main-container" class="active-panel">
+            <div id="editor-wrapper">
+                <div style="padding: 10px 20px 0; font-size: 12px; font-weight: 700; color: #86868b; display:flex; justify-content:space-between;">
+                    <span>接力起点</span>
+                    <span id="editor-count">0 字</span>
+                </div>
+                <textarea id="novel-content" placeholder="在此粘贴上一段结尾..."></textarea>
+            </div>
+            
+            <div id="history-wrapper">
+                <div id="history-list"></div>
+            </div>
+
+            <div id="control-bar">
+                <input type="text" id="prompt-input" placeholder="输入你的要求，例如“续写”、字数等...">
+                <button id="btn-gen" class="btn btn-primary" onclick="generate()">🎬 开搞</button>
+                <button id="btn-stop" class="btn btn-stop" style="display:none;" onclick="stop()">⏹ 停止</button>
+            </div>
+        </div>
+
+        <div class="panel" id="dynamic-sidebar">
+            <button class="btn btn-update" onclick="smartUpdateMemory()">
+                <span>🔄 智能代谢 (记忆+知识库)</span>
+            </button>
+            
+            <label>① 事实档案 (Facts)</label>
+            <div class="tips">* 记录不可逆的物理改变或重大转折（如角色死亡、城池陷落）。</div>
+            <textarea id="statusTracker" rows="4" class="input-fact" placeholder="已发生的事实..."></textarea>
+            
+            <label>② 前情提要 (Summary)</label>
+            <textarea id="contextSummary" rows="4" placeholder="AI 生成的剧情浓缩快照..."></textarea>
+            
+            <hr style="width:100%; border:0; border-top:1px solid #e5e5e5; margin:15px 0;">
+            
+            <label style="color: var(--accent);">③ 本段目标 (Goal)</label>
+            <textarea id="sceneGoal" rows="2" placeholder="这一场戏的核心冲突是什么？"></textarea>
+            
+            <label style="color: var(--danger);">④ 必须提及 (Must Include)</label>
+            <textarea id="mustInclude" rows="2" class="input-must" placeholder="关键道具、伏笔..."></textarea>
+            
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1">
+                    <label>⑤ 节奏</label>
+                    <select id="rhythmControl">
+                        <option value="正常">正常推进</option>
+                        <option value="慢：环境/心理">慢：环境/心理</option>
+                        <option value="快：动作/对话">快：动作/对话</option>
+                    </select>
+                </div>
+                <div style="flex:1">
+                    <label>篇幅</label>
+                    <select id="lengthMode">
+                        <option value="standard">标准</option>
+                        <option value="long">沉浸扩写</option>
+                        <option value="short">短小过渡</option>
+                    </select>
+                </div>
+            </div>
+
+            <label>⑥ 叙事视角 (POV)</label>
+            <select id="pov">
+                <option value="第三人称限知视角">第三人称限知视角</option>
+                <option value="第一人称">第一人称</option>
+                <option value="上帝视角">上帝视角</option>
+            </select>
+            
+            <div class="stats-bar">
+                <span>总字数: <b id="total-words">0</b></span>
+                <span>场次: <b id="ver-count">0</b></span>
+            </div>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px; font-size:12px;" onclick="downloadFullDraft()">📥 导出全本</button>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(panelId, tabEl) {
+            document.querySelectorAll('.panel, #main-container').forEach(p => p.classList.remove('active-panel'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active-panel');
+            tabEl.classList.add('active');
+        }
+
+        let controller;
+        let genCount = 0;
+        const storageKey = 'deepseek_pro_v15';
+
+        function buildPrompt() {
+            const rhythm = document.getElementById('rhythmControl').value;
+            const lengthMode = document.getElementById('lengthMode').value;
+            const pov = document.getElementById('pov').value;
+            
+            let lengthInstruction = "";
+            if(lengthMode === 'long') lengthInstruction = "请深度扩写，丰富细节，篇幅1000字以上。";
+            if(lengthMode === 'short') lengthInstruction = "请快速推进，篇幅300字左右。";
+
+            return `你是一位殿堂级小说家。
+【静态框架 (Static)】
+- 世界观：${document.getElementById('worldView').value}
+- 角色档案：${document.getElementById('characterBible').value}
+
+【动态知识库 (Auto-Wiki)】
+${document.getElementById('entityMemory').value || "暂无记录"}
+
+【避坑指南】
+${document.getElementById('negativePrompt').value}
+
+【剧情状态】
+- 摘要：${document.getElementById('contextSummary').value}
+- 事实：${document.getElementById('statusTracker').value}
+
+【本场指令】
+- 目标：${document.getElementById('sceneGoal').value}
+- 必须包含：${document.getElementById('mustInclude').value}
+- 视角：${pov}
+- 节奏：${rhythm}
+- 要求：${lengthInstruction}
+- 风格：${document.getElementById('styleRef').value}
+
+请依据设定保持前后一致。直接续写正文。`;
+        }
+
+        async function generate() {
+            const apiKey = document.getElementById('apiKey').value;
+            if (!apiKey) return alert("请先填写 API Key");
+            toggleUI(true);
+            controller = new AbortController();
+            const editor = document.getElementById('novel-content');
+            genCount++;
+            
+            const cardId = `card-${Date.now()}`;
+            const card = createHistoryCard(cardId, genCount);
+            document.getElementById('history-list').prepend(card);
+            
+            const cardBody = card.querySelector('.history-body');
+            cardBody.innerHTML = `<span class="serial-number">#${genCount}</span>`;
+            const textContent = document.createElement('span');
+            cardBody.appendChild(textContent);
+
+            try {
+                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                    signal: controller.signal,
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [
+                            { role: "system", content: buildPrompt() },
+                            { role: "user", content: `起点：\n${editor.value}\n指令：${document.getElementById('prompt-input').value}` }
+                        ],
+                        stream: true
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                            const data = JSON.parse(line.slice(6));
+                            textContent.innerText += data.choices[0].delta.content || "";
+                        }
+                    }
+                }
+            } catch (e) { if(e.name !== 'AbortError') alert(e.message); }
+            finally { 
+                updateCardWordCount(card); 
+                toggleUI(false); 
+                save(); 
+            }
+        }
+
+        async function smartUpdateMemory() {
+            const apiKey = document.getElementById('apiKey').value;
+            const historyList = document.getElementById('history-list');
+            if(historyList.children.length === 0) return alert("暂无内容可同步。");
+            
+            const btn = document.querySelector('.btn-update');
+            const originalText = btn.innerText;
+            btn.innerText = "🧠 正在更新知识库...";
+            btn.disabled = true;
+
+            const latestText = historyList.children[0].querySelector('.history-body').innerText;
+            
+            try {
+                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [{
+                            role: "system", 
+                            content: `分析最新小说段落：
+1. **更新Wiki**：提取新出现的关键人物特征、物品、伏笔。保留旧的重要条目，合并新条目。
+2. **更新摘要**：概括剧情。
+3. **更新事实**：记录不可逆改变（如死亡、毁灭）。
+返回JSON：{ "wiki": "...", "summary": "...", "facts": "..." }`
+                        }, {
+                            role: "user", 
+                            content: `旧Wiki: ${document.getElementById('entityMemory').value}\n旧摘要: ${document.getElementById('contextSummary').value}\n旧事实: ${document.getElementById('statusTracker').value}\n新剧情: ${latestText}`
+                        }],
+                        response_format: { type: 'json_object' }
+                    })
+                });
+                
+                const data = await response.json();
+                const res = JSON.parse(data.choices[0].message.content);
+                document.getElementById('entityMemory').value = res.wiki;
+                document.getElementById('contextSummary').value = res.summary;
+                document.getElementById('statusTracker').value = res.facts;
+                save();
+                alert("记忆同步完成！");
+            } catch (e) { alert("同步失败: " + e.message); } 
+            finally { btn.innerText = originalText; btn.disabled = false; }
+        }
+
+        function createHistoryCard(id, count, content = "") {
+            const time = new Date().toLocaleString('zh-CN', { hour12: false });
+            const div = document.createElement('div');
+            div.className = 'history-card';
+            div.id = id;
+            div.innerHTML = `
+                <div class="history-header">
+                    <div><span style="font-weight:700">场次 ${count}</span><span style="color:#999;font-size:10px;margin-left:5px">${time}</span></div>
+                    <div>
+                        <span style="font-size:11px;color:#86868b;margin-right:5px">字数:<span class="w-count">0</span></span>
+                        <button class="btn btn-outline btn-sm" onclick="toggleCard('${id}')">折叠</button>
+                    </div>
+                </div>
+                <div class="history-body" contenteditable="true">${content}</div>
+                <div style="margin-top:10px;display:flex;gap:5px;border-top:1px dashed #eee;padding-top:10px">
+                    <button class="btn btn-outline btn-sm" style="flex:1" onclick="downloadOne('${id}', ${count})">📥 导出</button>
+                    <button class="btn btn-outline btn-sm" style="flex:1" onclick="setAsBase('${id}')">🔝 设为起点</button>
+                    <button class="btn btn-outline btn-sm" style="color:#ff3b30" onclick="if(confirm('删除?')) {this.closest('.history-card').remove(); updateCounts(); save();}">🗑</button>
+                </div>
+            `;
+            if(content) setTimeout(() => updateCardWordCount(div), 0);
+            return div;
+        }
+
+        function toggleCard(id) {
+            const card = document.getElementById(id);
+            const btn = card.querySelector('button[onclick^="toggleCard"]');
+            card.classList.toggle('collapsed');
+            btn.innerText = card.classList.contains('collapsed') ? '展开' : '折叠';
+        }
+
+        function setAsBase(id) {
+            const text = document.getElementById(id).querySelector('.history-body').innerText.replace(/^#\d+\s*/, '');
+            document.getElementById('novel-content').value = text;
+            document.getElementById('editor-count').innerText = text.length + " 字";
+            switchTab('main-container', document.querySelectorAll('.tab-item')[1]);
+        }
+
+        function downloadFullDraft() {
+            let fullText = `《${document.getElementById('novel-title').value}》\n\n`;
+            // 倒序遍历，因为prepend是倒插的，dom顺序是新->旧，导出需要旧->新
+            const cards = Array.from(document.querySelectorAll('.history-body')).reverse();
+            cards.forEach(el => fullText += el.innerText + "\n\n");
+            saveFile(`全稿_${Date.now()}.txt`, fullText);
+        }
+
+        function downloadOne(id, c) {
+            const text = document.getElementById(id).querySelector('.history-body').innerText;
+            const title = document.getElementById('novel-title').value;
+            saveFile(`${title}_场次${c}.txt`, text);
+        }
+
+        function saveFile(name, text) {
+            const blob = new Blob([text], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = name;
+            a.click();
+        }
+
+        function updateCardWordCount(card) {
+            const text = card.querySelector('.history-body').innerText;
+            card.querySelector('.w-count').innerText = text.length;
+            updateCounts();
+        }
+
+        function updateCounts() {
+            let total = 0;
+            document.querySelectorAll('.history-body').forEach(el => total += el.innerText.length);
+            document.getElementById('total-words').innerText = total;
+            document.getElementById('ver-count').innerText = document.querySelectorAll('.history-body').length;
+        }
+
+        function toggleUI(l) {
+            document.getElementById('btn-gen').style.display = l ? 'none' : 'inline-flex';
+            document.getElementById('btn-stop').style.display = l ? 'inline-flex' : 'none';
+        }
+        function stop() { if(controller) controller.abort(); }
+
+        function save() {
+            const d = { config: {}, history: [] };
+            document.querySelectorAll('input, textarea, select').forEach(el => { if(el.id) d.config[el.id] = el.value; });
+            document.querySelectorAll('.history-body').forEach(el => d.history.push(el.innerText));
+            d.config.genCount = genCount;
+            localStorage.setItem(storageKey, JSON.stringify(d));
+        }
+
+        window.onload = () => {
+            const s = localStorage.getItem(storageKey);
+            if(s) {
+                const d = JSON.parse(s);
+                Object.keys(d.config).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = d.config[id]; });
+                genCount = d.config.genCount || 0;
+                d.history.reverse().forEach((txt, i) => {
+                    document.getElementById('history-list').prepend(createHistoryCard(`old-${i}`, d.history.length - i, txt));
+                });
+            }
+            updateCounts();
+            document.getElementById('editor-count').innerText = document.getElementById('novel-content').value.length + " 字";
+            document.getElementById('novel-content').addEventListener('input', function() {
+                document.getElementById('editor-count').innerText = this.value.length + " 字";
+                save();
+            });
+        };
+        document.addEventListener('input', save);
+    </script>
+</body>
+</html>
