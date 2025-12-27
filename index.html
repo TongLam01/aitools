@@ -3,258 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字生成图片 v1.0</title>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="https://npm.elemecdn.com/lxgw-wenkai-screen-webfont/style.css" />
+    <title>AI工具箱</title>
     <style>
         :root {
-            --bg-app: #f2f2f7;
-            --accent-main: #1c1c1e;
-        }
-
-        /* --- 风格定义 --- */
-        .style-modern {
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-p: #2c2c2e;
-            --text-s: rgba(122, 134, 138, 0.7);
-            --quote-c: rgba(0,0,0,0.05);
-            --line-c: #e5e5ea;
+            --text-color: #1e293b;
         }
-
-        .style-classic {
-            --card-bg: #fdfaf5; 
-            --card-bg-img: linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(253,250,245,0.6)), url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c0-1.105.895-2 2-2s2 .895 2 2-.895 2-2 2-2-.895-2-2z' fill='%23d4c5b4' fill-opacity='0.15'/%3E%3C/svg%3E");
-            --text-p: #483d33;
-            --text-s: rgba(166, 147, 130, 0.7);
-            --quote-c: rgba(212, 197, 180, 0.35);
-            --line-c: #d4c5b4;
-        }
-
-        .style-dark {
-            --card-bg: #1c1c1e;
-            --text-p: #f2f2f7;
-            --text-s: rgba(99, 99, 102, 0.7);
-            --quote-c: rgba(255,255,255,0.03);
-            --line-c: #3a3a3c;
-        }
-
-        /* --- 字体系列 --- */
-        .font-sans { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
-        .font-serif { font-family: "Georgia", "Source Serif Pro", "Songti SC", "SimSun", serif; }
-        .font-lxgw { font-family: "LXGW WenKai Screen", sans-serif; }
-
         body {
-            font-family: -apple-system, sans-serif;
-            background-color: var(--bg-app);
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            margin-top: 50px;
+            text-align: center;
+            padding: 0 20px;
+        }
+        h1 { font-size: 2rem; margin-bottom: 10px; color: #0f172a; }
+        p { color: #64748b; margin-bottom: 40px; }
+
+        /* 工具卡片容器 */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1000px;
+            padding-bottom: 50px;
         }
 
-        /* --- 控制面板 --- */
-        .panel {
-            width: 100%; max-width: 420px;
-            background: white; padding: 24px; border-radius: 24px;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.06); margin-bottom: 30px;
+        /* 卡片样式 */
+        .tool-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+        .tool-icon {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        .tool-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+        .tool-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.5;
         }
 
-        textarea {
-            width: 100%; height: 90px; padding: 14px; border: 1px solid #eee;
-            border-radius: 12px; margin-bottom: 16px; box-sizing: border-box;
-            font-size: 15px; line-height: 1.5; outline: none; transition: 0.3s;
+        /* 移动端优化 */
+        @media (max-width: 640px) {
+            .container { grid-template-columns: 1fr; }
         }
-
-        .control-row {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .label-text { font-size: 12px; color: #8e8e93; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        /* 输入框样式优化 */
-        .brand-input {
-            width: 180px; padding: 6px 10px; border: 1px solid #f2f2f7;
-            border-radius: 8px; font-size: 13px; background: #f2f2f7;
-            outline: none; transition: 0.3s; text-align: right;
-        }
-        .brand-input:focus { background: #fff; border-color: #007aff; }
-
-        .tabs {
-            display: flex; gap: 4px; background: #f2f2f7; padding: 3px; border-radius: 8px;
-        }
-        .tab {
-            padding: 4px 10px; border: none; background: none; border-radius: 6px;
-            font-size: 12px; cursor: pointer; transition: 0.2s; color: #666;
-        }
-        .tab.active { background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-weight: 600; color: #000; }
-
-        /* --- 预览区域 --- */
-        #capture-area {
-            width: 375px; min-height: 520px;
-            background-color: var(--card-bg);
-            background-image: var(--card-bg-img, none);
-            padding: 20px; box-sizing: border-box;
-            display: flex; transition: 0.4s ease;
-        }
-
-        .frame {
-            flex: 1; display: flex; flex-direction: column;
-            padding: 45px 32px 32px 32px; position: relative;
-            border: 1px solid transparent; transition: border 0.3s ease;
-        }
-
-        .has-border .frame { border-color: var(--line-c); }
-
-        .quote {
-            position: absolute; top: 20px; left: 20px;
-            font-size: 110px; font-family: "Georgia", serif;
-            color: var(--quote-c); line-height: 1; z-index: 1;
-        }
-
-        .main-text {
-            font-size: 17px; line-height: 1.85; text-align: justify;
-            color: var(--text-p); white-space: pre-wrap; z-index: 2;
-            flex-grow: 1; margin-top: 45px;
-        }
-
-        .meta { margin-top: 50px; display: flex; justify-content: space-between; align-items: center; z-index: 2; }
-
-        .date-style {
-            font-family: "Georgia", serif; font-style: italic;
-            font-size: 15px; color: var(--text-s); font-weight: 200;
-        }
-
-        .brand-style { 
-            font-size: 12px; color: var(--text-s); letter-spacing: 2px; 
-            text-transform: uppercase; font-family: -apple-system, sans-serif;font-style: italic;
-        }
-
-        .save-btn {
-            width: 100%; padding: 15px; background: var(--accent-main);
-            color: white; border: none; border-radius: 14px;
-            font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 10px;
-        }
-
-        /* 简易开关 */
-        .toggle { position: relative; display: inline-block; width: 36px; height: 20px; }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #e5e5ea; transition: .3s; border-radius: 20px;
-        }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: #34c759; }
-        input:checked + .slider:before { transform: translateX(16px); }
     </style>
 </head>
 <body>
 
-    <div class="panel">
-        <textarea id="input">请在这里粘贴或输入文本</textarea>
-        
-        <div class="control-row">
-            <span class="label-text">Signature / 自定义落款</span>
-            <input type="text" id="brandInput" class="brand-input" placeholder="输入落款..." value="Reading Moment">
+    <header>
+        <h1>免费AI工具箱</h1>
+        <p>用AI制作的一些提升效率的小工具</p>
+    </header>
+
+    <div class="container">
+        <a href="wentu.html" class="tool-card">
+            <div class="tool-icon">📜</div>
+            <div class="tool-name">文字转图片</div>
+            <div class="tool-desc">简洁、美观，支持自定义署名。</div>
+        </a>
+
+        <a href="xiexiaoshuo.html" class="tool-card">
+            <div class="tool-icon">📝</div>
+            <div class="tool-name">小说创作器</div>
+            <div class="tool-desc">填入DeepSeek的API Key后，开始创作。</div>
+        </a>
+
+        <a href="tool3.html" class="tool-card">
+            <div class="tool-icon">🕒</div>
+            <div class="tool-name">暂时没有</div>
+            <div class="tool-desc">有空继续搞搞。</div>
+        </a>
+
         </div>
 
-        <div class="control-row">
-            <span class="label-text">Style / 视觉风格</span>
-            <div class="tabs" id="styleTabs">
-                <button class="tab active" onclick="updateStyle('style-modern', this)">现代</button>
-                <button class="tab" onclick="updateStyle('style-classic', this)">经典</button>
-                <button class="tab" onclick="updateStyle('style-dark', this)">深色</button>
-            </div>
-        </div>
-
-        <div class="control-row">
-            <span class="label-text">Font / 字体选择</span>
-            <div class="tabs" id="fontTabs">
-                <button class="tab active" onclick="updateFont('font-sans', this)">黑体</button>
-                <button class="tab" onclick="updateFont('font-serif', this)">宋体</button>
-                <button class="tab" onclick="updateFont('font-lxgw', this)">文楷</button>
-            </div>
-        </div>
-
-        <div class="control-row">
-            <span class="label-text">Border / 艺术边框</span>
-            <label class="toggle">
-                <input type="checkbox" id="borderToggle" onchange="updateBorder()" checked>
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <button class="save-btn" onclick="exportImage()">生成并保存图片</button>
-    </div>
-
-    <div id="capture-area" class="style-modern has-border">
-        <div class="frame">
-            <div class="quote">“</div>
-            <div class="main-text font-sans" id="output-text">我们曾如此渴望命运的波澜，到最后才发现：人生最曼妙的风景，竟是内心的淡定与从容。——杨绛</div>
-            <div class="meta">
-                <span id="date" class="date-style">2025 / 12 / 26</span>
-                <span id="brand-display" class="brand-style">Reading Moment</span>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const area = document.getElementById('capture-area');
-        const output = document.getElementById('output-text');
-        const input = document.getElementById('input');
-        const brandInput = document.getElementById('brandInput');
-        const brandDisplay = document.getElementById('brand-display');
-
-        // 文字同步逻辑
-        input.addEventListener('input', () => { output.innerText = input.value || " "; });
-        
-        // 【新增：落款同步逻辑】
-        brandInput.addEventListener('input', () => { 
-            brandDisplay.innerText = brandInput.value || " "; 
-        });
-
-        function updateStyle(styleName, el) {
-            const hasBorder = area.classList.contains('has-border');
-            area.className = styleName + (hasBorder ? ' has-border' : '');
-            document.querySelectorAll('#styleTabs .tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        function updateFont(fontClass, el) {
-            output.classList.remove('font-sans', 'font-serif', 'font-lxgw');
-            output.classList.add(fontClass);
-            document.querySelectorAll('#fontTabs .tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        function updateBorder() {
-            if(document.getElementById('borderToggle').checked) {
-                area.classList.add('has-border');
-            } else {
-                area.classList.remove('has-border');
-            }
-        }
-
-        const d = new Date();
-        document.getElementById('date').innerText = `${d.getFullYear()} / ${String(d.getMonth()+1).padStart(2,'0')} / ${String(d.getDate()).padStart(2,'0')}`;
-
-        async function exportImage() {
-            const btn = document.querySelector('.save-btn');
-            btn.innerText = "正在精心排版...";
-            try {
-                const canvas = await html2canvas(area, {
-                    scale: 3,
-                    backgroundColor: getComputedStyle(area).backgroundColor,
-                    useCORS: true
-                });
-                const link = document.createElement('a');
-                link.download = `Quote_Card_${Date.now()}.png`;
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-            } catch (e) {
-                alert("生成失败，请刷新重试");
-            } finally {
-                btn.innerText = "生成并保存图片";
-            }
-        }
-    </script>
 </body>
 </html>
