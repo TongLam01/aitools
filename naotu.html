@@ -48,7 +48,7 @@
 
         /* 3. 树形结构核心 - 显式增加底部留白 */
         #tree-root { 
-            padding: 60px 60px 160px 60px; /* 特别增加了底部留白(160px) */
+            padding: 60px 60px 80px 60px; /* 特别增加了底部留白(80px) */
         }
         
         .tree ul { padding-top: 25px; position: relative; display: flex; padding-left: 0; margin: 0; }
@@ -295,7 +295,7 @@
         html2canvas(target, {
             scale: 2, 
             backgroundColor: '#f1f5f9',
-            // 注意：我们已经在 CSS 的 #tree-root 里设置了 padding-bottom: 160px
+            // 注意：我们已经在 CSS 的 #tree-root 里设置了 padding-bottom: 80px
             // 插件会自动捕捉这个内边距，确保导出的图片自带大留白
         }).then(canvas => {
             document.getElementById('preview-img').src = canvas.toDataURL("image/png");
