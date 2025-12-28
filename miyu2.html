@@ -8,25 +8,47 @@
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --primary: #07c160; --bg: #f2f2f2; } /* 采用微信绿配色 */
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        :root { --primary: #07c160; --bg: #f7f7f7; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 500px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         h1 { font-size: 1.2rem; text-align: center; color: var(--primary); margin-bottom: 20px; }
-        textarea, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; }
-        textarea { height: 150px; background: #fafafa; }
+        
+        textarea, input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; outline: none; }
+        textarea { height: 160px; background: #fafafa; transition: border 0.3s; }
+        textarea:focus { border-color: var(--primary); }
+        
         button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
         
-        /* 结果展示区 */
-        #result-section { margin-top: 20px; display: none; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
-        .url-box { background: #f8f8f8; padding: 10px; font-size: 12px; word-break: break-all; border-radius: 4px; margin: 10px 0; color: #666; cursor: pointer; border: 1px solid #eee; }
-        #qrcode { display: inline-block; margin: 15px 0; padding: 10px; background: white; border: 1px solid #eee; }
-        .hint { font-size: 0.85rem; color: #888; margin-bottom: 10px; }
+        /* 结果展示区优化 */
+        #result-section { margin-top: 20px; display: none; text-align: center; border-top: 1px solid #f0f0f0; padding-top: 20px; animation: fadeIn 0.4s; }
+        
+        /* 二维码容器样式：增加点击反馈 */
+        #qrcode-container { 
+            display: inline-block; 
+            margin: 15px 0; 
+            padding: 12px; 
+            background: white; 
+            border: 1px solid #eee; 
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            position: relative;
+        }
+        #qrcode-container:active { transform: scale(0.95); box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        
+        .copy-badge { position: absolute; top: -10px; right: -10px; background: #ff5722; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
 
-        /* 阅读/解锁区 */
-        .article { white-space: pre-wrap; line-height: 1.6; font-size: 1.05rem; color: #333; margin-top: 20px; }
+        .hint { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
+        .url-box { background: #f8f8f8; padding: 10px; font-size: 11px; word-break: break-all; border-radius: 6px; margin: 10px 0; color: #666; border: 1px solid #eee; }
+
+        /* 内容展示区 */
+        .article { white-space: pre-wrap; line-height: 1.8; font-size: 1.05rem; color: #333; min-height: 100px; padding: 10px 0; }
         .hidden { display: none; }
-        #toast { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 20px; display: none; z-index: 1000; }
+        
+        #toast { position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 25px; display: none; z-index: 1000; font-size: 14px; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -34,30 +56,31 @@
 <div class="container">
     <div class="card">
         <div id="edit-ui">
-            <h1>✍️ 分享内容</h1>
-            <textarea id="text-input" placeholder="请输入文字内容..."></textarea>
+            <h1>✍️ 密语分享</h1>
+            <textarea id="text-input" placeholder="写下你的私密内容..."></textarea>
             <input type="password" id="password-input" placeholder="访问密码 (可选)">
-            <button onclick="generate()">生成分享链接/二维码</button>
+            <button onclick="generate()">生成分享链接</button>
 
             <div id="result-section">
-                <div class="hint">生成成功！请长按二维码发送给好友</div>
-                <div id="qrcode"></div>
-                <div class="hint">或者点击下方链接复制：</div>
-                <div id="url-text" class="url-box" onclick="copyText(this.innerText)"></div>
-                <p style="font-size: 11px; color: #999;">注：若微信屏蔽链接，请让对方手动复制链接到浏览器打开</p>
+                <div class="hint">👇 点击/识别二维码均可复制链接</div>
+                <div id="qrcode-container" onclick="copyCurrentUrl()">
+                    <span class="copy-badge">点击复制</span>
+                    <div id="qrcode"></div>
+                </div>
+                <div class="url-box" id="url-text" onclick="copyCurrentUrl()"></div>
             </div>
         </div>
 
         <div id="unlock-ui" class="hidden">
             <h1>🔒 加密内容</h1>
             <input type="password" id="decrypt-pwd" placeholder="请输入访问密码">
-            <button onclick="unlock()">解锁阅读</button>
+            <button onclick="unlock()">查看内容</button>
         </div>
 
         <div id="view-ui" class="hidden">
-            <div style="font-size: 0.8rem; color: #999; border-bottom: 1px solid #eee; padding-bottom: 5px;">📖 详情内容</div>
+            <div style="font-size: 0.8rem; color: #999; border-bottom: 1px solid #eee; margin-bottom: 15px; padding-bottom: 5px;">📜 正文内容</div>
             <div id="content-display" class="article"></div>
-            <button onclick="location.href=location.pathname" style="margin-top:30px; background: #999;">我也要写</button>
+            <button onclick="location.href=location.pathname" style="margin-top:30px; background: #888;">我也要写一条</button>
         </div>
     </div>
 </div>
@@ -67,35 +90,55 @@
 <script>
     const P_RAW = "r:";
     const P_ENC = "e:";
-    let qr = null;
+    let currentFullUrl = ""; // 全局存储当前生成的URL
 
+    // 生成逻辑
     function generate() {
         const text = document.getElementById('text-input').value.trim();
         const pwd = document.getElementById('password-input').value;
-        if (!text) return showToast("内容不能为空");
+        if (!text) return showToast("请输入内容");
 
-        // 1. 数据打包
+        // 编码压缩
         let data = pwd ? P_ENC + CryptoJS.AES.encrypt(text, pwd).toString() : P_RAW + text;
         const compressed = LZString.compressToEncodedURIComponent(data);
-        const fullUrl = window.location.origin + window.location.pathname + '#' + compressed;
+        currentFullUrl = window.location.origin + window.location.pathname + '#' + compressed;
 
-        // 2. 显示结果
+        // 更新UI
         document.getElementById('result-section').style.display = 'block';
-        document.getElementById('url-text').innerText = fullUrl;
+        document.getElementById('url-text').innerText = currentFullUrl;
 
-        // 3. 生成二维码
-        const qrContainer = document.getElementById('qrcode');
-        qrContainer.innerHTML = ''; // 清空旧码
-        qr = new QRCode(qrContainer, {
-            text: fullUrl,
-            width: 180,
-            height: 180,
-            correctLevel: QRCode.CorrectLevel.L // 容错率，L级支持更长字符串
+        // 生成二维码
+        const qrDiv = document.getElementById('qrcode');
+        qrDiv.innerHTML = ''; 
+        new QRCode(qrDiv, {
+            text: currentFullUrl,
+            width: 160,
+            height: 160,
+            correctLevel: QRCode.CorrectLevel.L
         });
 
-        copyText(fullUrl);
+        copyCurrentUrl(); // 生成后自动尝试复制一次
     }
 
+    // 复制逻辑（核心优化）
+    function copyCurrentUrl() {
+        if (!currentFullUrl) return;
+
+        // 兼容性复制方法
+        const textArea = document.createElement("textarea");
+        textArea.value = currentFullUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showToast("✅ 链接已成功复制");
+        } catch (err) {
+            showToast("复制失败，请手动选择复制");
+        }
+        document.body.removeChild(textArea);
+    }
+
+    // 初始化解析
     function init() {
         const hash = window.location.hash.substring(1);
         if (!hash) return;
@@ -107,19 +150,19 @@
             } else {
                 showSection('unlock');
             }
-        } catch (e) { showToast("解析失败，数据可能不完整"); }
+        } catch (e) { showToast("解析失败：链接可能已损坏"); }
     }
 
     function unlock() {
         const hash = window.location.hash.substring(1);
         const pwd = document.getElementById('decrypt-pwd').value;
         try {
-            const data = LZString.decompressFromEncodedURIComponent(hash).substring(2);
-            const bytes = CryptoJS.AES.decrypt(data, pwd);
-            const originalText = bytes.toString(CryptoJS.enc.Utf8);
-            if (!originalText) throw new Error();
-            render(originalText);
-        } catch (e) { showToast("密码错误"); }
+            const rawData = LZString.decompressFromEncodedURIComponent(hash).substring(2);
+            const bytes = CryptoJS.AES.decrypt(rawData, pwd);
+            const text = bytes.toString(CryptoJS.enc.Utf8);
+            if (!text) throw new Error();
+            render(text);
+        } catch (e) { showToast("密码不正确 ❌"); }
     }
 
     function render(text) {
@@ -130,16 +173,6 @@
     function showSection(id) {
         ['edit', 'unlock', 'view'].forEach(s => document.getElementById(s+'-ui').classList.add('hidden'));
         document.getElementById(id+'-ui').classList.remove('hidden');
-    }
-
-    function copyText(text) {
-        const el = document.createElement('textarea');
-        el.value = text;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        showToast("链接已自动复制");
     }
 
     function showToast(msg) {
