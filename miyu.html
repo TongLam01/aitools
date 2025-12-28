@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极简文本分享</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary-color: #3b82f6;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            margin-top: 40px;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center; color: var(--primary-color); }
+
+        textarea, input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea { height: 200px; resize: vertical; }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        /* 分享链接显示区 */
+        #link-output-wrapper {
+            margin-top: 25px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .copy-hint {
+            background: #eff6ff;
+            border: 1px dashed var(--primary-color);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            word-break: break-all;
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            text-align: center;
+            position: relative;
+        }
+
+        /* 阅读模式样式 */
+        .article-mode {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #374151;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .article-header {
+            border-bottom: 2px solid #f3f4f6;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .hidden { display: none; }
+
+        /* 提示弹窗 */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            display: none;
+            z-index: 100;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div id="edit-section">
+            <h1>✍️ 新建分享内容</h1>
+            <textarea id="text-input" placeholder="在此输入文字内容..."></textarea>
+            <input type="password" id="password-input" placeholder="访问密码 (可选，留空则不加密)">
+            <button onclick="generateLink()">生成并复制分享链接</button>
+            
+            <div id="link-output-wrapper">
+                <p style="font-size: 0.8rem; color: #6b7280; text-align: center;">链接已生成，点击下方框内区域可再次复制：</p>
+                <div class="copy-hint" id="share-url-display" onclick="copyToClipboard(this.innerText)"></div>
+            </div>
+        </div>
+
+        <div id="unlock-section" class="hidden">
+            <h1>🔒 加密内容</h1>
+            <p style="text-align: center; color: var(--text-muted);">此内容受密码保护，请输入密码访问</p>
+            <input type="password" id="decrypt-password" placeholder="请输入访问密码">
+            <button onclick="handleUnlock()">确认解锁</button>
+        </div>
+
+        <div id="view-section" class="hidden">
+            <div class="article-header">
+                <span>📖 详情阅读</span>
+                <span id="char-count"></span>
+            </div>
+            <div id="content-display" class="article-mode"></div>
+            <div style="margin-top: 40px; text-align: center;">
+                <button onclick="location.href = location.pathname" style="background: #94a3b8; max-width: 200px;">我也要写一条</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast">已成功复制到剪切板</div>
+
+<script>
+    const PREFIX_RAW = "v1_"; // 未加密前缀
+    const PREFIX_ENC = "e1_"; // 加密前缀
+
+    // --- 核心逻辑：生成链接 ---
+    function generateLink() {
+        const text = document.getElementById('text-input').value;
+        const pwd = document.getElementById('password-input').value;
+
+        if (!text.trim()) return showToast("请输入内容");
+
+        let finalString = "";
+        if (pwd) {
+            // 加密模式：前缀 + AES加密内容
+            const encrypted = CryptoJS.AES.encrypt(text, pwd).toString();
+            finalString = PREFIX_ENC + encrypted;
+        } else {
+            // 普通模式：前缀 + 原文
+            finalString = PREFIX_RAW + text;
+        }
+
+        const compressed = LZString.compressToEncodedURIComponent(finalString);
+        const shareUrl = window.location.origin + window.location.pathname + '#' + compressed;
+
+        // 显示并自动复制
+        const outputWrapper = document.getElementById('link-output-wrapper');
+        const displayDiv = document.getElementById('share-url-display');
+        
+        outputWrapper.style.display = 'block';
+        displayDiv.innerText = shareUrl;
+        
+        copyToClipboard(shareUrl);
+    }
+
+    // --- 核心逻辑：解码显示 ---
+    function init() {
+        const hash = window.location.hash.substring(1);
+        if (!hash) return;
+
+        try {
+            const decompressed = LZString.decompressFromEncodedURIComponent(hash);
+            if (!decompressed) throw new Error("无效数据");
+
+            if (decompressed.startsWith(PREFIX_ENC)) {
+                // 需要密码
+                showSection('unlock');
+            } else if (decompressed.startsWith(PREFIX_RAW)) {
+                // 直接展示
+                const content = decompressed.replace(PREFIX_RAW, "");
+                renderContent(content);
+            }
+        } catch (e) {
+            console.error(e);
+            showToast("链接解析失败或数据损坏");
+        }
+    }
+
+    function handleUnlock() {
+        const hash = window.location.hash.substring(1);
+        const pwd = document.getElementById('decrypt-password').value;
+        const decompressed = LZString.decompressFromEncodedURIComponent(hash);
+        const encryptedData = decompressed.replace(PREFIX_ENC, "");
+
+        try {
+            const bytes = CryptoJS.AES.decrypt(encryptedData, pwd);
+            const originalText = bytes.toString(CryptoJS.enc.Utf8);
+
+            if (!originalText) throw new Error();
+            renderContent(originalText);
+        } catch (e) {
+            showToast("密码错误，请重试");
+        }
+    }
+
+    // --- 辅助功能 ---
+
+    function renderContent(text) {
+        showSection('view');
+        document.getElementById('content-display').textContent = text;
+        document.getElementById('char-count').innerText = "字数: " + text.length;
+    }
+
+    function showSection(name) {
+        document.getElementById('edit-section').classList.add('hidden');
+        document.getElementById('unlock-section').classList.add('hidden');
+        document.getElementById('view-section').classList.add('hidden');
+        document.getElementById(name + '-section').classList.remove('hidden');
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast("链接已复制到剪切板！");
+        }).catch(err => {
+            // 兼容老旧浏览器
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showToast("链接已手动选中，请复制");
+        });
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
