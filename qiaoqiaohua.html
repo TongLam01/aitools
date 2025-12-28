@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>私密文本分享器 (AES加密版)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <style>
+        :root { --primary: #059669; --bg: #f0fdf4; }
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; background: var(--bg); color: #064e3b; }
+        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid #d1fae5; }
+        h2 { margin-top: 0; color: var(--primary); }
+        textarea, input { width: 100%; padding: 12px; border: 1px solid #a7f3d0; border-radius: 8px; margin-bottom: 1rem; box-sizing: border-box; font-size: 1rem; }
+        textarea { height: 150px; }
+        button { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; transition: background 0.2s; }
+        button:hover { background: #047857; }
+        #link-output { margin-top: 1.5rem; word-break: break-all; padding: 1rem; background: #ecfdf5; border-radius: 8px; display: none; border: 1px dashed var(--primary); }
+        .hidden { display: none; }
+        .content-box { white-space: pre-wrap; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #e5e7eb; min-height: 100px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>🔒 私密文本分享器</h2>
+
+        <div id="input-section">
+            <textarea id="text-input" placeholder="输入你想加密分享的内容..."></textarea>
+            <input type="password" id="password-input" placeholder="设置访问密码 (必填)">
+            <button onclick="generateSecureLink()">生成加密分享链接</button>
+            <div id="link-output"></div>
+        </div>
+
+        <div id="unlock-section" class="hidden">
+            <p>内容已被加密，请输入密码查看：</p>
+            <input type="password" id="decrypt-password" placeholder="输入访问密码">
+            <button onclick="unlockContent()">解锁内容</button>
+        </div>
+
+        <div id="view-section" class="hidden">
+            <p><strong>解密成功：</strong></p>
+            <div id="content-display" class="content-box"></div>
+            <br>
+            <button onclick="location.href = location.pathname" style="background: #6b7280;">我也要发一条</button>
+        </div>
+    </div>
+
+    <script>
+        // 生成加密链接逻辑
+        function generateSecureLink() {
+            const text = document.getElementById('text-input').value;
+            const pwd = document.getElementById('password-input').value;
+            
+            if (!text || !pwd) return alert("内容和密码都不能为空！");
+
+            // 1. AES 加密
+            const encrypted = CryptoJS.AES.encrypt(text, pwd).toString();
+            // 2. LZ-String 压缩 (为了缩短 URL)
+            const compressed = LZString.compressToEncodedURIComponent(encrypted);
+            
+            const shareUrl = window.location.origin + window.location.pathname + '#' + compressed;
+            
+            const output = document.getElementById('link-output');
+            output.style.display = 'block';
+            output.innerHTML = `<strong>分享链接：</strong><br><small>点击下方链接复制</small><br><br><a href="${shareUrl}">${shareUrl}</a>`;
+        }
+
+        // 解锁逻辑
+        function unlockContent() {
+            const hash = window.location.hash.substring(1);
+            const pwd = document.getElementById('decrypt-password').value;
+            
+            try {
+                // 1. 先解压
+                const encrypted = LZString.decompressFromEncodedURIComponent(hash);
+                // 2. 再解密
+                const bytes = CryptoJS.AES.decrypt(encrypted, pwd);
+                const originalText = bytes.toString(CryptoJS.enc.Utf8);
+
+                if (!originalText) throw new Error("密码错误");
+
+                document.getElementById('unlock-section').classList.add('hidden');
+                document.getElementById('view-section').classList.remove('hidden');
+                document.getElementById('content-display').textContent = originalText;
+            } catch (e) {
+                alert("密码错误或数据损坏，无法解密！");
+            }
+        }
+
+        // 初始化判断
+        window.onload = function() {
+            if (window.location.hash) {
+                document.getElementById('input-section').classList.add('hidden');
+                document.getElementById('unlock-section').classList.remove('hidden');
+            }
+        };
+    </script>
+</body>
+</html>
