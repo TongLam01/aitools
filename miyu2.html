@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极简加密文本分享</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container { width: 100%; max-width: 600px; margin-top: 40px; }
+
+        .card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 24px; color: var(--primary); }
+
+        textarea, input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea { height: 180px; resize: none; }
+
+        .btn-group { display: flex; gap: 10px; flex-direction: column; }
+
+        button {
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: #f1f5f9; color: #475569; }
+
+        /* 结果显示区 */
+        #result-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px dashed var(--primary);
+            border-radius: 12px;
+            display: none;
+        }
+
+        .url-display {
+            word-break: break-all;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin: 10px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* 阅读模式 */
+        .article { white-space: pre-wrap; line-height: 1.8; font-size: 1.1rem; padding: 10px 0; }
+        .article-meta { font-size: 0.85rem; color: #94a3b8; border-bottom: 1px solid #f1f5f9; margin-bottom: 15px; padding-bottom: 5px; }
+
+        .hidden { display: none; }
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #1e293b; color: white; padding: 10px 20px; border-radius: 50px;
+            font-size: 0.9rem; display: none; z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div id="edit-ui">
+            <h1>✍️ 分享新内容</h1>
+            <textarea id="text-input" placeholder="输入你想分享的内容..."></textarea>
+            <input type="password" id="password-input" placeholder="访问密码 (可选)">
+            <div class="btn-group">
+                <button class="btn-primary" onclick="generate()">生成分享链接</button>
+            </div>
+
+            <div id="result-section">
+                <p style="margin:0; font-size: 0.8rem; color: #64748b;">链接已生成 (点击框内复制):</p>
+                <div id="url-text" class="url-display" onclick="copyText(this.innerText)"></div>
+                <button class="btn-secondary" id="shorten-btn" onclick="shorten()">⚡ 缩短链接 (TinyURL)</button>
+            </div>
+        </div>
+
+        <div id="unlock-ui" class="hidden">
+            <h1>🔒 加密内容</h1>
+            <p style="text-align: center; color: #64748b;">请输入密码以查看此内容</p>
+            <input type="password" id="decrypt-pwd" placeholder="输入密码">
+            <button class="btn-primary" style="width:100%" onclick="unlock()">解锁阅读</button>
+        </div>
+
+        <div id="view-ui" class="hidden">
+            <div class="article-meta">📖 正文详情 | <span id="char-count">0</span> 字</div>
+            <div id="content-display" class="article"></div>
+            <button class="btn-secondary" style="width:100%; margin-top: 30px;" onclick="location.href=location.pathname">我也要写</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast">已复制到剪切板</div>
+
+<script>
+    const P_RAW = "r:"; // 标识未加密
+    const P_ENC = "e:"; // 标识加密
+
+    // 1. 生成链接逻辑
+    function generate() {
+        const text = document.getElementById('text-input').value.trim();
+        const pwd = document.getElementById('password-input').value;
+        if (!text) return alert("内容不能为空");
+
+        let data = pwd ? P_ENC + CryptoJS.AES.encrypt(text, pwd).toString() : P_RAW + text;
+        const compressed = LZString.compressToEncodedURIComponent(data);
+        const fullUrl = window.location.origin + window.location.pathname + '#' + compressed;
+
+        document.getElementById('result-section').style.display = 'block';
+        document.getElementById('url-text').innerText = fullUrl;
+        copyText(fullUrl);
+    }
+
+    // 2. 缩短链接逻辑 (调用 TinyURL API)
+    async function shorten() {
+        const longUrl = document.getElementById('url-text').innerText;
+        const btn = document.getElementById('shorten-btn');
+        btn.innerText = "正在缩短...";
+        btn.disabled = true;
+
+        try {
+            // 通过 tinyurl 接口获取短链
+            const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+            if (res.ok) {
+                const shortUrl = await res.text();
+                document.getElementById('url-text').innerText = shortUrl;
+                copyText(shortUrl);
+                showToast("短链接已生成并复制！");
+            } else { throw new Error(); }
+        } catch (e) {
+            showToast("缩短失败，可能存在跨域限制，请直接使用长链接");
+        } finally {
+            btn.innerText = "⚡ 缩短链接 (TinyURL)";
+            btn.disabled = false;
+        }
+    }
+
+    // 3. 页面解析逻辑
+    function init() {
+        const hash = window.location.hash.substring(1);
+        if (!hash) return;
+
+        try {
+            const data = LZString.decompressFromEncodedURIComponent(hash);
+            if (data.startsWith(P_RAW)) {
+                render(data.substring(2));
+            } else {
+                showSection('unlock');
+            }
+        } catch (e) { showToast("解析失败，链接可能不完整"); }
+    }
+
+    function unlock() {
+        const hash = window.location.hash.substring(1);
+        const pwd = document.getElementById('decrypt-pwd').value;
+        try {
+            const data = LZString.decompressFromEncodedURIComponent(hash).substring(2);
+            const bytes = CryptoJS.AES.decrypt(data, pwd);
+            const originalText = bytes.toString(CryptoJS.enc.Utf8);
+            if (!originalText) throw new Error();
+            render(originalText);
+        } catch (e) { showToast("密码错误"); }
+    }
+
+    // 辅助函数
+    function render(text) {
+        showSection('view');
+        document.getElementById('content-display').textContent = text;
+        document.getElementById('char-count').innerText = text.length;
+    }
+
+    function showSection(id) {
+        ['edit', 'unlock', 'view'].forEach(s => document.getElementById(s+'-ui').classList.add('hidden'));
+        document.getElementById(id+'-ui').classList.remove('hidden');
+    }
+
+    function copyText(text) {
+        navigator.clipboard.writeText(text).then(() => showToast("已复制到剪切板"));
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2000);
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
