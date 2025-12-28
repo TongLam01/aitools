@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>极简文本分享</title>
+    <title>密语</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <style>
@@ -143,7 +143,7 @@
 <div class="container">
     <div class="card">
         <div id="edit-section">
-            <h1>✍️ 新建分享内容</h1>
+            <h1>✍️ 输入要分享的密语</h1>
             <textarea id="text-input" placeholder="在此输入文字内容..."></textarea>
             <input type="password" id="password-input" placeholder="访问密码 (可选，留空则不加密)">
             <button onclick="generateLink()">生成并复制分享链接</button>
@@ -163,7 +163,7 @@
 
         <div id="view-section" class="hidden">
             <div class="article-header">
-                <span>📖 详情阅读</span>
+                <span>📖 密语解码</span>
                 <span id="char-count"></span>
             </div>
             <div id="content-display" class="article-mode"></div>
