@@ -21,6 +21,9 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            /* 防止横向溢出导致出现滚动条或缩放条 */
+            overflow-x: hidden;
+            width: 100%;
         }
         header {
             margin-top: 50px;
@@ -28,7 +31,7 @@
             padding: 0 20px;
         }
         h1 { font-size: 2rem; margin-bottom: 10px; color: #0f172a; }
-        p { color: #64748b; margin-bottom: 40px; }
+        header p { color: #64748b; margin-bottom: 40px; }
 
         /* 工具卡片容器 */
         .container {
@@ -38,6 +41,7 @@
             width: 90%;
             max-width: 1000px;
             padding-bottom: 50px;
+            flex: 1; /* 让容器占据剩余空间，方便版权信息固定在底部 */
         }
 
         /* 卡片样式 */
@@ -58,25 +62,52 @@
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
             border-color: var(--primary-color);
         }
-        .tool-icon {
-            font-size: 24px;
+
+        /* 新增：图标与名字的水平容器 */
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 12px;
         }
+
+        .tool-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            background: rgba(37, 99, 235, 0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
         .tool-name {
             font-weight: bold;
             font-size: 1.1rem;
-            margin-bottom: 8px;
             color: var(--primary-color);
         }
+
         .tool-desc {
             font-size: 0.9rem;
             color: #64748b;
             line-height: 1.5;
         }
 
+        /* 版权声明样式 */
+        footer {
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+
         /* 移动端优化 */
         @media (max-width: 640px) {
-            .container { grid-template-columns: 1fr; }
+            .container { grid-size: 1fr; width: 92%; }
+            h1 { font-size: 1.75rem; }
         }
     </style>
 </head>
@@ -84,35 +115,46 @@
 
     <header>
         <h1>免费AI工具箱</h1>
-        <p>用AI制作的一些提升效率的小工具</p>
+        <p>AI制作的效率小工具</p>
     </header>
 
     <div class="container">
         <a href="wentu.html" class="tool-card">
-            <div class="tool-icon">📜</div>
-            <div class="tool-name">文字转图片</div>
+            <div class="card-header">
+                <div class="tool-icon">📜</div>
+                <div class="tool-name">文字转图片</div>
+            </div>
             <div class="tool-desc">简洁、美观，支持自定义署名。</div>
         </a>
 
         <a href="xiexiaoshuo.html" class="tool-card">
-            <div class="tool-icon">📝</div>
-            <div class="tool-name">小说创作器</div>
+            <div class="card-header">
+                <div class="tool-icon">📝</div>
+                <div class="tool-name">小说创作器</div>
+            </div>
             <div class="tool-desc">填入DeepSeek的API Key后，开始创作。</div>
         </a>
 
         <a href="bidui.html" class="tool-card">
-            <div class="tool-icon">📇</div>
-            <div class="tool-name">文本比对</div>
-            <div class="tool-desc">一键比对文本差异，并导出Word</div>
+            <div class="card-header">
+                <div class="tool-icon">📇</div>
+                <div class="tool-name">文本比对</div>
+            </div>
+            <div class="tool-desc">一键比对文本差异，并导出Word。</div>
         </a>
 
         <a href="naotu.html" class="tool-card">
-            <div class="tool-icon">🧠</div>
-            <div class="tool-name">思维导图</div>
-            <div class="tool-desc">拖放改变层级，可导出图片</div>
+            <div class="card-header">
+                <div class="tool-icon">🧠</div>
+                <div class="tool-name">思维导图</div>
+            </div>
+            <div class="tool-desc">拖放改变层级，可导出图片。</div>
         </a>
+    </div>
 
-        </div>
+    <footer>
+        <p>© 2025 公众号号 · 67号技师</p>
+    </div>
 
 </body>
 </html>
