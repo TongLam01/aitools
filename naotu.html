@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>脑图编辑器-V6.2底部菜单版</title>
+    
+    <script src="https://lib.baomitu.com/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root { --line-color: #cbd5e1; --bg-color: #f1f5f9; --primary: #3b82f6; }
+        body { font-family: sans-serif; margin: 0; background: var(--bg-color); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* 1. 画布区域：现在占据上方 */
+        #viewport { flex: 1; position: relative; overflow: hidden; touch-action: none; background: var(--bg-color); }
+        
+        /* 2. 工具栏：移动到底部 */
+        #toolbar { 
+            padding: 12px 10px calc(12px + env(safe-area-inset-bottom)); /* 适配全面屏底部 */
+            background: #1e293b; 
+            color: white; 
+            display: flex; 
+            gap: 10px; 
+            align-items: center; 
+            z-index: 100; 
+            overflow-x: auto; 
+            flex-shrink: 0; 
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.2); /* 阴影向上 */
+        }
+        #toolbar::-webkit-scrollbar { display: none; }
+        
+        button { padding: 10px 14px; border: none; border-radius: 8px; background: var(--primary); color: white; font-size: 13px; white-space: nowrap; font-weight: bold; }
+        button:active { opacity: 0.8; transform: scale(0.95); }
+        button.success { background: #10b981; }
+        button.danger { background: #ef4444; }
+        button.info { background: #64748b; }
+
+        .color-picker { display: none; gap: 8px; margin-left: 10px; border-left: 1px solid #475569; padding-left: 10px; }
+        .color-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
+
+        #canvas-content { 
+            position: absolute; 
+            display: inline-flex;
+            padding: 1000px; 
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* 3. 树形结构核心 - 显式增加底部留白 */
+        #tree-root { 
+            padding: 60px 60px 160px 60px; /* 特别增加了底部留白(160px) */
+        }
+        
+        .tree ul { padding-top: 25px; position: relative; display: flex; padding-left: 0; margin: 0; }
+        .tree li { list-style-type: none; position: relative; padding: 25px 8px 0 8px; text-align: center; }
+        .tree li::before, .tree li::after { content: ''; position: absolute; top: 0; right: 50%; border-top: 2px solid var(--line-color); width: 50%; height: 25px; }
+        .tree li::after { right: auto; left: 50%; border-left: 2px solid var(--line-color); }
+        .tree li:only-child::after, .tree li:only-child::before { display: none; }
+        .tree li:only-child { padding-top: 0; }
+        .tree li:first-child::before, .tree li:last-child::after { border: 0 none; }
+        .tree li:last-child::before { border-right: 2px solid var(--line-color); border-radius: 0 5px 0 0; }
+        .tree li:first-child::after { border-radius: 5px 0 0 0; }
+        .tree ul ul::before { content: ''; position: absolute; top: 0; left: 50%; border-left: 2px solid var(--line-color); width: 0; height: 25px; }
+
+        .node { 
+            border: 2px solid var(--line-color); padding: 12px 18px; border-radius: 10px; 
+            background: white; display: inline-block; min-width: 65px; font-size: 15px; 
+            box-shadow: 0 3px 6px rgba(0,0,0,0.08); user-select: none;
+        }
+        .node.selected { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3); }
+        
+        .dragging { opacity: 0.6; position: fixed !important; z-index: 999; pointer-events: none; }
+        .drop-target { background: #dbeafe !important; border-style: dashed !important; border-color: var(--primary) !important; }
+
+        #preview-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        #preview-overlay img { max-width: 90%; max-height: 75%; border: 3px solid white; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div id="viewport">
+    <div id="canvas-content">
+        <div class="tree" id="tree-root"></div>
+    </div>
+</div>
+
+<div id="toolbar">
+    <button onclick="addChild()">➕ 子节点</button>
+    <button onclick="editNodeText()">✏️ 修改</button>
+    <button class="danger" onclick="deleteNode()">🗑 删除</button>
+    <button class="info" onclick="recenter()">🎯 复位</button>
+    
+    <div id="color-section" class="color-picker">
+        <div class="color-dot" style="background:#ffffff" onclick="changeColor('#ffffff')"></div>
+        <div class="color-dot" style="background:#fee2e2" onclick="changeColor('#fee2e2')"></div>
+        <div class="color-dot" style="background:#fef9c3" onclick="changeColor('#fef9c3')"></div>
+        <div class="color-dot" style="background:#dcfce7" onclick="changeColor('#dcfce7')"></div>
+        <div class="color-dot" style="background:#dbeafe" onclick="changeColor('#dbeafe')"></div>
+    </div>
+
+    <div style="flex:1"></div>
+    <button class="success" onclick="saveAsImage()">🖼️ 存图片</button>
+</div>
+
+<div id="preview-overlay" onclick="this.style.display='none'">
+    <img id="preview-img" src="" alt="预览图">
+    <p style="color:white; margin-top:20px; font-weight: bold; background: rgba(0,0,0,0.5); padding: 8px 20px; border-radius: 20px;">💡 请长按图片保存到相册</p>
+</div>
+
+<script>
+    const STORAGE_KEY = 'mindmap_v6_2_data';
+    const viewport = document.getElementById('viewport');
+    const content = document.getElementById('canvas-content');
+    
+    let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+        id: "root", text: "中心主题", color: "#ffffff", children: []
+    };
+    
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    
+    let selectedId = null;
+    let isPanning = false;
+    let lastTouchX = 0, lastTouchY = 0;
+    let longPressTimer = null;
+    let isDraggingNode = false;
+    let ghostNode = null;
+    let currentDragId = null;
+
+    function render() {
+        document.getElementById('tree-root').innerHTML = '<ul>' + generateHTML(data) + '</ul>';
+        applyTransform();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        document.getElementById('color-section').style.display = selectedId ? 'flex' : 'none';
+    }
+
+    function applyTransform() {
+        content.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+    }
+
+    function generateHTML(node) {
+        return `<li>
+            <div class="node ${selectedId === node.id ? 'selected' : ''}" 
+                 id="dom-${node.id}"
+                 style="background: ${node.color || '#ffffff'}"
+                 ontouchstart="nodeTouchStart(event, '${node.id}')"
+                 onclick="selectNode('${node.id}', event)">
+                ${node.text}
+            </div>
+            ${node.children && node.children.length > 0 ? '<ul>' + node.children.map(generateHTML).join('') + '</ul>' : ''}
+        </li>`;
+    }
+
+    // --- 画布逻辑 ---
+    viewport.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1 && !isDraggingNode) {
+            isPanning = true;
+            lastTouchX = e.touches[0].clientX;
+            lastTouchY = e.touches[0].clientY;
+        }
+    });
+
+    viewport.addEventListener('touchmove', (e) => {
+        if (isPanning && e.touches.length === 1) {
+            const dx = (e.touches[0].clientX - lastTouchX);
+            const dy = (e.touches[0].clientY - lastTouchY);
+            offsetX += dx;
+            offsetY += dy;
+            lastTouchX = e.touches[0].clientX;
+            lastTouchY = e.touches[0].clientY;
+            applyTransform();
+        } else if (isDraggingNode) {
+            handleNodeMove(e);
+        }
+    });
+
+    viewport.addEventListener('touchend', () => {
+        isPanning = false;
+        if (isDraggingNode) stopNodeDrag();
+        clearTimeout(longPressTimer);
+    });
+
+    function recenter() {
+        scale = 1;
+        offsetX = (viewport.offsetWidth / 2) - (content.offsetWidth / 2);
+        offsetY = (viewport.offsetHeight / 2) - (content.offsetHeight / 2);
+        applyTransform();
+    }
+
+    // --- 节点操作 ---
+    function selectNode(id, e) {
+        e.stopPropagation();
+        selectedId = id;
+        render();
+    }
+
+    function nodeTouchStart(e, id) {
+        currentDragId = id;
+        longPressTimer = setTimeout(() => {
+            if (id === 'root') return;
+            isDraggingNode = true;
+            isPanning = false;
+            startNodeDrag(e, id);
+        }, 500);
+    }
+
+    function startNodeDrag(e, id) {
+        const dom = document.getElementById('dom-' + id);
+        ghostNode = dom.cloneNode(true);
+        ghostNode.classList.add('dragging');
+        document.body.appendChild(ghostNode);
+        updateGhostPos(e.touches[0]);
+    }
+
+    function handleNodeMove(e) {
+        e.preventDefault();
+        updateGhostPos(e.touches[0]);
+        const target = getDropTarget(e.touches[0]);
+        document.querySelectorAll('.node').forEach(n => n.classList.remove('drop-target'));
+        if (target && target.id !== 'dom-' + currentDragId) target.classList.add('drop-target');
+    }
+
+    function stopNodeDrag() {
+        const target = document.querySelector('.drop-target');
+        if (target) {
+            const targetId = target.id.replace('dom-', '');
+            if (!isDescendant(findNode(data, currentDragId), targetId)) {
+                const moving = removeNode(data, currentDragId);
+                findNode(data, targetId).children.push(moving);
+            }
+        }
+        if (ghostNode) ghostNode.remove();
+        isDraggingNode = false;
+        ghostNode = null;
+        render();
+    }
+
+    function updateGhostPos(t) {
+        ghostNode.style.left = (t.clientX - ghostNode.offsetWidth / 2) + 'px';
+        ghostNode.style.top = (t.clientY - ghostNode.offsetHeight / 2) + 'px';
+    }
+
+    function getDropTarget(t) {
+        return document.elementsFromPoint(t.clientX, t.clientY).find(el => el.classList.contains('node') && !el.classList.contains('dragging'));
+    }
+
+    function addChild() {
+        if (!selectedId) return;
+        const n = findNode(data, selectedId);
+        const id = "n"+Date.now();
+        n.children.push({ id, text: "新节点", color: "#ffffff", children: [] });
+        selectedId = id;
+        render();
+    }
+
+    function editNodeText() {
+        const n = findNode(data, selectedId);
+        if (!n) return;
+        const t = prompt("内容", n.text);
+        if (t) { n.text = t; render(); }
+    }
+
+    function changeColor(c) { if(selectedId){ findNode(data, selectedId).color = c; render(); } }
+
+    function deleteNode() {
+        if (!selectedId || selectedId === "root") return;
+        removeNode(data, selectedId); selectedId = null; render();
+    }
+
+    function findNode(r, id) {
+        if (r.id === id) return r;
+        for (let c of r.children) { let res = findNode(c, id); if (res) return res; }
+        return null;
+    }
+
+    function removeNode(p, id) {
+        const idx = p.children.findIndex(c => c.id === id);
+        if (idx !== -1) return p.children.splice(idx, 1)[0];
+        for (let c of p.children) { let res = removeNode(c, id); if (res) return res; }
+    }
+
+    function isDescendant(p, tid) {
+        if (p.id === tid) return true;
+        for (let c of p.children) if (isDescendant(c, tid)) return true;
+        return false;
+    }
+
+    // --- 导出图片优化 ---
+    function saveAsImage() {
+        selectedId = null; render(); 
+
+        const target = document.getElementById('tree-root');
+        
+        html2canvas(target, {
+            scale: 2, 
+            backgroundColor: '#f1f5f9',
+            // 注意：我们已经在 CSS 的 #tree-root 里设置了 padding-bottom: 160px
+            // 插件会自动捕捉这个内边距，确保导出的图片自带大留白
+        }).then(canvas => {
+            document.getElementById('preview-img').src = canvas.toDataURL("image/png");
+            document.getElementById('preview-overlay').style.display = 'flex';
+        });
+    }
+
+    window.onload = () => {
+        render();
+        setTimeout(recenter, 300);
+    };
+</script>
+</body>
+</html>
