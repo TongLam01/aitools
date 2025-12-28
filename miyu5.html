@@ -3,38 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>私密分享 (微信长按增强版)</title>
+    <title>私密短语分享 (140字限制版)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --primary: #1cb0f6; --primary-dark: #1486bb; --bg: #f0f7ff; }
+        :root { --primary: #1cb0f6; --primary-dark: #1486bb; --bg: #f0f7ff; --error: #ff4d4f; }
         
         body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 520px; margin-top: 20px; }
+        .container { width: 100%; max-width: 520px; margin-top: 10px; }
         .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
-        h1 { font-size: 1.3rem; text-align: center; color: var(--primary-dark); margin-bottom: 25px; font-weight: 700; }
+        h1 { font-size: 1.3rem; text-align: center; color: var(--primary-dark); margin-bottom: 20px; font-weight: 700; }
         
-        textarea, input { width: 100%; padding: 14px; border: 2px solid #eef2f7; border-radius: 10px; margin-bottom: 18px; box-sizing: border-box; font-size: 16px; outline: none; transition: all 0.3s; background: #f8fbff; }
+        /* 输入区容器 */
+        .input-group { position: relative; margin-bottom: 18px; }
+        textarea, input { width: 100%; padding: 14px; border: 2px solid #eef2f7; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; transition: all 0.3s; background: #f8fbff; }
         textarea:focus, input:focus { border-color: var(--primary); background: #fff; }
-        textarea { height: 160px; resize: none; }
+        textarea { height: 160px; resize: none; padding-bottom: 30px; }
         
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 17px; font-weight: bold; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 12px rgba(28, 176, 246, 0.3); }
+        /* 字数统计样式 */
+        .char-counter { position: absolute; right: 12px; bottom: 8px; font-size: 12px; color: #7c98b6; pointer-events: none; }
+        .char-counter.limit-near { color: var(--error); font-weight: bold; }
+
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 17px; font-weight: bold; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 12px rgba(28, 176, 246, 0.3); margin-top: 10px; }
         button:hover { background: var(--primary-dark); }
         
         #result-section { margin-top: 30px; display: none; text-align: center; padding-top: 20px; border-top: 1px dashed #dceeff; animation: fadeIn 0.5s; }
         
         /* 二维码容器 - 增加留白 */
         #qrcode-wrapper { 
-            display: inline-block; margin: 20px 0; position: relative;
+            display: inline-block; margin: 15px 0; position: relative;
             box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            border-radius: 12px;
-            background: white;
-            padding: 25px; /* 关键留白 */
-            cursor: pointer;
+            border-radius: 12px; background: white;
+            padding: 25px; cursor: pointer;
         }
         
-        /* 隐藏原始生成的 Canvas，只显示转换后的 Img */
         #qrcode-raw { display: none; }
         #qrcode-img { display: block; width: 200px; height: 200px; -webkit-touch-callout: default; }
 
@@ -45,22 +48,16 @@
         /* 阅读模式 - 2x实线蓝框信纸风格 */
         .article-container {
             border: 2px solid var(--primary); 
-            padding: 30px;
-            border-radius: 8px;
-            position: relative;
-            background: #fff;
-            min-height: 150px;
-            box-shadow: 8px 8px 0px rgba(28, 176, 246, 0.1);
+            padding: 30px; border-radius: 8px;
+            position: relative; background: #fff;
+            min-height: 120px; box-shadow: 8px 8px 0px rgba(28, 176, 246, 0.1);
             margin-top: 20px;
         }
         .article-container::before {
              content: ""; position: absolute; top: 6px; left: 6px; right: 6px; bottom: 6px;
              border: 1px solid #e5e9f2; pointer-events: none; border-radius: 4px;
         }
-        .article-body {
-             white-space: pre-wrap; line-height: 1.8; font-size: 1.15rem; color: #2c3e50;
-             position: relative; z-index: 1;
-        }
+        .article-body { white-space: pre-wrap; line-height: 1.8; font-size: 1.15rem; color: #2c3e50; position: relative; z-index: 1; }
 
         .hidden { display: none; }
         #toast { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 1000; font-size: 14px; text-align: center; }
@@ -72,31 +69,33 @@
 <div class="container">
     <div class="card">
         <div id="edit-ui">
-            <h1>✍️ 创建私密分享</h1>
-            <textarea id="text-input" placeholder="在此输入文字内容..."></textarea>
-            <input type="password" id="password-input" placeholder="设置访问密码 (可选)">
-            <button onclick="generate()">✨ 生成分享卡片</button>
+            <h1>✍️ 创建密语卡片</h1>
+            <div class="input-group">
+                <textarea id="text-input" maxlength="140" placeholder="写下你的想法（限140字以内）..."></textarea>
+                <div class="char-counter"><span id="current-count">0</span>/140</div>
+            </div>
+            <input type="password" id="password-input" placeholder="访问密码 (可选)">
+            <button onclick="generate()">✨ 生成并自动复制</button>
 
             <div id="result-section">
-                <div class="hint" style="font-weight: bold; color: var(--primary);">👇 长按图片可保存/识别，轻点可复制 👇</div>
-                
+                <div class="hint" style="font-weight: bold; color: var(--primary);">👇 长按图片保存，点击图片复制 👇</div>
                 <div id="qrcode-wrapper" onclick="copyImageAndUrl()">
-                    <div id="qrcode-raw"></div> <img id="qrcode-img" alt="二维码" /> <span class="copy-tag">长按保存 · 点击复制</span>
+                    <div id="qrcode-raw"></div> 
+                    <img id="qrcode-img" alt="二维码图片" /> 
+                    <span class="copy-tag">长按保存 · 点击复制</span>
                 </div>
-
-                <div class="hint" style="margin-top: 20px;">或者直接复制下方链接地址：</div>
                 <div class="url-box" id="url-text" onclick="copyLinkOnly()"></div>
             </div>
         </div>
 
         <div id="unlock-ui" class="hidden">
             <h1>🔒 内容受保护</h1>
-            <input type="password" id="decrypt-pwd" placeholder="输入访问密码">
-            <button onclick="unlock()">🔓 解锁查看</button>
+            <input type="password" id="decrypt-pwd" placeholder="请输入访问密码">
+            <button onclick="unlock()">🔓 解锁阅读</button>
         </div>
 
         <div id="view-ui" class="hidden">
-            <div style="text-align: center; color: var(--primary-dark); font-weight: bold; margin-bottom: 10px;">📜 详情内容</div>
+            <div style="text-align: center; color: var(--primary-dark); font-weight: bold; margin-bottom: 10px;">📜 正文详情</div>
             <div class="article-container">
                 <div id="content-display" class="article-body"></div>
             </div>
@@ -112,10 +111,26 @@
     const P_ENC = "e:";
     let currentFullUrl = "";
 
+    // 字数统计实时监听
+    const textInput = document.getElementById('text-input');
+    const currentCountDisplay = document.getElementById('current-count');
+    const counterBox = document.querySelector('.char-counter');
+
+    textInput.addEventListener('input', () => {
+        const count = textInput.value.length;
+        currentCountDisplay.textContent = count;
+        if (count >= 130) {
+            counterBox.classList.add('limit-near');
+        } else {
+            counterBox.classList.remove('limit-near');
+        }
+    });
+
     function generate() {
-        const text = document.getElementById('text-input').value.trim();
+        const text = textInput.value.trim();
         const pwd = document.getElementById('password-input').value;
         if (!text) return showToast("请输入内容");
+        if (text.length > 140) return showToast("超出140字上限");
 
         let data = pwd ? P_ENC + CryptoJS.AES.encrypt(text, pwd).toString() : P_RAW + text;
         const compressed = LZString.compressToEncodedURIComponent(data);
@@ -124,32 +139,29 @@
         document.getElementById('result-section').style.display = 'block';
         document.getElementById('url-text').innerText = currentFullUrl;
 
-        // 1. 先生成 Canvas 二维码
         const qrRaw = document.getElementById('qrcode-raw');
         qrRaw.innerHTML = ''; 
         new QRCode(qrRaw, {
             text: currentFullUrl,
-            width: 300, // 生成大一点的，保证清晰
+            width: 300,
             height: 300,
             colorDark : "#1486bb"
         });
 
-        // 2. 延迟等待 Canvas 渲染完成后转为 Img
         setTimeout(() => {
             const canvas = qrRaw.querySelector('canvas');
             const img = document.getElementById('qrcode-img');
             if (canvas) {
                 img.src = canvas.toDataURL("image/png");
-                showToast("🎉 卡片已生成，长按可保存图片");
+                showToast("🎉 生成成功！已自动复制地址");
             }
         }, 100);
+
+        copyLinkOnly("✅ 生成成功并复制链接");
     }
 
-    // 复制逻辑 (保持您的原始代码逻辑)
     async function copyImageAndUrl() {
         if (!currentFullUrl) return;
-        
-        // 尝试复制图片文件
         const img = document.getElementById('qrcode-img');
         if (img && img.src && window.ClipboardItem) {
             try {
@@ -157,14 +169,10 @@
                 const blob = await response.blob();
                 const item = new ClipboardItem({ "image/png": blob });
                 await navigator.clipboard.write([item]);
-                showToast("✅ 图片已复制！快去发送吧");
+                showToast("✅ 二维码图片已复制");
                 return;
-            } catch (err) {
-                console.log("微信/环境限制图片复制，切换链接复制");
-            }
+            } catch (err) { console.log("图片复制失败"); }
         }
-        
-        // 降级复制链接
         copyLinkOnly("图片复制受限，链接已复制");
     }
 
@@ -178,7 +186,6 @@
         showToast(customMsg || "✅ 链接已复制到剪切板");
     }
 
-    // 解析与展示逻辑
     function init() {
         const hash = window.location.hash.substring(1);
         if (!hash) return;
@@ -220,5 +227,6 @@
 
     window.onload = init;
 </script>
+<script src="common.js"></script>
 </body>
 </html>
