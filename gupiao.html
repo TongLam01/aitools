@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>最热50股 - AI分析</title>
+    <title>AI分析股票</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
@@ -37,7 +37,7 @@
     <header class="flex-none h-14 border-b border-gray-800 bg-[#181b21] flex items-center justify-between px-4 z-30">
         <div class="flex items-center gap-2">
             <div class="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20 text-xs">R1</div>
-            <h1 class="font-bold tracking-tight text-gray-100 text-sm md:text-base">AI50 <span class="hidden md:inline text-indigo-400 text-[10px] uppercase px-1.5 py-0.5 bg-indigo-500/10 rounded font-bold">Pro</span></h1>
+            <h1 class="font-bold tracking-tight text-gray-100 text-sm md:text-base">AI分析股票 <span class="hidden md:inline text-indigo-400 text-[10px] uppercase px-1.5 py-0.5 bg-indigo-500/10 rounded font-bold">PRO</span></h1>
         </div>
 
         <div class="flex items-center gap-2 md:gap-3">
@@ -174,7 +174,7 @@
                         <div v-if="aiStatus === 'loading'" class="space-y-4 p-4 border border-indigo-500/20 rounded-lg bg-indigo-900/10">
                             <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold animate-pulse">
                                 <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>
-                                R1 模型正在推理中...
+                                R1 模型正在推理链中...
                             </div>
                             <div class="h-3 bg-gray-700 rounded w-3/4 opacity-50"></div>
                             <div class="h-3 bg-gray-700 rounded w-1/2 opacity-50"></div>
@@ -252,7 +252,6 @@
                 mobileTab.value = 'chart';
             };
 
-            // DeepSeek 调用
             const callDeepSeek = async (forceRefresh = false) => {
                 if (!apiKey.value || !currentStock.value) return;
                 const code = currentStock.value.code;
@@ -314,7 +313,7 @@
                 }
             };
 
-            // 核心修复逻辑：图表绘制与真实涨幅计算
+            // 图表绘制逻辑
             let kChart = null, rChart = null;
             const drawChart = (dates, data, ma20, rsi) => {
                 nextTick(() => {
@@ -323,19 +322,26 @@
                     kChart = echarts.init(document.getElementById('klineChart'));
                     rChart = echarts.init(document.getElementById('rsiChart'));
 
+                    // 核心优化 1: 移动端手柄与吸附
                     const optionK = {
-                        grid: { left: 40, right: 10, top: 20, bottom: 10 },
+                        grid: { left: 40, right: 10, top: 20, bottom: 20 },
                         tooltip: {
-                            trigger: 'axis', axisPointer: { type: 'cross' },
+                            trigger: 'axis', 
+                            axisPointer: { 
+                                type: 'cross',
+                                label: { show: true, backgroundColor: '#333' },
+                                handle: { show: true, size: 25, color: '#818cf8' }, // 移动端关键：拖拽手柄
+                                snap: true // 自动吸附
+                            },
+                            confine: true, // 限制在图表内
                             backgroundColor: 'rgba(255,255,255,0.95)',
                             textStyle: { color: '#333', fontSize: 12 },
                             formatter: (params) => {
                                 let res = `<div style="font-weight:bold;margin-bottom:2px">${params[0].axisValue}</div>`;
                                 params.forEach(p => {
                                     if(p.seriesName === 'K线') {
-                                        // data: [idx, open, close, low, high, changePct]
                                         const open = p.data[1], close = p.data[2], low = p.data[3], high = p.data[4];
-                                        const changePct = p.data[5]; // 获取预计算的真实涨幅
+                                        const changePct = p.data[5];
                                         const c = close >= open ? '#ef4444' : '#10b981';
                                         res += `<div style="color:${c}">
                                             开: ${open}  高: ${high}<br>
@@ -349,7 +355,10 @@
                         },
                         xAxis: { data: dates, axisLine: { show: false }, axisLabel: { show: false } },
                         yAxis: { scale: true, splitLine: { lineStyle: { color: '#2d3139' } } },
-                        dataZoom: [{ type: 'inside', start: 60, end: 100, xAxisIndex: [0] }],
+                        // 核心优化 2: 惯性滑动 dataZoom
+                        dataZoom: [
+                            { type: 'inside', start: 60, end: 100, xAxisIndex: [0], moveOnMouseWheel: true, moveOnMouseMove: true } 
+                        ],
                         series: [
                             { name: 'K线', type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#10b981', borderColor: '#ef4444', borderColor0: '#10b981' } },
                             { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#f59e0b' } }
@@ -357,7 +366,7 @@
                     };
                     const optionR = {
                         grid: { left: 40, right: 10, top: 5, bottom: 20 },
-                        tooltip: { trigger: 'axis', formatter: '{b}<br>RSI: {c}' },
+                        tooltip: { trigger: 'axis', axisPointer: { handle: { show: true, size: 25, color: '#818cf8' } } },
                         xAxis: { data: dates, axisLine: { lineStyle: { color: '#4b5563' } } },
                         yAxis: { min: 0, max: 100, splitNumber: 3, splitLine: { lineStyle: { color: '#2d3139' } } },
                         dataZoom: [{ type: 'inside', start: 60, end: 100, xAxisIndex: [0] }],
@@ -402,12 +411,11 @@
                 }
                 
                 const cb = 'cb_k_' + Date.now();
-                // 核心修复：完善SecId逻辑
                 let secId = '0.'+stock.code;
                 if(stock.code.startsWith('6')) secId = '1.'+stock.code;
                 if(stock.code.startsWith('8') || stock.code.startsWith('4')) secId = '0.'+stock.code; 
                 
-                // 核心修复：fqt=1 (前复权) + _=timestamp (防缓存)
+                // 复权逻辑：fqt=1 前复权
                 const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=${cb}&secid=${secId}&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55&klt=101&fqt=1&end=20500101&lmt=120&_=${Date.now()}`;
                 
                 window[cb] = (res) => {
@@ -415,7 +423,6 @@
                         const raw = res.data.klines.map(i => i.split(','));
                         const dates = raw.map(i => i[0].substring(5));
                         
-                        // 数据一致性校验逻辑
                         let data = [];
                         let closes = [];
                         
@@ -425,7 +432,6 @@
                             let high = parseFloat(item[3]);
                             let low = parseFloat(item[4]);
                             
-                            // 计算真实涨跌幅
                             let preClose = index > 0 ? parseFloat(raw[index-1][2]) : open;
                             let realChange = ((close - preClose) / preClose * 100).toFixed(2);
                             
@@ -433,15 +439,20 @@
                             closes.push(close);
                         });
                         
-                        // 强制对齐：如果K线最新价格与列表现价偏差>5%，则说明API复权有误，进行平移修正
+                        // 修正逻辑：如果复权后价格与列表现价差距过大(>5%)，进行强制平移
                         const lastKClose = closes[closes.length-1];
                         const listPrice = parseFloat(stock.price);
                         
-                        // 仅当列表价格有效（非停牌/-）时校验
                         if(listPrice && Math.abs(lastKClose - listPrice) / listPrice > 0.05) {
-                            console.log('检测到复权偏差，执行修正...');
+                            // 计算平移比例
                             const ratio = listPrice / lastKClose;
-                            data = data.map(d => [d[0]*ratio, d[1]*ratio, d[2]*ratio, d[3]*ratio, d[4]]);
+                            data = data.map(d => [
+                                parseFloat((d[0]*ratio).toFixed(2)), 
+                                parseFloat((d[1]*ratio).toFixed(2)), 
+                                parseFloat((d[2]*ratio).toFixed(2)), 
+                                parseFloat((d[3]*ratio).toFixed(2)), 
+                                d[4] // 涨跌幅不变
+                            ]);
                             closes = closes.map(c => c * ratio);
                         }
 
@@ -493,7 +504,6 @@
             
             const selectStock = (item) => {
                 searchResults.value = []; searchQuery.value = '';
-                // 搜索时价格未知，传入占位符，analyzeStock内部会修正
                 analyzeStock({ code: item.code, name: item.name, price: '-', change: 0, flow: 0 });
                 mobileTab.value = 'chart';
             }
