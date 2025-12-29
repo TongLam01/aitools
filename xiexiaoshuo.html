@@ -10,12 +10,12 @@
             --card: #ffffff;
             --text: #1d1d1f;
             --text-sub: #86868b;
-            --accent: #0071e3; /* 经典蓝，用于按钮 */
+            --accent: #0071e3; 
             --danger: #ff3b30;
             --success: #34c759;
             --border: #d2d2d7;
             --wiki-bg: #f2faff;
-            --fact-bg: #fffcf0; /* 事实档案微黄背景，做区分 */
+            --fact-bg: #fffcf0; 
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -28,7 +28,6 @@
             display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* 顶部导航 */
         #mobile-tabs {
             display: none; background: var(--card);
             border-bottom: 1px solid var(--border);
@@ -38,15 +37,12 @@
         .tab-item { font-size: 14px; font-weight: 600; color: var(--text-sub); padding: 6px 16px; border-radius: 20px; transition: 0.2s; }
         .tab-item.active { color: #fff; background: var(--accent); }
 
-        /* 布局容器 */
         #layout-wrapper { display: flex; flex: 1; overflow: hidden; height: 100%; }
 
-        /* 通用面板 */
         .panel { display: flex; flex-direction: column; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         #static-sidebar { width: 300px; background: #fbfbfd; border-right: 1px solid var(--border); }
         #dynamic-sidebar { width: 340px; background: #fbfbfd; border-left: 1px solid var(--border); }
         
-        /* 主创作区 */
         #main-container { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; position: relative; }
 
         #editor-wrapper { 
@@ -66,7 +62,6 @@
             flex-shrink: 0;
         }
 
-        /* UI 组件 */
         h3 { font-size: 11px; font-weight: 700; color: var(--text-sub); margin: 0 0 10px 0; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         label { display: block; font-size: 13px; font-weight: 600; margin: 15px 0 5px 0; color: #333; }
         .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; color: white; margin-left: 5px; background: #999; }
@@ -79,38 +74,35 @@
         }
         textarea:focus, input:focus, select:focus { border-color: var(--accent); outline: none; }
         
-        /* 特殊输入框样式 */
+        /* 优化：备注文本样式 */
+        textarea::placeholder, input::placeholder { color: #b0b0b5; transition: color 0.2s; }
+        textarea:focus::placeholder, input:focus::placeholder { color: transparent; }
+
         .input-wiki { background-color: var(--wiki-bg) !important; border-color: #bce3ff; color: #004085; font-size: 13px; font-family: "Menlo", monospace; }
         .input-fact { background-color: var(--fact-bg) !important; }
         .input-must { background-color: #fff1f0 !important; border-color: #ffbaba; }
 
-        /* 按钮 */
         .btn { padding: 0 16px; height: 42px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; transition: opacity 0.2s; }
         .btn:active { opacity: 0.7; }
         .btn-primary { background: var(--accent); color: white; }
-        /* 修复：使用强制深色背景，确保可见性 */
         .btn-update { background: #0071e3 !important; color: white !important; width: 100%; margin-bottom: 15px; padding: 12px; height: auto; box-shadow: 0 2px 5px rgba(0,113,227,0.2); }
         .btn-outline { background: var(--card); border: 1px solid var(--border); color: var(--text); }
         .btn-sm { height: 32px; font-size: 12px; padding: 0 10px; }
         .btn-stop { background: var(--danger); color: white; }
 
-        /* 卡片 */
         .history-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.05); }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
         .history-body { font-size: 16px; line-height: 1.6; white-space: pre-wrap; transition: max-height 0.3s ease; overflow: hidden; }
         .collapsed .history-body { max-height: 80px; mask-image: linear-gradient(to bottom, black 50%, transparent 100%); }
         .serial-number { color: var(--danger); font-size: 24px; font-weight: 800; display: inline-block; margin-right: 8px; }
 
-        /* 统计栏 */
         .stats-bar { margin-top: 15px; padding: 12px; background: #fff; border: 1px solid #ddd; border-radius: 10px; font-size: 12px; color: #666; display: flex; justify-content: space-between; }
 
-        /* 移动端适配 */
         @media (max-width: 768px) {
             #mobile-tabs { display: flex; }
             #layout-wrapper { flex-direction: column; }
             .panel, #main-container { display: none; width: 100% !important; height: 100%; }
             .active-panel { display: flex !important; }
-            /* 修复：防止移动端缩放和输入框变小 */
             textarea, input, select { font-size: 16px; } 
             #editor-wrapper { height: 120px; min-height: 120px; margin: 0; flex-shrink: 0; }
             #history-wrapper { padding: 15px; background: #f2f2f7; }
@@ -122,7 +114,7 @@
 
     <div id="mobile-tabs">
         <div class="tab-item" onclick="switchTab('static-sidebar', this)">基础设定</div>
-        <div class="tab-item active" onclick="switchTab('main-container', this)">创作区</div>
+        <div class="tab-item active" onclick="switchTab('main-container', this)">创作</div>
         <div class="tab-item" onclick="switchTab('dynamic-sidebar', this)">导演</div>
     </div>
 
@@ -132,27 +124,27 @@
             <span class="badge" style="background:#86868b; align-self: flex-start; margin-bottom:10px;">DeepSeek 创作工具</span>
             
             <label>API Key</label>
-            <input type="password" id="apiKey" placeholder="sk-...">
+            <input type="password" id="apiKey" placeholder="请去DeepSeek申请并充两三元">
             <label>小说名字</label>
-            <input type="text" id="novel-title" value="请输入小说名">
+            <input type="text" id="novel-title" placeholder="请输入小说名">
 
             <hr style="width:100%; border:0; border-top:1px solid #e5e5e5; margin:15px 0;">
 
             <label>📘 智能知识库 (Auto-Wiki)</label>
-            <div class="tips">* AI会自动提取新的人/物/伏笔，保持连贯性。</div>
-            <textarea id="entityMemory" rows="8" class="input-wiki" placeholder="[物品] 主角武器：金箍棒..."></textarea>
+            <div class="tips">* AI 自动提取新的人/物/伏笔，保持连贯性。</div>
+            <textarea id="entityMemory" rows="8" class="input-wiki" placeholder="[物品] 武器：金箍棒..."></textarea>
             
             <label>🌍 世界观 (Worldview)</label>
-            <textarea id="worldView" rows="4" placeholder="规则、环境、力量体系..."></textarea>
+            <textarea id="worldView" rows="4" placeholder="规则、环境、体系..."></textarea>
             
             <label>👤 核心角色档案 (Bible)</label>
             <textarea id="characterBible" rows="5" placeholder="姓名、性格、人设、关系..."></textarea>
             
             <label>🎨 文学风格 (Style)</label>
-            <textarea id="styleRef" rows="2">例如：权谋，冷峻，节奏紧凑。</textarea>
+            <textarea id="styleRef" rows="2" placeholder="例如：权谋，冷峻，节奏紧凑。"></textarea>
             
             <label>🚫 避坑指令 (Negative)</label>
-            <textarea id="negativePrompt" rows="2">例如：少写“眼神一冷”；拒绝流水账。</textarea>
+            <textarea id="negativePrompt" rows="2" placeholder="例如：少写“眼神一冷”；拒绝流水账。"></textarea>
         </div>
 
         <div id="main-container" class="active-panel">
@@ -161,7 +153,7 @@
                     <span>接力起点</span>
                     <span id="editor-count">0 字</span>
                 </div>
-                <textarea id="novel-content" placeholder="在此粘贴上一章结尾..."></textarea>
+                <textarea id="novel-content" placeholder="在此粘贴上一段结尾..."></textarea>
             </div>
             
             <div id="history-wrapper">
@@ -184,8 +176,8 @@
             <div class="tips">* 记录不可逆的改变或重大转折（如角色死亡、城池陷落）。</div>
             <textarea id="statusTracker" rows="4" class="input-fact" placeholder="已发生的事实..."></textarea>
             
-            <label>② 前情提要 (Summary)</label>
-            <textarea id="contextSummary" rows="4" placeholder="AI 生成的剧情浓缩快照..."></textarea>
+            <label>② 前情提提要 (Summary)</label>
+            <textarea id="contextSummary" rows="4" placeholder="AI生成上一章剧情浓缩快照..."></textarea>
             
             <hr style="width:100%; border:0; border-top:1px solid #e5e5e5; margin:15px 0;">
             
@@ -216,7 +208,7 @@
 
             <label>⑥ 叙事视角 (POV)</label>
             <select id="pov">
-                <option value="第三人称视角">第三人称视角</option>
+                <option value="第三人称视角">第三人称</option>
                 <option value="第一人称">第一人称</option>
                 <option value="上帝视角">上帝视角</option>
             </select>
@@ -225,7 +217,7 @@
                 <span>总字数: <b id="total-words">0</b></span>
                 <span>场次: <b id="ver-count">0</b></span>
             </div>
-            <button class="btn btn-outline" style="width:100%; margin-top:10px; font-size:12px;" onclick="downloadFullDraft()">📥 导出全部文本</button>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px; font-size:12px;" onclick="downloadFullDraft()">📥 导出全本</button>
         </div>
     </div>
 
@@ -247,7 +239,7 @@
             const pov = document.getElementById('pov').value;
             
             let lengthInstruction = "";
-            if(lengthMode === 'long') lengthInstruction = "请深度扩写，丰富细节，篇幅1000字以上。";
+            if(lengthMode === 'long') lengthInstruction = "请深度扩写，丰富细节，篇幅1500字以上。";
             if(lengthMode === 'short') lengthInstruction = "请快速推进，篇幅500字左右。";
 
             return `你是一位殿堂级小说家。
@@ -353,7 +345,7 @@ ${document.getElementById('negativePrompt').value}
                             content: `分析最新小说段落：
 1. **更新Wiki**：简要提取新出现的关键人物特征、物品、伏笔。保留旧的重要条目，合并新条目。
 2. **更新摘要**：概括剧情。
-3. **更新事实**：记录不可逆改变（如死亡、毁灭）。
+3. **更新事实**：记录不可逆改变（如死亡、毁灭、强烈冲突）。
 返回JSON：{ "wiki": "...", "summary": "...", "facts": "..." }`
                         }, {
                             role: "user", 
@@ -414,7 +406,6 @@ ${document.getElementById('negativePrompt').value}
 
         function downloadFullDraft() {
             let fullText = `《${document.getElementById('novel-title').value}》\n\n`;
-            // 倒序遍历，因为prepend是倒插的，dom顺序是新->旧，导出需要旧->新
             const cards = Array.from(document.querySelectorAll('.history-body')).reverse();
             cards.forEach(el => fullText += el.innerText + "\n\n");
             saveFile(`全稿_${Date.now()}.txt`, fullText);
