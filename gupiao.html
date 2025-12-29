@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>最热50股 - AI分析</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+    
+    <style>
+        body { font-family: 'PingFang SC', system-ui, sans-serif; background-color: #0f1115; color: #e5e7eb; overscroll-behavior: none; }
+        .input-dark { background: #0f1115; border: 1px solid #2d3139; color: white; transition: all 0.3s; }
+        .input-dark:focus { border-color: #6366f1; outline: none; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
+        
+        /* Markdown 样式 */
+        .prose { font-size: 0.95rem; line-height: 1.7; color: #d1d5db; }
+        .prose h3 { color: #818cf8; font-weight: 700; margin-top: 1.2em; margin-bottom: 0.6em; border-left: 3px solid #6366f1; padding-left: 10px; background: rgba(99, 102, 241, 0.05); padding-top: 4px; padding-bottom: 4px; border-radius: 0 4px 4px 0; }
+        .prose p { margin-bottom: 0.8em; text-align: justify; }
+        .prose strong { color: #f87171; font-weight: 700; background: rgba(248, 113, 113, 0.1); padding: 0 4px; border-radius: 3px; }
+        .prose ul { padding-left: 1.2em; margin-bottom: 1em; color: #9ca3af; list-style-type: disc; }
+        
+        [v-cloak] { display: none; }
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        .nav-active { color: #818cf8; font-weight: bold; }
+        .nav-active svg { stroke: #818cf8; }
+    </style>
+</head>
+<body>
+
+<div id="app" v-cloak class="h-[100dvh] flex flex-col overflow-hidden max-w-[1920px] mx-auto">
+
+    <header class="flex-none h-14 border-b border-gray-800 bg-[#181b21] flex items-center justify-between px-4 z-30">
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20 text-xs">R1</div>
+            <h1 class="font-bold tracking-tight text-gray-100 text-sm md:text-base">QuantPro <span class="hidden md:inline text-indigo-400 text-[10px] uppercase px-1.5 py-0.5 bg-indigo-500/10 rounded font-bold">Fix</span></h1>
+        </div>
+
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="relative">
+                <input type="text" v-model="searchQuery" @input="handleSearch" placeholder="代码/名称" 
+                    class="w-24 md:w-56 input-dark px-2 md:px-3 py-1.5 rounded text-xs focus:w-40 md:focus:w-64 focus:border-indigo-500 placeholder-gray-600 transition-all duration-300">
+                <div v-if="searchResults.length" class="absolute top-full right-0 w-48 bg-[#1e2229] border border-gray-700 mt-1 rounded shadow-xl max-h-60 overflow-y-auto z-50">
+                    <div v-for="item in searchResults" :key="item.code" @click="selectStock(item)"
+                         class="p-3 hover:bg-indigo-600/20 hover:text-indigo-300 cursor-pointer text-xs flex justify-between border-b border-gray-800">
+                        <span>{{ item.name }}</span><span class="opacity-50 font-mono">{{ item.code }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <button @click="showConfig = !showConfig" class="px-2 md:px-3 py-1.5 bg-gray-800 rounded border border-gray-700 text-xs text-gray-300 flex items-center gap-1">
+                <span v-if="apiKey" class="text-emerald-400">●</span>
+                <span v-else>⚙️</span>
+                <span class="hidden md:inline">{{ apiKey ? '已连接' : '配置Key' }}</span>
+            </button>
+        </div>
+    </header>
+
+    <div v-if="showConfig" class="fixed inset-0 z-50 flex items-start justify-end p-4 md:top-12">
+        <div @click="showConfig = false" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        <div class="relative w-full md:w-80 bg-[#1e2229] border border-gray-700 p-5 rounded-xl shadow-2xl animate-fade-in-down">
+            <h3 class="text-sm font-bold text-white mb-3">DeepSeek API 配置</h3>
+            <input type="password" v-model="tempKey" placeholder="sk-..." class="w-full input-dark px-3 py-2 rounded text-sm mb-3">
+            <div class="flex gap-2">
+                <button @click="saveKey" class="flex-1 bg-indigo-600 text-white py-2 rounded text-xs font-bold">保存</button>
+                <button @click="tempKey = ''; saveKey()" class="px-4 bg-gray-700 text-gray-300 rounded text-xs">清除</button>
+            </div>
+            <p class="mt-3 text-[10px] text-gray-500">Key 仅保存在本地浏览器缓存中。</p>
+        </div>
+    </div>
+
+    <div class="flex-1 flex overflow-hidden relative">
+        
+        <div class="flex-col bg-[#0f1115] border-r border-gray-800 w-full md:w-64 lg:w-72 md:flex absolute md:relative inset-0 z-10 md:z-auto"
+             :class="mobileTab === 'list' ? 'flex' : 'hidden'">
+            
+            <div class="p-3 border-b border-gray-800 flex justify-between items-center bg-[#13161c]">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">市场热度 Top50</span>
+                <button @click="fetchTopList" class="text-indigo-400 flex items-center gap-1 text-xs hover:text-white transition">
+                    <span v-if="loading" class="animate-spin">↻</span> 刷新
+                </button>
+            </div>
+
+            <div class="grid grid-cols-12 gap-2 px-3 py-2 bg-[#181b21] border-b border-gray-800 text-[10px] text-gray-500 font-bold uppercase sticky top-0 z-20">
+                <div class="col-span-2 text-center">评分</div>
+                <div class="col-span-7">股票名</div>
+                <div class="col-span-3 text-right">涨幅</div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto custom-scrollbar pb-16 md:pb-0">
+                <div v-for="stock in stockList" :key="stock.code" @click="handleStockClick(stock)"
+                    class="grid grid-cols-12 gap-2 p-3 border-b border-gray-800/50 active:bg-[#181b21] cursor-pointer group transition-colors items-center"
+                    :class="{'bg-[#181b21] border-l-2 border-l-indigo-500': currentStock && currentStock.code === stock.code}">
+                    <div class="col-span-2 text-center">
+                        <span class="font-mono font-bold text-sm" :class="getScoreColor(stock.score)">{{ stock.score.toFixed(1) }}</span>
+                    </div>
+                    <div class="col-span-7 overflow-hidden pl-1">
+                        <div class="text-sm text-gray-200 font-medium truncate group-hover:text-indigo-400 transition">{{ stock.name }}</div>
+                        <div class="text-[10px] text-gray-500 font-mono">{{ stock.code }}</div>
+                    </div>
+                    <div class="col-span-3 text-right">
+                        <div class="font-mono text-sm font-medium" :class="stock.change >= 0 ? 'text-red-400' : 'text-emerald-400'">
+                            {{ stock.change }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-col flex-1 bg-[#0b0f19] min-w-0 w-full md:w-auto absolute md:relative inset-0 z-10 md:z-auto"
+             :class="mobileTab === 'chart' ? 'flex' : 'hidden'">
+            
+            <div v-if="currentStock" class="p-3 md:p-4 border-b border-gray-800 flex justify-between items-end bg-[#13161c]">
+                <div>
+                    <h2 class="text-lg md:text-2xl font-bold text-white flex items-center gap-2">
+                        {{ currentStock.name }} 
+                        <span class="text-[10px] md:text-xs px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 font-mono border border-gray-700">{{ currentStock.code }}</span>
+                    </h2>
+                    <div class="flex flex-wrap gap-3 mt-1 text-[10px] md:text-xs text-gray-400 font-mono">
+                        <span>现价 <b class="text-white">{{ currentStock.price }}</b></span>
+                        <span>主力 <b :class="currentStock.flow > 0 ? 'text-red-400' : 'text-emerald-400'">{{ formatFlow(currentStock.flow) }}</b></span>
+                        <span>RSI <b :class="getRsiColor(currentIndicators.rsi)">{{ currentIndicators.rsi }}</b></span>
+                    </div>
+                </div>
+                <button @click="mobileTab = 'ai'" class="md:hidden px-3 py-1 bg-indigo-600/20 text-indigo-300 text-xs rounded border border-indigo-500/30">
+                    AI分析 &rarr;
+                </button>
+            </div>
+
+            <div class="flex-1 relative flex flex-col pb-16 md:pb-0">
+                <div v-show="!currentStock" class="absolute inset-0 flex flex-col items-center justify-center text-gray-600">
+                    <div class="text-4xl md:text-6xl mb-4 opacity-10">📈</div>
+                    <p class="text-xs md:text-sm opacity-50">请先选择股票</p>
+                </div>
+                <div id="klineChart" class="flex-grow w-full"></div>
+                <div id="rsiChart" class="h-1/3 md:h-1/3 w-full border-t border-gray-800"></div>
+            </div>
+        </div>
+
+        <div class="flex-col w-full md:w-80 lg:w-[420px] bg-[#13161c] border-l border-gray-800 md:flex absolute md:relative inset-0 z-10 md:z-auto"
+             :class="mobileTab === 'ai' ? 'flex' : 'hidden'">
+            
+            <div class="p-3 border-b border-gray-800 bg-[#181b21] flex justify-between items-center shadow-sm">
+                <h3 class="font-bold text-gray-100 text-sm flex items-center gap-2">
+                    🧠 R1 深度思考
+                </h3>
+                <span v-if="reportCache[currentStock?.code]" class="text-[10px] text-emerald-400 bg-emerald-400/10 px-1.5 rounded border border-emerald-400/20">已缓存</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-5 custom-scrollbar bg-[#13161c] pb-20 md:pb-0">
+                <div v-if="!apiKey" class="h-full flex flex-col items-center justify-center text-center opacity-60">
+                    <div class="text-3xl mb-2">🔐</div>
+                    <p class="text-xs text-gray-500 px-8">请配置 DeepSeek API Key<br>以启用深度分析</p>
+                </div>
+
+                <div v-else>
+                    <div v-if="!currentStock" class="text-center py-20 text-gray-600 text-sm">
+                        请选择股票
+                    </div>
+
+                    <div v-else>
+                        <div class="mb-4">
+                            <button v-if="aiStatus === 'idle' || aiStatus === 'success'" @click="callDeepSeek(true)" 
+                                class="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 text-white rounded-lg shadow-lg transition text-sm font-bold flex items-center justify-center gap-2">
+                                <span v-if="reportCache[currentStock.code]">⟳ 强制刷新分析</span>
+                                <span v-else>✨ 启动深度分析</span>
+                            </button>
+                        </div>
+
+                        <div v-if="aiStatus === 'loading'" class="space-y-4 p-4 border border-indigo-500/20 rounded-lg bg-indigo-900/10">
+                            <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold animate-pulse">
+                                <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>
+                                R1 模型正在推理中...
+                            </div>
+                            <div class="h-3 bg-gray-700 rounded w-3/4 opacity-50"></div>
+                            <div class="h-3 bg-gray-700 rounded w-1/2 opacity-50"></div>
+                        </div>
+
+                        <div v-if="aiOutput" class="animate-fade-in" :key="refreshKey">
+                            <div class="prose prose-invert prose-sm">
+                                <div v-html="renderMarkdown(aiOutput)"></div>
+                            </div>
+                            <div class="mt-8 pt-4 border-t border-gray-800 text-[10px] text-gray-600 text-center font-mono">
+                                Generated by DeepSeek-R1 | 数据基于实时行情
+                            </div>
+                        </div>
+                        
+                         <div v-if="aiStatus === 'error'" class="p-3 bg-red-900/20 border border-red-900/50 rounded text-red-400 text-xs mt-4">
+                            {{ errorMessage }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="md:hidden flex-none h-14 bg-[#181b21] border-t border-gray-800 flex justify-around items-center z-40 pb-safe">
+        <button @click="mobileTab = 'list'" class="flex flex-col items-center gap-1 p-2 text-[10px] text-gray-500 transition" :class="mobileTab==='list'?'nav-active':''">
+            <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            列表
+        </button>
+        <button @click="mobileTab = 'chart'; resizeCharts()" class="flex flex-col items-center gap-1 p-2 text-[10px] text-gray-500 transition" :class="mobileTab==='chart'?'nav-active':''">
+            <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 3v18h18"></path></svg>
+            图表
+        </button>
+        <button @click="mobileTab = 'ai'" class="flex flex-col items-center gap-1 p-2 text-[10px] text-gray-500 transition" :class="mobileTab==='ai'?'nav-active':''">
+            <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3M3.337 17l-.707-.707M12 21a9 9 0 110-18 9 9 0 010 18z"></path></svg>
+            研报
+        </button>
+    </div>
+
+</div>
+
+<script>
+    const { createApp, ref, nextTick } = Vue;
+    const md = window.markdownit({ html: true, breaks: true });
+
+    createApp({
+        setup() {
+            // 状态管理
+            const showConfig = ref(false);
+            const apiKey = ref(localStorage.getItem('ds_api_key') || '');
+            const tempKey = ref(apiKey.value);
+            const mobileTab = ref('list');
+            const loading = ref(false);
+            
+            const stockList = ref([]);
+            const currentStock = ref(null);
+            const currentIndicators = ref({ rsi: '-', ma20: '-' });
+            const searchQuery = ref('');
+            const searchResults = ref([]);
+            
+            const aiStatus = ref('idle');
+            const aiOutput = ref('');
+            const errorMessage = ref('');
+            const reportCache = ref({});
+            const refreshKey = ref(0);
+
+            const saveKey = () => {
+                apiKey.value = tempKey.value;
+                if(apiKey.value) localStorage.setItem('ds_api_key', apiKey.value);
+                else localStorage.removeItem('ds_api_key');
+                showConfig.value = false;
+            };
+
+            const handleStockClick = (stock) => {
+                analyzeStock(stock);
+                mobileTab.value = 'chart';
+            };
+
+            // DeepSeek 调用
+            const callDeepSeek = async (forceRefresh = false) => {
+                if (!apiKey.value || !currentStock.value) return;
+                const code = currentStock.value.code;
+
+                if (!forceRefresh && reportCache.value[code]) {
+                    aiOutput.value = reportCache.value[code];
+                    aiStatus.value = 'success';
+                    refreshKey.value++;
+                    return;
+                }
+
+                aiStatus.value = 'loading';
+                aiOutput.value = '';
+                errorMessage.value = '';
+
+                const s = currentStock.value;
+                const i = currentIndicators.value;
+                const today = new Date().toLocaleDateString();
+                
+                const prompt = `
+当前日期：${today}
+请以资深量化分析师身份分析A股【${s.name} ${s.code}】：
+数据来源：实时真实行情
+盘面：现价${s.price}(${s.change}%)，主力资金流向${formatFlow(s.flow)}
+技术：MA20=${i.ma20}，RSI(6)=${i.rsi}
+
+请按Markdown输出简报（不要提及模拟数据）：
+### 1. 核心逻辑推演
+(判断趋势与主力意图)
+### 2. 操作策略建议
+- **评级**：(买入/持有/卖出)
+- **点位**：支撑${(s.price*0.95).toFixed(2)} / 压力${(s.price*1.05).toFixed(2)}
+- **风控**：止损建议
+`;
+
+                try {
+                    const res = await fetch('https://api.deepseek.com/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey.value}` },
+                        body: JSON.stringify({
+                            model: "deepseek-reasoner",
+                            messages: [{"role": "user", "content": prompt}],
+                            stream: false
+                        })
+                    });
+
+                    if(!res.ok) throw new Error((await res.json()).error?.message || 'API Error');
+                    const data = await res.json();
+                    let content = data.choices[0].message.content;
+                    content = content.replace(/<think>[\s\S]*?<\/think>/g, "");
+                    aiOutput.value = content;
+                    reportCache.value[code] = content; 
+                    aiStatus.value = 'success';
+                    refreshKey.value++;
+
+                } catch (e) {
+                    aiStatus.value = 'error';
+                    errorMessage.value = e.message;
+                }
+            };
+
+            // 核心修复逻辑：图表绘制与真实涨幅计算
+            let kChart = null, rChart = null;
+            const drawChart = (dates, data, ma20, rsi) => {
+                nextTick(() => {
+                    if (kChart) kChart.dispose();
+                    if (rChart) rChart.dispose();
+                    kChart = echarts.init(document.getElementById('klineChart'));
+                    rChart = echarts.init(document.getElementById('rsiChart'));
+
+                    const optionK = {
+                        grid: { left: 40, right: 10, top: 20, bottom: 10 },
+                        tooltip: {
+                            trigger: 'axis', axisPointer: { type: 'cross' },
+                            backgroundColor: 'rgba(255,255,255,0.95)',
+                            textStyle: { color: '#333', fontSize: 12 },
+                            formatter: (params) => {
+                                let res = `<div style="font-weight:bold;margin-bottom:2px">${params[0].axisValue}</div>`;
+                                params.forEach(p => {
+                                    if(p.seriesName === 'K线') {
+                                        // data: [idx, open, close, low, high, changePct]
+                                        const open = p.data[1], close = p.data[2], low = p.data[3], high = p.data[4];
+                                        const changePct = p.data[5]; // 获取预计算的真实涨幅
+                                        const c = close >= open ? '#ef4444' : '#10b981';
+                                        res += `<div style="color:${c}">
+                                            开: ${open}  高: ${high}<br>
+                                            低: ${low}   收: ${close}<br>
+                                            幅: ${changePct}%
+                                        </div>`;
+                                    }
+                                });
+                                return res;
+                            }
+                        },
+                        xAxis: { data: dates, axisLine: { show: false }, axisLabel: { show: false } },
+                        yAxis: { scale: true, splitLine: { lineStyle: { color: '#2d3139' } } },
+                        dataZoom: [{ type: 'inside', start: 60, end: 100, xAxisIndex: [0] }],
+                        series: [
+                            { name: 'K线', type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#10b981', borderColor: '#ef4444', borderColor0: '#10b981' } },
+                            { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#f59e0b' } }
+                        ]
+                    };
+                    const optionR = {
+                        grid: { left: 40, right: 10, top: 5, bottom: 20 },
+                        tooltip: { trigger: 'axis', formatter: '{b}<br>RSI: {c}' },
+                        xAxis: { data: dates, axisLine: { lineStyle: { color: '#4b5563' } } },
+                        yAxis: { min: 0, max: 100, splitNumber: 3, splitLine: { lineStyle: { color: '#2d3139' } } },
+                        dataZoom: [{ type: 'inside', start: 60, end: 100, xAxisIndex: [0] }],
+                        series: [
+                            { name: 'RSI6', type: 'line', data: rsi, showSymbol: false, lineStyle: { width: 1, color: '#6366f1' } },
+                            { type: 'line', markLine: { symbol: 'none', data: [{ yAxis: 80 }, { yAxis: 20 }], lineStyle: { color: '#4b5563', type: 'dashed' } } }
+                        ]
+                    };
+                    kChart.setOption(optionK);
+                    rChart.setOption(optionR);
+                    echarts.connect([kChart, rChart]);
+                });
+            };
+
+            const resizeCharts = () => setTimeout(() => { if(kChart) kChart.resize(); if(rChart) rChart.resize(); }, 100);
+            window.onresize = resizeCharts;
+
+            const calcRSI = (closes) => {
+                let rsi = [], changes = [];
+                for(let i=1; i<closes.length; i++) changes.push(closes[i] - closes[i-1]);
+                for(let i=0; i<closes.length; i++) {
+                    if(i < 6) { rsi.push('-'); continue; }
+                    let gain=0, loss=0;
+                    for(let j=i-6; j<i; j++) {
+                        if(changes[j] >= 0) gain += changes[j]; else loss += Math.abs(changes[j]);
+                    }
+                    let rs = gain / (loss===0?1:loss);
+                    rsi.push((100 - 100/(1+rs)).toFixed(2));
+                }
+                return rsi;
+            }
+
+            const analyzeStock = (stock) => {
+                currentStock.value = stock;
+                if(reportCache.value[stock.code]) {
+                    aiOutput.value = reportCache.value[stock.code];
+                    aiStatus.value = 'success';
+                    refreshKey.value++;
+                } else {
+                    aiOutput.value = '';
+                    aiStatus.value = 'idle';
+                }
+                
+                const cb = 'cb_k_' + Date.now();
+                // 核心修复：完善SecId逻辑
+                let secId = '0.'+stock.code;
+                if(stock.code.startsWith('6')) secId = '1.'+stock.code;
+                if(stock.code.startsWith('8') || stock.code.startsWith('4')) secId = '0.'+stock.code; 
+                
+                // 核心修复：fqt=1 (前复权) + _=timestamp (防缓存)
+                const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=${cb}&secid=${secId}&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55&klt=101&fqt=1&end=20500101&lmt=120&_=${Date.now()}`;
+                
+                window[cb] = (res) => {
+                    if(res?.data?.klines) {
+                        const raw = res.data.klines.map(i => i.split(','));
+                        const dates = raw.map(i => i[0].substring(5));
+                        
+                        // 数据一致性校验逻辑
+                        let data = [];
+                        let closes = [];
+                        
+                        raw.forEach((item, index) => {
+                            let open = parseFloat(item[1]);
+                            let close = parseFloat(item[2]);
+                            let high = parseFloat(item[3]);
+                            let low = parseFloat(item[4]);
+                            
+                            // 计算真实涨跌幅
+                            let preClose = index > 0 ? parseFloat(raw[index-1][2]) : open;
+                            let realChange = ((close - preClose) / preClose * 100).toFixed(2);
+                            
+                            data.push([open, close, low, high, realChange]);
+                            closes.push(close);
+                        });
+                        
+                        // 强制对齐：如果K线最新价格与列表现价偏差>5%，则说明API复权有误，进行平移修正
+                        const lastKClose = closes[closes.length-1];
+                        const listPrice = parseFloat(stock.price);
+                        
+                        // 仅当列表价格有效（非停牌/-）时校验
+                        if(listPrice && Math.abs(lastKClose - listPrice) / listPrice > 0.05) {
+                            console.log('检测到复权偏差，执行修正...');
+                            const ratio = listPrice / lastKClose;
+                            data = data.map(d => [d[0]*ratio, d[1]*ratio, d[2]*ratio, d[3]*ratio, d[4]]);
+                            closes = closes.map(c => c * ratio);
+                        }
+
+                        const rsi = calcRSI(closes);
+                        const ma20 = closes.map((v, i, arr) => {
+                            if(i < 20) return '-';
+                            let sum = 0; for(let k=0; k<20; k++) sum += arr[i-k];
+                            return (sum/20).toFixed(2);
+                        });
+                        currentIndicators.value = { rsi: rsi[rsi.length-1], ma20: ma20[ma20.length-1] };
+                        drawChart(dates, data, ma20, rsi);
+                    }
+                    delete window[cb];
+                    document.body.removeChild(document.getElementById('sk'));
+                };
+                const s = document.createElement('script'); s.id='sk'; s.src=url; document.body.appendChild(s);
+            };
+
+            const fetchTopList = () => {
+                loading.value = true;
+                const cb = 'cb_top_' + Date.now();
+                const url = `https://push2.eastmoney.com/api/qt/clist/get?cb=${cb}&pn=1&pz=50&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&fields=f12,f14,f2,f3,f62,f6`;
+                window[cb] = (res) => {
+                    if(res?.data?.diff) {
+                        stockList.value = res.data.diff.map(d => ({
+                            code: d.f12, name: d.f14, price: d.f2, change: d.f3, flow: d.f62, score: 50 + d.f3 * 1.5 + (d.f62 > 0 ? 5 : -5)
+                        })).sort((a,b) => b.score - a.score);
+                        if(stockList.value.length && window.innerWidth > 768) analyzeStock(stockList.value[0]);
+                    }
+                    loading.value = false;
+                    delete window[cb];
+                    document.body.removeChild(document.getElementById('st'));
+                }
+                const s = document.createElement('script'); s.id='st'; s.src=url; document.body.appendChild(s);
+            };
+
+            const handleSearch = () => {
+                if(!searchQuery.value) return;
+                const cb = 'cb_s_' + Date.now();
+                window[cb] = (res) => {
+                    if(res?.QuotationCodeTable?.Data) searchResults.value = res.QuotationCodeTable.Data.map(d => ({ code: d.Code, name: d.Name }));
+                    delete window[cb];
+                    document.body.removeChild(document.getElementById('ss'));
+                }
+                const s = document.createElement('script'); s.id='ss'; 
+                s.src=`https://searchapi.eastmoney.com/api/suggest/get?input=${searchQuery.value}&type=14&cb=${cb}`;
+                document.body.appendChild(s);
+            }
+            
+            const selectStock = (item) => {
+                searchResults.value = []; searchQuery.value = '';
+                // 搜索时价格未知，传入占位符，analyzeStock内部会修正
+                analyzeStock({ code: item.code, name: item.name, price: '-', change: 0, flow: 0 });
+                mobileTab.value = 'chart';
+            }
+
+            const formatFlow = (v) => v ? (v/100000000).toFixed(2) + '亿' : '-';
+            const getScoreColor = (s) => s >= 80 ? 'text-red-500' : (s >= 60 ? 'text-indigo-400' : 'text-gray-500');
+            const getRsiColor = (v) => v > 80 ? 'text-red-500' : (v < 30 ? 'text-emerald-400' : 'text-gray-400');
+            const renderMarkdown = (t) => md.render(t || '');
+
+            return {
+                showConfig, apiKey, tempKey, saveKey, mobileTab, handleStockClick, resizeCharts,
+                stockList, currentStock, currentIndicators, loading, aiStatus, aiOutput, errorMessage, searchQuery, searchResults,
+                callDeepSeek, analyzeStock, fetchTopList, handleSearch, selectStock, reportCache, refreshKey,
+                formatFlow, getScoreColor, getRsiColor, renderMarkdown
+            };
+        }
+    }).mount('#app');
+</script>
+<script src="common.js"></script>
+</body>
+</html>
