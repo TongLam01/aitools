@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepSeek穿透式合同诊断助手 V1.0</title>
+    <title>DeepSeek商事合同诊断助手 V1.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -35,12 +35,12 @@
     <div class="max-w-7xl mx-auto px-4 py-8">
         <header class="mb-8 flex justify-between items-end border-b pb-4">
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">穿透式合同诊断助手 <span class="text-emerald-600 text-sm font-normal ml-2 italic">V1.0 自动脱敏版</span></h1>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">合同诊断助手 <span class="text-emerald-600 text-sm font-normal ml-2 italic">V1.0 自动脱敏版</span></h1>
                 <p class="text-slate-500 mt-1 italic italic">本地脱敏，DeepSeek诊断，仅供参考</p>
             </div>
             <div class="flex space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-waiting text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all">
-                    导出 Word 报告
+                    导出报告
                 </button>
             </div>
         </header>
@@ -54,13 +54,13 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-bold text-slate-400 uppercase flex justify-between items-center">
-                                <span>API Key</span>
+                                <span>API Key（必填）</span>
                                 <a href="https://platform.deepseek.com/" target="_blank" class="text-emerald-600 text-xs lowercase font-normal italic hover:underline">去获得官方Key</a>
                             </label>
                             <input type="password" id="apiKey" class="mt-1 block w-full rounded-lg border-slate-200 bg-slate-50 p-2 text-sm border shadow-sm" placeholder="填入DeepSeek官方API Key并充值">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-slate-400 uppercase mb-1">合同上传 (Word/PDF)</label>
+                            <label class="block text-sm font-bold text-slate-400 uppercase mb-1">合同上传 (可选)</label>
                             <div class="file-upload-zone rounded-lg p-3 text-center relative" id="uploadArea">
                                 <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept=".docx,.pdf">
                                 <div class="text-slate-400 text-[12px]" id="fileStatus">本地解析+自动脱敏</div>
@@ -83,11 +83,11 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-slate-400 uppercase text-emerald-600">★ 特别关注点</label>
-                            <input type="text" id="focus" class="mt-1 block w-full rounded-lg border-emerald-200 bg-emerald-50 p-2.5 text-xs border shadow-inner" placeholder="必填">
+                            <label class="block text-sm font-bold text-slate-400 uppercase text-emerald-600">★ 特别关注点（必填）</label>
+                            <input type="text" id="focus" class="mt-1 block w-full rounded-lg border-emerald-200 bg-emerald-50 p-2.5 text-xs border shadow-inner" placeholder="例如合规、公平性">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-slate-400 uppercase">脱敏结果预览/粘贴合同文本</label>
+                            <label class="block text-sm font-bold text-slate-400 uppercase">脱敏预览 或 在此粘贴合同文本</label>
                             <textarea id="contractText" rows="10" class="mt-1 block w-full rounded-lg border-slate-200 bg-slate-50 p-2.5 text-[11px] border font-mono" placeholder="脱敏数据展示..."></textarea>
                         </div>
                         <button onclick="startInitialAudit()" id="submitBtn" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg text-sm">
@@ -128,8 +128,12 @@
         function secureDeIdentify(text) {
             if (!text) return "";
             let result = text;
-            const companyRegex = /(?:[\u4e00-\u9fa5]{2,30})(?:有限公司|有限责任公司|集团|中心|研究所|事务所|分公司|代表处|厂|校|会)/g;
-            const addressRegex = /(?:[\u4e00-\u9fa5]{2,}(?:省|自治区|市|区|县|镇|街道|路|街|弄))+(?:[\u4e00-\u9fa5\d\-A-Za-z]+(?:号|幢|栋|单元|层|室|房|弄))/g;
+            
+            // 优化点：
+            // 1. 公司正则：有限公司等直接匹配；“中心/厂/校”等弱特征词改为必须配合地域前缀识别，防止误伤“康养中心”；“会”精准化防止误伤“统一社会”。
+            // 2. 地址正则：通过负向先行断言 (?!域) 确保“区域”不被匹配；通过 (?!社区|双方) 排除非地址前缀。
+            const companyRegex = /(?:[\u4e00-\u9fa5]{2,30})(?:有限公司|有限责任公司|集团|研究所|事务所|分公司|代表处)|(?!(?:社区|双方))(?:[\u4e00-\u9fa5]{2,10}(?:省|市|区(?!域)|县))[\u4e00-\u9fa5]{0,20}(?:中心|工厂|学校|协会|商会)/g;
+            const addressRegex = /(?!(?:社区|双方))(?:[\u4e00-\u9fa5]{2,}(?:省|自治区|市|区(?!域)|县|镇|街道|路|街|弄))+(?:[\u4e00-\u9fa5\d\-A-Za-z]+(?:号|幢|栋|单元|层|室|房|弄))/g;
 
             let rawMatches = Array.from(new Set([
                 ...(text.match(companyRegex) || []),
@@ -146,14 +150,16 @@
 
             filteredMatches.forEach(trimmedStr => {
                 if (!identityMap.has(trimmedStr)) {
-                    const isCompany = companyRegex.test(trimmedStr);
-                    companyRegex.lastIndex = 0;
-                    if (isCompany) {
-                        companyCount++;
-                        identityMap.set(trimmedStr, `[企业_${String.fromCharCode(64 + companyCount)}]`);
-                    } else {
+                    // 重新检测是公司还是地址
+                    const isAddress = addressRegex.test(trimmedStr);
+                    addressRegex.lastIndex = 0;
+                    
+                    if (isAddress) {
                         addressCount++;
                         identityMap.set(trimmedStr, `[地址_${addressCount}]`);
+                    } else {
+                        companyCount++;
+                        identityMap.set(trimmedStr, `[企业_${String.fromCharCode(64 + companyCount)}]`);
                     }
                 }
                 const escaped = trimmedStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -283,15 +289,22 @@
         async function startInitialAudit() {
             const role = document.getElementById('role').value;
             const focus = document.getElementById('focus').value;
-            const content = document.getElementById('contractText').value;
+            const textarea = document.getElementById('contractText');
             const apiKey = document.getElementById('apiKey').value;
-            if (!apiKey || !content || !focus) return alert('信息不完整');
+            
+            let currentText = textarea.value.trim();
+            if (!apiKey || !currentText || !focus) return alert('信息不完整');
+            
+            const maskedText = secureDeIdentify(currentText);
+            textarea.value = maskedText; 
+
             localStorage.setItem('ds_api_key', apiKey);
             document.getElementById('reportOutput').innerHTML = "";
             document.getElementById('followUpZone').classList.remove('hidden');
+            
             chatHistory = [
                 { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: `【身份】：${role}\n【特别关注】：${focus}\n\n【文本】：\n${content}` }
+                { role: "user", content: `【身份】：${role}\n【特别关注】：${focus}\n\n【文本】：\n${maskedText}` }
             ];
             await callAI(chatHistory);
         }
@@ -330,6 +343,6 @@
             }
         });
     </script>
-  <script src="common.js"></script>
+    <script src="common.js"></script>
 </body>
 </html>
