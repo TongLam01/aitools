@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DeepSeek Writer - Pro V15</title>
+    <title>DeepSeek小说创作工具</title>
     <style>
         :root {
             --bg: #f5f5f7;
@@ -110,7 +110,9 @@
             #layout-wrapper { flex-direction: column; }
             .panel, #main-container { display: none; width: 100% !important; height: 100%; }
             .active-panel { display: flex !important; }
-            #editor-wrapper { height: 16%; margin: 0; }
+            /* 修复：防止移动端缩放和输入框变小 */
+            textarea, input, select { font-size: 16px; } 
+            #editor-wrapper { height: 120px; min-height: 120px; margin: 0; flex-shrink: 0; }
             #history-wrapper { padding: 15px; background: #f2f2f7; }
             #control-bar { padding: 10px 15px 25px 15px; } 
         }
@@ -119,15 +121,15 @@
 <body>
 
     <div id="mobile-tabs">
-        <div class="tab-item" onclick="switchTab('static-sidebar', this)">设定</div>
-        <div class="tab-item active" onclick="switchTab('main-container', this)">创作</div>
+        <div class="tab-item" onclick="switchTab('static-sidebar', this)">基础设定</div>
+        <div class="tab-item active" onclick="switchTab('main-container', this)">创作区</div>
         <div class="tab-item" onclick="switchTab('dynamic-sidebar', this)">导演</div>
     </div>
 
     <div id="layout-wrapper">
         
         <div class="panel" id="static-sidebar">
-            <span class="badge" style="background:#86868b; align-self: flex-start; margin-bottom:10px;">Static Settings</span>
+            <span class="badge" style="background:#86868b; align-self: flex-start; margin-bottom:10px;">DeepSeek 创作工具</span>
             
             <label>API Key</label>
             <input type="password" id="apiKey" placeholder="sk-...">
@@ -137,14 +139,14 @@
             <hr style="width:100%; border:0; border-top:1px solid #e5e5e5; margin:15px 0;">
 
             <label>📘 智能知识库 (Auto-Wiki)</label>
-            <div class="tips">* AI 自动提取新的人/物/伏笔，保持连贯性。</div>
-            <textarea id="entityMemory" rows="8" class="input-wiki" placeholder="[物品] 玉佩：白玉莲花..."></textarea>
+            <div class="tips">* AI会自动提取新的人/物/伏笔，保持连贯性。</div>
+            <textarea id="entityMemory" rows="8" class="input-wiki" placeholder="[物品] 主角武器：金箍棒..."></textarea>
             
             <label>🌍 世界观 (Worldview)</label>
-            <textarea id="worldView" rows="4" placeholder="物理规则、地理环境、力量体系..."></textarea>
+            <textarea id="worldView" rows="4" placeholder="规则、环境、力量体系..."></textarea>
             
             <label>👤 核心角色档案 (Bible)</label>
-            <textarea id="characterBible" rows="5" placeholder="姓名、核心性格、绝对不能崩的人设..."></textarea>
+            <textarea id="characterBible" rows="5" placeholder="姓名、性格、人设、关系..."></textarea>
             
             <label>🎨 文学风格 (Style)</label>
             <textarea id="styleRef" rows="2">例如：权谋，冷峻，节奏紧凑。</textarea>
@@ -159,7 +161,7 @@
                     <span>接力起点</span>
                     <span id="editor-count">0 字</span>
                 </div>
-                <textarea id="novel-content" placeholder="在此粘贴上一段结尾..."></textarea>
+                <textarea id="novel-content" placeholder="在此粘贴上一章结尾..."></textarea>
             </div>
             
             <div id="history-wrapper">
@@ -179,7 +181,7 @@
             </button>
             
             <label>① 事实档案 (Facts)</label>
-            <div class="tips">* 记录不可逆的物理改变或重大转折（如角色死亡、城池陷落）。</div>
+            <div class="tips">* 记录不可逆的改变或重大转折（如角色死亡、城池陷落）。</div>
             <textarea id="statusTracker" rows="4" class="input-fact" placeholder="已发生的事实..."></textarea>
             
             <label>② 前情提要 (Summary)</label>
@@ -214,7 +216,7 @@
 
             <label>⑥ 叙事视角 (POV)</label>
             <select id="pov">
-                <option value="第三人称视角">第三人称限知视角</option>
+                <option value="第三人称视角">第三人称视角</option>
                 <option value="第一人称">第一人称</option>
                 <option value="上帝视角">上帝视角</option>
             </select>
@@ -223,7 +225,7 @@
                 <span>总字数: <b id="total-words">0</b></span>
                 <span>场次: <b id="ver-count">0</b></span>
             </div>
-            <button class="btn btn-outline" style="width:100%; margin-top:10px; font-size:12px;" onclick="downloadFullDraft()">📥 导出全本</button>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px; font-size:12px;" onclick="downloadFullDraft()">📥 导出全部文本</button>
         </div>
     </div>
 
@@ -246,7 +248,7 @@
             
             let lengthInstruction = "";
             if(lengthMode === 'long') lengthInstruction = "请深度扩写，丰富细节，篇幅1000字以上。";
-            if(lengthMode === 'short') lengthInstruction = "请快速推进，篇幅300字左右。";
+            if(lengthMode === 'short') lengthInstruction = "请快速推进，篇幅500字左右。";
 
             return `你是一位殿堂级小说家。
 【静态框架 (Static)】
@@ -349,7 +351,7 @@ ${document.getElementById('negativePrompt').value}
                         messages: [{
                             role: "system", 
                             content: `分析最新小说段落：
-1. **更新Wiki**：提取新出现的关键人物特征、物品、伏笔。保留旧的重要条目，合并新条目。
+1. **更新Wiki**：简要提取新出现的关键人物特征、物品、伏笔。保留旧的重要条目，合并新条目。
 2. **更新摘要**：概括剧情。
 3. **更新事实**：记录不可逆改变（如死亡、毁灭）。
 返回JSON：{ "wiki": "...", "summary": "...", "facts": "..." }`
