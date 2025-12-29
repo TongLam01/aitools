@@ -3,64 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>密语V1.0</title>
+    <title>在线密语 </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.1.0/style.css" />
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --primary: #1cb0f6; --primary-dark: #1486bb; --bg: #f0f7ff; --error: #ff4d4f; }
+        :root { 
+            --cinnabar: #c93731; /* 朱砂红 */
+            --gold: #b89766;    /* 沉金 */
+            --paper: #f9f7f2;   /* 宣纸色，更纯粹 */
+            --ink: #333333;     /* 墨色 */
+            --bg: #f2f2f2;
+        }
         
         body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 520px; margin-top: 10px; }
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
-        h1 { font-size: 1.3rem; text-align: center; color: var(--primary-dark); margin-bottom: 20px; font-weight: 700; }
+        .container { width: 100%; max-width: 500px; margin-top: 10px; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         
-        /* 输入区容器 */
-        .input-group { position: relative; margin-bottom: 18px; }
-        textarea, input { width: 100%; padding: 14px; border: 2px solid #eef2f7; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; transition: all 0.3s; background: #f8fbff; }
-        textarea:focus, input:focus { border-color: var(--primary); background: #fff; }
-        textarea { height: 160px; resize: none; padding-bottom: 30px; }
+        /* 标题统一使用文楷 */
+        h1, .card-title { font-family: "LXGW WenKai Screen", serif; font-size: 1.4rem; text-align: center; color: var(--cinnabar); margin-bottom: 20px; font-weight: bold; }
         
-        /* 字数统计样式 */
-        .char-counter { position: absolute; right: 12px; bottom: 8px; font-size: 12px; color: #7c98b6; pointer-events: none; }
-        .char-counter.limit-near { color: var(--error); font-weight: bold; }
+        .input-group { position: relative; margin-bottom: 12px; }
+        textarea, input { 
+            width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; 
+            box-sizing: border-box; font-size: 15px; outline: none; transition: all 0.3s; background: #fafafa;
+            font-family: inherit;
+        }
+        textarea:focus, input:focus { border-color: var(--cinnabar); background: #fff; box-shadow: 0 0 0 2px rgba(201, 55, 49, 0.1); }
+        textarea { height: 130px; resize: none; padding-bottom: 25px; }
+        
+        .char-counter { position: absolute; right: 10px; bottom: 8px; font-size: 11px; color: #aaa; }
 
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 17px; font-weight: bold; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 12px rgba(28, 176, 246, 0.3); margin-top: 10px; }
-        button:hover { background: var(--primary-dark); }
+        button { 
+            width: 100%; padding: 14px; background: var(--cinnabar); color: white; border: none; 
+            border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; 
+            transition: all 0.2s; box-shadow: 0 4px 10px rgba(201, 55, 49, 0.2); margin-top: 10px;
+        }
+        button:hover { background: #b02e28; transform: translateY(-1px); }
         
-        #result-section { margin-top: 30px; display: none; text-align: center; padding-top: 20px; border-top: 1px dashed #dceeff; animation: fadeIn 0.5s; }
+        #result-section { margin-top: 25px; display: none; text-align: center; border-top: 1px dashed #eee; padding-top: 20px; animation: fadeIn 0.5s; }
         
-        /* 二维码容器 - 增加留白 */
+        /* 二维码容器：极细双色描边 */
         #qrcode-wrapper { 
             display: inline-block; margin: 15px 0; position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            border-radius: 12px; background: white;
-            padding: 25px; cursor: pointer;
+            border-radius: 10px; background: white;
+            padding: 20px; cursor: pointer; 
+            box-shadow: 0 0 0 1px var(--cinnabar), 0 0 0 2px white, 0 0 0 3px var(--gold), 0 10px 20px rgba(0,0,0,0.05);
         }
-        
         #qrcode-raw { display: none; }
-        #qrcode-img { display: block; width: 200px; height: 200px; -webkit-touch-callout: default; }
+        #qrcode-img { display: block; width: 180px; height: 180px; }
 
-        .copy-tag { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); background: rgba(28, 176, 246, 0.9); color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; white-space: nowrap; pointer-events: none; }
-        .hint { font-size: 0.9rem; color: #7c98b6; margin-bottom: 10px; }
-        .url-box { background: #f0f7ff; padding: 12px; font-size: 12px; word-break: break-all; border-radius: 8px; margin: 15px 0; color: var(--primary-dark); border: 1px solid #dceeff; cursor: pointer; }
+        .copy-tag { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--gold); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; white-space: nowrap; font-weight: bold; }
+        .url-box { background: #fff; padding: 10px; font-size: 10px; word-break: break-all; border-radius: 5px; margin: 15px 0; color: #888; border: 1px solid #eee; cursor: pointer; }
 
-        /* 阅读模式 - 2x实线蓝框信纸风格 */
-        .article-container {
-            border: 2px solid var(--primary); 
-            padding: 30px; border-radius: 8px;
-            position: relative; background: #fff;
-            min-height: 120px; box-shadow: 8px 8px 0px rgba(28, 176, 246, 0.1);
-            margin-top: 20px;
+        /* 阅读模式：极简素面卡片 */
+        .new-year-card {
+            background-color: var(--paper);
+            /* 已移除背景纹路 SVG */
+            padding: 50px 35px;
+            /* 极细 1px 实线双框 */
+            border: 1px solid var(--cinnabar); 
+            outline: 1px solid var(--gold);    
+            outline-offset: -6px;
+            border-radius: 4px;
+            position: relative;
+            min-height: 180px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        .article-container::before {
-             content: ""; position: absolute; top: 6px; left: 6px; right: 6px; bottom: 6px;
-             border: 1px solid #e5e9f2; pointer-events: none; border-radius: 4px;
+
+        /* 纤细四角角标 */
+        .corner {
+            position: absolute; width: 25px; height: 25px;
+            border: 0.5px solid var(--gold); opacity: 0.5;
         }
-        .article-body { white-space: pre-wrap; line-height: 1.8; font-size: 1.15rem; color: #2c3e50; position: relative; z-index: 1; }
+        .cd-tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .cd-tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+        .cd-bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+        .cd-br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+        .article-body {
+            font-family: "LXGW WenKai Screen", "STKaiti", serif;
+            white-space: pre-wrap;
+            line-height: 2.2;
+            font-size: 1.45rem;
+            color: var(--ink);
+            z-index: 5;
+            text-align: center;
+            letter-spacing: 2px;
+            width: 100%;
+        }
+
+        .signature-body {
+            font-family: "LXGW WenKai Screen", serif;
+            align-self: flex-end;
+            margin-top: 30px;
+            font-size: 1.1rem;
+            color: var(--cinnabar);
+            z-index: 5;
+            letter-spacing: 1.5px;
+        }
 
         .hidden { display: none; }
-        #toast { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 1000; font-size: 14px; text-align: center; }
+        #toast { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 30px; display: none; z-index: 1000; font-size: 14px; text-align: center; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -69,37 +120,47 @@
 <div class="container">
     <div class="card">
         <div id="edit-ui">
-            <h1>✍️ 创建密语</h1>
+            <h1>✍️ 写下你的内容</h1>
             <div class="input-group">
                 <textarea id="text-input" maxlength="140" placeholder="在此输入文字（限140字以内）..."></textarea>
                 <div class="char-counter"><span id="current-count">0</span>/140</div>
             </div>
+            <div class="input-group">
+                <input type="text" id="signature-input" maxlength="12" placeholder="发送人署名 (可选)">
+            </div>
             <input type="password" id="password-input" placeholder="访问密码 (可选)">
-            <button onclick="generate()">✨ 马上生成</button>
+            <button onclick="generate()">🐎 生成密语</button>
 
             <div id="result-section">
-                <div class="hint" style="font-weight: bold; color: var(--primary);">👇 长按图片保存 👇</div>
+                <div class="card-title" style="font-size: 1rem; margin-bottom: 5px;">🧧 贺卡已备好 🧧</div>
                 <div id="qrcode-wrapper" onclick="copyImageAndUrl()">
                     <div id="qrcode-raw"></div> 
                     <img id="qrcode-img" alt="二维码图片" /> 
-                    <span class="copy-tag">长按保存 · 点击复制（浏览器端）</span>
+                    <span class="copy-tag">长按保存图片 · 点击复制链接</span>
                 </div>
-                <div class="url-box" id="url-text" onclick="copyLinkOnly()"></div>
+                <div class="url-box" id="url-text" onclick="copyText(this.innerText)"></div>
             </div>
         </div>
 
-        <div id="unlock-ui" class="hidden">
-            <h1>🔒 内容受保护</h1>
-            <input type="password" id="decrypt-pwd" placeholder="请输入访问密码">
-            <button onclick="unlock()">🔓 解锁阅读</button>
+        <div id="unlock-ui" class="hidden" style="text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">🔒</div>
+            <div class="card-title">此内容受密码保护</div>
+            <input type="password" id="decrypt-pwd" placeholder="请输入开启密码" style="text-align: center; margin-bottom: 15px;">
+            <button onclick="unlock()">解码内容</button>
         </div>
 
         <div id="view-ui" class="hidden">
-            <div style="text-align: center; color: var(--primary-dark); font-weight: bold; margin-bottom: 10px;">📜 正文解码</div>
-            <div class="article-container">
+            <div class="card-title" style="font-size: 1.1rem; color: #666; margin-bottom: 15px;">🔓 内容解码</div>
+            <div class="new-year-card">
+                <div class="corner cd-tl"></div>
+                <div class="corner cd-tr"></div>
+                <div class="corner cd-bl"></div>
+                <div class="corner cd-br"></div>
+                
                 <div id="content-display" class="article-body"></div>
+                <div id="signature-display" class="signature-body hidden"></div>
             </div>
-            <button onclick="location.href=location.pathname" style="margin-top:30px; background: #eef2f7; color: var(--primary-dark); box-shadow: none;">我也要创建一个 ✍️</button>
+            <button onclick="location.href=location.pathname" style="margin-top:30px; background: white; color: var(--cinnabar); border: 1px solid var(--cinnabar); box-shadow: none;">我也要写一张 ✍️</button>
         </div>
     </div>
 </div>
@@ -109,30 +170,21 @@
 <script>
     const P_RAW = "r:";
     const P_ENC = "e:";
+    const SIG_SEP = "|||";
     let currentFullUrl = "";
 
-    // 字数统计实时监听
     const textInput = document.getElementById('text-input');
     const currentCountDisplay = document.getElementById('current-count');
-    const counterBox = document.querySelector('.char-counter');
-
-    textInput.addEventListener('input', () => {
-        const count = textInput.value.length;
-        currentCountDisplay.textContent = count;
-        if (count >= 130) {
-            counterBox.classList.add('limit-near');
-        } else {
-            counterBox.classList.remove('limit-near');
-        }
-    });
+    textInput.addEventListener('input', () => currentCountDisplay.textContent = textInput.value.length);
 
     function generate() {
         const text = textInput.value.trim();
+        const signature = document.getElementById('signature-input').value.trim();
         const pwd = document.getElementById('password-input').value;
         if (!text) return showToast("请输入内容");
-        if (text.length > 140) return showToast("超出140字上限");
 
-        let data = pwd ? P_ENC + CryptoJS.AES.encrypt(text, pwd).toString() : P_RAW + text;
+        const fullContent = signature ? text + SIG_SEP + signature : text;
+        let data = pwd ? P_ENC + CryptoJS.AES.encrypt(fullContent, pwd).toString() : P_RAW + fullContent;
         const compressed = LZString.compressToEncodedURIComponent(data);
         currentFullUrl = window.location.origin + window.location.pathname + '#' + compressed;
 
@@ -143,47 +195,19 @@
         qrRaw.innerHTML = ''; 
         new QRCode(qrRaw, {
             text: currentFullUrl,
-            width: 300,
-            height: 300,
-            colorDark : "#1486bb"
+            width: 320,
+            height: 320,
+            colorDark : "#c93731"
         });
 
         setTimeout(() => {
             const canvas = qrRaw.querySelector('canvas');
-            const img = document.getElementById('qrcode-img');
             if (canvas) {
-                img.src = canvas.toDataURL("image/png");
-                showToast("🎉 生成成功！马上分享给对方吧！");
+                document.getElementById('qrcode-img').src = canvas.toDataURL("image/png");
+                showToast("🧧 成功生成");
             }
         }, 100);
-
-        copyLinkOnly("✅ 生成成功并复制链接");
-    }
-
-    async function copyImageAndUrl() {
-        if (!currentFullUrl) return;
-        const img = document.getElementById('qrcode-img');
-        if (img && img.src && window.ClipboardItem) {
-            try {
-                const response = await fetch(img.src);
-                const blob = await response.blob();
-                const item = new ClipboardItem({ "image/png": blob });
-                await navigator.clipboard.write([item]);
-                showToast("✅ 二维码图片已复制");
-                return;
-            } catch (err) { console.log("图片复制失败"); }
-        }
-        copyLinkOnly("图片复制受限，链接已复制");
-    }
-
-    function copyLinkOnly(customMsg) {
-        const el = document.createElement("textarea");
-        el.value = currentFullUrl;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        showToast(customMsg || "✅ 链接已复制到剪切板");
+        copyText(currentFullUrl);
     }
 
     function init() {
@@ -193,7 +217,7 @@
             const data = LZString.decompressFromEncodedURIComponent(hash);
             if (data.startsWith(P_RAW)) render(data.substring(2));
             else showSection('unlock');
-        } catch (e) { showToast("解析失败"); }
+        } catch (e) { showToast("解析失败，数据可能不完整"); }
     }
 
     function unlock() {
@@ -208,9 +232,39 @@
         } catch (e) { showToast("密码不正确 ❌"); }
     }
 
-    function render(text) {
+    function render(fullText) {
         showSection('view');
-        document.getElementById('content-display').textContent = text;
+        let parts = fullText.split(SIG_SEP);
+        document.getElementById('content-display').textContent = parts[0];
+        const sigDisplay = document.getElementById('signature-display');
+        if (parts[1]) {
+            sigDisplay.textContent = "—— " + parts[1];
+            sigDisplay.classList.remove('hidden');
+        }
+    }
+
+    async function copyImageAndUrl() {
+        if (!currentFullUrl) return;
+        const img = document.getElementById('qrcode-img');
+        if (img && img.src && window.ClipboardItem) {
+            try {
+                const response = await fetch(img.src);
+                const blob = await response.blob();
+                const item = new ClipboardItem({ "image/png": blob });
+                await navigator.clipboard.write([item]);
+                showToast("✅ 图片已复制到剪贴板");
+                return;
+            } catch (err) { }
+        }
+        copyText(currentFullUrl);
+    }
+
+    function copyText(txt) {
+        const el = document.createElement("textarea");
+        el.value = txt; document.body.appendChild(el);
+        el.select(); document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast("✅ 已成功复制链接");
     }
 
     function showSection(id) {
@@ -222,7 +276,7 @@
         const t = document.getElementById('toast');
         t.innerText = msg; t.style.display = 'block';
         clearTimeout(t.timer);
-        t.timer = setTimeout(() => t.style.display = 'none', 2500);
+        t.timer = setTimeout(() => t.style.display = 'none', 2000);
     }
 
     window.onload = init;
