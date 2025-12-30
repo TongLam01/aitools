@@ -177,12 +177,12 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="label-bold">撰写人身份/岗位</label>
-                            <input type="text" id="authorIdentity" placeholder="如：运营助理" class="w-full input-minimal rounded-lg p-3 text-sm">
+                            <label class="label-bold">撰稿者角色</label>
+                            <input type="text" id="authorIdentity" placeholder="如：岗位、部门名" class="w-full input-minimal rounded-lg p-3 text-sm">
                         </div>
                         <div>
                             <label class="label-bold">阅读对象 *</label>
-                            <input type="text" id="targetAudience" placeholder="如：运营部领导" class="w-full input-minimal rounded-lg p-3 text-sm bg-gray-50 focus:bg-white">
+                            <input type="text" id="targetAudience" placeholder="如：部门领导、全体人员" class="w-full input-minimal rounded-lg p-3 text-sm bg-gray-50 focus:bg-white">
                         </div>
                     </div>
                 </div>
@@ -337,7 +337,7 @@
             const fullPrompt = `请根据以下要求撰写公文：
 
 ${contextPrompt}【目标文种】：${docType}
-【撰写人身份/岗位】：${author}
+【撰稿者角色】：${author}
 【阅读对象】：${audience}
 
 【素材/意图/背景】：
@@ -473,3 +473,4 @@ ${userInput}
     <script src="common.js"></script>
 </body>
 </html>
+
