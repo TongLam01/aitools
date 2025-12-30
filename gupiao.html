@@ -558,7 +558,7 @@
                             volRatio: d.f10, 
                             score: 50 + d.f3 * 1.5 + (d.f62 > 0 ? 5 : -5)
                         })).sort((a,b) => b.score - a.score);
-                        if(stockList.value.length && window.innerWidth > 768) analyzeStock(stockList.value[0]);
+                        
                     }
                     loading.value = false;
                     delete window[cb];
