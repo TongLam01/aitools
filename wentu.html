@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字转图片 v1.0</title>
+    <title>文字转图片 v1.2</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://npm.elemecdn.com/lxgw-wenkai-screen-webfont/style.css" />
     <style>
@@ -111,7 +111,8 @@
         }
 
         .main-text {
-            font-size: 16px; line-height: 1.65; text-align: justify;
+            font-size: 16px; line-height: 1.65;
+            /* 移除了这里默认的 text-align: justify */
             color: var(--text-p); white-space: pre-wrap; z-index: 2;
             flex-grow: 1; margin-top: 45px;
         }
@@ -144,6 +145,11 @@
         .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: #34c759; }
         input:checked + .slider:before { transform: translateX(16px); }
+
+        /* --- 【修复】将对齐样式移到最后，确保优先级最高 --- */
+        .align-default { text-align: justify; }
+        .align-center { text-align: center; }
+
     </style>
 </head>
 <body>
@@ -175,6 +181,14 @@
         </div>
 
         <div class="control-row">
+            <span class="label-text">Align / 对齐方式</span>
+            <div class="tabs" id="alignTabs">
+                <button class="tab active" onclick="updateAlign('align-default', this)">默认</button>
+                <button class="tab" onclick="updateAlign('align-center', this)">居中</button>
+            </div>
+        </div>
+
+        <div class="control-row">
             <span class="label-text">Border / 艺术边框</span>
             <label class="toggle">
                 <input type="checkbox" id="borderToggle" onchange="updateBorder()" checked>
@@ -188,7 +202,7 @@
     <div id="capture-area" class="style-modern has-border">
         <div class="frame">
             <div class="quote">“</div>
-            <div class="main-text font-sans" id="output-text">我们曾如此渴望命运的波澜，到最后才发现：人生最曼妙的风景，竟是内心的淡定与从容。——杨绛</div>
+            <div class="main-text font-sans align-default" id="output-text">我们曾如此渴望命运的波澜，到最后才发现：人生最曼妙的风景，竟是内心的淡定与从容。——杨绛</div>
             <div class="meta">
                 <span id="date" class="date-style">2025 / 12 / 26</span>
                 <span id="brand-display" class="brand-style">Reading Moment</span>
@@ -205,12 +219,11 @@
 
         // 文字同步逻辑
         input.addEventListener('input', () => { 
-    // 如果输入框有字，显示输入的字；如果没有，显示默认占位符
-    output.innerText = input.value || "这里将显示您的文字预览..."; 
-});
+            // 如果输入框有字，显示输入的字；如果没有，显示默认占位符
+            output.innerText = input.value || "这里将显示您的文字预览..."; 
+        });
 
-        
-        // 【新增：落款同步逻辑】
+        // 落款同步逻辑
         brandInput.addEventListener('input', () => { 
             brandDisplay.innerText = brandInput.value || " "; 
         });
@@ -226,6 +239,14 @@
             output.classList.remove('font-sans', 'font-serif', 'font-lxgw');
             output.classList.add(fontClass);
             document.querySelectorAll('#fontTabs .tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // 更新对齐方式函数
+        function updateAlign(alignClass, el) {
+            output.classList.remove('align-default', 'align-center');
+            output.classList.add(alignClass);
+            document.querySelectorAll('#alignTabs .tab').forEach(t => t.classList.remove('active'));
             el.classList.add('active');
         }
 
