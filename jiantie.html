@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>剪贴板管理器</title>
+    <style>
+        :root {
+            --bg: #d4d2d2;
+            --fg: #000000;
+            --border-outer: 2px solid #000000; /* 外框粗线 */
+            --border-inner: 1px solid #000000; /* 内网格细线 */
+            --sub-fg: #666666;
+            --hover-bg: #f2f2f2;
+            --seq-bg: #fafafa; /* 序号列的微背景色 */
+            --seq-color: #333; 
+            --font-main: "PingFang SC", "Microsoft YaHei", sans-serif;
+            --font-mono: 'Menlo', 'Monaco', 'Courier New', monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #111111;
+                --fg: #eeeeee;
+                --border-outer: 2px solid #eeeeee;
+                --border-inner: 1px solid #444;
+                --sub-fg: #999999;
+                --hover-bg: #1f1f1f;
+                --seq-bg: #161616;
+                --seq-color: #888;
+            }
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--fg);
+            font-family: var(--font-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px; /* 表格模式适合稍微宽一点 */
+        }
+
+        /* 顶部 Header */
+        header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--sub-fg);
+            margin-top: 5px;
+            font-family: var(--font-mono);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid var(--fg);
+            color: var(--fg);
+            padding: 6px 16px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: bold;
+            transition: all 0.1s;
+        }
+        button:hover { background: var(--fg); color: var(--bg); }
+        button:active { transform: translateY(1px); }
+
+        /* --- 表格核心样式 --- */
+        #table-container {
+            border: var(--border-outer); /* 外框 */
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+
+        .item-row {
+            display: flex;
+            border-bottom: var(--border-inner); /* 行分隔线 */
+            transition: background 0.15s;
+        }
+
+        /* 最后一行去掉底部边框，防止双重边框 */
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-row:hover {
+            background: var(--hover-bg);
+        }
+
+        /* 左侧：序号列 (像Excel的行号栏) */
+        .seq-col {
+            flex-shrink: 0;
+            width: 70px; /* 固定宽度 */
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            justify-content: center;
+            border-right: var(--border-inner); /* 竖向分隔线 */
+            background-color: var(--seq-bg);
+            
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--seq-color);
+            user-select: none;
+        }
+
+        /* 右侧：内容列 */
+        .main-col {
+            flex-grow: 1;
+            padding: 15px 20px;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 置顶样式 */
+        .item-row.pinned {
+            background-color: rgba(0,0,0,0.03);
+        }
+        .item-row.pinned .seq-col {
+            color: var(--fg); /* 置顶序号加深 */
+            background-color: rgba(0,0,0,0.05);
+            border-right: 2px solid var(--fg); /* 置顶时加粗竖线 */
+        }
+
+        /* 元数据行 */
+        .meta {
+            font-size: 0.75rem;
+            color: var(--sub-fg);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+        }
+
+        .pin-badge {
+            background: var(--fg);
+            color: var(--bg);
+            padding: 1px 5px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* 文本内容 */
+        .content {
+            font-size: 1rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: var(--fg);
+        }
+
+        .toggle-btn {
+            color: var(--sub-fg);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 5px;
+            text-decoration: underline;
+        }
+        .toggle-btn:hover { color: var(--fg); }
+
+        /* 悬浮操作栏 */
+        .actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            opacity: 0.2; /* 默认淡化 */
+            transition: opacity 0.2s;
+        }
+        .item-row:hover .actions { opacity: 1; }
+
+        .action-btn {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border: 1px solid var(--sub-fg);
+            color: var(--sub-fg);
+            background: transparent;
+        }
+        .action-btn:hover { border-color: var(--fg); color: var(--fg); }
+        .action-btn.active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+        .action-btn.del:hover { border-color: #d32f2f; color: #d32f2f; }
+
+        /* 空状态 */
+        .empty-row {
+            padding: 60px 0;
+            text-align: center;
+            color: var(--sub-fg);
+            font-family: var(--font-mono);
+            display: none;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--fg);
+            color: var(--bg);
+            padding: 10px 20px;
+            border: 1px solid var(--bg);
+            font-size: 0.9rem;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>剪贴板管理器</h1>
+            <div class="subtitle">Press [Ctrl + V] to record</div>
+        </div>
+        <div class="btn-group">
+            <button onclick="exportWord()">WORD 导出</button>
+            <button onclick="clearAll()">清空全部</button>
+        </div>
+    </header>
+
+    <div id="table-container">
+        <div id="empty-msg" class="empty-row">
+            暂无记录 / NO DATA<br>
+            <span style="font-size:0.8rem; margin-top:5px; display:block;">按 Ctrl + V 粘贴</span>
+        </div>
+    </div>
+</div>
+
+<div id="toast">已复制</div>
+
+<script>
+    const STORAGE_KEY = 'clipboard_manager_v3_4';
+    let historyData = [];
+    const MAX_LENGTH = 140;
+
+    window.onload = () => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try { historyData = JSON.parse(saved); } catch(e) { historyData = []; }
+        }
+        render();
+        window.addEventListener('paste', handlePaste);
+    };
+
+    function handlePaste(e) {
+        let paste = (e.clipboardData || window.clipboardData).getData('text');
+        if (!paste || !paste.trim()) return;
+
+        const maxSeq = historyData.length > 0 
+            ? Math.max(...historyData.map(i => i.sequenceId || 0)) 
+            : 0;
+        const newSeqId = maxSeq + 1;
+
+        const existingIndex = historyData.findIndex(item => item.content === paste);
+        let isPinned = false;
+        
+        if (existingIndex !== -1) {
+            isPinned = historyData[existingIndex].pinned || false;
+            historyData.splice(existingIndex, 1);
+        }
+
+        const newItem = {
+            id: Date.now(),
+            sequenceId: newSeqId,
+            content: paste,
+            timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
+            pinned: isPinned,
+            expanded: false
+        };
+
+        historyData.unshift(newItem);
+        saveAndRender();
+        showToast("已记录 #" + newSeqId);
+    }
+
+    function render() {
+        const tableContainer = document.getElementById('table-container');
+        const emptyMsg = document.getElementById('empty-msg');
+        
+        // 清除除了 empty-msg 以外的所有行
+        // 简单方法：先清空，再把 emptyMsg 加回去（或者控制 display）
+        tableContainer.innerHTML = '';
+        tableContainer.appendChild(emptyMsg);
+
+        if (historyData.length === 0) {
+            emptyMsg.style.display = 'block';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+
+        const sortedData = [...historyData].sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return b.id - a.id; 
+        });
+
+        sortedData.forEach(item => {
+            const row = document.createElement('div');
+            row.className = `item-row ${item.pinned ? 'pinned' : ''}`;
+            
+            const isLong = item.content.length > MAX_LENGTH;
+            let contentHtml = '';
+            const safeFullText = escapeHtml(item.content);
+
+            if (isLong && !item.expanded) {
+                const safeShortText = escapeHtml(item.content.substring(0, MAX_LENGTH));
+                contentHtml = `${safeShortText}... <span class="toggle-btn" onclick="toggleExpand(${item.id})">[展开]</span>`;
+            } else if (isLong && item.expanded) {
+                contentHtml = `${safeFullText} <span class="toggle-btn" onclick="toggleExpand(${item.id})">[收起]</span>`;
+            } else {
+                contentHtml = safeFullText;
+            }
+
+            row.innerHTML = `
+                <div class="seq-col">
+                    ${item.sequenceId}
+                </div>
+                <div class="main-col">
+                    <div class="meta">
+                        ${item.pinned ? '<span class="pin-badge">PIN</span>' : ''}
+                        <span>${item.timestamp}</span>
+                    </div>
+                    <div class="content">${contentHtml}</div>
+                    <div class="actions">
+                        <button class="action-btn ${item.pinned ? 'active' : ''}" onclick="togglePin(${item.id})">
+                            ${item.pinned ? '取消置顶' : '置顶'}
+                        </button>
+                        <button class="action-btn" onclick="copyItem(${item.id})">复制</button>
+                        <button class="action-btn del" onclick="deleteItem(${item.id})">删除</button>
+                    </div>
+                </div>
+            `;
+            tableContainer.appendChild(row);
+        });
+    }
+
+    function toggleExpand(id) {
+        const item = historyData.find(i => i.id === id);
+        if (item) {
+            item.expanded = !item.expanded;
+            render();
+        }
+    }
+
+    function togglePin(id) {
+        const item = historyData.find(i => i.id === id);
+        if (item) {
+            item.pinned = !item.pinned;
+            saveAndRender();
+        }
+    }
+
+    function copyItem(id) {
+        const item = historyData.find(i => i.id === id);
+        if (item) {
+            navigator.clipboard.writeText(item.content)
+                .then(() => showToast("已复制"))
+                .catch(() => showToast("复制失败"));
+        }
+    }
+
+    function deleteItem(id) {
+        if(confirm('确定删除此记录？')) {
+            historyData = historyData.filter(i => i.id !== id);
+            saveAndRender();
+        }
+    }
+
+    function clearAll() {
+        if(confirm('确定清空所有记录？')) {
+            historyData = [];
+            saveAndRender();
+        }
+    }
+
+    function saveAndRender() {
+        const dataToSave = historyData.map(item => ({...item, expanded: false}));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+        render();
+    }
+
+    function exportWord() {
+        if (historyData.length === 0) return;
+        
+        // 导出 Word 的样式也做一个简单的表格
+        let contentHtml = historyData.map(item => `
+            <tr style="border: 1px solid #000;">
+                <td style="width: 50px; border: 1px solid #000; padding: 10px; font-weight:bold; font-size: 14pt; text-align:center;">${item.sequenceId}</td>
+                <td style="border: 1px solid #000; padding: 10px;">
+                    <p style="margin:0; color:#666; font-size:9pt;">${item.timestamp} ${item.pinned ? '[置顶]' : ''}</p>
+                    <p style="margin-top:5px; font-size:11pt;">${escapeHtml(item.content).replace(/\n/g, '<br>')}</p>
+                </td>
+            </tr>
+        `).join('');
+
+        const docContent = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'><title>Export</title></head>
+            <body>
+                <h2 style="text-align:center;">剪贴板备份</h2>
+                <table style="width:100%; border-collapse: collapse; border: 2px solid #000;">
+                    ${contentHtml}
+                </table>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([docContent], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `剪贴板_${new Date().toISOString().slice(0,10)}.doc`;
+        a.click();
+    }
+
+    function escapeHtml(text) {
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2000);
+    }
+</script>
+<script src="common.js"></script>
+</body>
+</html>
