@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>公文自动撰写助手 Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+        
+        body { 
+            background-color: #fcfcfc; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            color: #1a1a1a;
+        }
+        
+        /* 公文预览区 - 纯正衬线体 */
+        .doc-preview { 
+            font-family: 'Noto Serif SC', 'SimSun', serif; 
+            line-height: 2.2; 
+            color: #000; 
+        }
+        .doc-preview h1 { font-weight: 700; font-size: 22pt; text-align: center; margin-bottom: 24pt; line-height: 1; }
+        .doc-preview h2 { font-weight: 700; font-size: 16pt; margin-top: 18pt; margin-bottom: 12pt; }
+        .doc-preview p { margin-bottom: 12pt; text-align: justify; font-size: 12pt; }
+        .doc-preview ul, .doc-preview ol { margin-bottom: 12pt; padding-left: 2em; }
+        
+        /* 隐藏滚动条 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 黑白呼吸灯 */
+        .thinking-pill {
+            display: none;
+            background: #fff;
+            border: 1px solid #000;
+            border-radius: 9999px;
+            padding: 0.6rem 1.5rem;
+            color: #000;
+            font-size: 0.875rem;
+            font-weight: 600;
+            animation: breathe 3s infinite ease-in-out;
+            margin: 0 auto 2rem auto;
+            width: fit-content;
+            box-shadow: 0 2px 0px rgba(0,0,0,1); /* 硬阴影 */
+        }
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+
+        /* 极简输入框风格 */
+        .input-minimal {
+            background-color: #fff;
+            border: 1px solid #e5e5e5;
+            transition: all 0.2s;
+            color: #111;
+        }
+        .input-minimal:focus {
+            border-color: #000;
+            outline: none;
+            box-shadow: 0 0 0 1px #000;
+        }
+        .input-minimal::placeholder {
+            color: #a3a3a3;
+        }
+
+        /* 标签样式 */
+        .label-bold {
+            font-size: 0.875rem; /* 14px */
+            font-weight: 700;    /* Bold */
+            color: #171717;      /* Neutral 900 */
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* 移动端优化 */
+        input, select, textarea { font-size: 16px !important; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <nav class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-20 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-black text-white rounded flex items-center justify-center text-sm font-bold">
+                公
+            </div>
+            <div class="flex flex-col">
+                <span class="text-sm font-bold tracking-tight text-black">公文自动撰写助手</span>
+                <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">DeepSeek R1 Inside</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="https://platform.deepseek.com/api_keys" target="_blank" class="text-xs font-medium text-gray-400 hover:text-black hover:underline transition-colors flex items-center gap-1">
+                获取 API Key 
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </a>
+            <button onclick="toggleSettings()" class="text-gray-400 hover:text-black transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <div id="settingsModal" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white border border-gray-200 shadow-2xl w-full max-w-sm p-8 rounded-lg">
+            <h3 class="text-lg font-bold text-black mb-6 text-center">配置 API Key</h3>
+            <div class="mb-6">
+                <input type="password" id="apiKeyInput" placeholder="sk-..." 
+                       class="w-full bg-gray-50 border border-gray-200 rounded p-4 text-sm focus:border-black outline-none transition-all text-center tracking-widest">
+            </div>
+            <div class="flex gap-4">
+                <button onclick="toggleSettings()" class="flex-1 px-4 py-3 text-gray-500 hover:text-black hover:bg-gray-50 rounded font-medium transition-colors">取消</button>
+                <button onclick="saveSettings()" class="flex-1 px-4 py-3 bg-black text-white hover:bg-gray-800 rounded font-medium shadow-lg transition-all">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+        
+        <div class="w-full md:w-[420px] bg-white border-b md:border-b-0 md:border-r border-gray-200 flex flex-col z-10">
+            <div class="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 no-scrollbar">
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="label-bold">文种类型</label>
+                        <div class="relative">
+                            <select id="docType" class="w-full input-minimal rounded-lg p-3 text-sm appearance-none font-medium">
+                                <option value="根据内容自动匹配文种">✨ 智能匹配 (推荐)</option>
+                                <option value="工作总结">📈 工作总结</option>
+                                <option value="工作计划">📅 工作计划</option>
+                                <option value="工作通知">📢 工作通知</option>
+                                <option value="会议纪要">📝 会议纪要</option>
+                                <option value="请示报告">📄 请示报告</option>
+                                <option value="工作方案">📊 工作方案</option>
+                                <option value="领导讲话">🎙️ 领导讲话</option>
+                                <option value="来往公函">✉️ 来往公函</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                         <label class="label-bold flex justify-between items-center">
+                            背景信息 <span class="text-xs font-normal text-gray-400">选填</span>
+                        </label>
+                        <textarea id="orgContext" rows="3" class="w-full input-minimal rounded-lg p-3 text-sm resize-none" placeholder="例如：某市教育局，负责全市中小学管理..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="label-bold">撰写人身份</label>
+                            <input type="text" id="authorIdentity" placeholder="如：办公室" class="w-full input-minimal rounded-lg p-3 text-sm">
+                        </div>
+                        <div>
+                            <label class="label-bold">阅读对象 *</label>
+                            <input type="text" id="targetAudience" placeholder="如：全体人员" class="w-full input-minimal rounded-lg p-3 text-sm bg-gray-50 focus:bg-white">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col min-h-[200px]">
+                    <label class="label-bold">核心素材 / 意图</label>
+                    <textarea id="userInput" class="flex-1 w-full input-minimal rounded-lg p-4 text-sm leading-relaxed resize-none"
+                              placeholder="请在此输入关键信息。&#10;例如：下周一要在会议室开会，讨论年度预算，李总主持，各部门负责人必须带报表参加。"></textarea>
+                </div>
+            </div>
+
+            <div class="p-6 bg-white border-t border-gray-100">
+                <button onclick="generateDoc()" id="submitBtn" class="group w-full bg-black hover:bg-gray-800 text-white font-bold py-4 rounded-lg shadow-xl shadow-gray-200 transition-all transform active:scale-[0.98] flex justify-center items-center gap-2 text-base">
+                    <span>开始撰写</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto flex-1 bg-[#f5f5f5] relative flex flex-col h-full">
+            <div class="flex-1 overflow-y-auto p-4 md:p-12" id="previewContainer">
+                
+                <div id="thinkingIndicator" class="thinking-pill">
+                    <span class="flex items-center gap-2">
+                        <span class="relative flex h-2.5 w-2.5">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-25"></span>
+                          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-black"></span>
+                        </span>
+                        AI 正在深度思考...
+                    </span>
+                </div>
+
+                <div class="max-w-[21cm] mx-auto bg-white shadow-sm min-h-[29.7cm] p-12 md:p-[2.54cm] rounded-sm relative transition-all duration-500 ease-out" id="paperCard">
+                    
+                    <div class="absolute top-4 right-4 flex gap-2">
+                         <button onclick="copyResult()" class="p-2 rounded text-gray-400 hover:text-black hover:bg-gray-100 transition-all flex items-center gap-1 text-xs font-bold" title="复制内容">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            复制
+                        </button>
+                        <button onclick="exportToWord()" class="p-2 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center gap-1 text-xs font-bold" title="导出Word">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            导出 Word
+                        </button>
+                    </div>
+
+                    <div id="resultOutput" class="doc-preview">
+                        <div class="flex flex-col items-center justify-center h-96 text-gray-300 select-none">
+                            <div class="mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400">请在左侧输入信息</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8 text-gray-300 text-[10px] font-mono">GENERATED BY DEEPSEEK R1</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === 系统提示词 ===
+        const SYSTEM_PROMPT = `你是一位经验丰富、笔风严谨的资深机关公文写作专家。你的任务是将用户提供的碎片化信息，转化为格式规范、用词精准、逻辑严密的正式公文。
+
+【核心原则】
+1. 身份代入：你不是聊天机器人，你是单位的“笔杆子”。
+2. 语言风格：
+   - 使用标准官方语言体系，杜绝口语、网络用语和情绪化表达。
+   - 动词要精准有力（如将“打算做”改为“拟实施”，将“大家都要来”改为“全员覆盖”）。
+   - 句式要整散结合，多用四字短语，增强气势和节奏感。
+   - 如果适用，多使用数据。
+3. 结构规范：严格遵守《党政机关公文处理工作条例》格式要求，标题分级明确（一、(一)、1、(1)）。
+4. 格式美观：生成的Markdown应合理使用标题、加粗和列表。
+
+【撰写步骤】
+1. 意图识别：分析用户输入的杂乱信息，提炼核心主旨。
+2. 框架搭建：根据文种（通知/总结/方案等）匹配标准公文结构。
+3. 内容填充：将素材填入框架，并进行逻辑补全（如缺少的背景、意义、要求等）。
+4. 语言润色：用官方公文语态进行最终打磨。`;
+
+        window.onload = function() {
+            const savedKey = localStorage.getItem('deepseek_api_key');
+            if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+            else toggleSettings();
+        }
+
+        function toggleSettings() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function saveSettings() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (key) {
+                localStorage.setItem('deepseek_api_key', key);
+                toggleSettings();
+            } else alert('请输入有效的 API Key');
+        }
+
+        async function generateDoc() {
+            const apiKey = localStorage.getItem('deepseek_api_key');
+            
+            // 获取字段
+            const docType = document.getElementById('docType').value;
+            const orgContext = document.getElementById('orgContext').value.trim();
+            const author = document.getElementById('authorIdentity').value.trim() || "办公室";
+            const audience = document.getElementById('targetAudience').value.trim();
+            const userInput = document.getElementById('userInput').value.trim();
+            
+            // DOM 元素
+            const outputDiv = document.getElementById('resultOutput');
+            const thinkingDiv = document.getElementById('thinkingIndicator');
+            const btn = document.getElementById('submitBtn');
+
+            // 校验
+            if (!apiKey) { alert('请先设置 API Key'); toggleSettings(); return; }
+            if (!audience) { alert('请填写阅读对象'); document.getElementById('targetAudience').focus(); return; }
+            if (!userInput) { alert('请输入核心素材'); document.getElementById('userInput').focus(); return; }
+
+            // 移动端自动滚动
+            if (window.innerWidth < 768) document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
+
+            // UI 状态重置
+            btn.disabled = true;
+            btn.innerHTML = '正在撰写...';
+            outputDiv.innerHTML = ''; 
+            thinkingDiv.style.display = 'block'; 
+
+            // 构建增强版 Prompt
+            let contextPrompt = "";
+            if (orgContext) {
+                contextPrompt = `【发文/撰写人单位背景】：${orgContext}\n`;
+            }
+
+            const fullPrompt = `请根据以下要求撰写公文：
+
+${contextPrompt}【目标文种】：${docType}
+【撰写人身份】：${author}
+【阅读对象】：${audience}
+
+【原始素材/核心意图】：
+${userInput}
+
+【执行要求】：
+请先在内心思考公文的逻辑框架（DeepSeek R1 Thinking），但不要在最终结果中输出思考过程。
+直接输出最终的公文正文。正文要标题层级清晰，语言庄重得体，符合公文规范。`;
+
+            let accumulatedText = ""; 
+            
+            try {
+                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                    body: JSON.stringify({
+                        model: "deepseek-reasoner",
+                        messages: [ 
+                            { role: "system", content: SYSTEM_PROMPT }, 
+                            { role: "user", content: fullPrompt } 
+                        ],
+                        stream: true,
+                        temperature: 0.6 
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || '请求失败');
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const dataStr = line.slice(6);
+                            if (dataStr === '[DONE]') break;
+                            try {
+                                const data = JSON.parse(dataStr);
+                                const content = data.choices[0].delta.content || "";
+                                
+                                accumulatedText += content;
+
+                                // 隐藏思考
+                                if (accumulatedText.includes('</think>')) {
+                                    thinkingDiv.style.display = 'none';
+                                }
+
+                                // 渲染正文
+                                const cleanContent = accumulatedText.replace(/<think>[\s\S]*?<\/think>/g, "").replace(/<think>[\s\S]*/g, "").trim();
+                                
+                                if (cleanContent.length > 5 && thinkingDiv.style.display !== 'none') {
+                                     thinkingDiv.style.display = 'none';
+                                }
+
+                                if (cleanContent) {
+                                    outputDiv.innerHTML = marked.parse(cleanContent);
+                                }
+                                
+                            } catch (e) { console.error(e); }
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                thinkingDiv.style.display = 'none';
+                outputDiv.innerHTML = `<div class="p-4 bg-red-50 text-red-600 rounded-lg text-sm text-center">⚠️ 出错了：${error.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>开始撰写</span><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>`;
+                thinkingDiv.style.display = 'none';
+            }
+        }
+
+        function copyResult() {
+            const text = document.getElementById('resultOutput').innerText;
+            if(text && !text.includes('请在左侧输入')) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const btn = document.querySelector('button[title="复制内容"]');
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = `<span class="text-green-600">已复制</span>`;
+                    setTimeout(() => btn.innerHTML = originalHTML, 2000);
+                });
+            }
+        }
+
+        // 导出 Word 功能
+        function exportToWord() {
+            const content = document.getElementById('resultOutput');
+            const text = content.innerText;
+            if(!text || text.includes('请在左侧输入')) {
+                alert('暂无内容可导出');
+                return;
+            }
+
+            // 构建完整的 HTML 结构用于导出
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <style>
+                        body { font-family: 'SimSun', 'Songti SC', serif; line-height: 1.5; }
+                        h1 { text-align: center; font-size: 22pt; font-weight: bold; margin-bottom: 24pt; }
+                        h2 { font-size: 16pt; font-weight: bold; margin-top: 18pt; margin-bottom: 12pt; }
+                        p { font-size: 12pt; margin-bottom: 12pt; text-align: justify; }
+                        ul, ol { margin-bottom: 12pt; }
+                    </style>
+                </head>
+                <body>
+                    ${content.innerHTML}
+                </body>
+                </html>
+            `;
+
+            try {
+                // 使用 html-docx-js 将 HTML 转换为 Word Blob
+                const converted = htmlDocx.asBlob(htmlContent, {
+                    orientation: 'portrait',
+                    margins: {top: 720, bottom: 720, left: 1440, right: 1440} // Twips
+                });
+                
+                // 保存文件
+                saveAs(converted, `公文自动撰写_${new Date().toISOString().slice(0,10)}.docx`);
+            } catch (e) {
+                console.error(e);
+                alert('导出失败，建议直接复制内容到 Word 中。');
+            }
+        }
+    </script>
+</body>
+</html>
