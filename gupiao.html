@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI股票分析 - v2.0</title>
+    <title>AI股票分析 - V2.0</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
@@ -12,24 +12,47 @@
     <style>
         body { font-family: 'PingFang SC', system-ui, sans-serif; background-color: #0f1115; color: #e5e7eb; overscroll-behavior: none; }
         .input-dark { background: #0f1115; border: 1px solid #2d3139; color: white; transition: all 0.3s; }
-        .input-dark:focus { border-color: #6366f1; outline: none; }
+        .input-dark:focus { border-color: #8b5cf6; outline: none; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
         
-        /* Markdown 样式 */
-        .prose { font-size: 0.95rem; line-height: 1.7; color: #d1d5db; }
-        .prose h3 { color: #818cf8; font-weight: 700; margin-top: 1.2em; margin-bottom: 0.6em; border-left: 3px solid #6366f1; padding-left: 10px; background: rgba(99, 102, 241, 0.05); padding-top: 4px; padding-bottom: 4px; border-radius: 0 4px 4px 0; }
-        .prose p { margin-bottom: 0.8em; text-align: justify; }
-        .prose strong { color: #f87171; font-weight: 700; background: rgba(248, 113, 113, 0.1); padding: 0 4px; border-radius: 3px; }
-        .prose ul { padding-left: 1.2em; margin-bottom: 1em; color: #9ca3af; list-style-type: disc; }
+        /* --- V2 核心优化：高可读性排版 --- */
+        .prose { 
+            font-size: 0.95rem; 
+            line-height: 1.8; /* 增加行高，提升阅读舒适度 */
+            color: #d1d5db; /* 正文使用柔和的银灰色 */
+        }
         
+        /* 标题：清晰、明亮，无背景干扰 */
+        .prose h3 { 
+            color: #c084fc; /* 明亮的紫罗兰色 */
+            font-weight: 700; 
+            font-size: 1.1rem;
+            margin-top: 1.5em; 
+            margin-bottom: 0.8em; 
+            padding-left: 12px; 
+            border-left: 3px solid #9333ea; /* 简单的左侧标识线 */
+        }
+        
+        /* 重点文字：回归纯白，对比度最高，最清晰 */
+        .prose strong { 
+            color: #ffffff; 
+            font-weight: 700;
+            background: transparent; /* 移除背景色块 */
+            padding: 0;
+        }
+        
+        .prose p { margin-bottom: 1.2em; text-align: justify; }
+        .prose ul { padding-left: 1.2em; margin-bottom: 1.2em; color: #9ca3af; list-style-type: disc; }
+        /* ------------------------------------- */
+
         [v-cloak] { display: none; }
-        .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+        .nav-active { color: #a78bfa; font-weight: bold; }
+        .nav-active svg { stroke: #a78bfa; }
+        .badge-metric { font-family: monospace; background: #1f2937; padding: 2px 6px; border-radius: 4px; color: #9ca3af; font-size: 0.75rem; border: 1px solid #374151; display: inline-flex; align-items: center; white-space: nowrap; }
+
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; }
-        .nav-active { color: #818cf8; font-weight: bold; }
-        .nav-active svg { stroke: #818cf8; }
-        
-        .badge-metric { font-family: monospace; background: #1f2937; padding: 2px 6px; border-radius: 4px; color: #9ca3af; font-size: 0.75rem; border: 1px solid #374151; }
     </style>
 </head>
 <body>
@@ -38,17 +61,19 @@
 
     <header class="flex-none h-14 border-b border-gray-800 bg-[#181b21] flex items-center justify-between px-4 z-30">
         <div class="flex items-center gap-2">
-            <div class="w-7 h-7 bg-gradient-to-br from-emerald-500 to-teal-600 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-500/20 text-xs">AI</div>
-            <h1 class="font-bold tracking-tight text-gray-100 text-sm md:text-base">AI股票分析 <span class="hidden md:inline text-emerald-400 text-[10px] uppercase px-1.5 py-0.5 bg-emerald-500/10 rounded font-bold">Stable</span></h1>
+            <div class="w-7 h-7 bg-gradient-to-br from-purple-600 to-indigo-700 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-purple-900/40 text-xs">AI</div>
+            <div>
+                <h1 class="font-bold tracking-tight text-gray-100 text-sm md:text-base leading-none">股票分析<span class="hidden md:inline text-purple-400 text-[10px] uppercase px-1.5 py-0.5 bg-purple-500/10 rounded font-bold">2.0</span></h1>
+            </div>
         </div>
 
         <div class="flex items-center gap-2 md:gap-3">
             <div class="relative">
                 <input type="text" v-model="searchQuery" @input="handleSearch" placeholder="代码/名称" 
-                    class="w-24 md:w-56 input-dark px-2 md:px-3 py-1.5 rounded text-xs focus:w-40 md:focus:w-64 focus:border-emerald-500 placeholder-gray-600 transition-all duration-300">
+                    class="w-24 md:w-56 input-dark px-2 md:px-3 py-1.5 rounded text-xs focus:w-40 md:focus:w-64 focus:border-purple-500 placeholder-gray-600 transition-all duration-300">
                 <div v-if="searchResults.length" class="absolute top-full right-0 w-48 bg-[#1e2229] border border-gray-700 mt-1 rounded shadow-xl max-h-60 overflow-y-auto z-50">
                     <div v-for="item in searchResults" :key="item.code" @click="selectStock(item)"
-                         class="p-3 hover:bg-emerald-600/20 hover:text-emerald-300 cursor-pointer text-xs flex justify-between border-b border-gray-800">
+                         class="p-3 hover:bg-purple-600/20 hover:text-purple-300 cursor-pointer text-xs flex justify-between border-b border-gray-800">
                         <span>{{ item.name }}</span><span class="opacity-50 font-mono">{{ item.code }}</span>
                     </div>
                 </div>
@@ -68,7 +93,7 @@
             <h3 class="text-sm font-bold text-white mb-3">DeepSeek API 配置</h3>
             <input type="password" v-model="tempKey" placeholder="sk-..." class="w-full input-dark px-3 py-2 rounded text-sm mb-3">
             <div class="flex gap-2">
-                <button @click="saveKey" class="flex-1 bg-emerald-600 text-white py-2 rounded text-xs font-bold">保存</button>
+                <button @click="saveKey" class="flex-1 bg-purple-600 text-white py-2 rounded text-xs font-bold">保存</button>
                 <button @click="tempKey = ''; saveKey()" class="px-4 bg-gray-700 text-gray-300 rounded text-xs">清除</button>
             </div>
             <p class="mt-3 text-[10px] text-gray-500">Key 仅保存在本地浏览器缓存中。</p>
@@ -76,13 +101,12 @@
     </div>
 
     <div class="flex-1 flex overflow-hidden relative">
-        
         <div class="flex-col bg-[#0f1115] border-r border-gray-800 w-full md:w-64 lg:w-72 md:flex absolute md:relative inset-0 z-10 md:z-auto"
              :class="mobileTab === 'list' ? 'flex' : 'hidden'">
             
             <div class="p-3 border-b border-gray-800 flex justify-between items-center bg-[#13161c]">
                 <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Top 50 热门</span>
-                <button @click="fetchTopList" class="text-emerald-400 flex items-center gap-1 text-xs hover:text-white transition">
+                <button @click="fetchTopList" class="text-purple-400 flex items-center gap-1 text-xs hover:text-white transition">
                     <span v-if="loading" class="animate-spin">↻</span> 刷新
                 </button>
             </div>
@@ -90,18 +114,18 @@
             <div class="grid grid-cols-12 gap-2 px-3 py-2 bg-[#181b21] border-b border-gray-800 text-[10px] text-gray-500 font-bold uppercase sticky top-0 z-20">
                 <div class="col-span-2 text-center">评分</div>
                 <div class="col-span-7">股票/板块</div>
-                <div class="col-span-3 text-right">涨幅</div>
+                <div class="col-span-3 text-right">涨跌</div>
             </div>
             
             <div class="flex-1 overflow-y-auto custom-scrollbar pb-16 md:pb-0">
                 <div v-for="stock in stockList" :key="stock.code" @click="handleStockClick(stock)"
                     class="grid grid-cols-12 gap-2 p-3 border-b border-gray-800/50 active:bg-[#181b21] cursor-pointer group transition-colors items-center"
-                    :class="{'bg-[#181b21] border-l-2 border-l-emerald-500': currentStock && currentStock.code === stock.code}">
+                    :class="{'bg-[#181b21] border-l-2 border-l-purple-500': currentStock && currentStock.code === stock.code}">
                     <div class="col-span-2 text-center">
                         <span class="font-mono font-bold text-sm" :class="getScoreColor(stock.score)">{{ stock.score.toFixed(1) }}</span>
                     </div>
                     <div class="col-span-7 overflow-hidden pl-1">
-                        <div class="text-sm text-gray-200 font-medium truncate group-hover:text-emerald-400 transition">{{ stock.name }}</div>
+                        <div class="text-sm text-gray-200 font-medium truncate group-hover:text-purple-400 transition">{{ stock.name }}</div>
                         <div class="flex gap-2 mt-0.5">
                             <span class="text-[10px] text-gray-500 font-mono">{{ stock.code }}</span>
                             <span class="text-[9px] text-gray-400 border border-gray-700 px-1 rounded bg-[#2d3139]">{{ stock.sector || '其他' }}</span>
@@ -125,17 +149,19 @@
                         {{ currentStock.name }} 
                         <span class="text-[10px] md:text-xs px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 font-mono border border-gray-700">{{ currentStock.code }}</span>
                     </h2>
-                    <button @click="mobileTab = 'ai'" class="md:hidden px-3 py-1 bg-emerald-600/20 text-emerald-300 text-xs rounded border border-emerald-500/30">
+                    <button @click="mobileTab = 'ai'" class="md:hidden px-3 py-1 bg-purple-600/20 text-purple-300 text-xs rounded border border-purple-500/30">
                         AI分析 &rarr;
                     </button>
                 </div>
                 
-                <div class="flex flex-wrap gap-2 md:gap-4 text-[10px] md:text-xs font-mono">
-                    <span class="badge-metric text-red-300 border-red-900/50 bg-red-900/10">现价 {{ currentStock.price }}</span>
+                <div class="flex flex-wrap gap-2 md:gap-4 text-[10px] md:text-xs font-mono" :key="infoKey">
+                    <span class="badge-metric text-red-300 border-red-900/50 bg-red-900/10">现价 {{ formatData(currentStock.price) }}</span>
+                    <span class="badge-metric text-blue-300 border-blue-900/50 bg-blue-900/10">换手: {{ formatPercent(currentStock.turnover) }}</span>
+                    <span class="badge-metric text-indigo-300 border-indigo-900/50 bg-indigo-900/10">量比: {{ formatData(currentStock.volRatio) }}</span>
                     <span class="badge-metric">PE: {{ formatRatio(currentStock.pe) }}</span>
                     <span class="badge-metric">PB: {{ formatRatio(currentStock.pb) }}</span>
+                    <span class="badge-metric text-orange-300 border-orange-900/50 bg-orange-900/10">{{ currentStock.sector && currentStock.sector !== '-' ? currentStock.sector : '板块加载中...' }}</span>
                     <span class="badge-metric">市值: {{ formatCap(currentStock.totalCap) }}</span>
-                    <span class="badge-metric text-emerald-300 border-emerald-900/50 bg-emerald-900/10">主力: {{ formatFlow(currentStock.flow) }}</span>
                 </div>
             </div>
 
@@ -145,7 +171,7 @@
                     <p class="text-xs md:text-sm opacity-50">请先选择股票</p>
                 </div>
                 <div id="klineChart" class="flex-grow w-full"></div>
-                <div id="rsiChart" class="h-1/3 md:h-1/3 w-full border-t border-gray-800"></div>
+                <div id="rsiChart" class="h-1/4 md:h-1/4 w-full border-t border-gray-800"></div>
             </div>
         </div>
 
@@ -162,7 +188,7 @@
             <div class="flex-1 overflow-y-auto p-4 md:p-5 custom-scrollbar bg-[#13161c] pb-20 md:pb-0">
                 <div v-if="!apiKey" class="h-full flex flex-col items-center justify-center text-center opacity-60">
                     <div class="text-3xl mb-2">🔐</div>
-                    <p class="text-xs text-gray-500 px-8">请配置 DeepSeek API Key<br>解锁【锚·势·风】全维建模</p>
+                    <p class="text-xs text-gray-500 px-8">请配置 DeepSeek API Key<br>解锁【量价·趋势·估值】全维建模</p>
                 </div>
 
                 <div v-else>
@@ -173,16 +199,16 @@
                     <div v-else>
                         <div class="mb-4">
                             <button v-if="aiStatus === 'idle' || aiStatus === 'success'" @click="callDeepSeek(true)" 
-                                class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white rounded-lg shadow-lg transition text-sm font-bold flex items-center justify-center gap-2">
+                                class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 text-white rounded-lg shadow-lg transition text-sm font-bold flex items-center justify-center gap-2">
                                 <span v-if="reportCache[currentStock.code]">⟳ 强制刷新分析</span>
-                                <span v-else>✨ 启动全维分析</span>
+                                <span v-else>✨ 启动分析</span>
                             </button>
                         </div>
 
-                        <div v-if="aiStatus === 'loading'" class="space-y-4 p-4 border border-emerald-500/20 rounded-lg bg-emerald-900/10">
-                            <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold animate-pulse">
-                                <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                                AI 正在建模: 锚定价值, 确认趋势...
+                        <div v-if="aiStatus === 'loading'" class="space-y-4 p-4 border border-purple-500/20 rounded-lg bg-purple-900/10">
+                            <div class="flex items-center gap-2 text-purple-400 text-xs font-bold animate-pulse">
+                                <span class="w-2 h-2 bg-purple-400 rounded-full"></span>
+                                AI 正在计算中...
                             </div>
                             <div class="h-3 bg-gray-700 rounded w-3/4 opacity-50"></div>
                             <div class="h-3 bg-gray-700 rounded w-1/2 opacity-50"></div>
@@ -230,17 +256,23 @@
 
     createApp({
         setup() {
+            const safeGetStorage = (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } };
+            
             // UI
             const showConfig = ref(false);
-            const apiKey = ref(localStorage.getItem('ds_api_key') || '');
+            const apiKey = ref(safeGetStorage('ds_api_key') || '');
             const tempKey = ref(apiKey.value);
             const mobileTab = ref('list');
             const loading = ref(false);
             
+            // 重要：Chart变量前置定义，防止V15的报错
+            let kChart = null, rChart = null;
+
             // Business
             const stockList = ref([]);
             const currentStock = ref(null);
-            const currentIndicators = ref({ rsi: '-', ma20: '-', ma60: '-' }); 
+            const currentIndicators = ref({ rsi: '-', ma20: '-', ma60: '-', macd: '-' }); 
+            const infoKey = ref(0); 
             const searchQuery = ref('');
             const searchResults = ref([]);
             
@@ -258,22 +290,28 @@
                 showConfig.value = false;
             };
 
-            const handleStockClick = (stock) => {
-                analyzeStock(stock);
-                mobileTab.value = 'chart';
-            };
-
-            // 核心功能：数据格式清洗 (修复 PE 2896 变 28.96)
             const formatRatio = (val) => {
-                if (!val || val === '-') return '-';
+                if (val === undefined || val === null || val === '-' || val === 'NaN') return '-';
                 let num = parseFloat(val);
-                // 启发式修复：如果 PE/PB 很大且是整数，极有可能是接口未缩放
-                // PB 一般不会超过 50，PE 超过 500 的也不多
-                if (num > 50 && num % 1 === 0) { 
-                    return (num / 100).toFixed(2);
-                }
+                if (isNaN(num)) return '-';
+                if (num > 100 && num % 1 === 0 && num < 10000) return (num / 100).toFixed(2);
                 return num.toFixed(2);
             };
+
+            const formatData = (val) => {
+                if (val === undefined || val === null || val === '' || val === 'NaN' || val === '-') return '-';
+                if (typeof val === 'string' && isNaN(parseFloat(val))) return val; 
+                if (typeof val === 'number' || !isNaN(parseFloat(val))) return parseFloat(val).toFixed(2);
+                return '-';
+            };
+
+            const formatPercent = (val) => { const num = formatData(val); return num === '-' ? '-' : num + '%'; }
+            const cleanForAI = (val) => { const res = formatData(val); return res === '-' ? '暂无数据' : res; };
+            const formatCap = (v) => v ? (v/100000000).toFixed(0) + '亿' : '-';
+            const formatFlow = (v) => v ? (v/100000000).toFixed(2) + '亿' : '-';
+            const getScoreColor = (s) => s >= 80 ? 'text-red-500' : (s >= 60 ? 'text-emerald-400' : 'text-gray-500');
+            const getRsiColor = (v) => v > 80 ? 'text-red-500' : (v < 30 ? 'text-emerald-400' : 'text-gray-400');
+            const renderMarkdown = (t) => md.render(t || '');
 
             const callDeepSeek = async (forceRefresh = false) => {
                 if (!apiKey.value || !currentStock.value) return;
@@ -292,39 +330,32 @@
 
                 const s = currentStock.value;
                 const i = currentIndicators.value;
-                const today = new Date().toLocaleDateString();
                 
-                // Prompt: 使用清洗后的数据
-                const prompt = `
-当前日期：${today}。请以资深基金经理视角分析A股【${s.name} ${s.code}】。
+                // 时间精度修正：24小时制 + 具体时间
+                const today = new Date().toLocaleString('zh-CN', { hour12: false });
+                
+                const prompt = `当前精确时间：${today}。请以资深基金经理视角分析A股【${s.name} ${s.code}】。
 数据来源：实时真实行情。
-
-### 1. 【锚】基本面 (Fundamentals)
+### 1. 【锚】基本面
 - **板块**：${s.sector || '未知'}
-- **估值**：PE(动态)=${formatRatio(s.pe)}, PB=${formatRatio(s.pb)}
+- **估值**：PE=${formatRatio(s.pe)}, PB=${formatRatio(s.pb)}
 - **规模**：总市值 ${formatCap(s.totalCap)}
-
-### 2. 【势】趋势面 (Trend)
+### 2. 【势】趋势面
 - **价格**：现价${s.price} (${s.change}%)
-- **均线系统**：
-  - MA20 (月线) = ${i.ma20}
-  - MA60 (季线) = ${i.ma60}
-  - 状态：${s.price > i.ma60 ? '股价位于生命线MA60上方(强势)' : '股价受压于生命线MA60(弱势)'}
-
-### 3. 【风】资金与情绪 (Momentum)
+- **均线**：MA20=${cleanForAI(i.ma20)}, MA60=${cleanForAI(i.ma60)}
+- **趋势指标**：MACD DIF=${i.macd?.dif||'-'}, DEA=${i.macd?.dea||'-'}
+### 3. 【风】量能
+- **换手率**：${cleanForAI(s.turnover)}%
+- **量比**：${cleanForAI(s.volRatio)}
 - **主力流向**：${formatFlow(s.flow)}
-- **RSI(6)**：${i.rsi}
-
+- **RSI(6)**：${cleanForAI(i.rsi)}
 请按 Markdown 格式输出分析报告：
 ### 1. 核心逻辑推演
-(结合基本面锚点与趋势位置，判断当前性价比)
-### 2. 资金博弈解析
-(主力意图与技术指标分析)
+### 2. 量价博弈解析
 ### 3. 操作策略建议
 - **评级**：(买入/持有/卖出/观望)
-- **点位**：支撑/压力位测算
-- **风控**：止损线建议
-`;
+- **点位**：支撑/压力
+- **风控**：止损`;
 
                 try {
                     const res = await fetch('https://api.deepseek.com/chat/completions', {
@@ -352,8 +383,7 @@
                 }
             };
 
-            let kChart = null, rChart = null;
-            const drawChart = (dates, data, ma20, ma60, rsi) => {
+            const drawChart = (dates, data, ma20, ma60, vols, rsi) => {
                 nextTick(() => {
                     if (kChart) kChart.dispose();
                     if (rChart) rChart.dispose();
@@ -361,90 +391,64 @@
                     rChart = echarts.init(document.getElementById('rsiChart'));
 
                     const optionK = {
-                        grid: { left: 40, right: 10, top: 20, bottom: 20 },
-                        tooltip: {
-                            trigger: 'axis', axisPointer: { type: 'cross', label: { show:true }, handle: { show:true, size:25, color:'#10b981' }, snap:true },
-                            confine: true,
-                            backgroundColor: 'rgba(255,255,255,0.95)',
-                            textStyle: { color: '#333', fontSize: 12 },
-                            formatter: (params) => {
-                                let res = `<div style="font-weight:bold;margin-bottom:2px">${params[0].axisValue}</div>`;
-                                params.forEach(p => {
-                                    if(p.seriesName === 'K线') {
-                                        const c = p.data[2]>=p.data[1]?'#ef4444':'#10b981';
-                                        res += `<div style="color:${c}">
-                                            收: ${p.data[2]}  幅: ${p.data[5]}%<br>
-                                            高: ${p.data[4]}  低: ${p.data[3]}
-                                        </div>`;
-                                    }
-                                });
-                                return res;
-                            }
-                        },
-                        xAxis: { data: dates, axisLine: { show: false }, axisLabel: { show: false } },
-                        yAxis: { scale: true, splitLine: { lineStyle: { color: '#2d3139' } } },
-                        dataZoom: [{ type: 'inside', start: 60, end: 100, xAxisIndex: [0], moveOnMouseWheel: true }],
+                        grid: [{ left: 40, right: 10, top: 20, height: '65%' }, { left: 40, right: 10, top: '70%', height: '25%' }],
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { show:true }, handle: { show:true, size:25, color:'#6366f1' }, snap:true }, confine: true, backgroundColor: 'rgba(255,255,255,0.95)', textStyle: { color: '#333', fontSize: 12 }, formatter: (params) => { let res = `<div style="font-weight:bold;margin-bottom:2px">${params[0].axisValue}</div>`; params.forEach(p => { if(p.seriesName === 'K线') { const c = p.data[2]>=p.data[1]?'#ef4444':'#10b981'; res += `<div style="color:${c}">收: ${p.data[2]}  幅: ${p.data[5]}%<br>高: ${p.data[4]}  低: ${p.data[3]}</div>`; } if(p.seriesName === '成交量') { res += `<div>量: ${(p.value/10000).toFixed(0)}万</div>`; } }); return res; } },
+                        xAxis: [{ data: dates, axisLine: { show: false }, axisLabel: { show: false }, gridIndex: 0 }, { data: dates, axisLine: { show: false }, axisLabel: { show: false }, gridIndex: 1 }],
+                        yAxis: [{ scale: true, splitLine: { lineStyle: { color: '#2d3139' } }, gridIndex: 0 }, { scale: true, splitLine: { show: false }, axisLabel: { show: false }, gridIndex: 1 }],
+                        dataZoom: [{ type: 'inside', start: 60, end: 100, xAxisIndex: [0, 1], moveOnMouseWheel: true }],
                         series: [
-                            { name: 'K线', type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#10b981', borderColor: '#ef4444', borderColor0: '#10b981' } },
-                            { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#f59e0b' } },
-                            { name: 'MA60', type: 'line', data: ma60, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#10b981' } } 
+                            { name: 'K线', type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#10b981', borderColor: '#ef4444', borderColor0: '#10b981' }, xAxisIndex: 0, yAxisIndex: 0 },
+                            { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#f59e0b' }, xAxisIndex: 0, yAxisIndex: 0 },
+                            { name: 'MA60', type: 'line', data: ma60, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#10b981' }, xAxisIndex: 0, yAxisIndex: 0 },
+                            { name: '成交量', type: 'bar', data: vols, xAxisIndex: 1, yAxisIndex: 1, itemStyle: { color: (p) => p.data[2] >= p.data[1] ? '#ef4444' : '#10b981' } }
                         ]
                     };
                     const optionR = {
                         grid: { left: 40, right: 10, top: 5, bottom: 20 },
-                        tooltip: { trigger: 'axis', axisPointer: { handle: { show:true, size:25, color:'#10b981' } } },
+                        tooltip: { trigger: 'axis', axisPointer: { handle: { show:true, size:25, color:'#6366f1' } } },
                         xAxis: { data: dates, axisLine: { lineStyle: { color: '#4b5563' } } },
                         yAxis: { min: 0, max: 100, splitNumber: 3, splitLine: { lineStyle: { color: '#2d3139' } } },
                         dataZoom: [{ type: 'inside', start: 60, end: 100, xAxisIndex: [0] }],
-                        series: [
-                            { name: 'RSI6', type: 'line', data: rsi, showSymbol: false, lineStyle: { width: 1, color: '#6366f1' } },
-                            { type: 'line', markLine: { symbol: 'none', data: [{ yAxis: 80 }, { yAxis: 20 }], lineStyle: { color: '#4b5563', type: 'dashed' } } }
-                        ]
+                        series: [{ name: 'RSI6', type: 'line', data: rsi, showSymbol: false, lineStyle: { width: 1, color: '#6366f1' } }, { type: 'line', markLine: { symbol: 'none', data: [{ yAxis: 80 }, { yAxis: 20 }], lineStyle: { color: '#4b5563', type: 'dashed' } } }]
                     };
-                    kChart.setOption(optionK);
-                    rChart.setOption(optionR);
-                    echarts.connect([kChart, rChart]);
+                    kChart.setOption(optionK); rChart.setOption(optionR); echarts.connect([kChart, rChart]);
                 });
             };
 
             const resizeCharts = () => setTimeout(() => { if(kChart) kChart.resize(); if(rChart) rChart.resize(); }, 100);
             window.onresize = resizeCharts;
 
-            const calcRSI = (closes) => {
-                let rsi = [], changes = [];
-                for(let i=1; i<closes.length; i++) changes.push(closes[i] - closes[i-1]);
-                for(let i=0; i<closes.length; i++) {
-                    if(i < 6) { rsi.push('-'); continue; }
-                    let gain=0, loss=0;
-                    for(let j=i-6; j<i; j++) {
-                        if(changes[j] >= 0) gain += changes[j]; else loss += Math.abs(changes[j]);
-                    }
-                    let rs = gain / (loss===0?1:loss);
-                    rsi.push((100 - 100/(1+rs)).toFixed(2));
-                }
-                return rsi;
-            }
+            const calcMACD = (closes) => { const ema = (data, k) => { let result = [data[0]]; let multiplier = 2 / (k + 1); for (let i = 1; i < data.length; i++) { result.push((data[i] - result[i - 1]) * multiplier + result[i - 1]); } return result; }; const ema12 = ema(closes, 12); const ema26 = ema(closes, 26); const dif = ema12.map((v, i) => v - ema26[i]); const dea = ema(dif, 9); const bar = dif.map((v, i) => (v - dea[i]) * 2); return { dif: dif[dif.length-1].toFixed(3), dea: dea[dea.length-1].toFixed(3), bar: bar[bar.length-1].toFixed(3) }; };
+            const calcRSI = (closes) => { let rsi = [], changes = []; for(let i=1; i<closes.length; i++) changes.push(closes[i] - closes[i-1]); for(let i=0; i<closes.length; i++) { if(i < 6) { rsi.push('-'); continue; } let gain=0, loss=0; for(let j=i-6; j<i; j++) { if(changes[j] >= 0) gain += changes[j]; else loss += Math.abs(changes[j]); } let rs = gain / (loss===0?1:loss); rsi.push((100 - 100/(1+rs)).toFixed(2)); } return rsi; }
 
-            // 数据补全：增加 fltt=2 和 invt=2 确保小数精度
-            const fetchStockDetails = (stock) => {
-                const cb = 'cb_det_' + Date.now();
-                let secId = '0.'+stock.code;
-                if(stock.code.startsWith('6')) secId = '1.'+stock.code;
-                if(stock.code.startsWith('8') || stock.code.startsWith('4')) secId = '0.'+stock.code;
+            const fetchStockDetails = () => {
+                if (!currentStock.value) return;
+                const code = currentStock.value.code;
                 
-                // 关键修复：加入 fltt=2&invt=2 强制返回浮点数
-                const urlDet = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secId}&fields=f162,f167,f116,f100,f170,f43&fltt=2&invt=2&cb=${cb}`;
+                const cb = 'cb_det_' + Date.now();
+                let secId = code.startsWith('6') ? '1.' + code : '0.' + code;
+                
+                // 核心修复: 添加 ut 令牌，确保 f8(换手) 和 f10(量比) 能获取到数据
+                const urlDet = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secId}&ut=bd1d9ddb04089700cf9c27f6f7426281&fields=f162,f167,f116,f100,f170,f43,f8,f10&fltt=2&invt=2&cb=${cb}`;
                 const sDet = document.createElement('script');
                 sDet.src = urlDet;
                 
                 window[cb] = (res) => {
-                    if(res?.data) {
-                        stock.pe = res.data.f162;
-                        stock.pb = res.data.f167;
-                        stock.totalCap = res.data.f116;
-                        stock.sector = res.data.f100;
-                        stock.price = res.data.f43; 
-                        stock.change = res.data.f170; 
+                    if(res?.data && currentStock.value && currentStock.value.code === code) {
+                        const updates = {
+                            pe: res.data.f162,
+                            pb: res.data.f167,
+                            totalCap: res.data.f116,
+                            price: res.data.f43,
+                            change: res.data.f170
+                        };
+                        // 智能合并：只有接口数据有效时才覆盖，防止列表页的好数据被空值覆盖
+                        if (res.data.f8 && res.data.f8 !== '-') updates.turnover = res.data.f8;
+                        if (res.data.f10 && res.data.f10 !== '-') updates.volRatio = res.data.f10;
+                        if (res.data.f100 && res.data.f100 !== '-') updates.sector = res.data.f100;
+
+                        Object.assign(currentStock.value, updates);
+                        infoKey.value++; 
                     }
                     delete window[cb];
                     document.body.removeChild(sDet);
@@ -457,9 +461,10 @@
                 sFlow.src = urlFlow;
                 
                 window[cbFlow] = (res) => {
-                    if(res?.data?.klines && res.data.klines.length > 0) {
+                    if(res?.data?.klines && res.data.klines.length > 0 && currentStock.value) {
                         const flowData = res.data.klines[0].split(',');
-                        stock.flow = parseFloat(flowData[1]); 
+                        currentStock.value.flow = parseFloat(flowData[1]); 
+                        infoKey.value++;
                     }
                     delete window[cbFlow];
                     document.body.removeChild(sFlow);
@@ -468,10 +473,26 @@
             };
 
             const analyzeStock = (stock) => {
-                currentStock.value = stock;
-                if(stock.source === 'search' || !stock.pe) {
-                    fetchStockDetails(stock);
-                }
+                // 初始化: 确保对象属性完整
+                const initialStock = {
+                    code: stock.code,
+                    name: stock.name,
+                    price: stock.price || '-',
+                    change: stock.change || 0,
+                    pe: stock.pe || '-',
+                    pb: stock.pb || '-',
+                    totalCap: stock.totalCap || '-',
+                    sector: stock.sector || '-', // 搜索时默认无板块
+                    turnover: stock.turnover || '-',
+                    volRatio: stock.volRatio || '-',
+                    flow: stock.flow || 0,
+                    score: stock.score || 0
+                };
+
+                currentStock.value = initialStock;
+                infoKey.value++; // 强制刷新头部信息栏
+                
+                fetchStockDetails();
 
                 if(reportCache.value[stock.code]) {
                     aiOutput.value = reportCache.value[stock.code];
@@ -480,24 +501,26 @@
                 } else { aiOutput.value = ''; aiStatus.value = 'idle'; }
                 
                 const cb = 'cb_k_' + Date.now();
-                let secId = '0.'+stock.code;
-                if(stock.code.startsWith('6')) secId = '1.'+stock.code;
-                if(stock.code.startsWith('8') || stock.code.startsWith('4')) secId = '0.'+stock.code; 
+                let secId = stock.code.startsWith('6') ? '1.' + stock.code : '0.' + stock.code;
 
-                const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=${cb}&secid=${secId}&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55&klt=101&fqt=1&end=20500101&lmt=120&_=${Date.now()}`;
+                const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=${cb}&secid=${secId}&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55,f5&klt=101&fqt=1&end=20500101&lmt=120&_=${Date.now()}`;
                 
                 window[cb] = (res) => {
                     if(res?.data?.klines) {
                         const raw = res.data.klines.map(i => i.split(','));
                         const dates = raw.map(i => i[0].substring(5));
                         
-                        let data = [], closes = [];
+                        let data = [], closes = [], vols = [];
                         raw.forEach((item, index) => {
                             let open=parseFloat(item[1]), close=parseFloat(item[2]), high=parseFloat(item[3]), low=parseFloat(item[4]);
+                            let vol = parseFloat(item[5]);
+                            if(isNaN(vol)) vol = 0; 
+
                             let preClose = index > 0 ? parseFloat(raw[index-1][2]) : open;
                             let realChange = ((close - preClose) / preClose * 100).toFixed(2);
                             data.push([open, close, low, high, realChange]);
                             closes.push(close);
+                            vols.push({ value: vol, data: [0, open, close] });
                         });
                         
                         const lastKClose = closes[closes.length-1];
@@ -509,15 +532,12 @@
                         }
 
                         const rsi = calcRSI(closes);
+                        const macd = calcMACD(closes);
                         const ma20 = closes.map((v,i,arr) => { if(i<20) return '-'; let s=0; for(let k=0;k<20;k++) s+=arr[i-k]; return (s/20).toFixed(2); });
                         const ma60 = closes.map((v,i,arr) => { if(i<60) return '-'; let s=0; for(let k=0;k<60;k++) s+=arr[i-k]; return (s/60).toFixed(2); });
 
-                        currentIndicators.value = { 
-                            rsi: rsi[rsi.length-1], 
-                            ma20: ma20[ma20.length-1],
-                            ma60: ma60[ma60.length-1] 
-                        };
-                        drawChart(dates, data, ma20, ma60, rsi);
+                        currentIndicators.value = { rsi: rsi[rsi.length-1], ma20: ma20[ma20.length-1], ma60: ma60[ma60.length-1], macd: macd };
+                        drawChart(dates, data, ma20, ma60, vols, rsi);
                     }
                     delete window[cb];
                     document.body.removeChild(document.getElementById('sk'));
@@ -528,12 +548,14 @@
             const fetchTopList = () => {
                 loading.value = true;
                 const cb = 'cb_top_' + Date.now();
-                const url = `https://push2.eastmoney.com/api/qt/clist/get?cb=${cb}&pn=1&pz=50&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&fields=f12,f14,f2,f3,f62,f9,f23,f20,f100`;
+                const url = `https://push2.eastmoney.com/api/qt/clist/get?cb=${cb}&pn=1&pz=50&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&fields=f12,f14,f2,f3,f62,f9,f23,f20,f100,f8,f10`;
                 window[cb] = (res) => {
                     if(res?.data?.diff) {
                         stockList.value = res.data.diff.map(d => ({
                             code: d.f12, name: d.f14, price: d.f2, change: d.f3, flow: d.f62, 
                             pe: d.f9, pb: d.f23, totalCap: d.f20, sector: d.f100, 
+                            turnover: d.f8 !== undefined ? d.f8 : '-', 
+                            volRatio: d.f10, 
                             score: 50 + d.f3 * 1.5 + (d.f62 > 0 ? 5 : -5)
                         })).sort((a,b) => b.score - a.score);
                         if(stockList.value.length && window.innerWidth > 768) analyzeStock(stockList.value[0]);
@@ -558,23 +580,23 @@
                 document.body.appendChild(s);
             }
             
+            const handleStockClick = (stock) => {
+                analyzeStock(stock);
+                mobileTab.value = 'chart';
+            };
+
             const selectStock = (item) => {
                 searchResults.value = []; searchQuery.value = '';
-                analyzeStock({ code: item.code, name: item.name, price: '-', change: 0, flow: 0, source: 'search' });
+                // 搜索点击入口：初始化 source='search'
+                analyzeStock({ code: item.code, name: item.name, source: 'search' });
                 mobileTab.value = 'chart';
             }
-
-            const formatFlow = (v) => v ? (v/100000000).toFixed(2) + '亿' : '-';
-            const formatCap = (v) => v ? (v/100000000).toFixed(0) + '亿' : '-';
-            const getScoreColor = (s) => s >= 80 ? 'text-red-500' : (s >= 60 ? 'text-emerald-400' : 'text-gray-500');
-            const getRsiColor = (v) => v > 80 ? 'text-red-500' : (v < 30 ? 'text-emerald-400' : 'text-gray-400');
-            const renderMarkdown = (t) => md.render(t || '');
 
             return {
                 showConfig, apiKey, tempKey, saveKey, mobileTab, handleStockClick, resizeCharts,
                 stockList, currentStock, currentIndicators, loading, aiStatus, aiOutput, errorMessage, searchQuery, searchResults,
-                callDeepSeek, analyzeStock, fetchTopList, handleSearch, selectStock, reportCache, refreshKey,
-                formatFlow, formatCap, getScoreColor, getRsiColor, renderMarkdown, formatRatio
+                callDeepSeek, analyzeStock, fetchTopList, handleSearch, selectStock, reportCache, refreshKey, infoKey,
+                formatFlow, formatCap, getScoreColor, getRsiColor, renderMarkdown, formatRatio, formatData, formatPercent
             };
         }
     }).mount('#app');
