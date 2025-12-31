@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PDF 阅读器 V1.1</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://npm.elemecdn.com/lxgw-wenkai-screen-webfont/style.css" media="print" onload="this.media='all'">
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --paper-bg: #fff;
+            --text-color: #222;
+            --highlight-color: #ffeb3b;
+            --current-highlight: #ff9800;
+            --font-stack-wenkai: "LXGW WenKai Screen", "LXGW WenKai", sans-serif;
+            --font-stack-song: "SimSun", "宋体", "Songti SC", "STSong", "Noto Serif SC", serif;
+            --font-stack-system: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            --active-font: var(--font-stack-wenkai);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: var(--active-font);
+            background: var(--bg-color); 
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            color: var(--text-color);
+            transition: background 0.3s;
+        }
+
+        /* --- Header --- */
+        .header {
+            background: #fff; padding: 0 20px; border-bottom: 1px solid #ddd;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 60px; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; flex: 1; }
+        .header-title { font-weight: bold; font-size: 18px; white-space: nowrap; }
+        
+        .search-box {
+            display: flex; align-items: center; background: #f2f2f2; 
+            padding: 6px 12px; border-radius: 20px; width: 180px; 
+            border: 1px solid transparent; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .search-box:focus-within { width: 400px; background: #fff; border-color: #999; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .search-input { border: none; background: transparent; outline: none; flex: 1; font-size: 14px; padding: 0 8px; width: 100%; }
+        .search-info { font-size: 12px; color: #888; margin-left: 8px; white-space: nowrap; opacity: 0.8; }
+        
+        /* 搜索按钮样式优化 */
+        .search-btn { cursor: pointer; padding: 4px; border-radius: 50%; border: none; background: transparent; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .search-btn:hover { background: #e0e0e0; }
+
+        .header-right { display: flex; gap: 10px; }
+
+        /* --- Settings Panel --- */
+        .settings-panel {
+            position: fixed; top: 70px; right: 20px; width: 300px;
+            background: #fff; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            padding: 20px; z-index: 200; display: none; border: 1px solid #eee;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .settings-panel.active { display: block; animation: slideDown 0.2s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .control-group { margin-bottom: 20px; }
+        .control-group h4 { font-size: 14px; color: #666; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+        .control-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 13px; }
+        select, input[type="range"] { width: 60%; }
+        
+        .btn {
+            padding: 6px 12px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .btn:hover { background: #f5f5f5; border-color: #ccc; }
+        .btn-primary { background: #222; color: #fff; border-color: #222; }
+        .btn-primary:hover { background: #000; }
+
+        /* --- Reader Area --- */
+        .reader-container { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; position: relative; }
+        .paper {
+            background: var(--paper-bg); max-width: 860px; margin: 0 auto 100px auto;
+            padding: 60px 50px; min-height: 100vh;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: background 0.3s;
+        }
+
+        #content { font-size: 18px; line-height: 1.8; text-align: justify; }
+        p { margin-bottom: 1.2em; text-indent: 2em; word-wrap: break-word; }
+        h2, h3 { text-align: center; text-indent: 0; margin: 2em 0 1em; font-weight: bold; }
+        
+        .page-footer { 
+            text-align: center; font-size: 13px; color: #999; margin: 50px 0; 
+            border-top: 1px solid #eee; padding-top: 15px; font-family: var(--font-stack-system); 
+        }
+        
+        .empty-page-tip {
+            text-align: center; color: #999; font-size: 14px; 
+            background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 4px;
+            font-style: italic;
+        }
+
+        .highlight { background-color: var(--highlight-color); border-radius: 2px; }
+        .highlight.active { background-color: var(--current-highlight); color: white; }
+
+        /* Table */
+        .parsed-table-wrapper { width: 100%; overflow-x: auto; margin: 20px 0; border: 1px solid #eee; }
+        table.parsed-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        table.parsed-table td { border: 1px solid #ddd; padding: 8px; min-width: 50px; }
+        table.parsed-table tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+
+        /* Loading */
+        #loading-mask {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.95);
+            display: none; align-items: center; justify-content: center; z-index: 999;
+            flex-direction: column; color: #555; font-weight: 500;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid #eee; border-top-color: #333;
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .header-title { display: none; }
+            .paper { padding: 30px 20px; }
+            .settings-panel { width: 90%; right: 5%; left: 5%; top: 60px; }
+            .search-box { width: 140px; }
+            .search-box:focus-within { width: 240px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <span class="header-title">PDF Reader V1.1</span>
+            <div class="search-box">
+                <button class="search-btn" onclick="doSearch()" title="搜索">🔍</button>
+                <input type="text" class="search-input" id="searchInput" placeholder="输入内容..." onkeydown="if(event.key==='Enter') doSearch()">
+                <span class="search-info" id="searchCount"></span>
+                <button class="search-btn" style="margin-left:5px;" onclick="nextSearch()" title="下一个">⬇️</button>
+            </div>
+        </div>
+        <div class="header-right">
+            <input type="file" id="fileInput" accept=".pdf" style="display:none">
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">📂 打开文件</button>
+            <button class="btn" id="settingBtn" onclick="toggleSettings()">⚙️ 设置</button>
+        </div>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <div class="control-group">
+            <h4>📄 文件操作</h4>
+            <div id="fileName" style="font-size:12px; color:#888; margin-bottom:10px; word-break:break-all;">未选择文件</div>
+            <button class="btn" style="width:100%" onclick="exportWord()">💾 导出为Word</button>
+        </div>
+
+        <div class="control-group">
+            <h4>🔠 字体设置</h4>
+            <div class="control-row">
+                <label>字体风格</label>
+                <select id="fontSelect" onchange="changeFont()">
+                    <option value="wenkai">霞鹜文楷</option>
+                    <option value="song">标准宋体</option>
+                    <option value="system">系统默认</option>
+                </select>
+            </div>
+            <div class="control-row">
+                <label>字体大小</label>
+                <input type="range" id="fsInput" min="14" max="30" value="18" oninput="changeSize(this.value)">
+            </div>
+            <div class="control-row">
+                <label>页面宽度</label>
+                <input type="range" id="widthInput" min="600" max="1200" value="860" oninput="changeWidth(this.value)">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h4>🎨 阅读主题</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px">
+                <button class="btn" onclick="applyTheme('light')">☀️ 日间</button>
+                <button class="btn" onclick="applyTheme('sepia')">📜 羊皮</button>
+                <button class="btn" onclick="applyTheme('dark')">🌙 夜间</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <button class="btn" style="width:100%; color:red; border-color:red;" onclick="clearData()">🗑️ 清除缓存数据</button>
+        </div>
+    </div>
+
+    <div class="reader-container">
+        <div class="paper" id="paper">
+            <div id="content">
+                <div style="text-align: center; margin-top: 150px; color: #999;">
+                    <h3>欢迎使用 PDF Reader AI发电版</h3>
+                    <p>支持手机端阅读 · 不支持纯图型PDF</p>
+                    <p>点击右上角“打开文件”开始阅读</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-mask">
+        <div class="spinner"></div>
+        <div id="loading-text">准备中...</div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // --- IndexedDB ---
+        const DB_NAME = 'PDFReaderDB_V14';
+        const STORE_NAME = 'fileStore';
+        const dbHelper = {
+            db: null,
+            init() {
+                return new Promise((resolve) => {
+                    const request = indexedDB.open(DB_NAME, 1);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
+                    };
+                    request.onsuccess = (e) => { this.db = e.target.result; resolve(true); };
+                    request.onerror = () => resolve(false);
+                });
+            },
+            saveFile(file) {
+                return new Promise((resolve) => {
+                    if (!this.db) { resolve(false); return; }
+                    const tx = this.db.transaction(STORE_NAME, 'readwrite');
+                    tx.objectStore(STORE_NAME).put(file, 'currentFile');
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => resolve(false);
+                });
+            },
+            getFile() {
+                return new Promise((resolve) => {
+                    if (!this.db) { resolve(null); return; }
+                    const tx = this.db.transaction(STORE_NAME, 'readonly');
+                    const req = tx.objectStore(STORE_NAME).get('currentFile');
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(null);
+                });
+            },
+            clear() {
+                if (this.db) {
+                    const tx = this.db.transaction(STORE_NAME, 'readwrite');
+                    tx.objectStore(STORE_NAME).clear();
+                }
+                location.reload();
+            }
+        };
+
+        const dom = {
+            content: document.getElementById('content'),
+            mask: document.getElementById('loading-mask'),
+            loadingText: document.getElementById('loading-text'),
+            settingsPanel: document.getElementById('settingsPanel'),
+            fileName: document.getElementById('fileName'),
+            paper: document.getElementById('paper')
+        };
+        
+        // --- 搜索状态管理 ---
+        let searchResults = [];
+        let currentSearchIdx = -1;
+        let lastSearchedKeyword = ""; // 关键：记录上一次搜索的词
+
+        window.addEventListener('load', async () => {
+            const dbReady = await dbHelper.init();
+            if (dbReady) {
+                const savedFile = await dbHelper.getFile();
+                if (savedFile) parsePDF(savedFile);
+            }
+            changeFont(); 
+        });
+
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            if (!e.target.files[0]) return;
+            const file = e.target.files[0];
+            
+            dom.mask.style.display = 'flex';
+            dom.loadingText.textContent = "正在缓存文件...";
+            await new Promise(r => setTimeout(r, 50));
+            
+            try { await dbHelper.saveFile(file); } catch (err) {}
+            parsePDF(file);
+        });
+
+        function clearData() {
+            if(confirm('确定要清除缓存的文件和设置吗？')) dbHelper.clear();
+        }
+
+        async function parsePDF(file) {
+            dom.fileName.textContent = file.name || "文件.pdf";
+            dom.mask.style.display = 'flex';
+            dom.loadingText.textContent = "正在分析排版...";
+            
+            try {
+                const buffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(buffer).promise;
+                let fullHtml = "";
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    dom.loadingText.textContent = `解析中 ${i} / ${pdf.numPages}`;
+                    await new Promise(r => setTimeout(r, 0));
+
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    
+                    if (textContent.items.length === 0) {
+                        fullHtml += `<div class="empty-page-tip">[第 ${i} 页：未检测到文本数据，可能是扫描图片或纯图像]</div>`;
+                    } else {
+                        const lines = buildLines(textContent.items);
+                        const classifiedLines = classifyLines(lines);
+                        const pageHtml = processPageToHtml(classifiedLines, i);
+                        
+                        if (!pageHtml.trim()) {
+                             fullHtml += `<div class="empty-page-tip">[第 ${i} 页：内容为空]</div>`;
+                        } else {
+                             fullHtml += pageHtml;
+                        }
+                    }
+                    page.cleanup();
+                }
+                
+                if (!fullHtml.includes("<p") && !fullHtml.includes("<table")) {
+                     dom.content.innerHTML = `<div style="text-align:center; padding:50px; color:#f00;">
+                        <h3>⚠️ 无法提取文本</h3>
+                        <p>该 PDF 似乎是<b>纯图片/扫描件</b>，不包含可编辑文本层。</p>
+                        <p>本工具仅支持文本型 PDF。</p>
+                     </div>` + fullHtml;
+                } else {
+                    dom.content.innerHTML = fullHtml;
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("解析中断：" + err.message);
+            } finally {
+                dom.mask.style.display = 'none';
+                // 重置搜索状态
+                lastSearchedKeyword = "";
+                searchResults = [];
+                currentSearchIdx = -1;
+                document.getElementById('searchCount').textContent = "";
+            }
+        }
+
+        function cleanText(str) { 
+            if (!str) return "";
+            return str.replace(/[\x00\x01]/g, "").trim(); 
+        }
+
+        function buildLines(items) {
+            let cleanItems = items.map(item => ({
+                str: cleanText(item.str),
+                x: item.transform[4],
+                y: item.transform[5],
+                w: item.width,
+                h: item.height || 10
+            })).filter(i => i.str.length > 0);
+            
+            cleanItems.sort((a, b) => b.y - a.y || a.x - b.x);
+            if (cleanItems.length === 0) return [];
+
+            let lines = [];
+            let currentLine = { y: cleanItems[0].y, items: [cleanItems[0]] };
+            for (let i = 1; i < cleanItems.length; i++) {
+                const item = cleanItems[i];
+                if (Math.abs(item.y - currentLine.y) < (item.h * 0.5)) currentLine.items.push(item);
+                else {
+                    currentLine.items.sort((a, b) => a.x - b.x);
+                    lines.push(currentLine);
+                    currentLine = { y: item.y, items: [item] };
+                }
+            }
+            currentLine.items.sort((a, b) => a.x - b.x);
+            lines.push(currentLine);
+            return lines;
+        }
+
+        function classifyLines(lines) {
+            return lines.map(line => {
+                line.text = line.items.map(it => it.str).join("");
+                let isTable = false;
+                let gapCount = 0;
+                if (line.items.length >= 2) {
+                    for (let k = 0; k < line.items.length - 1; k++) {
+                        let gap = line.items[k+1].x - (line.items[k].x + line.items[k].w);
+                        if (gap > 15) gapCount++;
+                    }
+                }
+                let hasWideSpace = /\s{3,}/.test(line.text);
+                let isHeader = /^(序号|名称|备注|金额|单位|规格)/.test(line.text) && line.text.length < 50;
+                if ((gapCount >= 1 && line.items.length >= 2) || (hasWideSpace && line.text.length > 5) || isHeader) isTable = true;
+                line.isTable = isTable;
+                return line;
+            });
+        }
+
+        function processPageToHtml(lines, pageNum) {
+            let html = "";
+            let i = 0;
+            while (i < lines.length) {
+                if (lines[i].isTable) {
+                    let tableRows = [];
+                    while (i < lines.length) {
+                        if (lines[i].isTable || (lines[i+1] && lines[i+1].isTable && lines[i].text.length < 30)) {
+                            tableRows.push(lines[i]);
+                            i++;
+                        } else break;
+                    }
+                    if (tableRows.length > 0) {
+                        html += renderTable(tableRows);
+                    }
+                } else {
+                    let buffer = "";
+                    while (i < lines.length) {
+                        if (lines[i].isTable) break;
+                        let line = lines[i];
+                        buffer += line.text;
+                        let nextLine = lines[i+1];
+                        let shouldBreak = false;
+                        if (!nextLine) shouldBreak = true;
+                        else {
+                            if (/[。！？\.\!\?]$/.test(line.text)) shouldBreak = true;
+                            if (/^(\d+[\.\、]|\（\d+\）|[一二三四五六七八九十]+[\、\.])/.test(nextLine.text)) shouldBreak = true;
+                        }
+                        i++;
+                        if (shouldBreak) break;
+                    }
+                    if (buffer) {
+                        if (buffer.length < 40 && !/[，。]/.test(buffer)) html += `<h3>${buffer}</h3>`;
+                        else html += `<p>${buffer}</p>`;
+                    }
+                }
+            }
+            html += `<div class="page-footer">- 第 ${pageNum} 页 -</div>`;
+            return html;
+        }
+
+        function renderTable(rows) {
+            let html = `<div class="parsed-table-wrapper"><table class="parsed-table">`;
+            rows.forEach(row => {
+                html += `<tr>`;
+                if (row.items.length >= 2) {
+                    let txt = row.items[0].str;
+                    let lastX = row.items[0].x + row.items[0].w;
+                    for (let k = 1; k < row.items.length; k++) {
+                        let gap = row.items[k].x - lastX;
+                        if (gap < 15) txt += row.items[k].str;
+                        else { html += `<td>${txt}</td>`; txt = row.items[k].str; }
+                        lastX = row.items[k].x + row.items[k].w;
+                    }
+                    html += `<td>${txt}</td>`;
+                } else {
+                    row.text.split(/\s{2,}/).forEach(p => html += `<td>${p}</td>`);
+                }
+                html += `</tr>`;
+            });
+            html += `</table></div>`;
+            return html;
+        }
+
+        function toggleSettings() {
+            dom.settingsPanel.classList.toggle('active');
+            if (dom.settingsPanel.classList.contains('active')) document.addEventListener('click', closeSettingsOnClickOutside);
+        }
+        function closeSettingsOnClickOutside(e) {
+            if (!dom.settingsPanel.contains(e.target) && e.target.id !== 'settingBtn') {
+                dom.settingsPanel.classList.remove('active');
+                document.removeEventListener('click', closeSettingsOnClickOutside);
+            }
+        }
+        function changeFont() {
+            const val = document.getElementById('fontSelect').value;
+            const root = document.documentElement;
+            if (val === 'wenkai') root.style.setProperty('--active-font', 'var(--font-stack-wenkai)');
+            else if (val === 'song') root.style.setProperty('--active-font', 'var(--font-stack-song)');
+            else root.style.setProperty('--active-font', 'var(--font-stack-system)');
+        }
+        function changeSize(val) { dom.content.style.fontSize = val + 'px'; }
+        function changeWidth(val) { dom.paper.style.maxWidth = val + 'px'; }
+        function applyTheme(mode) {
+            const root = document.documentElement;
+            if (mode === 'light') {
+                root.style.setProperty('--bg-color', '#f5f5f5');
+                root.style.setProperty('--paper-bg', '#fff');
+                root.style.setProperty('--text-color', '#222');
+            } else if (mode === 'sepia') {
+                root.style.setProperty('--bg-color', '#e6dec1');
+                root.style.setProperty('--paper-bg', '#fdf6e3');
+                root.style.setProperty('--text-color', '#5b4636');
+            } else if (mode === 'dark') {
+                root.style.setProperty('--bg-color', '#111');
+                root.style.setProperty('--paper-bg', '#252525');
+                root.style.setProperty('--text-color', '#ccc');
+            }
+        }
+
+        // --- 核心搜索逻辑修复 ---
+        function doSearch() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) return;
+
+            // 清除旧高亮
+            const oldMarks = document.querySelectorAll('mark.highlight');
+            oldMarks.forEach(m => {
+                const parent = m.parentNode;
+                parent.replaceChild(document.createTextNode(m.textContent), m);
+                parent.normalize();
+            });
+            searchResults = [];
+            currentSearchIdx = -1;
+
+            // 遍历并高亮
+            const walker = document.createTreeWalker(dom.content, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            const nodes = [];
+            while(node = walker.nextNode()) nodes.push(node);
+
+            nodes.forEach(node => {
+                const text = node.nodeValue;
+                const regex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                if (regex.test(text)) {
+                    const span = document.createElement('span');
+                    span.innerHTML = text.replace(regex, match => `<mark class="highlight">${match}</mark>`);
+                    node.parentNode.replaceChild(span, node);
+                }
+            });
+
+            const marks = document.querySelectorAll('mark.highlight');
+            searchResults = Array.from(marks);
+            
+            // 更新最后搜索词
+            lastSearchedKeyword = keyword;
+            
+            if (searchResults.length > 0) { 
+                currentSearchIdx = 0; 
+                highlightCurrent(); 
+                document.getElementById('searchCount').textContent = `1 / ${searchResults.length}`;
+            } else {
+                document.getElementById('searchCount').textContent = "无结果";
+            }
+        }
+
+        // 修复：智能“下一个”
+        function nextSearch() {
+            const currentInput = document.getElementById('searchInput').value.trim();
+            
+            // 如果输入框内容变了，且不是空的，先执行新搜索
+            if (currentInput && currentInput !== lastSearchedKeyword) {
+                doSearch();
+                return; 
+            }
+
+            if (searchResults.length === 0) return;
+            currentSearchIdx = (currentSearchIdx + 1) % searchResults.length;
+            highlightCurrent();
+            document.getElementById('searchCount').textContent = `${currentSearchIdx + 1} / ${searchResults.length}`;
+        }
+
+        function highlightCurrent() {
+            document.querySelectorAll('.highlight.active').forEach(el => el.classList.remove('active'));
+            const el = searchResults[currentSearchIdx];
+            el.classList.add('active');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function exportWord() {
+            const content = dom.content.innerHTML;
+            if (content.length < 100) { alert('没有内容'); return; }
+            const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><style>body { font-family: 'SimSun', serif; font-size: 12pt; } table { border-collapse: collapse; width: 100%; margin: 10px 0; } td { border: 1px solid #000000; padding: 5px; vertical-align: top; } p { margin-bottom: 10px; line-height: 1.5; text-indent: 2em; } h3 { text-align: center; font-weight: bold; font-size: 14pt; } .page-footer { text-align: center; font-size: 10pt; color: #666; margin: 20px 0; border-top: 1px solid #ccc; padding-top: 5px; }</style></head><body>`;
+            const footer = "</body></html>";
+            const html = header + content + footer;
+            const blob = new Blob([html], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (dom.fileName.textContent || 'document') + '.doc';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
