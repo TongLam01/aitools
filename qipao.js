@@ -48,7 +48,7 @@
         const bubble = document.createElement('div');
         bubble.className = 'first-visit-bubble';
         bubble.innerHTML = `
-            <p>👋 本AI工具，需在设置中输入DeepSeek的API Key。<br>去其官方网站API平台可注册获取。<br>建议至少在该平台充值1元</p>
+            <p>👋 本工具需在设置中输入API Key<br>去DeepSeek官网API平台可注册获取<br>网址platform.deepseek.com<br>建议至少充值1元</p>
             <button class="first-visit-close-btn">我知道了</button>
         `;
 
