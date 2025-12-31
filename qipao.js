@@ -48,8 +48,8 @@
         const bubble = document.createElement('div');
         bubble.className = 'first-visit-bubble';
         bubble.innerHTML = `
-            <p>👋 本AI工具，需要在设置中输入DeepSeek的API Key。<br>访问其官方网站API平台可注册获取。<br>建议至少在该平台充值1元</p>
-            <button class="first-visit-close-btn">进入页面</button>
+            <p>👋 本AI工具，需在设置中输入DeepSeek的API Key。<br>去其官方网站API平台可注册获取。<br>建议至少在该平台充值1元</p>
+            <button class="first-visit-close-btn">我知道了</button>
         `;
 
         overlay.appendChild(bubble);
@@ -71,4 +71,5 @@
         };
 
     }, 3000); // 这里控制延迟时间，3000 = 3秒
+
 })();
