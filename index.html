@@ -1,11 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <title>AI工具箱</title>
+    
+    <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+
     <style>
         :root {
             --primary-color: #2563eb;
@@ -30,12 +31,30 @@
             text-align: center;
             padding: 0 20px;
         }
-        h1 { font-size: 2rem; margin-bottom: 10px; color: #0f172a; }
+
+        /* 2. 修改后的标题样式：支持图标和文字并排居中 */
+        h1 { 
+            font-size: 2rem; 
+            margin-bottom: 10px; 
+            color: #0f172a; 
+            display: flex;           /* 开启弹性布局 */
+            align-items: center;     /* 垂直居中对齐 */
+            justify-content: center; /* 水平居中对齐 */
+            gap: 15px;               /* 图标与文字的间距 */
+        }
+
+        /* 3. Logo 图片的大小控制 */
+        .site-logo {
+            width: 45px;             /* 你可以根据喜好调整这个数值 */
+            height: 45px;
+            display: block;
+        }
+
         header p { color: #64748b; margin-bottom: 30px; }
 
-        /* --- 新增：PC端搜索框样式 --- */
+        /* --- PC端搜索框样式 --- */
         .pc-search-box {
-            display: none; /* 默认隐藏（移动端优先） */
+            display: none; 
             width: 100%;
             max-width: 600px;
             margin: 0 auto 40px auto;
@@ -45,7 +64,7 @@
         .search-form {
             display: flex;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border-radius: 50px; /* 像谷歌一样的圆角 */
+            border-radius: 50px;
             background: white;
             border: 1px solid #e2e8f0;
             transition: all 0.2s;
@@ -69,9 +88,6 @@
             color: #94a3b8; 
             opacity: 1;
         }
-        .search-input:focus::placeholder {
-            color: transparent;
-        }
         .search-btn {
             background: transparent;
             border: none;
@@ -84,24 +100,10 @@
             justify-content: center;
         }
         
-        .search-btn:hover {
-            opacity: 0.8;
-        }
-
-        /* --- 媒体查询：仅在宽度大于 768px (平板/PC) 时显示搜索框 --- */
         @media (min-width: 768px) {
-            .pc-search-box {
-                display: block;
-            }
-            /* PC端适当调整header间距，让视觉更平衡 */
-            header {
-                margin-top: 60px;
-            }
-            header p {
-                margin-bottom: 30px;
-            }
+            .pc-search-box { display: block; }
+            header { margin-top: 60px; }
         }
-        /* --------------------------- */
 
         /* 工具卡片容器 */
         .container {
@@ -133,7 +135,6 @@
             border-color: var(--primary-color);
         }
 
-        /* 图标与名字的水平容器 */
         .card-header {
             display: flex;
             align-items: center;
@@ -165,7 +166,6 @@
             line-height: 1.5;
         }
 
-        /* 版权声明样式 */
         footer {
             padding: 30px 20px;
             text-align: center;
@@ -174,9 +174,8 @@
             letter-spacing: 0.5px;
         }
 
-        /* 移动端优化 */
         @media (max-width: 640px) {
-            .container { grid-template-columns: 1fr; width: 92%; } /* 修正了 grid-size 写法 */
+            .container { grid-template-columns: 1fr; width: 92%; }
             h1 { font-size: 1.75rem; }
         }
     </style>
@@ -184,7 +183,10 @@
 <body>
 
     <header>
-        <h1>免费AI工具箱</h1>
+        <h1>
+            <img src="images/logo.svg" alt="Logo" class="site-logo">
+            免费AI工具箱
+        </h1>
         <p>AI制作的效率小工具</p>
     </header>
 
@@ -217,14 +219,13 @@
             <div class="tool-desc">商事合同自动脱敏、审核</div>
         </a>
                 
-          <a href="gongwen.html" class="tool-card">
+        <a href="gongwen.html" class="tool-card">
             <div class="card-header">
                 <div class="tool-icon">✒️</div>
                 <div class="tool-name">AI公文笔杆子</div>
             </div>
             <div class="tool-desc">写总结、计划、通知、汇报、讲话稿…</div>
-        </a>    
-
+        </a>     
 
         <a href="wentu.html" class="tool-card">
             <div class="card-header">
@@ -289,7 +290,6 @@
             </div>
             <div class="tool-desc">去DeepSeek官方充1元 API 可以写3天</div>
         </a>
-
     </div>
 
     <footer>
