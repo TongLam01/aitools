@@ -17,7 +17,7 @@
         
         body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 500px; margin-top: 10px; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative; }
         
         h1, .card-title { font-family: "LXGW WenKai Screen", serif; font-size: 1.4rem; text-align: center; color: var(--cinnabar); margin-bottom: 20px; font-weight: bold; }
         
@@ -37,9 +37,8 @@
             border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; 
             transition: all 0.2s; box-shadow: 0 4px 10px rgba(201, 55, 49, 0.2); margin-top: 10px;
         }
-        button:hover { background: #b02e28; transform: translateY(-1px); }
         
-        #result-section { margin-top: 25px; display: none; text-align: center; border-top: 1px dashed #eee; padding-top: 20px; animation: fadeIn 0.5s; }
+        #result-section { margin-top: 25px; display: none; text-align: center; border-top: 1px dashed #eee; padding-top: 20px; }
         
         #qrcode-wrapper { 
             display: inline-block; margin: 15px 0; position: relative;
@@ -52,11 +51,12 @@
         .copy-tag { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--gold); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; white-space: nowrap; font-weight: bold; }
         .url-box { background: #fff; padding: 10px; font-size: 10px; word-break: break-all; border-radius: 5px; margin: 15px 0; color: #888; border: 1px solid #eee; cursor: pointer; }
 
+        /* 卡片预览区域 */
         .new-year-card {
             background-color: var(--paper); padding: 50px 35px; border: 1px solid var(--cinnabar); 
             outline: 1px solid var(--gold); outline-offset: -6px; border-radius: 4px;
-            position: relative; min-height: 180px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            margin-top: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; min-height: 180px; margin-top: 15px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
         .corner { position: absolute; width: 25px; height: 25px; border: 0.5px solid var(--gold); opacity: 0.5; }
@@ -68,17 +68,19 @@
         .article-body { font-family: "LXGW WenKai Screen", serif; white-space: pre-wrap; line-height: 1.9; font-size: 1.35rem; color: var(--ink); z-index: 5; text-align: center; letter-spacing: 2px; width: 100%; }
         .signature-body { font-family: "LXGW WenKai Screen", serif; align-self: flex-end; margin-top: 30px; font-size: 0.9rem; color: var(--cinnabar); z-index: 5; letter-spacing: 1.5px; }
 
-        /* 全屏图片预览层 */
+        /* 全屏预览层：修复手机不显示的问题 */
         #preview-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); z-index: 9999; display: none;
+            background: rgba(0,0,0,0.95); z-index: 10000; display: none;
             flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; box-sizing: border-box;
         }
-        #preview-overlay img { max-width: 90%; max-height: 80%; border-radius: 5px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        #preview-overlay p { color: white; margin-top: 20px; font-size: 14px; background: var(--cinnabar); padding: 8px 20px; border-radius: 20px; }
-
+        #preview-img { max-width: 100%; max-height: 75%; object-fit: contain; border-radius: 8px; border: 2px solid white; }
+        #preview-tip { color: white; margin-top: 25px; font-size: 16px; background: var(--cinnabar); padding: 10px 30px; border-radius: 25px; font-weight: bold; animation: pulse 2s infinite; }
+        
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
         .hidden { display: none; }
-        #toast { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 30px; display: none; z-index: 10000; font-size: 14px; text-align: center; }
+        #toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 10001; font-size: 14px; text-align: center; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -131,7 +133,7 @@
 
 <div id="preview-overlay" onclick="this.style.display='none'">
     <img id="preview-img" src="" alt="预览图">
-    <p>↑ 长按图片保存到相册 ↑</p>
+    <div id="preview-tip">长按上方卡片保存至相册</div>
 </div>
 
 <div id="toast"></div>
@@ -203,7 +205,7 @@
         }
     }
 
-    // 复制逻辑：链接 + 密码文本
+    // 复制逻辑：点击链接框，同时复制链接和密码
     function copyLinkWithPwd() {
         let text = currentFullUrl;
         if (currentPwd) text += `\n访问密码是“${currentPwd}”`;
@@ -212,7 +214,7 @@
         el.value = text; document.body.appendChild(el);
         el.select(); document.execCommand('copy');
         document.body.removeChild(el);
-        showToast("✅ 链接及密码已复制");
+        showToast("✅ 已成功复制链接及密码");
     }
 
     // 仅复制二维码图片
@@ -227,32 +229,45 @@
         } catch (err) { showToast("请长按保存图片"); }
     }
 
-    // 核心优化：生成并触发保存（预览模式）
-    function downloadCard() {
+    // 手机端核心修复：保存卡片为图片
+    async function downloadCard() {
         const area = document.getElementById('capture-area');
-        showToast("正在导出密语卡片...");
+        showToast("正在导出密语卡片，请稍候...");
         
-        // 使用更高倍率保证清晰，并关闭日志
-        html2canvas(area, {
-            backgroundColor: "#f9f7f2",
-            scale: 3, 
-            useCORS: true,
-            logging: false
-        }).then(canvas => {
+        // 关键：等待字体加载完成，否则 html2canvas 会失效
+        if (document.fonts) {
+            await document.fonts.ready;
+        }
+
+        try {
+            const canvas = await html2canvas(area, {
+                backgroundColor: "#f9f7f2",
+                scale: window.devicePixelRatio > 2 ? window.devicePixelRatio : 2,
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                width: area.offsetWidth,
+                height: area.offsetHeight
+            });
+
             const dataUrl = canvas.toDataURL("image/png");
             
-            // 弹出预览层，手机端长按即可保存
-            document.getElementById('preview-img').src = dataUrl;
-            document.getElementById('preview-overlay').style.display = 'flex';
+            // 显示全屏预览层
+            const previewOverlay = document.getElementById('preview-overlay');
+            const previewImg = document.getElementById('preview-img');
+            previewImg.src = dataUrl;
+            previewOverlay.style.display = 'flex';
             
-            // 同时尝试静默下载（针对电脑端）
+            // 针对PC端的静默下载
             const link = document.createElement('a');
             link.href = dataUrl;
-            link.download = `密语卡片_${Date.now()}.png`;
+            link.download = `密语_${Date.now()}.png`;
             link.click();
-            
-            showToast("✅ 已生成，请长按保存");
-        }).catch(() => showToast("导出失败，请截图保存"));
+
+        } catch (error) {
+            console.error(error);
+            showToast("生成失败，请直接截图保存");
+        }
     }
 
     function showSection(id) {
