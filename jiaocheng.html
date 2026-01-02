@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek API Key 申请指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .step-number { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .img-placeholder {
+            background-color: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            border-radius: 8px;
+            min-height: 180px;
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 leading-relaxed">
+
+    <header class="bg-white border-b sticky top-0 z-10 shadow-sm">
+        <div class="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl font-bold text-blue-600">DeepSeek 接入教程</h1>
+            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">2026 官方接口版</span>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 py-8">
+        
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-3 text-center">如何获取并使用 API Key？</h2>
+            <p class="text-gray-600 text-sm text-center px-4">只需简单几步，即可为您的 AI 工具注入灵魂。</p>
+        </section>
+
+        <div class="mb-12 relative pl-10 border-l-2 border-blue-100">
+            <div class="absolute -left-[13px] top-0 w-6 h-6 step-number text-white text-xs flex items-center justify-center rounded-full font-bold shadow-md">1</div>
+            <h3 class="text-lg font-bold mb-2">访问 DeepSeek 开放平台</h3>
+            <p class="text-gray-600 text-sm mb-4">使用浏览器访问 DeepSeek 官方开发者后台。</p>
+            <div class="bg-blue-50 p-3 rounded-lg flex items-center justify-between mb-4 border border-blue-100">
+                <code class="text-blue-700 text-xs font-mono">platform.deepseek.com</code>
+                <a href="https://platform.deepseek.com" target="_blank" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-full hover:bg-blue-700 transition shadow-sm">立即前往</a>
+            </div>
+            <img src="/images/jiaocheng1.png" alt="步骤1" class="w-full rounded-lg shadow-md my-4">
+        </div>
+
+        <div class="mb-12 relative pl-10 border-l-2 border-blue-100">
+            <div class="absolute -left-[13px] top-0 w-6 h-6 step-number text-white text-xs flex items-center justify-center rounded-full font-bold shadow-md">2</div>
+            <h3 class="text-lg font-bold mb-2">注册并充值</h3>
+            <p class="text-gray-600 text-sm mb-4">新用户注册后有时会有免费测试额度，但还是建议你至少充值1元。</p>
+            <img src="/images/jiaocheng2.png" alt="步骤2" class="w-full rounded-lg shadow-md my-4">
+        </div>
+
+        <div class="mb-12 relative pl-10 border-l-2 border-blue-100">
+            <div class="absolute -left-[13px] top-0 w-6 h-6 step-number text-white text-xs flex items-center justify-center rounded-full font-bold shadow-md">3</div>
+            <h3 class="text-lg font-bold mb-2">创建 API Key</h3>
+            <p class="text-gray-600 text-sm mb-2">在左侧菜单点击 <strong>"API Keys"</strong>，然后点击 <strong>"创建 API key"</strong>。</p>
+            <div class="bg-amber-50 p-3 rounded border border-amber-200 mb-4">
+                <p class="text-xs text-amber-700 font-semibold">⚠️ 关键提示：</p>
+                <p class="text-xs text-amber-600 mt-1">API Key 生成后仅显示一次。请立即复制并妥善保存到记事本中，切勿泄露给他人。</p>
+            </div>
+            <img src="/images/jiaocheng3.png" alt="步骤3" class="w-full rounded-lg shadow-md my-4">
+        </div>
+
+        <div class="mb-12 relative pl-10 border-l-2 border-blue-100">
+            <div class="absolute -left-[13px] top-0 w-6 h-6 step-number text-white text-xs flex items-center justify-center rounded-full font-bold shadow-md">4</div>
+            <h3 class="text-lg font-bold mb-2">填入工具并开启对话</h3>
+            <p class="text-gray-600 text-sm mb-4">回到需要用到AI的工具页面，在设置区域找到 API Key 输入框，粘贴保存即可。</p>
+            
+            <div class="bg-gray-800 rounded-lg p-5 shadow-lg">
+                <div class="flex items-center space-x-2 mb-3">
+                    <div class="w-2 h-2 rounded-full bg-red-400"></div>
+                    <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
+                    <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                </div>
+                <div class="space-y-3">
+                    <label class="block text-[10px] uppercase tracking-wider text-gray-400 font-bold">DeepSeek API Key 设置</label>
+                    <div class="flex space-x-2">
+                        <div class="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-blue-400 font-mono text-xs overflow-hidden">
+                            sk-xxxxxxxxxxxxxxx...
+                        </div>
+                        <div class="bg-blue-600 text-white text-[10px] px-3 py-2 rounded flex items-center font-bold">已保存</div>
+                    </div>
+                    <p class="text-[10px] text-gray-500 italic">完成配置后，您的操作将直接调用 DeepSeek 官方接口。</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="mt-16 pt-8 border-t border-gray-200">
+            <h3 class="text-base font-bold mb-4 flex items-center text-gray-700">
+                <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                常见问题 FAQ
+            </h3>
+            <div class="grid gap-3">
+                <div class="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                    <h4 class="font-bold text-sm text-gray-800 mb-1">接口调用报错提示“余额不足”？</h4>
+                    <p class="text-xs text-gray-500">这通常意味着您的免费额度已过期或已用完。您可以前往 DeepSeek 开放后台进行小额充值（通常 5-10 元即可使用很久）。</p>
+                </div>
+                <div class="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                    <h4 class="font-bold text-sm text-gray-800 mb-1">API Key 安全吗？</h4>
+                    <p class="text-xs text-gray-500">本工具为单 HTML 离线版本/前端调用，你的 Key 仅保存在你当前浏览器的本地缓存中，不会上传到任何第三方服务器。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-12 text-gray-400 text-[10px] tracking-widest uppercase">
+        Powered by DeepSeek API · Guide Template 2026
+    </footer>
+<script src="common.js"></script>
+</body>
+</html>
