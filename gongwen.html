@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>公文自动撰写助手 V1.3</title>
+    <title>公文自动撰写助手 V1.3 - 深度脱敏加强版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
@@ -213,7 +213,16 @@
                 </div>
 
                 <div class="flex-1 flex flex-col min-h-[200px]">
-                    <label class="label-bold">素材/意图/背景</label>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="label-bold !mb-0">素材/意图/背景</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-green-600 uppercase tracking-widest">自动脱敏</span>
+<label class="relative inline-flex items-center cursor-pointer">
+    <input type="checkbox" id="anonymizeToggle" class="sr-only peer" checked>
+    <div class="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-red-600"></div>
+</label>
+                        </div>
+                    </div>
                     <textarea id="userInput" class="w-full h-80 input-minimal rounded-lg p-4 text-sm leading-relaxed resize-y"
                               placeholder="请在此输入AI还不了解的关键信息。&#10;例如：下周一要在会议室开会，讨论年度预算，李总主持，各部门负责人必须带报表参加。"></textarea>
                 </div>
@@ -371,6 +380,41 @@
             renderVersionTabs();
         }
 
+        /**
+         * 自动脱敏核心函数（高强度版）
+         * 逻辑：通过多重正则循环，确保即使是嵌套地名也能被彻底代号化
+         */
+        function anonymizeData(text, mapping) {
+            if (!text) return text;
+            
+            // 匹配词根后缀，注意顺序：先匹配较长的词根或公司，再匹配地名
+            const suffixes = ['公司', '市', '区'];
+            let processedText = text;
+
+            // 循环处理每种后缀
+            suffixes.forEach(suffix => {
+                // 正则说明：匹配包含中文、字母、数字的词组，直到遇到标点或换行，且以指定后缀结尾
+                // 使用贪婪匹配确保抓取整个名称
+                const regex = new RegExp(`([A-Za-z0-9\\u4e00-\\u9fa5]+?${suffix})`, 'g');
+                
+                processedText = processedText.replace(regex, (match) => {
+                    // 全局一致性检查
+                    if (mapping[match]) return mapping[match];
+
+                    const codeLabel = String.fromCharCode(65 + (mapping.count % 26));
+                    // 如果超过26个，则使用 A1, B1 这种形式
+                    const suffixLabel = mapping.count >= 26 ? Math.floor(mapping.count / 26) : "";
+                    const replacement = `${codeLabel}${suffixLabel}${suffix}`;
+                    
+                    mapping[match] = replacement;
+                    mapping.count++;
+                    return replacement;
+                });
+            });
+
+            return processedText;
+        }
+
         // 核心流式请求处理函数
         async function processStream(apiKey, messages) {
             const outputDiv = document.getElementById('resultOutput');
@@ -448,7 +492,6 @@
                     }
                 }
 
-                // 生成结束后，保存历史和版本
                 const finalContent = accumulatedText.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
                 chatHistory.push({ role: "assistant", content: finalContent });
 
@@ -456,7 +499,6 @@
                 currentVersionIndex = versionHistory.length - 1;
                 renderVersionTabs();
 
-                // 显示追问框
                 followUpContainer.classList.remove('hidden');
 
             } catch (error) {
@@ -476,10 +518,10 @@
             const apiKey = localStorage.getItem('deepseek_api_key');
             
             const docType = document.getElementById('docType').value;
-            const orgContext = document.getElementById('orgContext').value.trim();
-            const author = document.getElementById('authorIdentity').value.trim() || "办公室";
-            const audience = document.getElementById('targetAudience').value.trim();
-            const userInput = document.getElementById('userInput').value.trim();
+            let orgContext = document.getElementById('orgContext').value.trim();
+            let author = document.getElementById('authorIdentity').value.trim() || "办公室";
+            let audience = document.getElementById('targetAudience').value.trim();
+            let userInput = document.getElementById('userInput').value.trim();
             
             if (!apiKey) { 
                 alert('请先设置 API Key'); 
@@ -488,6 +530,18 @@
             }
             if (!audience) { alert('请填写阅读对象'); document.getElementById('targetAudience').focus(); return; }
             if (!userInput) { alert('请输入核心素材'); document.getElementById('userInput').focus(); return; }
+
+            // --- 强化脱敏处理逻辑 ---
+            const isAnonymize = document.getElementById('anonymizeToggle').checked;
+            if (isAnonymize) {
+                const mapping = { count: 0 }; // 核心：使用同一个 mapping 实例处理所有字段
+                
+                // 对所有相关变量进行深度脱敏
+                orgContext = anonymizeData(orgContext, mapping);
+                author = anonymizeData(author, mapping);
+                audience = anonymizeData(audience, mapping);
+                userInput = anonymizeData(userInput, mapping);
+            }
 
             let contextPrompt = "";
             if (orgContext) {
@@ -507,7 +561,6 @@ ${userInput}
 请先在内心思考公文的逻辑框架（DeepSeek R1 Thinking），但不要在最终结果中输出思考过程。
 直接输出最终的公文正文。正文要标题层级清晰，语言庄重得体，符合公文规范。`;
 
-            // 重置所有状态
             chatHistory = [
                 { role: "system", content: SYSTEM_PROMPT }, 
                 { role: "user", content: fullPrompt } 
@@ -520,7 +573,6 @@ ${userInput}
             await processStream(apiKey, chatHistory);
         }
 
-        // 处理追问
         async function sendFollowUp() {
             const inputEl = document.getElementById('followUpInput');
             const val = inputEl.value.trim();
