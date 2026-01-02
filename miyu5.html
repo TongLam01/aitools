@@ -57,6 +57,7 @@
         .copy-tag { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--gold); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; white-space: nowrap; font-weight: bold; }
         .url-box { background: #fff; padding: 10px; font-size: 10px; word-break: break-all; border-radius: 5px; margin: 15px 0; color: #888; border: 1px solid #eee; cursor: pointer; }
 
+        /* 卡片样式 */
         .new-year-card {
             background-color: var(--paper);
             padding: 50px 35px;
@@ -128,12 +129,12 @@
 
             <div id="result-section">
                 <div class="card-title" style="font-size: 1rem; margin-bottom: 5px;">🧧 成功生成，马上发送给朋友吧 🧧</div>
-                <div id="qrcode-wrapper" onclick="copyImageAndText()">
+                <div id="qrcode-wrapper" onclick="copyQrImageOnly()">
                     <div id="qrcode-raw"></div> 
                     <img id="qrcode-img" alt="二维码图片" /> 
-                    <span class="copy-tag">长按保存图片 · 点击复制图片和链接</span>
+                    <span class="copy-tag">点击复制二维码 · 长按保存</span>
                 </div>
-                <div class="url-box" id="url-text" onclick="handleLinkCopy()"></div>
+                <div class="url-box" id="url-text" onclick="copyLinkWithPwd()"></div>
             </div>
         </div>
 
@@ -180,7 +181,7 @@
         const pwd = document.getElementById('password-input').value;
         if (!text) return showToast("请输入内容");
 
-        currentPwd = pwd;
+        currentPwd = pwd; // 记录密码
         const fullContent = signature ? text + SIG_SEP + signature : text;
         let data = pwd ? P_ENC + CryptoJS.AES.encrypt(fullContent, pwd).toString() : P_RAW + fullContent;
         const compressed = LZString.compressToEncodedURIComponent(data);
@@ -205,8 +206,6 @@
                 showToast("🧧 成功生成");
             }
         }, 100);
-        
-        handleLinkCopy(false);
     }
 
     function init() {
@@ -242,60 +241,60 @@
         }
     }
 
-    function handleLinkCopy(showMsg = true) {
+    // 逻辑1：点击链接框，复制链接+密码
+    function copyLinkWithPwd() {
+        if (!currentFullUrl) return;
         let copyStr = currentFullUrl;
         if (currentPwd) {
             copyStr += `\n访问密码是“${currentPwd}”`;
         }
-        copyText(copyStr, showMsg ? "✅ 链接及密码已复制" : null);
+        
+        const el = document.createElement("textarea");
+        el.value = copyStr; 
+        document.body.appendChild(el);
+        el.select(); 
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast("✅ 链接及密码已复制");
     }
 
-    // 核心优化：同时复制图片和文字
-    async function copyImageAndText() {
-        if (!currentFullUrl) return;
+    // 逻辑2：点击二维码区域，仅复制图片
+    async function copyQrImageOnly() {
         const img = document.getElementById('qrcode-img');
-        
-        let imageCopied = false;
+        if (!img.src) return;
+
         if (navigator.clipboard && window.ClipboardItem) {
             try {
-                // 将 base64 转换为 Blob
                 const resp = await fetch(img.src);
                 const blob = await resp.blob();
                 const item = new ClipboardItem({ [blob.type]: blob });
                 await navigator.clipboard.write([item]);
-                imageCopied = true;
+                showToast("✅ 二维码图片已复制到剪贴板");
             } catch (err) {
-                console.error("图片复制失败:", err);
+                showToast("复制失败，请尝试长按保存");
             }
-        }
-
-        // 无论图片是否复制成功，都执行文字复制逻辑
-        handleLinkCopy(false);
-        
-        if (imageCopied) {
-            showToast("✅ 二维码及链接已复制");
         } else {
-            showToast("✅ 链接已复制（浏览器限制图片复制）");
+            showToast("浏览器不支持复制图片，请长按保存");
         }
     }
 
-    function copyText(txt, msg) {
-        const el = document.createElement("textarea");
-        el.value = txt; document.body.appendChild(el);
-        el.select(); document.execCommand('copy');
-        document.body.removeChild(el);
-        if(msg) showToast(msg);
-    }
-
+    // 逻辑3：用户下载密语卡片
     function downloadCard() {
         const area = document.getElementById('capture-area');
         showToast("正在生成图片...");
-        html2canvas(area, { backgroundColor: "#f9f7f2", scale: 2, useCORS: true }).then(canvas => {
+        
+        html2canvas(area, {
+            backgroundColor: "#f9f7f2",
+            scale: 2,
+            useCORS: true
+        }).then(canvas => {
             const link = document.createElement('a');
             link.download = '密语卡片.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
-            showToast("✅ 卡片已保存");
+            showToast("✅ 卡片已保存到相册/下载目录");
+        }).catch(err => {
+            showToast("保存失败，请尝试截图");
         });
     }
 
@@ -313,6 +312,6 @@
 
     window.onload = init;
 </script>
-    <script src="common.js"></script>
+<script src="common.js"></script>
 </body>
 </html>
