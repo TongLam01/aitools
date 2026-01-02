@@ -32,20 +32,18 @@
             padding: 0 20px;
         }
 
-        /* 2. 修改后的标题样式：支持图标和文字并排居中 */
         h1 { 
             font-size: 2rem; 
             margin-bottom: 10px; 
             color: #0f172a; 
-            display: flex;           /* 开启弹性布局 */
-            align-items: center;     /* 垂直居中对齐 */
-            justify-content: center; /* 水平居中对齐 */
-            gap: 15px;               /* 图标与文字的间距 */
+            display: flex;           
+            align-items: center;     
+            justify-content: center; 
+            gap: 15px;               
         }
 
-        /* 3. Logo 图片的大小控制 */
         .site-logo {
-            width: 45px;             /* 你可以根据喜好调整这个数值 */
+            width: 45px;             
             height: 45px;
             display: block;
         }
@@ -166,12 +164,26 @@
             line-height: 1.5;
         }
 
+        /* --- 页脚样式 --- */
         footer {
             padding: 30px 20px;
             text-align: center;
             font-size: 0.75rem;
             color: #94a3b8;
             letter-spacing: 0.5px;
+        }
+
+        /* 这是为您新增的教程链接样式 */
+        .footer-tutorial-link {
+            display: block;               /* 占满一行 */
+            color: var(--primary-color);  /* 蓝色 */
+            text-decoration: none;       /* 去掉下划线 */
+            font-size: 0.85rem;           /* 比底部版权字稍大一点 */
+            margin-bottom: 10px;          /* 与下方版权信息的间距 */
+            font-weight: 500;
+        }
+        .footer-tutorial-link:hover {
+            text-decoration: underline;   /* 悬停时显示下划线 */
         }
 
         @media (max-width: 640px) {
@@ -225,7 +237,7 @@
                 <div class="tool-name">AI公文笔杆子</div>
             </div>
             <div class="tool-desc">写总结、计划、通知、汇报、讲话稿…</div>
-        </a>     
+        </a>      
 
         <a href="wentu.html" class="tool-card">
             <div class="card-header">
@@ -293,6 +305,7 @@
     </div>
 
     <footer>
+        <a href="jiaocheng.html" class="footer-tutorial-link">如何使用本站AI工具</a>
         <p>© 纯属探索 · 公众号：67号技师</p>
     </footer>
 
