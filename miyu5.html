@@ -57,7 +57,6 @@
         .copy-tag { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--gold); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; white-space: nowrap; font-weight: bold; }
         .url-box { background: #fff; padding: 10px; font-size: 10px; word-break: break-all; border-radius: 5px; margin: 15px 0; color: #888; border: 1px solid #eee; cursor: pointer; }
 
-        /* 卡片样式 */
         .new-year-card {
             background-color: var(--paper);
             padding: 50px 35px;
@@ -181,7 +180,7 @@
         const pwd = document.getElementById('password-input').value;
         if (!text) return showToast("请输入内容");
 
-        currentPwd = pwd; // 记录密码
+        currentPwd = pwd; // 记录撰写者设置的密码
         const fullContent = signature ? text + SIG_SEP + signature : text;
         let data = pwd ? P_ENC + CryptoJS.AES.encrypt(fullContent, pwd).toString() : P_RAW + fullContent;
         const compressed = LZString.compressToEncodedURIComponent(data);
@@ -241,60 +240,62 @@
         }
     }
 
-    // 逻辑1：点击链接框，复制链接+密码
+    // 逻辑：点击链接框，复制链接并自动判断是否附加密码
     function copyLinkWithPwd() {
         if (!currentFullUrl) return;
-        let copyStr = currentFullUrl;
+        let finalCopyText = currentFullUrl;
         if (currentPwd) {
-            copyStr += `\n访问密码是“${currentPwd}”`;
+            finalCopyText += `\n访问密码是“${currentPwd}”`;
         }
         
         const el = document.createElement("textarea");
-        el.value = copyStr; 
+        el.value = finalCopyText; 
         document.body.appendChild(el);
         el.select(); 
         document.execCommand('copy');
         document.body.removeChild(el);
-        showToast("✅ 链接及密码已复制");
+        showToast("✅ 已成功复制链接及密码");
     }
 
-    // 逻辑2：点击二维码区域，仅复制图片
+    // 逻辑：点击二维码区域，仅复制图片
     async function copyQrImageOnly() {
         const img = document.getElementById('qrcode-img');
-        if (!img.src) return;
-
-        if (navigator.clipboard && window.ClipboardItem) {
-            try {
-                const resp = await fetch(img.src);
-                const blob = await resp.blob();
-                const item = new ClipboardItem({ [blob.type]: blob });
-                await navigator.clipboard.write([item]);
-                showToast("✅ 二维码图片已复制到剪贴板");
-            } catch (err) {
-                showToast("复制失败，请尝试长按保存");
-            }
-        } else {
-            showToast("浏览器不支持复制图片，请长按保存");
+        if (!img.src || !navigator.clipboard || !window.ClipboardItem) {
+            return showToast("浏览器限制，请长按保存图片");
+        }
+        try {
+            const resp = await fetch(img.src);
+            const blob = await resp.blob();
+            const item = new ClipboardItem({ [blob.type]: blob });
+            await navigator.clipboard.write([item]);
+            showToast("✅ 二维码已复制到剪贴板");
+        } catch (err) {
+            showToast("复制失败，请尝试长按保存");
         }
     }
 
-    // 逻辑3：用户下载密语卡片
+    // 核心优化：一键生成并下载卡片
     function downloadCard() {
         const area = document.getElementById('capture-area');
-        showToast("正在生成图片...");
+        showToast("正在导出密语卡片...");
         
+        // 渲染并直接下载
         html2canvas(area, {
             backgroundColor: "#f9f7f2",
-            scale: 2,
+            scale: 2, // 2倍像素，保证高清
+            logging: false,
             useCORS: true
         }).then(canvas => {
+            const dataUrl = canvas.toDataURL("image/png");
             const link = document.createElement('a');
-            link.download = '密语卡片.png';
-            link.href = canvas.toDataURL('image/png');
+            link.href = dataUrl;
+            link.download = `密语卡片_${new Date().getTime()}.png`;
+            document.body.appendChild(link);
             link.click();
-            showToast("✅ 卡片已保存到相册/下载目录");
-        }).catch(err => {
-            showToast("保存失败，请尝试截图");
+            document.body.removeChild(link);
+            showToast("✅ 下载已开始");
+        }).catch(e => {
+            showToast("下载失败，请尝试截图保存");
         });
     }
 
