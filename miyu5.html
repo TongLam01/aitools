@@ -12,11 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root { 
-            --cinnabar: #c93731; /* 朱砂红 */
-            --gold: #b89766;    /* 沉金 */
-            --paper: #f9f7f2;   /* 宣纸色 */
-            --ink: #333333;     /* 墨色 */
-            --bg: #f2f2f2;
+            --cinnabar: #c93731; --gold: #b89766; --paper: #f9f7f2; --ink: #333333; --bg: #f2f2f2;
         }
         
         body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
@@ -47,9 +43,8 @@
         
         #qrcode-wrapper { 
             display: inline-block; margin: 15px 0; position: relative;
-            border-radius: 10px; background: white;
-            padding: 20px; cursor: pointer; 
-            box-shadow: 0 0 0 1px var(--cinnabar), 0 0 0 2px white, 0 0 0 3px var(--gold), 0 10px 20px rgba(0,0,0,0.05);
+            border-radius: 10px; background: white; padding: 20px; cursor: pointer; 
+            box-shadow: 0 0 0 1px var(--cinnabar), 0 0 0 2px white, 0 0 0 3px var(--gold);
         }
         #qrcode-raw { display: none; }
         #qrcode-img { display: block; width: 180px; height: 180px; }
@@ -58,56 +53,32 @@
         .url-box { background: #fff; padding: 10px; font-size: 10px; word-break: break-all; border-radius: 5px; margin: 15px 0; color: #888; border: 1px solid #eee; cursor: pointer; }
 
         .new-year-card {
-            background-color: var(--paper);
-            padding: 50px 35px;
-            border: 1px solid var(--cinnabar); 
-            outline: 1px solid var(--gold);    
-            outline-offset: -6px;
-            border-radius: 4px;
-            position: relative;
-            min-height: 180px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background-color: var(--paper); padding: 50px 35px; border: 1px solid var(--cinnabar); 
+            outline: 1px solid var(--gold); outline-offset: -6px; border-radius: 4px;
+            position: relative; min-height: 180px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            margin-top: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        .corner {
-            position: absolute; width: 25px; height: 25px;
-            border: 0.5px solid var(--gold); opacity: 0.5;
-        }
+        .corner { position: absolute; width: 25px; height: 25px; border: 0.5px solid var(--gold); opacity: 0.5; }
         .cd-tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
         .cd-tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
         .cd-bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
         .cd-br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
 
-        .article-body {
-            font-family: "LXGW WenKai Screen", "STKaiti", serif;
-            white-space: pre-wrap;
-            line-height: 1.9;
-            font-size: 1.35rem;
-            color: var(--ink);
-            z-index: 5;
-            text-align: center;
-            letter-spacing: 2px;
-            width: 100%;
-        }
+        .article-body { font-family: "LXGW WenKai Screen", serif; white-space: pre-wrap; line-height: 1.9; font-size: 1.35rem; color: var(--ink); z-index: 5; text-align: center; letter-spacing: 2px; width: 100%; }
+        .signature-body { font-family: "LXGW WenKai Screen", serif; align-self: flex-end; margin-top: 30px; font-size: 0.9rem; color: var(--cinnabar); z-index: 5; letter-spacing: 1.5px; }
 
-        .signature-body {
-            font-family: "LXGW WenKai Screen", serif;
-            align-self: flex-end;
-            margin-top: 30px;
-            font-size: 0.9rem;
-            color: var(--cinnabar);
-            z-index: 5;
-            letter-spacing: 1.5px;
+        /* 全屏图片预览层 */
+        #preview-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); z-index: 9999; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
         }
+        #preview-overlay img { max-width: 90%; max-height: 80%; border-radius: 5px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        #preview-overlay p { color: white; margin-top: 20px; font-size: 14px; background: var(--cinnabar); padding: 8px 20px; border-radius: 20px; }
 
         .hidden { display: none; }
-        #toast { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 30px; display: none; z-index: 1000; font-size: 14px; text-align: center; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #toast { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 30px; display: none; z-index: 10000; font-size: 14px; text-align: center; }
     </style>
 </head>
 <body>
@@ -147,11 +118,8 @@
         <div id="view-ui" class="hidden">
             <div class="card-title" style="font-size: 1.1rem; color: #666; margin-bottom: 15px;">🔓 内容解码</div>
             <div id="capture-area" class="new-year-card">
-                <div class="corner cd-tl"></div>
-                <div class="corner cd-tr"></div>
-                <div class="corner cd-bl"></div>
-                <div class="corner cd-br"></div>
-                
+                <div class="corner cd-tl"></div><div class="corner cd-tr"></div>
+                <div class="corner cd-bl"></div><div class="corner cd-br"></div>
                 <div id="content-display" class="article-body"></div>
                 <div id="signature-display" class="signature-body hidden"></div>
             </div>
@@ -161,14 +129,16 @@
     </div>
 </div>
 
+<div id="preview-overlay" onclick="this.style.display='none'">
+    <img id="preview-img" src="" alt="预览图">
+    <p>↑ 长按图片保存到相册 ↑</p>
+</div>
+
 <div id="toast"></div>
 
 <script>
-    const P_RAW = "r:";
-    const P_ENC = "e:";
-    const SIG_SEP = "|||";
-    let currentFullUrl = "";
-    let currentPwd = "";
+    const P_RAW = "r:"; const P_ENC = "e:"; const SIG_SEP = "|||";
+    let currentFullUrl = ""; let currentPwd = "";
 
     const textInput = document.getElementById('text-input');
     const currentCountDisplay = document.getElementById('current-count');
@@ -180,7 +150,7 @@
         const pwd = document.getElementById('password-input').value;
         if (!text) return showToast("请输入内容");
 
-        currentPwd = pwd; // 记录撰写者设置的密码
+        currentPwd = pwd; 
         const fullContent = signature ? text + SIG_SEP + signature : text;
         let data = pwd ? P_ENC + CryptoJS.AES.encrypt(fullContent, pwd).toString() : P_RAW + fullContent;
         const compressed = LZString.compressToEncodedURIComponent(data);
@@ -191,19 +161,12 @@
 
         const qrRaw = document.getElementById('qrcode-raw');
         qrRaw.innerHTML = ''; 
-        new QRCode(qrRaw, {
-            text: currentFullUrl,
-            width: 320,
-            height: 320,
-            colorDark : "#c93731"
-        });
+        new QRCode(qrRaw, { text: currentFullUrl, width: 320, height: 320, colorDark : "#c93731" });
 
         setTimeout(() => {
             const canvas = qrRaw.querySelector('canvas');
-            if (canvas) {
-                document.getElementById('qrcode-img').src = canvas.toDataURL("image/png");
-                showToast("🧧 成功生成");
-            }
+            if (canvas) document.getElementById('qrcode-img').src = canvas.toDataURL("image/png");
+            showToast("🧧 成功生成");
         }, 100);
     }
 
@@ -214,7 +177,7 @@
             const data = LZString.decompressFromEncodedURIComponent(hash);
             if (data.startsWith(P_RAW)) render(data.substring(2));
             else showSection('unlock');
-        } catch (e) { showToast("解析失败，数据可能不完整"); }
+        } catch (e) { showToast("数据不完整"); }
     }
 
     function unlock() {
@@ -240,63 +203,56 @@
         }
     }
 
-    // 逻辑：点击链接框，复制链接并自动判断是否附加密码
+    // 复制逻辑：链接 + 密码文本
     function copyLinkWithPwd() {
-        if (!currentFullUrl) return;
-        let finalCopyText = currentFullUrl;
-        if (currentPwd) {
-            finalCopyText += `\n访问密码是“${currentPwd}”`;
-        }
+        let text = currentFullUrl;
+        if (currentPwd) text += `\n访问密码是“${currentPwd}”`;
         
         const el = document.createElement("textarea");
-        el.value = finalCopyText; 
-        document.body.appendChild(el);
-        el.select(); 
-        document.execCommand('copy');
+        el.value = text; document.body.appendChild(el);
+        el.select(); document.execCommand('copy');
         document.body.removeChild(el);
-        showToast("✅ 已成功复制链接及密码");
+        showToast("✅ 链接及密码已复制");
     }
 
-    // 逻辑：点击二维码区域，仅复制图片
+    // 仅复制二维码图片
     async function copyQrImageOnly() {
         const img = document.getElementById('qrcode-img');
-        if (!img.src || !navigator.clipboard || !window.ClipboardItem) {
-            return showToast("浏览器限制，请长按保存图片");
-        }
+        if (!navigator.clipboard || !window.ClipboardItem) return showToast("请长按二维码保存");
         try {
             const resp = await fetch(img.src);
             const blob = await resp.blob();
-            const item = new ClipboardItem({ [blob.type]: blob });
-            await navigator.clipboard.write([item]);
-            showToast("✅ 二维码已复制到剪贴板");
-        } catch (err) {
-            showToast("复制失败，请尝试长按保存");
-        }
+            await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+            showToast("✅ 二维码已复制");
+        } catch (err) { showToast("请长按保存图片"); }
     }
 
-    // 核心优化：一键生成并下载卡片
+    // 核心优化：生成并触发保存（预览模式）
     function downloadCard() {
         const area = document.getElementById('capture-area');
         showToast("正在导出密语卡片...");
         
-        // 渲染并直接下载
+        // 使用更高倍率保证清晰，并关闭日志
         html2canvas(area, {
             backgroundColor: "#f9f7f2",
-            scale: 2, // 2倍像素，保证高清
-            logging: false,
-            useCORS: true
+            scale: 3, 
+            useCORS: true,
+            logging: false
         }).then(canvas => {
             const dataUrl = canvas.toDataURL("image/png");
+            
+            // 弹出预览层，手机端长按即可保存
+            document.getElementById('preview-img').src = dataUrl;
+            document.getElementById('preview-overlay').style.display = 'flex';
+            
+            // 同时尝试静默下载（针对电脑端）
             const link = document.createElement('a');
             link.href = dataUrl;
-            link.download = `密语卡片_${new Date().getTime()}.png`;
-            document.body.appendChild(link);
+            link.download = `密语卡片_${Date.now()}.png`;
             link.click();
-            document.body.removeChild(link);
-            showToast("✅ 下载已开始");
-        }).catch(e => {
-            showToast("下载失败，请尝试截图保存");
-        });
+            
+            showToast("✅ 已生成，请长按保存");
+        }).catch(() => showToast("导出失败，请截图保存"));
     }
 
     function showSection(id) {
@@ -310,7 +266,6 @@
         clearTimeout(t.timer);
         t.timer = setTimeout(() => t.style.display = 'none', 2000);
     }
-
     window.onload = init;
 </script>
 <script src="common.js"></script>
