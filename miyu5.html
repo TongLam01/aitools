@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>在线密语 </title>
+    <title>在线密语</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.1.0/style.css" />
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root { 
             --cinnabar: #c93731; /* 朱砂红 */
             --gold: #b89766;    /* 沉金 */
-            --paper: #f9f7f2;   /* 宣纸色，更纯粹 */
+            --paper: #f9f7f2;   /* 宣纸色 */
             --ink: #333333;     /* 墨色 */
             --bg: #f2f2f2;
         }
@@ -22,7 +23,6 @@
         .container { width: 100%; max-width: 500px; margin-top: 10px; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         
-        /* 标题统一使用文楷 */
         h1, .card-title { font-family: "LXGW WenKai Screen", serif; font-size: 1.4rem; text-align: center; color: var(--cinnabar); margin-bottom: 20px; font-weight: bold; }
         
         .input-group { position: relative; margin-bottom: 12px; }
@@ -45,7 +45,6 @@
         
         #result-section { margin-top: 25px; display: none; text-align: center; border-top: 1px dashed #eee; padding-top: 20px; animation: fadeIn 0.5s; }
         
-        /* 二维码容器：极细双色描边 */
         #qrcode-wrapper { 
             display: inline-block; margin: 15px 0; position: relative;
             border-radius: 10px; background: white;
@@ -58,12 +57,9 @@
         .copy-tag { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--gold); color: white; font-size: 10px; padding: 2px 10px; border-radius: 10px; white-space: nowrap; font-weight: bold; }
         .url-box { background: #fff; padding: 10px; font-size: 10px; word-break: break-all; border-radius: 5px; margin: 15px 0; color: #888; border: 1px solid #eee; cursor: pointer; }
 
-        /* 阅读模式：极简素面卡片 */
         .new-year-card {
             background-color: var(--paper);
-            /* 已移除背景纹路 SVG */
             padding: 50px 35px;
-            /* 极细 1px 实线双框 */
             border: 1px solid var(--cinnabar); 
             outline: 1px solid var(--gold);    
             outline-offset: -6px;
@@ -78,7 +74,6 @@
             justify-content: center;
         }
 
-        /* 纤细四角角标 */
         .corner {
             position: absolute; width: 25px; height: 25px;
             border: 0.5px solid var(--gold); opacity: 0.5;
@@ -138,7 +133,7 @@
                     <img id="qrcode-img" alt="二维码图片" /> 
                     <span class="copy-tag">长按保存图片 · 点击复制链接</span>
                 </div>
-                <div class="url-box" id="url-text" onclick="copyText(this.innerText)"></div>
+                <div class="url-box" id="url-text" onclick="handleLinkCopy()"></div>
             </div>
         </div>
 
@@ -151,7 +146,7 @@
 
         <div id="view-ui" class="hidden">
             <div class="card-title" style="font-size: 1.1rem; color: #666; margin-bottom: 15px;">🔓 内容解码</div>
-            <div class="new-year-card">
+            <div id="capture-area" class="new-year-card">
                 <div class="corner cd-tl"></div>
                 <div class="corner cd-tr"></div>
                 <div class="corner cd-bl"></div>
@@ -160,7 +155,9 @@
                 <div id="content-display" class="article-body"></div>
                 <div id="signature-display" class="signature-body hidden"></div>
             </div>
-            <button onclick="location.href=location.pathname" style="margin-top:30px; background: white; color: var(--cinnabar); border: 1px solid var(--cinnabar); box-shadow: none;">我也要写一张 ✍️</button>
+            
+            <button onclick="downloadCard()" style="margin-top:20px; background: var(--gold);">保存密语卡片 🖼️</button>
+            <button onclick="location.href=location.pathname" style="margin-top:10px; background: white; color: var(--cinnabar); border: 1px solid var(--cinnabar); box-shadow: none;">我也要写一张 ✍️</button>
         </div>
     </div>
 </div>
@@ -172,6 +169,7 @@
     const P_ENC = "e:";
     const SIG_SEP = "|||";
     let currentFullUrl = "";
+    let currentPwd = ""; // 记录当前设置的密码
 
     const textInput = document.getElementById('text-input');
     const currentCountDisplay = document.getElementById('current-count');
@@ -183,6 +181,7 @@
         const pwd = document.getElementById('password-input').value;
         if (!text) return showToast("请输入内容");
 
+        currentPwd = pwd; // 保存密码以便复制
         const fullContent = signature ? text + SIG_SEP + signature : text;
         let data = pwd ? P_ENC + CryptoJS.AES.encrypt(fullContent, pwd).toString() : P_RAW + fullContent;
         const compressed = LZString.compressToEncodedURIComponent(data);
@@ -207,7 +206,8 @@
                 showToast("🧧 成功生成");
             }
         }, 100);
-        copyText(currentFullUrl);
+        
+        handleLinkCopy(false); // 初始生成时自动复制一次
     }
 
     function init() {
@@ -243,6 +243,15 @@
         }
     }
 
+    // 统一处理链接复制，包含密码逻辑
+    function handleLinkCopy(isManual = true) {
+        let copyStr = currentFullUrl;
+        if (currentPwd) {
+            copyStr += `\n访问密码是“${currentPwd}”`;
+        }
+        copyText(copyStr, isManual ? "✅ 已成功复制链接及密码" : "✅ 链接已生成并复制");
+    }
+
     async function copyImageAndUrl() {
         if (!currentFullUrl) return;
         const img = document.getElementById('qrcode-img');
@@ -252,19 +261,42 @@
                 const blob = await response.blob();
                 const item = new ClipboardItem({ "image/png": blob });
                 await navigator.clipboard.write([item]);
-                showToast("✅ 图片已复制到剪贴板");
+                showToast("✅ 图片已复制，链接也准备好了");
+                // 延迟一下再复制文本，防止冲突
+                setTimeout(() => handleLinkCopy(false), 500);
                 return;
             } catch (err) { }
         }
-        copyText(currentFullUrl);
+        handleLinkCopy();
     }
 
-    function copyText(txt) {
+    function copyText(txt, msg) {
         const el = document.createElement("textarea");
         el.value = txt; document.body.appendChild(el);
         el.select(); document.execCommand('copy');
         document.body.removeChild(el);
-        showToast("✅ 已成功复制链接");
+        if(msg) showToast(msg);
+    }
+
+    // 新增：下载卡片为图片
+    function downloadCard() {
+        const area = document.getElementById('capture-area');
+        showToast("正在生成图片...");
+        
+        html2canvas(area, {
+            backgroundColor: "#f9f7f2", // 匹配宣纸色
+            scale: 2, // 提高清晰度
+            useCORS: true
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = '我的密语卡片.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast("✅ 卡片已保存");
+        }).catch(err => {
+            showToast("保存失败，请尝试截图");
+            console.error(err);
+        });
     }
 
     function showSection(id) {
