@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艺术二维码生成器 - 终极修复版</title>
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    <style>
+        :root { --primary: #007AFF; --bg: #f5f5f7; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .main-layout { display: flex; gap: 20px; max-width: 1000px; width: 100%; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); flex-wrap: wrap; }
+        .controls { flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 15px; }
+        h2 { margin: 0; font-size: 1.1rem; color: #1d1d1f; border-bottom: 2px solid var(--primary); padding-bottom: 8px; width: fit-content; }
+        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        label { font-size: 12px; font-weight: 600; color: #86868b; margin-bottom: 4px; display: block; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #d2d2d7; border-radius: 10px; box-sizing: border-box; font-size: 14px; }
+        textarea { height: 80px; resize: none; border: 2px solid #007AFF; }
+        .preview-pane { flex: 0 0 320px; display: flex; flex-direction: column; align-items: center; background: #fafafa; padding: 20px; border-radius: 16px; position: sticky; top: 20px; border: 1px solid #eee; }
+        #canvas-container { background: white; border-radius: 12px; padding: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 15px; overflow: hidden; }
+        .btn { border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; width: 100%; }
+        .btn-green { background: #34c759; color: white; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(52,199,89,0.3); }
+        .btn-blue { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
+        .color-group { display: flex; gap: 8px; align-items: center; background: #eee; padding: 8px; border-radius: 10px; }
+        input[type="color"] { width: 40px; height: 40px; padding: 0; border: none; background: transparent; cursor: pointer; }
+        .hint { font-size: 11px; color: #999; line-height: 1.4; margin-top: 5px; }
+        .badge { background: #ff9500; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; vertical-align: middle; }
+    </style>
+</head>
+<body>
+
+<div class="main-layout">
+    <div class="controls">
+        <h2>1. 文字内容 <span class="badge">必填</span></h2>
+        <div>
+            <label>在此输入您想展示给对方的长文字（微信扫码后显示为名片备注）</label>
+            <textarea id="qr-content" placeholder="你好！即使这里写几百个字，生成的二维码依然可以很简洁。">你好！这是一个使用 vCard 协议生成的文字卡片。
+1. 微信识别后会弹出“联系人”界面。
+2. 你的长文字就在“备注”一栏里。
+3. 这种方式不需要联网，永远不会失效！</textarea>
+            <button class="btn btn-green" onclick="generateVCard()">生成“永不失效”的文字卡片链接</button>
+        </div>
+
+        <h2>2. 视觉美化</h2>
+        <div class="control-grid">
+            <div>
+                <label>码边距 (Margin)</label>
+                <select id="qr-margin">
+                    <option value="10">10 (紧凑)</option>
+                    <option value="20" selected>20 (标准)</option>
+                    <option value="30">30 (留白)</option>
+                </select>
+            </div>
+            <div>
+                <label>码点样式</label>
+                <select id="dot-style">
+                    <option value="extra-rounded" selected>流线圆角</option>
+                    <option value="dots">精致圆点</option>
+                    <option value="classy">艺术纹理</option>
+                    <option value="square">传统方形</option>
+                </select>
+            </div>
+            <div>
+                <label>码眼形状</label>
+                <select id="eye-style">
+                    <option value="extra-rounded" selected>大圆角</option>
+                    <option value="dot">正圆形</option>
+                    <option value="square">直角方形</option>
+                </select>
+            </div>
+            <div>
+                <label>二维码颜色</label>
+                <input type="color" id="fg-color" value="#000000">
+            </div>
+        </div>
+
+        <div>
+            <label>渐变背景控制 (颜色1 -> 颜色2)</label>
+            <div class="color-group">
+                <input type="color" id="bg-1" value="#ffffff">
+                <span style="font-size:12px; color:#666;">至</span>
+                <input type="color" id="bg-2" value="#E0F7FA">
+                <span style="font-size:11px; color:#999; margin-left:10px;">(设置不同颜色自动开启渐变)</span>
+            </div>
+        </div>
+
+        <div>
+            <label>上传 Logo (可选)</label>
+            <input type="file" id="logo-file" accept="image/*">
+        </div>
+    </div>
+
+    <div class="preview-pane">
+        <div id="canvas-container"></div>
+        <button class="btn btn-blue" onclick="downloadQR()">保存高清二维码 (PNG)</button>
+        <p class="hint" style="text-align: center;">
+            <b>微信测试提示：</b><br>
+            扫码后若看到“添加到通讯录”，<br>
+            请查看下方<b>“备注”</b>栏，文字都在那里。
+        </p>
+    </div>
+</div>
+
+<script>
+    let logoData = "";
+    let finalData = "";
+
+    // 关键修复 1：使用 canvas 模式确保渐变在导出时被正确捕获
+    const qrCode = new QRCodeStyling({
+        width: 300,
+        height: 300,
+        type: "canvas", 
+        data: "初始化中...",
+        margin: 20,
+        qrOptions: { errorCorrectionLevel: "M" }, // M级别既保证Logo美观又降低密度
+        dotsOptions: { color: "#000000", type: "extra-rounded" },
+        backgroundOptions: { color: "#ffffff" },
+        cornersSquareOptions: { type: "extra-rounded", color: "#000000" },
+        cornersDotOptions: { color: "#000000" },
+        imageOptions: { crossOrigin: "anonymous", margin: 5, imageSize: 0.3 }
+    });
+
+    qrCode.append(document.getElementById("canvas-container"));
+
+    // 关键修复 2：使用 vCard 3.0 协议包装文字，微信原生支持且不报错
+    function generateVCard() {
+        const text = document.getElementById('qr-content').value;
+        if (!text.trim()) { alert("请输入内容"); return; }
+        
+        // 构造 vCard 格式
+        // FN: 显示的标题, NOTE: 存放你的长文本
+        finalData = `BEGIN:VCARD\nVERSION:3.0\nFN:文字卡片\nNOTE:${text}\nEND:VCARD`;
+        
+        updateQR();
+        alert("已成功生成！二维码点阵已优化，现在可以调整外观了。");
+    }
+
+    function updateQR() {
+        if(!finalData) finalData = document.getElementById('qr-content').value;
+        
+        const bg1 = document.getElementById('bg-1').value;
+        const bg2 = document.getElementById('bg-2').value;
+        const fg = document.getElementById('fg-color').value;
+
+        qrCode.update({
+            data: finalData,
+            margin: parseInt(document.getElementById('qr-margin').value),
+            dotsOptions: { color: fg, type: document.getElementById('dot-style').value },
+            cornersSquareOptions: { color: fg, type: document.getElementById('eye-style').value },
+            cornersDotOptions: { color: fg },
+            image: logoData,
+            backgroundOptions: {
+                color: bg1,
+                // 关键修复 3：修正渐变导出逻辑
+                gradient: bg1 !== bg2 ? {
+                    type: "linear",
+                    rotation: 0.785, 
+                    colorStops: [
+                        { offset: 0, color: bg1 },
+                        { offset: 1, color: bg2 }
+                    ]
+                } : null
+            }
+        });
+    }
+
+    // 监听所有样式变化
+    document.querySelectorAll('select, input[type="color"]').forEach(el => {
+        el.addEventListener('input', updateQR);
+    });
+
+    document.getElementById('logo-file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => { logoData = event.target.result; updateQR(); };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 关键修复 4：下载 PNG
+    function downloadQR() {
+        if(!finalData || finalData.startsWith("初始化")) {
+            alert("请先点击绿色按钮生成内容！");
+            return;
+        }
+        qrCode.download({
+            name: "art-qrcode-" + Date.now(),
+            extension: "png"
+        });
+    }
+
+    // 首次自动生成一次
+    window.onload = generateVCard;
+</script>
+
+</body>
+</html>
