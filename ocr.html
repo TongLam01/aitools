@@ -169,12 +169,17 @@
             logEl.innerText = '正在分析...';
             const { data: { text } } = await worker.recognize(currentFile);
             
-            // 文本清洗
+            // 文本清洗 (优化算法)
             let output = text;
             if (autoFormatEl.checked) {
-                output = output.replace(/([\u4e00-\u9fa5])\s+([\u4e00-\u9fa5])/g, '$1$2') // 中文去空
-                               .replace(/([\u4e00-\u9fa5])\s+([，。；：！？])/g, '$1$2')  // 标点去空
-                               .replace(/([，。；：！？])\s+([\u4e00-\u9fa5])/g, '$1$2');
+                // 第一步：处理 "汉字 汉字" 之间的空格。运行两次以解决重叠匹配问题 (例如: A B C)
+                output = output.replace(/([\u4e00-\u9fa5])\s+([\u4e00-\u9fa5])/g, '$1$2');
+                output = output.replace(/([\u4e00-\u9fa5])\s+([\u4e00-\u9fa5])/g, '$1$2');
+
+                // 第二步：处理 "汉字 标点" 和 "标点 汉字"。增加了对英文标点的兼容
+                // 解释：([\u4e00-\u9fa5]) 匹配中文，[，。；：！？,.?!%] 匹配中英文常见标点
+                output = output.replace(/([\u4e00-\u9fa5])\s+([，。；：！？,.?!%])/g, '$1$2');
+                output = output.replace(/([，。；：！？,.?!%])\s+([\u4e00-\u9fa5])/g, '$1$2');
             }
 
             resultArea.value = output;
@@ -205,5 +210,4 @@
 </script>
 <script src="common.js"></script>
 </body>
-
 </html>
