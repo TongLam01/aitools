@@ -28,6 +28,20 @@
         .poster-head { border-bottom: 2px solid #111827; padding-bottom: 15px; margin-bottom: 40px; font-family: 'Noto Serif SC', serif; font-size: 20px; }
         .typing::after { content: '▋'; animation: b 1s step-end infinite; color: #4f46e5; }
         @keyframes b { 50% { opacity: 0; } }
+        /* 优化列表排版，支持长序号 */
+.markdown-render ol, .markdown-render ul { 
+    margin-bottom: 1.5rem; 
+    padding-left: 2rem; /* 增加左边距，给1.1.1这种长序号留空间 */
+}
+.markdown-render li { 
+    margin-bottom: 0.8rem;
+    list-style-position: outside; /* 确保序号在文本框外，对齐更美观 */
+}
+/* 修复海报中长文本换行的问题 */
+#poster-wrap .markdown-render {
+    word-break: break-word;
+    text-align: justify;
+}
     </style>
 </head>
 <body>
@@ -135,3 +149,4 @@ createApp({
 </script>
 </body>
 </html>
+
