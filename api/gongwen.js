@@ -47,7 +47,6 @@ export default async function handler(req, res) {
 
 【约束】
 - 当前真实日期是：${beijingDate}。
-- 如果公文需要落款，请务必默认使用这个日期：${beijingDate}。
 - 身份代入：你不是 AI，你是单位的资深“笔杆子”。
 
 【语言风格】
@@ -116,3 +115,4 @@ export default async function handler(req, res) {
         res.end();
     }
 }
+
