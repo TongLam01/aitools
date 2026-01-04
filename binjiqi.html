@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 公众号排版大师 - GitHub 部署版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #preview-container { 
+            background: #f0f2f5; 
+            min-height: 600px;
+            border-radius: 45px;
+            padding: 12px;
+            border: 10px solid #222;
+            max-width: 380px;
+            margin: 0 auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+        #preview-content {
+            background: white;
+            height: 100%;
+            min-height: 550px;
+            overflow-y: auto;
+            padding: 20px;
+            outline: none;
+            border-radius: 35px;
+        }
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <div class="max-w-7xl mx-auto py-10 px-4 flex flex-col lg:flex-row gap-10">
+        
+        <div class="flex-1 space-y-6">
+            <header>
+                <h1 class="text-3xl font-extrabold text-blue-600 flex items-center gap-2">
+                    🚀 AI 灵感排版 <span class="text-sm font-normal text-gray-400">v2.0 (GitHub Edition)</span>
+                </h1>
+            </header>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">DeepSeek API Key (存储在本地浏览器)</label>
+                    <input type="password" id="api-key" oninput="saveConfig()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="sk-...">
+                </div>
+                <button onclick="clearStorage()" class="text-xs text-red-400 hover:text-red-600 underline">清除本地缓存</button>
+            </div>
+
+            <div class="relative">
+                <textarea id="user-input" oninput="saveConfig()" class="w-full h-[500px] p-6 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 outline-none resize-none text-lg leading-relaxed" placeholder="在这里粘贴你的纯文本文章内容..."></textarea>
+                <div class="absolute bottom-4 right-4 text-xs text-gray-400">支持自动分块渲染</div>
+            </div>
+
+            <button id="btn-run" onclick="generateArticle()" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-[1.01] active:scale-95 transition-all">
+                ✨ 开始 AI 魔法排版
+            </button>
+        </div>
+
+        <div class="w-full lg:w-[450px] space-y-4">
+            <div class="flex justify-between items-center px-4">
+                <h2 class="font-bold text-gray-600">公众号模拟预览</h2>
+                <button onclick="copyHtml()" class="px-4 py-2 bg-green-500 text-white text-sm rounded-full hover:bg-green-600 shadow-md transition">
+                    📋 一键复制到公众号
+                </button>
+            </div>
+
+            <div id="preview-container">
+                <div id="preview-content" contenteditable="true">
+                    <div style="margin-top: 150px; text-align: center; color: #bbb;">
+                        <p>等待内容输入...</p>
+                        <p style="font-size: 12px; margin-top: 10px;">(排版后可在此直接二次修改文字)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. 初始化：加载本地存储
+        window.onload = () => {
+            const savedKey = localStorage.getItem('ds_api_key');
+            const savedText = localStorage.getItem('ds_draft');
+            if (savedKey) document.getElementById('api-key').value = savedKey;
+            if (savedText) document.getElementById('user-input').value = savedText;
+        };
+
+        // 2. 实时保存配置到本地
+        function saveConfig() {
+            localStorage.setItem('ds_api_key', document.getElementById('api-key').value);
+            localStorage.setItem('ds_draft', document.getElementById('user-input').value);
+        }
+
+        // 3. 清除缓存
+        function clearStorage() {
+            if(confirm('确定清除 API Key 和草稿吗？')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        // 4. 调用 AI 接口
+        async function generateArticle() {
+            const apiKey = document.getElementById('api-key').value;
+            const text = document.getElementById('user-input').value;
+            const btn = document.getElementById('btn-run');
+
+            if (!apiKey) return alert("请输入 API Key");
+            if (!text) return alert("请输入内容");
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="animate-pulse">AI 正在深度分析并排版中...</span>`;
+
+            try {
+                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [
+                            {
+                                role: "system",
+                                content: `你是一个微信公众号高级排版师。请将用户文本转换为结构化HTML。
+                                规则：
+                                1. 严格使用内联样式(Inline CSS)。
+                                2. 标题使用蓝色(#007bff)左边框修饰。
+                                3. 核心观点使用淡蓝色背景(#f0f7ff)的圆角卡片(<section>)包裹。
+                                4. 正文16px，行高1.8，段落间距1.5em。
+                                5. 输出纯净HTML，不带markdown代码块标识。`
+                            },
+                            { role: "user", content: text }
+                        ],
+                        temperature: 0.6
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+
+                let htmlResult = data.choices[0].message.content;
+                // 去除可能存在的 Markdown 代码块标记
+                htmlResult = htmlResult.replace(/```html|```/gi, '').trim();
+                
+                document.getElementById('preview-content').innerHTML = htmlResult;
+            } catch (error) {
+                alert("错误: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "✨ 开始 AI 魔法排版";
+            }
+        }
+
+        // 5. 复制到剪贴板逻辑 (适配公众号后台)
+        async function copyHtml() {
+            const content = document.getElementById('preview-content').innerHTML;
+            try {
+                const type = "text/html";
+                const blob = new Blob([content], { type });
+                const data = [new ClipboardItem({ [type]: blob })];
+                await navigator.clipboard.write(data);
+                alert("✅ 样式已锁定到剪贴板！\n请直接到公众号后台 Ctrl+V 粘贴。");
+            } catch (err) {
+                console.error(err);
+                alert("复制失败，请尝试手动选中预览区内容复制。");
+            }
+        }
+    </script>
+</body>
+</html>
