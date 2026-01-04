@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 公众号排版大师 - GitHub 部署版</title>
+    <title>AI 公众号灵感排版大师 - 风格多选版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         #preview-container { 
@@ -24,53 +24,73 @@
             outline: none;
             border-radius: 35px;
         }
-        /* 滚动条美化 */
+        /* 风格选中样式 */
+        .style-card.active {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            ring: 2px;
+            ring-color: #3b82f6;
+        }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
+<body class="bg-slate-50 text-slate-900 font-sans">
 
     <div class="max-w-7xl mx-auto py-10 px-4 flex flex-col lg:flex-row gap-10">
         
         <div class="flex-1 space-y-6">
             <header>
-                <h1 class="text-3xl font-extrabold text-blue-600 flex items-center gap-2">
-                    🚀 AI 灵感排版 <span class="text-sm font-normal text-gray-400">v2.0 (GitHub Edition)</span>
+                <h1 class="text-3xl font-extrabold text-slate-800 flex items-center gap-2">
+                    ✨ AI 灵感排版 <span class="text-sm font-normal text-slate-400">Pro 风格版</span>
                 </h1>
             </header>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-end">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-end">
                 <div class="flex-1 w-full">
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">DeepSeek API Key (存储在本地浏览器)</label>
-                    <input type="password" id="api-key" oninput="saveConfig()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="sk-...">
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">DeepSeek API Key</label>
+                    <input type="password" id="api-key" oninput="saveConfig()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="sk-...">
                 </div>
-                <button onclick="clearStorage()" class="text-xs text-red-400 hover:text-red-600 underline">清除本地缓存</button>
+                <button onclick="clearStorage()" class="text-xs text-slate-400 hover:text-red-600 underline transition">清除缓存</button>
             </div>
 
-            <div class="relative">
-                <textarea id="user-input" oninput="saveConfig()" class="w-full h-[500px] p-6 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 outline-none resize-none text-lg leading-relaxed" placeholder="在这里粘贴你的纯文本文章内容..."></textarea>
-                <div class="absolute bottom-4 right-4 text-xs text-gray-400">支持自动分块渲染</div>
+            <div class="space-y-3">
+                <label class="block text-sm font-bold text-slate-700">选择视觉风格</label>
+                <div class="grid grid-cols-3 gap-4">
+                    <div onclick="selectStyle('tech')" id="style-tech" class="style-card active cursor-pointer p-4 border-2 rounded-xl bg-white hover:shadow-md transition text-center">
+                        <div class="text-2xl mb-1">🔹</div>
+                        <div class="font-bold text-sm">科技蓝</div>
+                    </div>
+                    <div onclick="selectStyle('fresh')" id="style-fresh" class="style-card cursor-pointer p-4 border-2 rounded-xl bg-white hover:shadow-md transition text-center">
+                        <div class="text-2xl mb-1">🍃</div>
+                        <div class="font-bold text-sm">清新绿</div>
+                    </div>
+                    <div onclick="selectStyle('festive')" id="style-festive" class="style-card cursor-pointer p-4 border-2 rounded-xl bg-white hover:shadow-md transition text-center">
+                        <div class="text-2xl mb-1">🏮</div>
+                        <div class="font-bold text-sm">淡喜庆</div>
+                    </div>
+                </div>
             </div>
 
-            <button id="btn-run" onclick="generateArticle()" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-[1.01] active:scale-95 transition-all">
-                ✨ 开始 AI 魔法排版
+            <textarea id="user-input" oninput="saveConfig()" class="w-full h-80 p-6 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 outline-none resize-none text-lg leading-relaxed" placeholder="输入文章内容..."></textarea>
+
+            <button id="btn-run" onclick="generateArticle()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-xl hover:bg-slate-800 transform hover:scale-[1.01] active:scale-95 transition-all">
+                🚀 开始 AI 排版
             </button>
         </div>
 
         <div class="w-full lg:w-[450px] space-y-4">
             <div class="flex justify-between items-center px-4">
-                <h2 class="font-bold text-gray-600">公众号模拟预览</h2>
-                <button onclick="copyHtml()" class="px-4 py-2 bg-green-500 text-white text-sm rounded-full hover:bg-green-600 shadow-md transition">
-                    📋 一键复制到公众号
+                <h2 class="font-bold text-slate-600">公众号模拟预览</h2>
+                <button onclick="copyHtml()" class="px-5 py-2 bg-green-500 text-white text-sm font-bold rounded-full hover:bg-green-600 shadow-lg transition">
+                    📋 复制内容
                 </button>
             </div>
 
             <div id="preview-container">
                 <div id="preview-content" contenteditable="true">
-                    <div style="margin-top: 150px; text-align: center; color: #bbb;">
-                        <p>等待内容输入...</p>
-                        <p style="font-size: 12px; margin-top: 10px;">(排版后可在此直接二次修改文字)</p>
+                    <div style="margin-top: 150px; text-align: center; color: #ccc;">
+                        <p>请在左侧选择风格并输入内容</p>
                     </div>
                 </div>
             </div>
@@ -78,7 +98,24 @@
     </div>
 
     <script>
-        // 1. 初始化：加载本地存储
+        let currentStyle = 'tech';
+
+        // 风格配置库：定义传给 AI 的 CSS 指令
+        const STYLE_CONFIGS = {
+            tech: {
+                name: "科技蓝",
+                instruction: "主色调使用深蓝色(#007bff)，背景色使用淡蓝色(#f0f7ff)，标题带左侧粗边框，强调块使用圆角边框和轻微投影。"
+            },
+            fresh: {
+                name: "清新绿",
+                instruction: "主色调使用草绿色(#07c160)，背景色使用浅绿色(#f0f9eb)，整体风格极简，多留白，标题使用圆点装饰，强调块使用虚线边框。"
+            },
+            festive: {
+                name: "淡喜庆",
+                instruction: "主色调使用朱红色(#e63946)，背景色使用淡粉色(#fff5f5)，标题带金黄色修饰，强调块使用中式卷轴感或双线边框样式。"
+            }
+        };
+
         window.onload = () => {
             const savedKey = localStorage.getItem('ds_api_key');
             const savedText = localStorage.getItem('ds_draft');
@@ -86,31 +123,35 @@
             if (savedText) document.getElementById('user-input').value = savedText;
         };
 
-        // 2. 实时保存配置到本地
+        function selectStyle(style) {
+            currentStyle = style;
+            document.querySelectorAll('.style-card').forEach(el => el.classList.remove('active'));
+            document.getElementById(`style-${style}`).classList.add('active');
+        }
+
         function saveConfig() {
             localStorage.setItem('ds_api_key', document.getElementById('api-key').value);
             localStorage.setItem('ds_draft', document.getElementById('user-input').value);
         }
 
-        // 3. 清除缓存
         function clearStorage() {
-            if(confirm('确定清除 API Key 和草稿吗？')) {
+            if(confirm('确定清除吗？')) {
                 localStorage.clear();
                 location.reload();
             }
         }
 
-        // 4. 调用 AI 接口
         async function generateArticle() {
             const apiKey = document.getElementById('api-key').value;
             const text = document.getElementById('user-input').value;
             const btn = document.getElementById('btn-run');
 
-            if (!apiKey) return alert("请输入 API Key");
-            if (!text) return alert("请输入内容");
+            if (!apiKey || !text) return alert("请检查 API Key 和内容");
 
             btn.disabled = true;
-            btn.innerHTML = `<span class="animate-pulse">AI 正在深度分析并排版中...</span>`;
+            btn.innerHTML = `<span class="animate-bounce inline-block mr-2">⏳</span> AI 正在以【${STYLE_CONFIGS[currentStyle].name}】风格排版...`;
+
+            const styleInstruction = STYLE_CONFIGS[currentStyle].instruction;
 
             try {
                 const response = await fetch('https://api.deepseek.com/chat/completions', {
@@ -124,13 +165,14 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `你是一个微信公众号高级排版师。请将用户文本转换为结构化HTML。
-                                规则：
+                                content: `你是一个微信公众号专业排版师。请将用户文本转换为HTML。
+                                风格要求：${styleInstruction}
+                                
+                                技术规则：
                                 1. 严格使用内联样式(Inline CSS)。
-                                2. 标题使用蓝色(#007bff)左边框修饰。
-                                3. 核心观点使用淡蓝色背景(#f0f7ff)的圆角卡片(<section>)包裹。
-                                4. 正文16px，行高1.8，段落间距1.5em。
-                                5. 输出纯净HTML，不带markdown代码块标识。`
+                                2. 正文16px，行高1.8，段落间距1.5em，字间距0.1em。
+                                3. 每一个逻辑部分使用 <section> 包裹。
+                                4. 只输出HTML片段，不要Markdown标识符。`
                             },
                             { role: "user", content: text }
                         ],
@@ -141,20 +183,16 @@
                 const data = await response.json();
                 if (data.error) throw new Error(data.error.message);
 
-                let htmlResult = data.choices[0].message.content;
-                // 去除可能存在的 Markdown 代码块标记
-                htmlResult = htmlResult.replace(/```html|```/gi, '').trim();
-                
+                let htmlResult = data.choices[0].message.content.replace(/```html|```/gi, '').trim();
                 document.getElementById('preview-content').innerHTML = htmlResult;
             } catch (error) {
                 alert("错误: " + error.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = "✨ 开始 AI 魔法排版";
+                btn.innerText = "🚀 开始 AI 排版";
             }
         }
 
-        // 5. 复制到剪贴板逻辑 (适配公众号后台)
         async function copyHtml() {
             const content = document.getElementById('preview-content').innerHTML;
             try {
@@ -162,10 +200,9 @@
                 const blob = new Blob([content], { type });
                 const data = [new ClipboardItem({ [type]: blob })];
                 await navigator.clipboard.write(data);
-                alert("✅ 样式已锁定到剪贴板！\n请直接到公众号后台 Ctrl+V 粘贴。");
+                alert("✅ 排版已复制！请前往公众号后台粘贴。");
             } catch (err) {
-                console.error(err);
-                alert("复制失败，请尝试手动选中预览区内容复制。");
+                alert("复制失败，请手动选中预览区内容复制。");
             }
         }
     </script>
