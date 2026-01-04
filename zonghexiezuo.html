@@ -2,249 +2,131 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>写作瑞士军刀 | 2026专业写作舱</title>
-    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>写作瑞士军刀</title>
     <style>
-        /* 1. 基础布局修复：确保整体高度填满屏幕，菜单固定底部 */
-        html, body, #app { height: 100%; margin: 0; padding: 0; overflow: hidden; }
-        body { background-color: #f1f5f9; font-family: -apple-system, "Noto Sans SC", sans-serif; }
+        /* 1. 基础样式重置 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; font-family: "Microsoft YaHei", sans-serif; background-color: #f5f7fa; color: #333; }
 
-        .app-layout { height: 100vh; display: flex; flex-direction: column; }
-        .scroll-content { flex: 1; overflow-y: auto; }
+        /* 2. 主容器：使用 Flex 布局纵向排列 */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* 撑满屏幕高度 */
+        }
+
+        /* 3. 顶部导航栏 */
+        header {
+            height: 60px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #eef0f2;
+        }
+        .logo { font-weight: bold; font-size: 18px; color: #4a3aff; display: flex; align-items: center; }
+
+        /* 4. 中间内容区：关键修复点 */
+        main {
+            flex: 1; /* 自动撑开，占据剩余所有空间 */
+            display: flex;
+            overflow: hidden; /* 防止内容溢出导致整个页面滚动 */
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .panel {
+            flex: 1;
+            background: #fff;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .panel-header { font-size: 12px; color: #999; margin-bottom: 10px; text-transform: uppercase; }
         
-        /* 2. Markdown 排版深度锁定 */
-        .markdown-render h1 { font-size: 1.5rem !important; font-weight: 800 !important; margin: 1.5rem 0 1rem !important; color: #1e293b; border-bottom: 2px solid #6366f1; padding-bottom: 0.3rem; }
-        .markdown-render h2 { font-size: 1.3rem !important; font-weight: 700 !important; margin: 1.2rem 0 0.8rem !important; color: #334155; }
-        .markdown-render h3 { font-size: 1.15rem !important; font-weight: 700 !important; margin: 1rem 0 0.5rem !important; color: #4f46e5; }
-        .markdown-render p { font-size: 1rem !important; line-height: 1.8 !important; margin-bottom: 1rem !important; color: #475569; }
-        .markdown-render strong { color: #1e1b4b !important; font-weight: 700 !important; background: rgba(99, 102, 241, 0.05); padding: 0 2px; }
-        .markdown-render ul, .markdown-render ol { padding-left: 1.5rem !important; margin-bottom: 1rem !important; }
-        .markdown-render li { margin-bottom: 0.5rem !important; font-size: 1rem !important; color: #475569; }
-
-        /* 3. 底部悬浮菜单样式（修复宽度适配） */
-        .fixed-bottom-menu { 
-            position: fixed; 
-            bottom: 0; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 100%; 
-            max-width: 100%; /* 移动端平铺 */
-            background: rgba(255, 255, 255, 0.98); 
-            backdrop-filter: blur(15px); 
-            border-top: 1px solid #e2e8f0; 
-            z-index: 100;
-            padding: 1.25rem 1.5rem;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+        /* 文本框：确保文字不会被截断 */
+        textarea {
+            flex: 1;
+            border: none;
+            resize: none;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #444;
         }
 
-        /* PC端最大宽度限制 */
-        @media (min-width: 1024px) {
-            .fixed-bottom-menu { max-width: 1200px; }
-            .side-layout { display: flex; flex-direction: row; height: 100%; }
-            .side-panel { width: 50%; height: 100%; }
+        /* 5. 底部功能栏：固定在底部，不遮挡上方 */
+        footer {
+            height: 120px;
+            background: #fff;
+            border-top: 1px solid #eef0f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 20px;
         }
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .typing-effect::after { content: '▋'; animation: blink 1s step-end infinite; color: #6366f1; margin-left: 4px; }
-        @keyframes blink { 50% { opacity: 0; } }
+        .tool-card {
+            width: 120px;
+            height: 80px;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tool-card:hover { border-color: #4a3aff; background: #f8f7ff; }
+        .tool-card span { font-size: 13px; margin-top: 8px; color: #555; }
 
-        /* 截图优化 */
-        .capturing #share-area { border-radius: 0; border: none; padding: 40px !important; background: white !important; box-shadow: none !important; }
-        .capture-only { display: none; }
-        .capturing .capture-only { display: block; }
+        /* 针对 AI 输出不完整的修复：增加滚动条 */
+        #ai-output {
+            overflow-y: auto; /* 内容多了自动出滚动条 */
+            white-space: pre-wrap; /* 保留换行 */
+        }
     </style>
 </head>
-<body class="text-slate-900">
+<body>
 
-<div id="app" class="app-layout max-w-[1200px] mx-auto bg-white relative">
-    
-    <header class="flex-none bg-white/90 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-slate-100 z-50">
-        <div class="flex items-center gap-2">
-            <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-pen-nib text-white"></i></div>
-            <h1 class="text-lg font-extrabold text-slate-800">写作瑞士军刀</h1>
-        </div>
-        <button @click="showConfig = true" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center transition-all">
-            <i class="fa-solid fa-gear text-slate-400"></i>
-        </button>
+<div class="app-container">
+    <header>
+        <div class="logo">🖋️ 写作瑞士军刀</div>
+        <div class="settings">⚙️</div>
     </header>
 
-    <div class="scroll-content side-layout bg-slate-50">
-        
-        <section class="side-panel p-5 lg:p-8 flex flex-col space-y-4">
-            <div class="flex justify-between items-center px-1">
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic">Source Material</span>
-                <span class="text-[10px] text-slate-400 font-mono">{{ inputBody.length }}字</span>
-            </div>
-            <div class="relative flex-1 min-h-[300px] lg:min-h-0">
-                <textarea v-model="inputBody" placeholder="输入灵感、大纲或需要润色的内容..." 
-                    class="w-full h-full p-6 bg-white rounded-3xl border-none shadow-sm focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none text-[16px] leading-relaxed"></textarea>
-                <div class="absolute bottom-4 right-4 flex gap-3">
-                    <button @click="inputBody = ''" v-if="inputBody" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
-                    <button @click="pasteText" class="p-4 bg-indigo-600 shadow-xl rounded-2xl text-white active:scale-90 transition-all shadow-indigo-100"><i class="fa-solid fa-paste"></i></button>
-                </div>
-            </div>
-        </section>
-
-        <section ref="outputContainer" class="side-panel p-5 lg:p-8 flex flex-col space-y-4 bg-white border-t lg:border-t-0 lg:border-l border-slate-100">
-            <div class="flex justify-between items-center px-1">
-                <span class="text-[11px] font-bold text-indigo-600 flex items-center gap-2">
-                    <span v-if="isGenerating" class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>AI EXPERT OUTPUT
-                </span>
-                <div class="flex gap-4" v-if="outputBody && !isGenerating">
-                    <button @click="generateImage" class="text-[11px] font-bold text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-camera mr-1"></i>截图</button>
-                    <button @click="copyText(outputBody)" class="text-[11px] font-bold text-indigo-600">复制</button>
-                </div>
-                <button v-if="isGenerating" @click="stopGeneration" class="text-[11px] font-bold text-red-500 flex items-center gap-1"><i class="fa-solid fa-stop-circle"></i> 停止</button>
-            </div>
-
-            <div id="share-area" class="flex-1 bg-white relative">
-                <div class="capture-only mb-6 border-b pb-4 text-indigo-600 font-bold">© 写作瑞士军刀</div>
-                <div class="markdown-render" :class="{ 'typing-effect': isGenerating }" v-html="renderedOutput"></div>
-                <div v-if="!outputBody && !isGenerating" class="h-64 flex flex-col items-center justify-center text-slate-200">
-                    <i class="fa-solid fa-wand-sparkles text-6xl mb-3"></i>
-                    <p class="text-xs font-bold tracking-widest">等待指令下达</p>
-                </div>
-                <div class="capture-only mt-10 pt-4 border-t text-center text-[10px] text-slate-300">本内容由 DeepSeek R1 创作</div>
-                <div class="h-32"></div>
-            </div>
-        </section>
-    </div>
-
-    <footer class="fixed-bottom-menu">
-        <div class="grid grid-cols-3 lg:grid-cols-6 gap-3">
-            <button v-for="tool in tools" :key="tool.id" @click="runTool(tool)" :disabled="isGenerating"
-                class="flex flex-col items-center gap-2 p-3 lg:p-4 rounded-2xl transition-all border active:scale-95"
-                :class="currentToolId === tool.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg' : 'bg-white border-slate-100 text-slate-600 hover:border-indigo-200'">
-                <i :class="tool.icon" class="text-xl"></i>
-                <span class="text-[10px] lg:text-[11px] font-bold">{{ tool.name }}</span>
-            </button>
+    <main>
+        <div class="panel">
+            <div class="panel-header">SOURCE MATERIAL</div>
+            <textarea placeholder="输入灵感、大纲或需要润色的内容..."></textarea>
         </div>
+        <div class="panel">
+            <div class="panel-header">AI EXPERT OUTPUT</div>
+            <div id="ai-output">
+                <div style="text-align: center; color: #ccc; margin-top: 100px;">
+                    <p>✨</p>
+                    <p>等待指令下达</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="tool-card">📄 <span>资深公文</span></div>
+        <div class="tool-card">🔥 <span>爆款红书</span></div>
+        <div class="tool-card">🛡️ <span>逻辑排雷</span></div>
+        <div class="tool-card">😊 <span>高情商说</span></div>
+        <div class="tool-card">🪶 <span>灵感续写</span></div>
+        <div class="tool-card">🌿 <span>思维大纲</span></div>
     </footer>
-
-    <div v-if="showConfig" class="fixed inset-0 z-[110] flex justify-end">
-        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showConfig = false"></div>
-        <div class="relative w-80 bg-white p-8 shadow-2xl h-full animate-slide-in">
-            <h3 class="font-bold text-lg mb-8 flex items-center gap-2"><i class="fa-solid fa-sliders text-indigo-600"></i> 配置</h3>
-            <div class="space-y-6">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">DeepSeek API Key</label>
-                    <input v-model="config.apiKey" type="password" placeholder="sk-..." class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-1 focus:ring-indigo-500 font-mono text-sm">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">模型</label>
-                    <select v-model="config.model" class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl outline-none text-sm font-bold">
-                        <option value="deepseek-reasoner">DeepSeek R1 (深度思考)</option>
-                        <option value="deepseek-chat">DeepSeek V3 (极速通用)</option>
-                    </select>
-                </div>
-                <button @click="saveConfig" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl active:scale-95 transition-all">保存设置</button>
-            </div>
-        </div>
-    </div>
-
-    <div v-if="toast" class="fixed top-24 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white text-[11px] font-bold rounded-full z-[120] shadow-2xl">{{ toast }}</div>
-
 </div>
 
-<script>
-const { createApp, ref, onMounted, computed, watch, nextTick } = Vue;
-createApp({
-    setup() {
-        const inputBody = ref(''); const outputBody = ref(''); const isGenerating = ref(false);
-        const showConfig = ref(false); const currentToolId = ref(null); const toast = ref('');
-        const outputContainer = ref(null); const config = ref({ apiKey: '', model: 'deepseek-reasoner' });
-        let abortController = null;
-
-        const tools = ref([
-            { id: 'gongwen', name: '资深公文', icon: 'fa-solid fa-file-contract' },
-            { id: 'redbook', name: '爆款红书', icon: 'fa-solid fa-fire-flame-curved' },
-            { id: 'risk', name: '逻辑排雷', icon: 'fa-solid fa-shield-halved' },
-            { id: 'eq', name: '高情商说', icon: 'fa-solid fa-face-smile-wink' },
-            { id: 'ghost', name: '灵感续写', icon: 'fa-solid fa-feather-pointed' },
-            { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-sitemap' }
-        ]);
-
-        // 渲染 Markdown 内容
-        const renderedOutput = computed(() => {
-            if (!outputBody.value) return '';
-            return marked.parse(outputBody.value);
-        });
-
-        // 自动跟随滚动
-        watch(outputBody, () => {
-            if (isGenerating.value) {
-                nextTick(() => {
-                    const el = outputContainer.value;
-                    if (el) el.scrollTop = el.scrollHeight;
-                });
-            }
-        });
-
-        onMounted(() => {
-            const saved = localStorage.getItem('writer_v4_cfg');
-            if (saved) config.value = JSON.parse(saved);
-            inputBody.value = localStorage.getItem('writer_v4_draft') || '';
-        });
-
-        const showToast = (m) => { toast.value = m; setTimeout(() => toast.value = '', 2500); };
-        const saveConfig = () => { localStorage.setItem('writer_v4_cfg', JSON.stringify(config.value)); showConfig.value = false; showToast('设置已存档'); };
-        const copyText = (t) => { navigator.clipboard.writeText(t); showToast('复制成功'); };
-        const pasteText = async () => { try { inputBody.value += await navigator.clipboard.readText(); } catch (e) {} };
-        const stopGeneration = () => { if(abortController) { abortController.abort(); isGenerating.value = false; currentToolId.value = null; showToast('已中止'); } };
-
-        const generateImage = async () => {
-            const el = document.body; el.classList.add('capturing');
-            try {
-                const canvas = await html2canvas(document.getElementById('share-area'), { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-                const link = document.createElement('a'); link.download = `瑞士军刀_${Date.now()}.png`;
-                link.href = canvas.toDataURL(); link.click();
-            } catch (err) { showToast('截图失败'); }
-            el.classList.remove('capturing');
-        };
-
-        const runTool = async (tool) => {
-            if (!inputBody.value) return showToast('请输入原始内容');
-            if (!config.value.apiKey) { showConfig.value = true; return showToast('请配置 Key'); }
-            currentToolId.value = tool.id; isGenerating.value = true; outputBody.value = '';
-            abortController = new AbortController();
-
-            try {
-                const response = await fetch('/api/zonghexiezuo', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: inputBody.value, userKey: config.value.apiKey, model: config.value.model, toolId: tool.id }),
-                    signal: abortController.signal
-                });
-
-                const reader = response.body.getReader(); const decoder = new TextDecoder();
-                while (true) {
-                    const { done, value } = await reader.read(); if (done) break;
-                    const lines = decoder.decode(value).split('\n');
-                    for (const line of lines) {
-                        if (line.trim() === ': heartbeat') continue;
-                        if (line.startsWith('data: ')) {
-                            try {
-                                const data = JSON.parse(line.replace('data: ', ''));
-                                // 核心修复：DeepSeek R1 模型中，thinking 在 reasoning_content 字段，我们只取 content 字段
-                                // 如果 API 服务商合并了内容，通常是通过 stream 块来区分的，大部分官方/主流中转接口通过 content 返回正文
-                                const content = data.choices[0].delta.content;
-                                if (content) outputBody.value += content;
-                            } catch (e) {}
-                        }
-                    }
-                }
-            } catch (err) { if (err.name !== 'AbortError') showToast('网络连接中断'); }
-            finally { isGenerating.value = false; currentToolId.value = null; localStorage.setItem('writer_v4_draft', inputBody.value); }
-        };
-
-        return { inputBody, outputBody, renderedOutput, isGenerating, showConfig, config, tools, saveConfig, runTool, currentToolId, toast, pasteText, copyText, generateImage, outputContainer, stopGeneration };
-    }
-}).mount('#app');
-</script>
 </body>
 </html>
