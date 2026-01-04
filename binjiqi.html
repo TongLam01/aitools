@@ -2,11 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 灵感排版大师 v12.1 - 最终稳定版</title>
+    <title>AI 灵感排版大师 v13.0 - 全能精修版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #ff4d4f; }
-        
         #preview-container { 
             background: #111; min-height: 600px; border-radius: 40px;
             padding: 10px; border: 6px solid #333; max-width: 375px; margin: 0 auto 180px;
@@ -19,14 +18,13 @@
 
         /* 红色虚线选中态 */
         .block-item { 
-            position: relative; margin-bottom: 4px; padding: 10px 0;
+            position: relative; margin-bottom: 2px; padding: 6px 0;
             transition: all 0.2s ease; cursor: pointer; border: 2px dashed transparent;
         }
         .block-item.selected { 
             border-color: var(--primary) !important;
             background-color: rgba(255, 77, 79, 0.02);
         }
-        /* 选中标记 */
         .block-item.selected::after {
             content: attr(data-status);
             position: absolute; top: -12px; right: 10px;
@@ -46,40 +44,29 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 pb-48">
+<body class="bg-slate-50 text-slate-900 pb-48 text-left">
 
     <div class="max-w-7xl mx-auto py-8 px-4">
         <header class="mb-8 flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tighter italic">AI Editor <span class="text-red-500">v12.1</span></h1>
-            </div>
-            
+            <h1 class="text-3xl font-black text-slate-800 tracking-tighter italic">AI Editor <span class="text-red-500 text-sm font-bold">v13.0</span></h1>
             <div class="flex items-center gap-2 cursor-pointer group" onclick="toggleSettings()">
-                <span class="text-[11px] font-bold text-slate-400 group-hover:text-slate-600 transition">⚙️ API Key 设置</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 group-hover:text-slate-600 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <span class="text-[11px] font-bold text-slate-400">⚙️ API Key 设置</span>
             </div>
         </header>
 
         <div id="settings-panel" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
             <div class="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-md space-y-4">
-                <h3 class="font-black text-xl text-center">API 设置中心</h3>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-400">DEEPSEEK API KEY</label>
-                    <input type="password" id="api-key" oninput="saveConfig()" class="w-full p-4 bg-slate-100 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="sk-...">
-                </div>
-                <p class="text-[10px] text-slate-400 leading-relaxed">Key 已加密保存在您的浏览器 localStorage 中。建议在 GitHub Pages (HTTPS) 环境下使用以确保请求成功。</p>
-                <button onclick="toggleSettings()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-lg active:scale-95 transition-all">保存设置</button>
+                <h3 class="font-black text-xl">API 设置</h3>
+                <input type="password" id="api-key" oninput="saveConfig()" class="w-full p-4 bg-slate-100 border-none rounded-2xl outline-none" placeholder="输入 Key">
+                <button onclick="toggleSettings()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold">保存并关闭</button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div class="lg:col-span-7 space-y-6 text-left">
+            <div class="lg:col-span-7 space-y-4">
                 <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-4">
-                    <textarea id="user-input" class="w-full h-[520px] p-6 bg-slate-50 border-none rounded-[1.5rem] outline-none focus:bg-white transition-all text-lg leading-relaxed" placeholder="在此粘贴原始内容..."></textarea>
-                    <button onclick="generateArticle()" id="btn-run" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-xl hover:shadow-2xl transition-all">
+                    <textarea id="user-input" class="w-full h-[520px] p-6 bg-slate-50 border-none rounded-[1.5rem] outline-none text-lg leading-relaxed" placeholder="在此粘贴内容..."></textarea>
+                    <button onclick="generateArticle()" id="btn-run" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-all">
                         🚀 一键 AI 智能全解析
                     </button>
                 </div>
@@ -87,13 +74,13 @@
 
             <div class="lg:col-span-5 text-center">
                 <div class="sticky top-6">
-                    <div class="flex justify-between mb-4 items-center px-4">
+                    <div class="flex justify-between mb-4 px-4 items-center">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Stable WeChat Preview</span>
-                        <button onclick="copyHtml()" class="bg-green-600 text-white px-8 py-2 rounded-full font-bold text-xs shadow-lg hover:bg-green-700">复制全部 (适配微信)</button>
+                        <button onclick="copyHtml()" class="bg-green-600 text-white px-8 py-2 rounded-full font-bold text-xs shadow-lg">复制全部</button>
                     </div>
                     <div id="preview-container">
                         <div id="preview-content" contenteditable="true">
-                            <div class="flex items-center justify-center h-full text-slate-200 italic pt-56">等待生成排版结果...</div>
+                            <div class="flex items-center justify-center h-full text-slate-200 italic pt-56">内容结果显示区</div>
                         </div>
                     </div>
                 </div>
@@ -104,26 +91,17 @@
     <div class="bottom-workbench shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
         <div class="max-w-6xl mx-auto space-y-4">
             <div class="flex flex-wrap items-center gap-4 border-b pb-3">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">配色方案:</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase">配色历史:</span>
                 <div class="flex items-center gap-2" id="color-palette">
                     <div class="color-dot" style="background:#3b82f6" onclick="updateColor('#3b82f6')"></div>
                     <div class="color-dot" style="background:#10b981" onclick="updateColor('#10b981')"></div>
                     <div class="color-dot" style="background:#ef4444" onclick="updateColor('#ef4444')"></div>
                     <div class="color-dot" style="background:#f59e0b" onclick="updateColor('#f59e0b')"></div>
                 </div>
-                <div class="h-6 w-[1px] bg-slate-200"></div>
                 <input type="color" id="custom-color" oninput="updateColor(this.value)" class="w-6 h-6 border-none cursor-pointer bg-transparent p-0">
                 <div id="recent-colors" class="flex gap-2 items-center"></div>
             </div>
 
-            <div class="flex justify-between items-center px-1">
-                <div class="flex gap-4">
-                    <button onclick="selectAll()" class="text-[10px] text-slate-800 font-bold hover:underline">全选</button>
-                    <button onclick="clearSelection()" class="text-[10px] text-slate-400 font-bold hover:underline">取消</button>
-                </div>
-                <span class="text-[10px] text-red-500 font-bold italic">💡 点击同一样式按钮可循环切换外观</span>
-            </div>
-            
             <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
                 <button onclick="applyVariant('normal')" class="style-btn text-red-500">🗑️ 还原正文</button>
                 <div class="w-[1px] bg-slate-200 mx-1"></div>
@@ -143,44 +121,55 @@
 
     <script>
         let currentColor = '#3b82f6';
-        let recentColors = JSON.parse(localStorage.getItem('recent_colors_v12') || '[]');
+        let recentColors = JSON.parse(localStorage.getItem('recent_colors_v13') || '[]');
         const STYLE_NAMES = { big_title: "大标题", sub_title: "小标题", num_title: "序号标", grad_title: "渐变标", key_point: "重点卡", quote: "引用块", code_block: "代码块", bg_card: "底色卡", normal: "正文" };
 
-        // 微信高兼容性模板库
+        // 核心模板库 v13.0
         const VARIANTS = {
             big_title: [
-                (txt, c) => `<div style="text-align: center; padding: 0 8px; margin: 1em 0;"><div style="font-size: 24px; color: ${c}; margin-bottom: 5px;">✦</div><h1 style="font-size: 22px; color: #111; border-bottom: 3px solid ${c}; display: inline-block; padding: 0 15px 8px; font-weight:bold; margin: 0;">${txt}</h1></div>`,
-                (txt, c) => `<div style="text-align: center; padding: 0 8px; margin: 1em 0;"><h1 style="font-size: 20px; color: white; background-color: ${c}; padding: 10px 20px; border-radius: 4px; display: inline-block; font-weight:bold; margin: 0;">${txt}</h1></div>`
+                (txt, c) => `<div style="text-align: center; padding: 0 8px; margin: 1em 0;"><div style="font-size: 20px; color: ${c}; margin-bottom: 2px;">✦</div><h1 style="font-size: 22px; color: #111; border-bottom: 3px solid ${c}; display: inline-block; padding: 0 15px 6px; font-weight:bold; margin: 0;">${txt}</h1></div>`,
+                (txt, c) => `<div style="text-align: center; padding: 0 8px; margin: 1em 0;"><h1 style="font-size: 19px; color: white; background-color: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block; font-weight:bold; margin: 0;">${txt}</h1></div>`,
+                (txt, c) => `<div style="text-align: center; padding: 0 8px; margin: 1.2em 0;"><h1 style="font-size: 20px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block; font-weight:bold; margin: 0;">${txt}</h1></div>`
             ],
             sub_title: [
-                (txt, c) => `<div style="padding: 0 8px; margin: 1.5em 0;"><div style="border-left: 5px solid ${c}; padding-left: 12px; text-align:left;"><h2 style="font-size: 19px; color: #1e293b; font-weight:bold; margin:0;">${txt}</h2></div></div>`,
-                (txt, c) => `<div style="padding: 0 8px; margin: 1.5em 0;"><table width="100%" border="0" cellspacing="0" cellpadding="0"><tr><td width="20" valign="middle" style="text-align:left;"><span style="color:${c}; font-size:20px;">◆</span></td><td valign="middle" style="border-bottom:1px dashed ${c}; padding-bottom:4px; text-align:left;"><h2 style="font-size: 19px; color: #1e293b; font-weight:bold; margin:0;">${txt}</h2></td></tr></table></div>`
+                (txt, c) => `<div style="padding: 0 8px; margin: 1.2em 0;"><div style="border-left: 5px solid ${c}; padding-left: 12px; text-align:left;"><h2 style="font-size: 19px; color: #1e293b; font-weight:bold; margin:0;">${txt}</h2></div></div>`,
+                (txt, c) => `<div style="padding: 0 8px; margin: 1.2em 0;"><table width="100%" border="0" cellspacing="0" cellpadding="0"><tr><td width="20" valign="middle" style="text-align:left;"><span style="color:${c}; font-size:18px;">◆</span></td><td valign="middle" style="border-bottom:1px dashed ${c}; padding-bottom:4px; text-align:left;"><h2 style="font-size: 19px; color: #1e293b; font-weight:bold; margin:0;">${txt}</h2></td></tr></table></div>`
             ],
             num_title: [
-                (txt, c) => `<div style="padding: 0 8px; margin: 1.2em 0; text-align:left;"><table border="0" cellspacing="0" cellpadding="0"><tr><td valign="middle" style="padding-right:12px;"><span style="background-color:${c}; color:white; width:26px; height:26px; border-radius:13px; display:inline-block; text-align:center; line-height:26px; font-weight:bold; font-size:14px;">1</span></td><td valign="middle"><h3 style="font-size:18px; font-weight:bold; color:#333; margin:0;">${txt}</h3></td></tr></table></div>`
+                (txt, c) => `<div style="padding: 0 8px; margin: 1em 0; text-align:left;"><table border="0" cellspacing="0" cellpadding="0"><tr><td valign="middle" style="padding-right:10px;"><span style="background-color:${c}; color:white; width:24px; height:24px; border-radius:12px; display:inline-block; text-align:center; line-height:24px; font-weight:bold; font-size:13px;">1</span></td><td valign="middle"><h3 style="font-size: 18px; font-weight:bold; color:#333; margin:0;">${txt}</h3></td></tr></table></div>`,
+                (txt, c) => `<div style="padding: 0 8px; margin: 1em 0; text-align:left;"><span style="color:${c}; font-size:22px; font-weight:black; font-family:Arial; margin-right:8px; line-height:1;">01</span><h3 style="font-size:18px; font-weight:bold; color:#333; display:inline-block; margin:0;">${txt}</h3></div>`
+            ],
+            grad_title: [
+                (txt, c) => `<div style="padding: 0 8px; margin: 1em 0; text-align:left;"><div style="background: linear-gradient(to right, ${c}, ${c}10); padding:6px 15px; border-radius:4px; color:white; font-weight:bold; display:inline-block; font-size:16px;">${txt}</div></div>`,
+                (txt, c) => `<div style="padding: 0 8px; margin: 1em 0; text-align:left;"><div style="background-color: ${c}15; border-left: 5px solid ${c}; padding: 6px 15px; border-radius: 0 20px 20px 0; color: ${c}; font-weight:bold; display:inline-block;">${txt}</div></div>`
             ],
             key_point: [
-                (txt, c) => `<div style="margin:1.5em 8px; padding: 22px; border:2px solid ${c}; background-color:${c}08; border-radius:16px; text-align:left; box-sizing:border-box;">${format(txt)}</div>`
+                (txt, c) => `<div style="margin:1.2em 8px; padding: 18px; border:2px solid ${c}; background-color:${c}08; border-radius:12px; text-align:left; box-sizing:border-box;">${format(txt)}</div>`,
+                (txt, c) => `<div style="margin:1.2em 8px; border-radius:12px; background-color:white; box-shadow:0 8px 24px ${c}20; border-left:6px solid ${c}; padding: 18px; text-align:left;">${format(txt)}</div>`
             ],
             quote: [
-                (txt, c) => `<div style="margin:1.5em 8px; padding:15px 20px; border-left:4px solid ${c}; color:#555; background-color:#f9f9f9; font-style:italic; text-align:left; box-sizing:border-box;">${format(txt)}</div>`
+                (txt, c) => `<div style="margin:1.2em 8px; padding:12px 18px; border-left:4px solid ${c}; color:#555; background-color:#f9f9f9; font-style:italic; text-align:left;">${format(txt)}</div>`,
+                (txt, c) => `<div style="margin:1.2em 8px; padding:18px; text-align:center; color:#666; position:relative; background-color:#fcfcfc;"><span style="color:${c}; font-size:32px; font-family:serif; line-height:1; vertical-align:middle;">“</span> ${txt} <span style="color:${c}; font-size:32px; font-family:serif; line-height:1; vertical-align:middle;">”</span></div>`
             ],
-            normal: [(txt, c) => `<div style="padding: 0 8px; margin:1.2em 0; line-height:1.8; font-size:16px; color:#374151; text-align:justify; box-sizing:border-box;">${format(txt)}</div>`],
-            grad_title: [(txt, c) => `<div style="padding: 0 8px; margin: 1.2em 0; text-align:left;"><div style="background-color: ${c}; padding:8px 15px; border-radius:4px; color:white; font-weight:bold; display:inline-block;">${txt}</div></div>`],
-            code_block: [(txt, c) => `<div style="margin: 1.5em 8px; padding:15px; background-color:#2d3436; color:#dfe6e9; border-radius:8px; font-family:monospace; border-top:4px solid ${c}; text-align:left; font-size:13px;">${txt}</div>`],
-            bg_card: [(txt, c) => `<div style="margin:1.5em 8px; padding:20px; background-color:${c}10; border-radius:15px; border-right:4px solid ${c}; text-align:left;">${format(txt)}</div>`]
+            bg_card: [
+                (txt, c) => `<div style="margin:1.2em 8px; padding:18px; background-color:${c}10; border-radius:15px; border-right:4px solid ${c}; text-align:left;">${format(txt)}</div>`,
+                (txt, c) => `<div style="margin:1.2em 8px; padding:18px; background-color:#fcfcfc; border-top:3px solid ${c}; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.05); text-align:left;">${format(txt)}</div>`
+            ],
+            code_block: [(txt, c) => `<div style="margin: 1.2em 8px; padding:12px; background-color:#2d3436; color:#dfe6e9; border-radius:8px; font-family:monospace; border-top:4px solid ${c}; text-align:left; font-size:13px;">${txt}</div>`],
+            normal: [(txt, c) => `<div style="padding: 0 8px; margin:1em 0; line-height:1.7; font-size:16px; color:#374151; text-align:justify;">${format(txt)}</div>`]
         };
 
-        function format(t) { return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin-bottom:0.8em; margin-top:0;">${l}</p>`).join(''); }
+        // 反馈 2：更小的段落间距 (margin-bottom:0.4em)
+        function format(t) { return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin-bottom:0.4em; margin-top:0;">${l}</p>`).join(''); }
 
         window.onload = () => {
-            const savedKey = localStorage.getItem('ds_api_key_v12');
+            const savedKey = localStorage.getItem('ds_api_key_v13');
             if (savedKey) document.getElementById('api-key').value = savedKey;
             renderRecentColors();
         };
 
         function toggleSettings() { document.getElementById('settings-panel').classList.toggle('hidden'); }
-        function saveConfig() { localStorage.setItem('ds_api_key_v12', document.getElementById('api-key').value); }
+        function saveConfig() { localStorage.setItem('ds_api_key_v13', document.getElementById('api-key').value); }
 
         function updateColor(color) {
             currentColor = color;
@@ -192,13 +181,13 @@
 
         function addToRecent(c) {
             recentColors = [c, ...recentColors.filter(x=>x!==c)].slice(0,5);
-            localStorage.setItem('recent_colors_v12', JSON.stringify(recentColors));
+            localStorage.setItem('recent_colors_v13', JSON.stringify(recentColors));
             renderRecentColors();
         }
 
         function renderRecentColors() {
             const container = document.getElementById('recent-colors');
-            container.innerHTML = recentColors.length ? '<span class="text-[10px] text-slate-300">最近:</span>' : '';
+            container.innerHTML = '';
             recentColors.forEach(c => {
                 const dot = document.createElement('div');
                 dot.className = 'color-dot'; dot.style.background = c;
@@ -207,7 +196,6 @@
             });
         }
 
-        // 统一点击选中
         document.getElementById('preview-content').addEventListener('click', function(e) {
             const block = e.target.closest('.block-item');
             if (block) {
@@ -220,7 +208,8 @@
             if (el.classList.contains('selected')) {
                 const type = el.getAttribute('data-type') || 'normal';
                 const vIdx = parseInt(el.getAttribute('data-variant') || 0);
-                el.setAttribute('data-status', `✓ ${STYLE_NAMES[type]} (${vIdx + 1}/${VARIANTS[type].length})`);
+                const count = VARIANTS[type] ? VARIANTS[type].length : 1;
+                el.setAttribute('data-status', `✓ ${STYLE_NAMES[type]} (${vIdx + 1}/${count})`);
             } else { el.removeAttribute('data-status'); }
         }
 
@@ -244,21 +233,22 @@
             newSec.setAttribute('data-type', type);
             newSec.setAttribute('data-variant', vIdx);
             newSec.setAttribute('data-raw', rawText);
-            newSec.innerHTML = VARIANTS[type][vIdx](rawText, currentColor);
+            // 修复：确保在这里使用 currentColor
+            newSec.innerHTML = VARIANTS[type] ? VARIANTS[type][vIdx](rawText, currentColor) : VARIANTS.normal[0](rawText, currentColor);
             
             el.replaceWith(newSec);
             updateBadge(newSec);
         }
 
-        // 核心修复版 AI 解析
+        // 修复 1：AI 生成后预览区样式同步
         async function generateArticle() {
             const apiKey = document.getElementById('api-key').value;
             const text = document.getElementById('user-input').value;
-            if(!apiKey || !text) return alert("请点击右上角设置 API Key 并输入内容");
+            if(!apiKey || !text) return alert("请设置 Key 并输入内容");
             
             const btn = document.getElementById('btn-run');
             btn.disabled = true;
-            btn.innerText = "⏳ AI 正在深度解析...";
+            btn.innerText = "⏳ AI 正在深度创作...";
 
             try {
                 const res = await fetch('https://api.deepseek.com/chat/completions', {
@@ -267,39 +257,34 @@
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [
-                            {role: "system", content: "你是一个排版解析器。将文本拆分为JSON数组，包含type和content字段。严禁增加原文以外的任何大标题或总结词，保持用户输入的原话。JSON格式必须严格。"},
+                            {role: "system", content: "你是一个排版解析器。将文本拆分为JSON数组，包含type和content字段。严禁增加原文以外的任何文字。"},
                             {role: "user", content: text}
                         ],
                         temperature: 0.1
                     })
                 });
 
-                if (!res.ok) {
-                    const errData = await res.json();
-                    throw new Error(errData.error.message || "请求失败");
-                }
-
                 const data = await res.json();
-                const jsonText = data.choices[0].message.content.match(/\[[\s\S]*\]/);
-                if (!jsonText) throw new Error("AI 返回格式不正确");
+                const jsonStr = data.choices[0].message.content.match(/\[[\s\S]*\]/);
+                if (!jsonStr) throw new Error("AI 响应格式异常");
 
-                const blocks = JSON.parse(jsonText[0]);
+                const blocks = JSON.parse(jsonStr[0]);
                 const container = document.getElementById('preview-content');
                 container.innerHTML = '';
+                
                 blocks.forEach(b => {
                     const sec = document.createElement('section');
                     sec.className = 'block-item';
                     sec.setAttribute('data-type', b.type);
                     sec.setAttribute('data-variant', '0');
                     sec.setAttribute('data-raw', b.content);
-                    sec.innerHTML = VARIANTS[b.type] ? VARIANTS[b.type][0](b.content, currentColor) : VARIANTS.normal[0](b.content, currentColor);
+                    // 关键修复点：生成时即注入当前选择的颜色
+                    const renderer = VARIANTS[b.type] ? VARIANTS[b.type][0] : VARIANTS.normal[0];
+                    sec.innerHTML = renderer(b.content, currentColor);
                     container.appendChild(sec);
                 });
-            } catch(e) { 
-                alert("解析失败：" + e.message + "\n请检查余额、Key 是否正确，或网络是否顺畅。"); 
-            } finally { 
-                btn.disabled = false; btn.innerText = "🚀 一键 AI 智能全解析"; 
-            }
+            } catch(e) { alert("解析失败：" + e.message); } 
+            finally { btn.disabled = false; btn.innerText = "🚀 一键 AI 智能全解析"; }
         }
 
         async function copyHtml() {
@@ -311,7 +296,7 @@
             const blob = new Blob([content.innerHTML], { type: "text/html" });
             const data = [new ClipboardItem({ ["text/html"]: blob })];
             await navigator.clipboard.write(data);
-            alert("✅ 排版已复制，完美适配微信编辑器！");
+            alert("✅ 排版已成功复制！");
         }
 
         function selectAll() { document.querySelectorAll('.block-item').forEach(el => { el.classList.add('selected'); updateBadge(el); }); }
@@ -319,7 +304,7 @@
         
         function mergeSelected() {
             const selected = Array.from(document.querySelectorAll('.block-item.selected')).sort((a,b)=>a.offsetTop - b.offsetTop);
-            if (selected.length < 2) return alert("请至少选中两段进行合并");
+            if (selected.length < 2) return alert("请选中两段");
             const merged = selected.map(el => el.getAttribute('data-raw')).join('\n\n');
             const sec = document.createElement('section');
             sec.className = 'block-item selected';
