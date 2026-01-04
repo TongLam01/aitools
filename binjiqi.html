@@ -2,125 +2,132 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 公众号大师 - 模板化增强版</title>
+    <title>AI 灵感排版大师 - 专家级模板版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         #preview-container { 
-            background: #f0f2f5; min-height: 600px; border-radius: 45px;
-            padding: 12px; border: 10px solid #222; max-width: 380px;
-            margin: 0 auto; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            background: #f0f2f5; min-height: 650px; border-radius: 40px;
+            padding: 12px; border: 10px solid #222; max-width: 380px; margin: 0 auto;
         }
         #preview-content {
-            background: white; height: 100%; min-height: 550px;
-            overflow-y: auto; padding: 20px; outline: none; border-radius: 35px;
+            background: white; height: 100%; min-height: 600px;
+            overflow-y: auto; padding: 20px; outline: none; border-radius: 30px;
         }
-        .style-card.active { border-color: #3b82f6; background-color: #eff6ff; }
+        /* 选中块的样式 */
+        .selected-block {
+            outline: 2px dashed #3b82f6 !important;
+            background-color: #f8fafc !important;
+            cursor: pointer;
+        }
+        .style-btn { @apply px-3 py-1 bg-slate-100 hover:bg-blue-100 text-xs rounded transition-all border border-slate-200; }
         ::-webkit-scrollbar { width: 4px; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-slate-50 text-slate-900 pb-20">
 
-    <div class="max-w-7xl mx-auto py-10 px-4 flex flex-col lg:flex-row gap-10">
+    <div class="max-w-7xl mx-auto py-10 px-4 flex flex-col lg:flex-row gap-8">
         
         <div class="flex-1 space-y-6">
             <header>
-                <h1 class="text-3xl font-extrabold text-slate-800">🚀 AI 模板化排版助手</h1>
-                <p class="text-slate-500">基于 DeepSeek + 预设样式库</p>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">🖋️ AI 排版专家 <span class="text-sm font-normal text-slate-400">v3.0</span></h1>
             </header>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border flex gap-4 items-end">
-                <div class="flex-1">
-                    <label class="block text-xs font-bold text-slate-500 mb-1">DeepSeek API Key</label>
-                    <input type="password" id="api-key" oninput="saveConfig()" class="w-full p-3 bg-slate-50 border rounded-xl outline-none" placeholder="sk-...">
-                </div>
-                <button onclick="clearStorage()" class="text-xs text-slate-400 underline">清除缓存</button>
+            <div class="bg-white p-4 rounded-xl shadow-sm border flex gap-4 items-center">
+                <input type="password" id="api-key" oninput="saveConfig()" class="flex-1 p-2 bg-slate-50 border rounded-lg text-sm outline-none" placeholder="DeepSeek API Key">
+                <button onclick="clearStorage()" class="text-xs text-slate-400">清空</button>
             </div>
 
-            <div class="grid grid-cols-3 gap-4">
-                <div onclick="selectStyle('tech')" id="style-tech" class="style-card active cursor-pointer p-4 border-2 rounded-xl bg-white text-center">
-                    <div class="text-xl mb-1">🔵</div><div class="font-bold text-sm">硬核科技</div>
-                </div>
-                <div onclick="selectStyle('fresh')" id="style-fresh" class="style-card cursor-pointer p-4 border-2 rounded-xl bg-white text-center">
-                    <div class="text-xl mb-1">🌿</div><div class="font-bold text-sm">生活清新</div>
-                </div>
-                <div onclick="selectStyle('festive')" id="style-festive" class="style-card cursor-pointer p-4 border-2 rounded-xl bg-white text-center">
-                    <div class="text-xl mb-1">🧧</div><div class="font-bold text-sm">传统喜庆</div>
-                </div>
-            </div>
+            <textarea id="user-input" class="w-full h-96 p-6 bg-white border border-slate-200 rounded-2xl shadow-inner focus:ring-2 focus:ring-blue-600 outline-none" placeholder="输入文章内容..."></textarea>
 
-            <textarea id="user-input" oninput="saveConfig()" class="w-full h-80 p-6 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 outline-none" placeholder="输入内容..."></textarea>
-
-            <button id="btn-run" onclick="generateArticle()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg shadow-xl hover:bg-blue-700 transition-all">
-                ✨ 应用模板排版
+            <button id="btn-run" onclick="generateArticle()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-xl">
+                🚀 AI 智能解析并排版
             </button>
         </div>
 
         <div class="w-full lg:w-[450px] space-y-4">
             <div class="flex justify-between items-center px-4">
-                <h2 class="font-bold text-slate-600">模拟预览</h2>
-                <button onclick="copyHtml()" class="px-5 py-2 bg-green-500 text-white text-sm font-bold rounded-full shadow-lg">📋 复制</button>
+                <h2 class="font-bold text-slate-600">点击内容可单独换样式</h2>
+                <button onclick="copyHtml()" class="px-5 py-2 bg-green-600 text-white text-sm font-bold rounded-full shadow-lg">📋 复制</button>
             </div>
-            <div id="preview-container"><div id="preview-content" contenteditable="true"></div></div>
+
+            <div id="preview-container">
+                <div id="preview-content" onclick="handlePreviewClick(event)">
+                    <div style="margin-top:200px; text-align:center; color:#ccc;">等待生成...</div>
+                </div>
+            </div>
+
+            <div id="block-tools" class="hidden bg-white p-4 rounded-2xl shadow-2xl border border-blue-100 space-y-3">
+                <p class="text-[10px] font-bold text-blue-500 uppercase">针对选中段落修改样式：</p>
+                <div class="flex flex-wrap gap-2" id="template-options">
+                    </div>
+            </div>
         </div>
     </div>
 
     <script>
-        let currentStyle = 'tech';
+        let selectedElement = null;
 
-        // 核心模板库：这些 HTML 会直接发给 AI 让他“填空”
-        const TEMPLATE_LIBRARY = {
-            tech: {
-                title: `<section style="margin: 2em 0 1em; padding-left: 10px; border-left: 5px solid #007bff;"><h2 style="font-size: 20px; color: #1a1a1a; margin: 0;">{{text}}</h2></section>`,
-                card: `<section style="margin: 1.5em 0; padding: 20px; background: #f0f7ff; border-radius: 12px; border: 1px solid #cce5ff;"><p style="font-size: 15px; color: #004085; margin: 0; line-height: 1.6;">{{text}}</p></section>`,
-                quote: `<section style="margin: 1.5em 0; padding: 15px; border-left: 4px solid #dee2e6; color: #6c757d; font-style: italic;">{{text}}</section>`,
-                text: `<section style="margin: 1.2em 0; line-height: 1.8; font-size: 16px; color: #333; text-align: justify;">{{text}}</section>`
-            },
-            fresh: {
-                title: `<section style="text-align: center; margin: 2em 0;"><span style="background: #e1f5fe; color: #0288d1; padding: 5px 15px; border-radius: 20px; font-weight: bold;">{{text}}</span></section>`,
-                card: `<section style="margin: 1.5em 0; padding: 20px; border: 1px dashed #4caf50; border-radius: 15px; background: #f1f8e9;"><p style="font-size: 15px; color: #2e7d32; margin: 0;">{{text}}</p></section>`,
-                quote: `<section style="text-align: center; color: #9e9e9e; font-size: 14px; margin: 2em 0;">「 {{text}} 」</section>`,
-                text: `<section style="margin: 1.2em 0; line-height: 2; font-size: 15px; color: #444;">{{text}}</section>`
-            },
-            festive: {
-                title: `<section style="margin: 2em 0; background: url('https://api.iconify.design/emojione-v1:cloud.svg') no-repeat left bottom; padding-bottom: 10px; border-bottom: 2px solid #e63946;"><h2 style="color: #e63946; font-size: 22px;">{{text}}</h2></section>`,
-                card: `<section style="margin: 1.5em 0; padding: 20px; border: 2px double #ffb703; background: #fff5f5; border-radius: 8px;"><p style="color: #d62828; font-weight: bold;">{{text}}</p></section>`,
-                quote: `<section style="margin: 1.5em 0; background: #f8f9fa; padding: 15px; border-radius: 4px; border-left: 5px solid #ffb703;">{{text}}</section>`,
-                text: `<section style="margin: 1.2em 0; line-height: 1.8; font-size: 16px; color: #111;">{{text}}</section>`
-            }
+        // 1. 精细化模板库 (Inline CSS 专家级设计)
+        const TEMPLATES = {
+            big_title: `<section style="margin: 2em 0 1em; text-align: center;"><h1 style="font-size: 24px; color: #333; border-bottom: 2px solid #333; display: inline-block; padding-bottom: 5px;">{{text}}</h1></section>`,
+            sub_title: `<section style="margin: 1.5em 0 1em; padding-left: 10px; border-left: 4px solid #3b82f6;"><h2 style="font-size: 18px; color: #1e293b; margin: 0;">{{text}}</h2></section>`,
+            num_title: `<section style="margin: 1.5em 0; display: flex; align-items: center;"><span style="background: #3b82f6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 14px; font-weight: bold;">N</span><h3 style="font-size: 17px; margin: 0; color: #333;">{{text}}</h3></section>`,
+            grad_title: `<section style="margin: 1.5em 0; background: linear-gradient(90deg, #eff6ff 0%, #ffffff 100%); padding: 10px; border-radius: 4px;"><h2 style="font-size: 18px; color: #2563eb; margin: 0;">{{text}}</h2></section>`,
+            key_point: `<section style="margin: 1.5em 0; padding: 20px; border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 12px; color: #1e40af;"><strong style="display: block; margin-bottom: 5px;">📍 重点</strong>{{text}}</section>`,
+            quote: `<section style="margin: 1.5em 0; padding: 15px; border-left: 4px solid #cbd5e1; color: #64748b; font-style: italic; background: #f8fafc;">{{text}}</section>`,
+            code_block: `<section style="margin: 1.5em 0; padding: 15px; background: #1e293b; color: #e2e8f0; border-radius: 8px; font-family: monospace; font-size: 14px; white-space: pre-wrap;">{{text}}</section>`,
+            bg_card: `<section style="margin: 1.5em 0; padding: 20px; background: #f1f5f9; border-radius: 8px; color: #334155;">{{text}}</section>`,
+            normal: `<section style="margin: 1.2em 0; line-height: 1.8; font-size: 16px; color: #374151; text-align: justify;">{{text}}</section>`
         };
 
+        const STYLE_NAMES = {
+            big_title: "大标题", sub_title: "小标题", num_title: "编号标题",
+            grad_title: "渐变标题", key_point: "重点", quote: "引用",
+            code_block: "代码块", bg_card: "底色卡片", normal: "普通正文"
+        };
+
+        // 2. 初始化
         window.onload = () => {
             const savedKey = localStorage.getItem('ds_api_key');
             if (savedKey) document.getElementById('api-key').value = savedKey;
+            
+            // 生成样式切换按钮
+            const btnContainer = document.getElementById('template-options');
+            Object.keys(TEMPLATES).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'style-btn';
+                btn.innerText = STYLE_NAMES[key];
+                btn.onclick = () => applyTemplate(key);
+                btnContainer.appendChild(btn);
+            });
         };
-
-        function selectStyle(style) {
-            currentStyle = style;
-            document.querySelectorAll('.style-card').forEach(el => el.classList.remove('active'));
-            document.getElementById(`style-${style}`).classList.add('active');
-        }
 
         function saveConfig() { localStorage.setItem('ds_api_key', document.getElementById('api-key').value); }
         function clearStorage() { localStorage.clear(); location.reload(); }
 
+        // 3. 核心：AI 解析逻辑
         async function generateArticle() {
             const apiKey = document.getElementById('api-key').value;
             const text = document.getElementById('user-input').value;
             const btn = document.getElementById('btn-run');
-            if (!apiKey || !text) return alert("请检查 Key 和内容");
+            if (!apiKey || !text) return alert("信息不足");
 
             btn.disabled = true;
-            btn.innerHTML = "正在调用预设模板...";
+            btn.innerText = "AI 正在理解文章结构...";
 
-            const tpl = TEMPLATE_LIBRARY[currentStyle];
-            const systemPrompt = `你是一个排版师。请将用户文本转换为HTML。
-            你必须且只能使用以下HTML模板来包装内容：
-            - 文章标题/小标题：${tpl.title.replace('{{text}}', '[内容]')}
-            - 核心总结/重点：${tpl.card.replace('{{text}}', '[内容]')}
-            - 金句/引用：${tpl.quote.replace('{{text}}', '[内容]')}
-            - 普通正文：${tpl.text.replace('{{text}}', '[内容]')}
+            // 构造精细化 Prompt
+            const systemPrompt = `你是一个公众号视觉专家。请分析用户文本，将其拆分为逻辑块，并为每个块选择以下最匹配的模板：
+            1. big_title: 用于文章主标题
+            2. sub_title: 用于二级小标题
+            3. num_title: 用于带序号的并列标题
+            4. grad_title: 用于强调型标题
+            5. key_point: 用于核心结论或警告
+            6. quote: 用于名言或他人观点
+            7. code_block: 用于专业术语解释或代码
+            8. bg_card: 用于补充背景知识
+            9. normal: 用于一般描述
             
-            要求：识别用户文本结构，选择最合适的模板填充。输出纯净HTML。`;
+            要求：输出纯HTML，每个块必须是独立的 <section> 标签。禁止输出 Markdown 格式。`;
 
             try {
                 const response = await fetch('https://api.deepseek.com/chat/completions', {
@@ -129,22 +136,68 @@
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [{ role: "system", content: systemPrompt }, { role: "user", content: text }],
-                        temperature: 0.3 // 降低随机性，严格遵守模板
+                        temperature: 0.3
                     })
                 });
                 const data = await response.json();
-                document.getElementById('preview-content').innerHTML = data.choices[0].message.content.replace(/```html|```/gi, '').trim();
-            } catch (error) { alert("出错: " + error.message); }
-            finally { btn.disabled = false; btn.innerText = "✨ 应用模板排版"; }
+                let html = data.choices[0].message.content.replace(/```html|```/gi, '').trim();
+                
+                // 给每个生成的 section 加上 data-raw 存储纯文本
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                doc.querySelectorAll('section').forEach(s => {
+                    s.setAttribute('data-raw', s.innerText);
+                    s.style.transition = "0.3s";
+                });
+                
+                document.getElementById('preview-content').innerHTML = doc.body.innerHTML;
+            } catch (error) { alert("API 调用失败"); }
+            finally { btn.disabled = false; btn.innerText = "🚀 AI 智能解析并排版"; }
+        }
+
+        // 4. 交互微调逻辑
+        function handlePreviewClick(e) {
+            const target = e.target.closest('section');
+            if (!target) return;
+
+            // 清除旧的选中状态
+            if (selectedElement) selectedElement.classList.remove('selected-block');
+            
+            selectedElement = target;
+            selectedElement.classList.add('selected-block');
+            
+            // 显示工具栏
+            document.getElementById('block-tools').classList.remove('hidden');
+        }
+
+        function applyTemplate(type) {
+            if (!selectedElement) return;
+            const rawText = selectedElement.getAttribute('data-raw');
+            const newHtml = TEMPLATES[type].replace('{{text}}', rawText);
+            
+            // 创建临时容器解析新 HTML
+            const temp = document.createElement('div');
+            temp.innerHTML = newHtml;
+            const newElement = temp.firstElementChild;
+            
+            // 继承原始文本属性
+            newElement.setAttribute('data-raw', rawText);
+            newElement.classList.add('selected-block');
+            
+            selectedElement.replaceWith(newElement);
+            selectedElement = newElement;
         }
 
         async function copyHtml() {
-            const content = document.getElementById('preview-content').innerHTML;
+            const content = document.getElementById('preview-content').cloneNode(true);
+            // 复制前移除辅助类名
+            content.querySelectorAll('.selected-block').forEach(el => el.classList.remove('selected-block'));
+            
             const type = "text/html";
-            const blob = new Blob([content], { type });
+            const blob = new Blob([content.innerHTML], { type });
             const data = [new ClipboardItem({ [type]: blob })];
             await navigator.clipboard.write(data);
-            alert("✅ 已复制！请在公众号后台粘贴。");
+            alert("✅ 样式已复制！");
         }
     </script>
 </body>
