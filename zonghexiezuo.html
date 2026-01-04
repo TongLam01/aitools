@@ -9,177 +9,167 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
-        body { background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #f1f5f9; }
-        .tool-card:active { transform: scale(0.96); }
+        body { background-color: #f8fafc; font-family: -apple-system, "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid #f1f5f9; }
+        .glass-footer { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-top: 1px solid #f1f5f9; }
         .cursor-blink { display: inline-block; width: 2px; height: 1.1em; background: #6366f1; animation: blink 1s infinite; vertical-align: middle; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        /* 截图预览 */
-        .capturing #share-target { border-radius: 0; border: none; padding: 40px !important; background: white !important; }
+        .capturing #share-area { border-radius: 0; border: none; padding: 40px !important; background: white !important; box-shadow: none !important; }
         .capture-only { display: none; }
         .capturing .capture-only { display: block; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="text-slate-900 overflow-x-hidden">
+<body class="text-slate-900">
 
-<div id="app" class="min-h-screen flex flex-col max-w-lg mx-auto bg-white shadow-2xl relative">
-    
-    <header class="sticky top-0 z-30 glass-card px-5 py-4 flex justify-between items-center border-b">
+<div id="app" class="min-h-screen flex flex-col max-w-lg mx-auto bg-white shadow-2xl relative overflow-hidden">
+    <header class="sticky top-0 z-50 glass-nav px-5 py-4 flex justify-between items-center">
         <div class="flex items-center gap-2">
-            <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-pen-nib text-white"></i></div>
-            <h1 class="text-lg font-bold bg-gradient-to-r from-slate-800 to-indigo-600 bg-clip-text text-transparent">写作瑞士军刀</h1>
+            <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100">
+                <i class="fa-solid fa-pen-nib text-white"></i>
+            </div>
+            <h1 class="text-lg font-bold bg-gradient-to-r from-slate-800 to-indigo-600 bg-clip-text text-transparent tracking-tight">写作瑞士军刀</h1>
         </div>
-        <button @click="showConfig = true" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-gear text-slate-400"></i></button>
+        <button @click="showConfig = true" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
+            <i class="fa-solid fa-sliders text-slate-400"></i>
+        </button>
     </header>
 
-    <main class="flex-1 p-5 space-y-6 pb-40 overflow-y-auto">
+    <main class="flex-1 p-5 space-y-6 pb-44 overflow-y-auto no-scrollbar">
         <div class="space-y-2">
-            <div class="flex justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">
-                <span>原始素材</span>
-                <span>{{ inputBody.length }} 字</span>
+            <div class="flex justify-between items-center px-1">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">Source Material</span>
+                <span class="text-[10px] text-slate-400">{{ inputBody.length }} 字</span>
             </div>
             <div class="relative group">
-                <textarea v-model="inputBody" placeholder="粘贴一段草稿、大纲或零碎的想法..." class="w-full h-40 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-100 transition-all resize-none"></textarea>
+                <textarea v-model="inputBody" placeholder="输入灵感、公文素材或改写内容..." 
+                    class="w-full h-44 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none text-[15px] leading-relaxed"></textarea>
                 <div class="absolute bottom-3 right-3 flex gap-2">
                     <button @click="inputBody = ''" v-if="inputBody" class="p-2 text-slate-300 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
-                    <button @click="pasteText" class="p-2 bg-white shadow-sm border rounded-xl text-indigo-600"><i class="fa-solid fa-paste"></i></button>
+                    <button @click="pasteText" class="p-2.5 bg-white shadow-sm border rounded-xl text-indigo-600 active:scale-95 transition-all"><i class="fa-solid fa-paste"></i></button>
                 </div>
             </div>
         </div>
 
         <div v-if="outputBody || isGenerating" class="space-y-2">
             <div class="flex justify-between items-center px-1">
-                <span class="text-[11px] font-bold text-indigo-500 uppercase flex items-center gap-2">
-                    <span v-if="isGenerating" class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>AI 深度处理结果
+                <span class="text-[11px] font-bold text-indigo-500 uppercase flex items-center gap-2 tracking-wider">
+                    <span v-if="isGenerating" class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>AI EXPERT ANALYSIS
                 </span>
                 <div class="flex gap-4" v-if="outputBody && !isGenerating">
-                    <button @click="generateImage" class="text-[11px] font-bold text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-image mr-1"></i>长图</button>
-                    <button @click="copyText(outputBody)" class="text-[11px] font-bold text-indigo-600"><i class="fa-solid fa-copy mr-1"></i>复制</button>
+                    <button @click="generateImage" class="text-[11px] font-bold text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-camera mr-1"></i>生成长图</button>
+                    <button @click="copyText(outputBody)" class="text-[11px] font-bold text-indigo-600">复制全部</button>
                 </div>
             </div>
-            <div id="share-target" class="bg-indigo-50/30 p-6 rounded-2xl border border-indigo-100/50 relative">
-                <div class="capture-only mb-6 border-b pb-4 text-xs font-bold text-indigo-600 italic">© 写作瑞士军刀 | 2026 灵感实验室</div>
+            <div id="share-area" class="bg-indigo-50/30 p-6 rounded-2xl border border-indigo-100/50 relative shadow-sm">
+                <div class="capture-only mb-6 border-b border-indigo-100 pb-4">
+                    <p class="text-[14px] font-bold text-indigo-600 italic">写作瑞士军刀 | 2026专业写作舱</p>
+                </div>
                 <div class="prose prose-slate max-w-none text-[15px] leading-8 text-slate-700 whitespace-pre-wrap">{{ outputBody }}<span v-if="isGenerating" class="cursor-blink"></span></div>
-                <div class="capture-only mt-10 pt-4 border-t text-center text-[10px] text-slate-400">Powered by DeepSeek R1 深度推理模型</div>
+                <div class="capture-only mt-10 pt-4 border-t border-indigo-100 text-center">
+                    <p class="text-[10px] text-slate-300">Powered by DeepSeek R1 深度推理模型创作</p>
+                </div>
             </div>
         </div>
     </main>
 
-    <footer class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto px-5 py-6 glass-card border-t shadow-2xl z-40">
+    <footer class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto px-5 py-6 glass-footer shadow-2xl z-[100]">
         <div class="grid grid-cols-3 gap-3">
-            <button v-for="tool in tools" :key="tool.id" @click="runTool(tool)" :disabled="isGenerating" class="tool-card flex flex-col items-center gap-2 p-3 rounded-2xl transition-all border" :class="currentToolId === tool.id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50/50 border-slate-100 text-slate-600'">
-                <i :class="[tool.icon, currentToolId === tool.id ? 'text-white' : 'text-indigo-500']" class="text-xl"></i>
+            <button v-for="tool in tools" :key="tool.id" @click="runTool(tool)" :disabled="isGenerating"
+                class="flex flex-col items-center gap-2 p-3.5 rounded-2xl transition-all border active:scale-95"
+                :class="currentToolId === tool.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-100' : 'bg-slate-50/80 border-slate-100 text-slate-600'">
+                <i :class="tool.icon" class="text-xl"></i>
                 <span class="text-[11px] font-bold">{{ tool.name }}</span>
             </button>
         </div>
     </footer>
 
-    <div v-if="showConfig" class="fixed inset-0 z-50 flex justify-end">
+    <div v-if="showConfig" class="fixed inset-0 z-[110] flex justify-end">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showConfig = false"></div>
-        <div class="relative w-80 bg-white p-6 shadow-2xl h-full animate-slide-in">
+        <div class="relative w-80 bg-white p-6 shadow-2xl h-full flex flex-col">
             <h3 class="font-bold text-lg mb-8 flex items-center gap-2"><i class="fa-solid fa-key text-indigo-600"></i>引擎配置</h3>
-            <div class="space-y-6">
+            <div class="space-y-6 flex-1">
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">DeepSeek API Key</label>
-                    <input v-model="config.apiKey" type="password" placeholder="sk-..." class="w-full mt-2 p-3 bg-slate-50 rounded-xl border-none text-sm font-mono">
+                    <input v-model="config.apiKey" type="password" placeholder="sk-..." class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl border-none text-sm font-mono focus:ring-1 focus:ring-indigo-500">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">模型选择</label>
-                    <select v-model="config.model" class="w-full mt-2 p-3 bg-slate-50 rounded-xl border-none text-sm outline-none">
-                        <option value="deepseek-chat">DeepSeek V3 (标准快)</option>
-                        <option value="deepseek-reasoner">DeepSeek R1 (深度思考)</option>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">推理模型选择</label>
+                    <select v-model="config.model" class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl border-none text-sm outline-none">
+                        <option value="deepseek-reasoner">DeepSeek R1 (深度推理)</option>
+                        <option value="deepseek-chat">DeepSeek V3 (极速通用)</option>
                     </select>
                 </div>
-                <button @click="saveConfig" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100">保存并开启</button>
             </div>
+            <button @click="saveConfig" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95 mt-4">
+                保存并生效
+            </button>
         </div>
     </div>
 
-    <div v-if="toast" class="fixed top-20 left-1/2 -translate-x-1/2 px-4 py-2 bg-slate-800 text-white text-[11px] font-bold rounded-full z-[60] shadow-2xl">{{ toast }}</div>
-
+    <div v-if="toast" class="fixed top-24 left-1/2 -translate-x-1/2 px-5 py-2.5 bg-slate-800 text-white text-[11px] font-bold rounded-full z-[120] shadow-2xl">{{ toast }}</div>
 </div>
 
-<script src="zonghexiezuo.js"></script>
 <script>
 const { createApp, ref, onMounted } = Vue;
 createApp({
     setup() {
-        const inputBody = ref('');
-        const outputBody = ref('');
-        const isGenerating = ref(false);
-        const showConfig = ref(false);
-        const currentToolId = ref(null);
-        const toast = ref('');
-        const config = ref({ apiKey: '', model: 'deepseek-reasoner', baseUrl: 'https://api.deepseek.com/v1' });
-        const tools = ref(window.WRITING_TOOLS_DATA || []);
+        const inputBody = ref(''); const outputBody = ref(''); const isGenerating = ref(false);
+        const showConfig = ref(false); const currentToolId = ref(null); const toast = ref('');
+        const tools = ref([]); const config = ref({ apiKey: '', model: 'deepseek-reasoner' });
 
-        onMounted(() => {
-            const saved = localStorage.getItem('writer_config');
+        onMounted(async () => {
+            const saved = localStorage.getItem('writer_knife_config');
             if (saved) config.value = JSON.parse(saved);
-            inputBody.value = localStorage.getItem('writer_draft') || '';
-            if (!window.isSecurityPassed) showToast('⚠️ 环境未授权，功能受限');
+            inputBody.value = localStorage.getItem('writer_knife_last_draft') || '';
+            try {
+                const res = await fetch('/api/zonghexiezuo');
+                tools.value = await res.json();
+            } catch (e) { showToast('加载工具失败'); }
         });
 
-        const showToast = (m) => { toast.value = m; setTimeout(() => toast.value = '', 2000); };
-        const saveConfig = () => { localStorage.setItem('writer_config', JSON.stringify(config.value)); showConfig.value = false; showToast('配置已更新'); };
+        const showToast = (m) => { toast.value = m; setTimeout(() => toast.value = '', 2500); };
+        const saveConfig = () => { localStorage.setItem('writer_knife_config', JSON.stringify(config.value)); showConfig.value = false; showToast('设置已保存'); };
         const copyText = (t) => { navigator.clipboard.writeText(t); showToast('已复制'); };
-        const pasteText = async () => { inputBody.value += await navigator.clipboard.readText(); };
+        const pasteText = async () => { try { inputBody.value += await navigator.clipboard.readText(); } catch (e) {} };
         
         const generateImage = async () => {
             const el = document.body; el.classList.add('capturing');
-            const canvas = await html2canvas(document.getElementById('share-target'), { scale: 2, useCORS: true });
+            try {
+                const canvas = await html2canvas(document.getElementById('share-area'), { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                const link = document.createElement('a'); link.download = `瑞士军刀_${Date.now()}.png`;
+                link.href = canvas.toDataURL(); link.click();
+            } catch (err) { showToast('生成图片失败'); }
             el.classList.remove('capturing');
-            const link = document.createElement('a'); link.download = `瑞士军刀_${Date.now()}.png`;
-            link.href = canvas.toDataURL(); link.click();
         };
 
         const runTool = async (tool) => {
-            if (!window.isSecurityPassed) return showToast('域名未授权');
-            if (!inputBody.value) return showToast('请输入内容');
+            if (!inputBody.value) return showToast('请输入素材内容');
             if (!config.value.apiKey) return showConfig.value = true;
-
-            currentToolId.value = tool.id;
-            isGenerating.value = true;
-            outputBody.value = '';
-
+            currentToolId.value = tool.id; isGenerating.value = true; outputBody.value = '';
             try {
-                const response = await fetch(`${config.value.baseUrl}/chat/completions`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.value.apiKey}` },
-                    body: JSON.stringify({
-                        model: config.value.model,
-                        messages: [{ role: 'system', content: tool.system }, { role: 'user', content: `${tool.prompt}\n\n${inputBody.value}` }],
-                        stream: true,
-                        temperature: 0.6
-                    })
+                const response = await fetch('/api/zonghexiezuo', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: inputBody.value, userKey: config.value.apiKey, model: config.value.model, toolId: tool.id })
                 });
-
-                if (!response.ok) throw new Error('API请求失败');
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+                const reader = response.body.getReader(); const decoder = new TextDecoder();
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    const chunks = decoder.decode(value).split('\n');
-                    for (const chunk of chunks) {
-                        if (chunk.startsWith('data: ')) {
-                            const jsonStr = chunk.replace('data: ', '');
-                            if (jsonStr === '[DONE]') break;
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    for (const line of lines) {
+                        if (line.trim() === ': heartbeat') continue; // 关键：过滤心跳包
+                        if (line.startsWith('data: ')) {
                             try {
-                                const data = JSON.parse(jsonStr);
+                                const data = JSON.parse(line.replace('data: ', ''));
                                 outputBody.value += data.choices[0].delta.content || '';
                             } catch (e) {}
                         }
                     }
                 }
-            } catch (err) {
-                showToast('请求出错，请检查Key');
-            } finally {
-                isGenerating.value = false;
-                currentToolId.value = null;
-                localStorage.setItem('writer_draft', inputBody.value);
-            }
+            } catch (err) { showToast('请求出错'); }
+            finally { isGenerating.value = false; currentToolId.value = null; localStorage.setItem('writer_knife_last_draft', inputBody.value); }
         };
 
         return { inputBody, outputBody, isGenerating, showConfig, config, tools, saveConfig, runTool, currentToolId, toast, pasteText, copyText, generateImage };
