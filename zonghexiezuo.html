@@ -3,93 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>写作瑞士军刀 | 专业AI写作舱</title>
+    <title>写作瑞士军刀 | 2026专业写作舱</title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    
     <style>
         body { background-color: #f8fafc; font-family: -apple-system, "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #f1f5f9; }
+        .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid #f1f5f9; }
         .glass-footer { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-top: 1px solid #f1f5f9; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* 解决 Markdown 渲染后的基础样式 */
-        .markdown-body h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #1e293b; }
-        .markdown-body h2 { font-size: 1.25rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #334155; }
-        .markdown-body h3 { font-size: 1.1rem; font-weight: 700; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #475569; }
-        .markdown-body p { margin-bottom: 1rem; line-height: 1.8; }
-        .markdown-body strong { color: #4f46e5; font-weight: 600; }
-        .markdown-body ul, .markdown-body ol { padding-left: 1.5rem; margin-bottom: 1rem; list-style-type: disc; }
-        .markdown-body li { margin-bottom: 0.5rem; }
+        /* 深度修复：Markdown 排版 */
+        .markdown-content h1 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3em; }
+        .markdown-content h2 { font-size: 1.3em; font-weight: bold; margin-top: 1.2em; margin-bottom: 0.5em; }
+        .markdown-content h3 { font-size: 1.1em; font-weight: bold; margin-top: 1em; margin-bottom: 0.3em; color: #4f46e5; }
+        .markdown-content p { margin-bottom: 0.8em; line-height: 1.7; color: #334155; }
+        .markdown-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .markdown-content li { margin-bottom: 0.4em; }
+        .markdown-content strong { color: #1e1b4b; font-weight: 700; }
+        
+        /* 停止生成按钮动效 */
+        .stop-btn { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        
+        /* 打字光标 */
+        .typing::after { content: '▋'; animation: blink 1s step-end infinite; color: #6366f1; margin-left: 2px; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .cursor-blink { display: inline-block; width: 2px; height: 1.1em; background: #6366f1; animation: blink 1s infinite; vertical-align: middle; margin-left: 4px; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        
-        /* 截图专用容器样式 */
-        .capturing #share-area { border-radius: 0; border: none; padding: 40px !important; background: white !important; box-shadow: none !important; width: 100% !important; height: auto !important; }
+        .capturing #share-area { border-radius: 0; border: none; padding: 40px !important; background: white !important; box-shadow: none !important; width: 100% !important; }
         .capture-only { display: none; }
         .capturing .capture-only { display: block; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .tool-btn:active { transform: scale(0.92); }
     </style>
 </head>
-<body class="text-slate-900 overflow-x-hidden">
+<body class="text-slate-900">
 
-<div id="app" class="min-h-screen flex flex-col max-w-lg mx-auto bg-white shadow-2xl relative">
-    
+<div id="app" class="min-h-screen flex flex-col max-w-lg mx-auto bg-white shadow-2xl relative overflow-hidden">
     <header class="sticky top-0 z-50 glass-nav px-5 py-4 flex justify-between items-center">
         <div class="flex items-center gap-2">
-            <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100">
-                <i class="fa-solid fa-pen-nib text-white"></i>
-            </div>
-            <h1 class="text-lg font-bold bg-gradient-to-r from-slate-800 to-indigo-600 bg-clip-text text-transparent tracking-tight">写作瑞士军刀</h1>
+            <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-pen-nib text-white"></i></div>
+            <h1 class="text-lg font-bold bg-gradient-to-r from-slate-800 to-indigo-600 bg-clip-text text-transparent">写作瑞士军刀</h1>
         </div>
-        <button @click="showConfig = true" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
-            <i class="fa-solid fa-sliders text-slate-400"></i>
-        </button>
+        <button @click="showConfig = true" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-sliders text-slate-400"></i></button>
     </header>
 
-    <main class="flex-1 p-5 space-y-6 pb-48 overflow-y-auto no-scrollbar">
+    <main ref="scrollContainer" class="flex-1 p-5 space-y-6 pb-48 overflow-y-auto no-scrollbar">
         <div class="space-y-2">
             <div class="flex justify-between items-center px-1">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">Source Material</span>
-                <span class="text-[10px] text-slate-400 font-mono">{{ inputBody.length }} 字</span>
+                <span class="text-[10px] font-bold text-slate-400 tracking-widest uppercase italic">Source Material</span>
+                <span class="text-[10px] text-slate-400 font-mono">{{ inputBody.length }} chars</span>
             </div>
             <div class="relative group">
-                <textarea v-model="inputBody" placeholder="输入灵感、公文素材或改写内容..." 
-                    class="w-full h-48 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none text-[15px] leading-relaxed shadow-inner"></textarea>
+                <textarea v-model="inputBody" placeholder="输入灵感、大纲或需要润色的内容..." 
+                    class="w-full h-44 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none text-[15px]"></textarea>
                 <div class="absolute bottom-4 right-4 flex gap-2">
-                    <button @click="inputBody = ''" v-if="inputBody" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
-                    <button @click="pasteText" class="p-3 bg-white shadow-md border border-slate-100 rounded-2xl text-indigo-600 active:scale-90 transition-all"><i class="fa-solid fa-paste"></i></button>
+                    <button @click="inputBody = ''" v-if="inputBody" class="p-2 text-slate-300 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
+                    <button @click="pasteText" class="p-3 bg-white shadow-md border rounded-2xl text-indigo-600"><i class="fa-solid fa-paste"></i></button>
                 </div>
             </div>
         </div>
 
-        <div v-if="outputBody || isGenerating" class="space-y-3 animate-in fade-in duration-500">
+        <div v-if="outputBody || isGenerating" class="space-y-3">
             <div class="flex justify-between items-center px-1">
-                <span class="text-[11px] font-bold text-indigo-600 uppercase flex items-center gap-2 tracking-wider">
-                    <span v-if="isGenerating" class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>AI 笔杆子增强
+                <span class="text-[11px] font-bold text-indigo-500 flex items-center gap-2">
+                    <span v-if="isGenerating" class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
+                    AI ENHANCED OUTPUT
                 </span>
                 <div class="flex gap-4" v-if="outputBody && !isGenerating">
-                    <button @click="generateImage" class="text-[11px] font-bold text-slate-400 hover:text-indigo-600 transition-all"><i class="fa-solid fa-camera mr-1"></i>分享长图</button>
-                    <button @click="copyText(outputBody)" class="text-[11px] font-bold text-indigo-600 transition-all">复制全文</button>
+                    <button @click="generateImage" class="text-[11px] font-bold text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-image mr-1"></i>长图</button>
+                    <button @click="copyText(outputBody)" class="text-[11px] font-bold text-indigo-600">复制</button>
                 </div>
             </div>
-            
-            <div id="share-area" class="bg-indigo-50/20 p-6 rounded-2xl border border-indigo-100/40 relative shadow-sm h-auto min-h-[100px]">
-                <div class="capture-only mb-6 border-b border-indigo-100 pb-4">
-                    <p class="text-[14px] font-bold text-indigo-600 italic tracking-wide">写作瑞士军刀 | 2026专业写作舱</p>
-                </div>
-
-                <div class="markdown-body text-[15px] text-slate-700 overflow-visible" v-html="renderedOutput"></div>
+            <div id="share-area" class="bg-indigo-50/20 p-6 rounded-2xl border border-indigo-100/50 relative">
+                <div class="capture-only mb-6 border-b pb-4 font-bold text-indigo-600 italic">© 写作瑞士军刀 | 2026专业写作舱</div>
                 
-                <span v-if="isGenerating" class="cursor-blink"></span>
-
-                <div class="capture-only mt-10 pt-4 border-t border-indigo-100 text-center">
-                    <p class="text-[10px] text-slate-300">本内容由 DeepSeek R1 深度推理模型创作生成</p>
-                </div>
+                <div class="markdown-content" :class="{ 'typing': isGenerating }" v-html="renderedOutput"></div>
+                
+                <div class="capture-only mt-10 pt-4 border-t text-center text-[10px] text-slate-400">Powered by DeepSeek R1 深度推理模型</div>
+            </div>
+            
+            <div v-if="isGenerating" class="flex justify-center pt-2">
+                <button @click="stopGeneration" class="stop-btn px-6 py-2 bg-red-50 text-red-600 border border-red-200 rounded-full text-xs font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-circle-stop"></i> 停止生成
+                </button>
             </div>
         </div>
     </main>
@@ -97,9 +94,9 @@
     <footer class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto px-5 py-6 glass-footer shadow-2xl z-[100]">
         <div class="grid grid-cols-3 gap-3">
             <button v-for="tool in tools" :key="tool.id" @click="runTool(tool)" :disabled="isGenerating"
-                class="tool-btn flex flex-col items-center gap-2 p-3.5 rounded-2xl transition-all border group"
+                class="flex flex-col items-center gap-2 p-3.5 rounded-2xl transition-all border"
                 :class="currentToolId === tool.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-600'">
-                <i :class="tool.icon" class="text-xl group-hover:scale-110 transition-transform"></i>
+                <i :class="tool.icon" class="text-xl"></i>
                 <span class="text-[11px] font-bold">{{ tool.name }}</span>
             </button>
         </div>
@@ -111,18 +108,18 @@
             <h3 class="font-bold text-lg mb-8 flex items-center gap-2"><i class="fa-solid fa-key text-indigo-600"></i>引擎配置</h3>
             <div class="space-y-6 flex-1">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">API Key</label>
-                    <input v-model="config.apiKey" type="password" placeholder="sk-..." class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl border-none text-sm font-mono focus:ring-1 focus:ring-indigo-500">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">DeepSeek API Key</label>
+                    <input v-model="config.apiKey" type="password" placeholder="sk-..." class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl text-sm font-mono outline-none focus:ring-1 focus:ring-indigo-500">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">模型选择</label>
-                    <select v-model="config.model" class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl border-none text-sm outline-none">
-                        <option value="deepseek-reasoner">DeepSeek R1 (深度思考)</option>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">模型</label>
+                    <select v-model="config.model" class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl text-sm outline-none">
+                        <option value="deepseek-reasoner">DeepSeek R1 (深度推理)</option>
                         <option value="deepseek-chat">DeepSeek V3 (极速通用)</option>
                     </select>
                 </div>
             </div>
-            <button @click="saveConfig" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 mt-4 active:scale-95 transition-all">确认保存</button>
+            <button @click="saveConfig" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-lg mt-4">保存设置</button>
         </div>
     </div>
 
@@ -130,14 +127,15 @@
 </div>
 
 <script>
-const { createApp, ref, onMounted, computed } = Vue;
+const { createApp, ref, onMounted, computed, watch, nextTick } = Vue;
 createApp({
     setup() {
         const inputBody = ref(''); const outputBody = ref(''); const isGenerating = ref(false);
         const showConfig = ref(false); const currentToolId = ref(null); const toast = ref('');
         const config = ref({ apiKey: '', model: 'deepseek-reasoner' });
+        const scrollContainer = ref(null);
+        let abortController = null;
 
-        // 按钮列表保持不变
         const tools = ref([
             { id: 'gongwen', name: '资深公文', icon: 'fa-solid fa-file-signature' },
             { id: 'redbook', name: '爆款红书', icon: 'fa-solid fa-fire-flame-curved' },
@@ -147,55 +145,68 @@ createApp({
             { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-sitemap' }
         ]);
 
-        // 计算属性：将 Markdown 原始文本转换为 HTML
+        // 核心优化 1：渲染 Markdown
         const renderedOutput = computed(() => {
             if (!outputBody.value) return '';
-            // 使用 marked 库解析 Markdown
             return marked.parse(outputBody.value);
         });
 
+        // 核心优化 2：自动滚动
+        watch(outputBody, () => {
+            if (isGenerating.value) {
+                nextTick(() => {
+                    const el = scrollContainer.value;
+                    if (el) el.scrollTop = el.scrollHeight;
+                });
+            }
+        });
+
         onMounted(() => {
-            const saved = localStorage.getItem('writer_knife_config');
+            const saved = localStorage.getItem('writer_config_v2');
             if (saved) config.value = JSON.parse(saved);
-            inputBody.value = localStorage.getItem('writer_knife_last_draft') || '';
+            inputBody.value = localStorage.getItem('writer_draft_v2') || '';
         });
 
         const showToast = (m) => { toast.value = m; setTimeout(() => toast.value = '', 2500); };
-        const saveConfig = () => { localStorage.setItem('writer_knife_config', JSON.stringify(config.value)); showConfig.value = false; showToast('设置已更新'); };
-        const copyText = (t) => { navigator.clipboard.writeText(t); showToast('复制成功'); };
-        const pasteText = async () => { try { inputBody.value += await navigator.clipboard.readText(); } catch (e) { showToast('剪贴板不可用'); } };
+        const saveConfig = () => { localStorage.setItem('writer_config_v2', JSON.stringify(config.value)); showConfig.value = false; showToast('设置已保存'); };
+        const copyText = (t) => { navigator.clipboard.writeText(t); showToast('已复制'); };
+        const pasteText = async () => { try { inputBody.value += await navigator.clipboard.readText(); } catch (e) {} };
         
+        // 核心优化 3：停止生成
+        const stopGeneration = () => {
+            if (abortController) {
+                abortController.abort();
+                isGenerating.value = false;
+                currentToolId.value = null;
+                showToast('已停止生成');
+            }
+        };
+
         const generateImage = async () => {
             const el = document.body; el.classList.add('capturing');
             try {
-                // 使用 html2canvas 生成图片，确保高度包含所有渲染出的 HTML
-                const captureArea = document.getElementById('share-area');
-                const canvas = await html2canvas(captureArea, { 
-                    scale: 2, 
-                    useCORS: true, 
-                    backgroundColor: '#ffffff',
-                    windowHeight: captureArea.scrollHeight + 200 // 确保捕捉全高度
-                });
-                const link = document.createElement('a'); 
-                link.download = `瑞士军刀作品_${Date.now()}.png`;
-                link.href = canvas.toDataURL(); 
-                link.click();
-                showToast('长图已下载');
+                const canvas = await html2canvas(document.getElementById('share-area'), { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                const link = document.createElement('a'); link.download = `瑞士军刀_${Date.now()}.png`;
+                link.href = canvas.toDataURL(); link.click();
             } catch (err) { showToast('图片生成失败'); }
             el.classList.remove('capturing');
         };
 
         const runTool = async (tool) => {
-            if (!inputBody.value) return showToast('请输入素材');
-            if (!config.apiKey) { showConfig.value = true; return showToast('请先配置Key'); }
-            
-            currentToolId.value = tool.id; isGenerating.value = true; outputBody.value = '';
-            
+            if (!inputBody.value) return showToast('请输入素材内容');
+            if (!config.value.apiKey) return showConfig.value = true;
+
+            currentToolId.value = tool.id;
+            isGenerating.value = true;
+            outputBody.value = '';
+            abortController = new AbortController();
+
             try {
                 const response = await fetch('/api/zonghexiezuo', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: inputBody.value, userKey: config.value.apiKey, model: config.value.model, toolId: tool.id })
+                    body: JSON.stringify({ message: inputBody.value, userKey: config.value.apiKey, model: config.value.model, toolId: tool.id }),
+                    signal: abortController.signal
                 });
 
                 const reader = response.body.getReader();
@@ -203,8 +214,7 @@ createApp({
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split('\n');
+                    const lines = decoder.decode(value).split('\n');
                     for (const line of lines) {
                         if (line.trim() === ': heartbeat') continue;
                         if (line.startsWith('data: ')) {
@@ -215,15 +225,16 @@ createApp({
                         }
                     }
                 }
-            } catch (err) { 
-                showToast('请求出错，请检查网络');
-            } finally { 
-                isGenerating.value = false; currentToolId.value = null; 
-                localStorage.setItem('writer_knife_last_draft', inputBody.value);
+            } catch (err) {
+                if (err.name !== 'AbortError') showToast('请求出错');
+            } finally {
+                isGenerating.value = false;
+                currentToolId.value = null;
+                localStorage.setItem('writer_draft_v2', inputBody.value);
             }
         };
 
-        return { inputBody, outputBody, renderedOutput, isGenerating, showConfig, config, tools, saveConfig, runTool, currentToolId, toast, pasteText, copyText, generateImage };
+        return { inputBody, outputBody, renderedOutput, isGenerating, showConfig, config, tools, saveConfig, runTool, currentToolId, toast, pasteText, copyText, generateImage, scrollContainer, stopGeneration };
     }
 }).mount('#app');
 </script>
