@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek商事合同诊断助手 V1.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        .prose table { border-collapse: collapse; width: 100%; margin: 1.5em 0; border: 1px solid #333; }
+        .prose th, .prose td { border: 1px solid #d1d5db; padding: 10px; text-align: left; }
+        .prose th { background-color: #f3f4f6; }
+        .prose { line-height: 1.5; color: #334155; }
+        .prose p { margin-bottom: 1.5em; }
+        .prose li { margin-bottom: 0.5em; }
+        .file-upload-zone { border: 2px dashed #cbd5e1; transition: all 0.2s; cursor: pointer; }
+        .file-upload-zone:hover { border-color: #10b981; background-color: #f0fdf4; }
+        .btn-waiting { background-color: #94a3b8 !important; cursor: not-allowed; opacity: 0.6; }
+        .btn-active { background-color: #059669 !important; cursor: pointer; animation: glow 1.5s infinite; }
+        @keyframes glow { 0% { box-shadow: 0 0 5px #10b981; } 50% { box-shadow: 0 0 15px #10b981; } 100% { box-shadow: 0 0 5px #10b981; } }
+        .thinking-blink { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+        #apiKey::placeholder { font-size: 12px; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <header class="mb-8 flex justify-between items-end border-b pb-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">合同诊断助手 <span class="text-emerald-600 text-sm font-normal ml-2 italic">V1.0 自动脱敏版</span></h1>
+                <p class="text-slate-500 mt-1 italic">本地解析+自动脱敏，DeepSeek服务端诊断</p>
+            </div>
+            <div class="flex space-x-3">
+                <button id="exportBtn" disabled onclick="exportToWord()" class="btn-waiting text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all">导出报告</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside class="lg:col-span-4 space-y-5">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center text-sm"><span class="w-2 h-5 bg-emerald-500 rounded mr-2"></span>任务配置</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-400 uppercase flex justify-between items-center">
+                                <span>API Key</span>
+                                <a href="https://platform.deepseek.com/" target="_blank" class="text-emerald-600 text-xs italic hover:underline">去获取</a>
+                            </label>
+                            <input type="password" id="apiKey" class="mt-1 block w-full rounded-lg border-slate-200 bg-slate-50 p-2 text-sm border" placeholder="填入DeepSeek API Key">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-400 uppercase mb-1">打开合同文档（可选）</label>
+                            <div class="file-upload-zone rounded-lg p-3 text-center relative" id="uploadArea">
+                                <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept=".docx,.pdf">
+                                <div class="text-slate-400 text-[12px]" id="fileStatus">支持 .docx / .pdf (本地解析)</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-400 uppercase">身份</label>
+                                <select id="role" class="mt-1 block w-full rounded-lg border-slate-200 bg-slate-50 p-2 text-xs font-bold">
+                                    <option value="甲方">我是 甲方</option>
+                                    <option value="乙方">我是 乙方</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-400 uppercase">模型</label>
+                                <select id="model" class="mt-1 block w-full rounded-lg border-slate-200 bg-slate-50 p-2 text-xs font-bold">
+                                    <option value="deepseek-reasoner">DeepSeek-R1 (深度思维)</option>
+                                    <option value="deepseek-chat">DeepSeek-V3 (极速模式)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-400 uppercase text-emerald-600">★ 特别关注点（必填）</label>
+                            <input type="text" id="focus" class="mt-1 block w-full rounded-lg border-emerald-200 bg-emerald-50 p-2.5 text-xs border" placeholder="例如合规性、违约金公平性">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-400 uppercase">脱敏预览 或 在此粘贴合同文本</label>
+                            <textarea id="contractText" rows="8" class="mt-1 block w-full rounded-lg border-slate-200 bg-slate-50 p-2.5 text-[11px] border font-mono"></textarea>
+                        </div>
+                        <button onclick="startInitialAudit()" id="submitBtn" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-black transition-all text-sm">提交诊断</button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="lg:col-span-8 flex flex-col h-[85vh]">
+                <div id="chatScrollZone" class="flex-1 bg-white p-10 rounded-2xl shadow-sm border border-slate-200 overflow-y-auto mb-4">
+                    <div id="reportOutput" class="prose prose-slate max-w-none">
+                        <div class="text-center py-24 text-slate-300 tracking-widest text-xs uppercase">等待任务启动</div>
+                    </div>
+                </div>
+                <div id="followUpZone" class="hidden bg-white p-4 rounded-xl border border-slate-200 shadow-xl">
+                    <div class="flex space-x-3">
+                        <input type="text" id="followUpInput" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="追问细节或提出要求...">
+                        <button onclick="sendFollowUp()" id="sendFollowUpBtn" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold text-sm">发送</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let identityMap = new Map();
+        let companyCount = 0;
+        let addressCount = 0;
+        let originalFileName = "手动输入";
+        let chatHistory = [];
+
+        // --- 核心脱敏算法保持不变 ---
+        function secureDeIdentify(text) {
+            if (!text) return "";
+            let result = text;
+            const companyRegex = /(?:[\u4e00-\u9fa5]{2,30})(?:有限公司|有限责任公司|集团|研究所|事务所|分公司|代表处)|(?!(?:社区|双方))(?:[\u4e00-\u9fa5]{2,10}(?:省|市|区(?!域)|县))[\u4e00-\u9fa5]{0,20}(?:中心|工厂|学校|协会|商会)/g;
+            const addressRegex = /(?!(?:社区|双方))(?:[\u4e00-\u9fa5]{2,}(?:省|自治区|市|区(?!域)|县|镇|街道|路|街|弄))+(?:[\u4e00-\u9fa5\d\-A-Za-z]+(?:号|幢|栋|单元|层|室|房|弄))/g;
+
+            let rawMatches = Array.from(new Set([...(text.match(companyRegex) || []), ...(text.match(addressRegex) || [])]));
+            let filteredMatches = rawMatches.filter((item, index) => !rawMatches.some((other, otherIndex) => index !== otherIndex && other.includes(item)));
+            filteredMatches.sort((a, b) => b.length - a.length);
+
+            filteredMatches.forEach(trimmedStr => {
+                if (!identityMap.has(trimmedStr)) {
+                    if (addressRegex.test(trimmedStr)) {
+                        addressCount++;
+                        identityMap.set(trimmedStr, `[地址_${addressCount}]`);
+                    } else {
+                        companyCount++;
+                        identityMap.set(trimmedStr, `[企业_${String.fromCharCode(64 + companyCount)}]`);
+                    }
+                    addressRegex.lastIndex = 0;
+                }
+                const escaped = trimmedStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                result = result.replace(new RegExp(escaped, 'g'), identityMap.get(trimmedStr));
+            });
+            return result;
+        }
+
+        // --- 核心流式引擎 (连接后端 /api/hetong) ---
+        async function callAI(messages) {
+            const userKey = document.getElementById('apiKey').value || localStorage.getItem('ds_api_key');
+            const model = document.getElementById('model').value;
+            const output = document.getElementById('reportOutput');
+            const exportBtn = document.getElementById('exportBtn');
+
+            exportBtn.disabled = true;
+            exportBtn.className = "btn-waiting text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all";
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "mb-10";
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = "flex items-center space-x-2 text-emerald-600 font-bold text-sm py-4 thinking-blink";
+            thinkingDiv.innerHTML = `<span>AI正在进行法律穿透诊断...</span>`;
+            
+            output.appendChild(msgDiv);
+            msgDiv.appendChild(thinkingDiv);
+            document.getElementById('chatScrollZone').scrollTop = document.getElementById('chatScrollZone').scrollHeight;
+
+            let fullContent = "";
+            let hasStartedStream = false;
+
+            try {
+                const response = await fetch('/api/hetong', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userKey, messages, model })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const dataStr = line.slice(6);
+                            if (dataStr === '[DONE]') break;
+                            try {
+                                const data = JSON.parse(dataStr);
+                                const delta = data.choices[0].delta.content || "";
+                                if (delta) {
+                                    if (!hasStartedStream) { thinkingDiv.remove(); hasStartedStream = true; }
+                                    fullContent += delta;
+                                    msgDiv.innerHTML = marked.parse(fullContent);
+                                    document.getElementById('chatScrollZone').scrollTop = document.getElementById('chatScrollZone').scrollHeight;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+                chatHistory.push({ role: "assistant", content: fullContent });
+                exportBtn.disabled = false;
+                exportBtn.className = "btn-active text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all";
+            } catch (e) {
+                thinkingDiv.remove();
+                msgDiv.innerHTML += `<p class="text-red-500">连接异常: ${e.message}</p>`;
+            }
+        }
+
+        // 文件载入保持原逻辑
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            originalFileName = file.name.replace(/\.[^/.]+$/, "");
+            document.getElementById('fileStatus').innerHTML = `已载入: ${file.name}`;
+            try {
+                let rawText = "";
+                if (file.name.endsWith('.docx')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({arrayBuffer});
+                    rawText = result.value;
+                } else if (file.name.endsWith('.pdf')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const loadingTask = pdfjsLib.getDocument({data: arrayBuffer});
+                    const pdf = await loadingTask.promise;
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        rawText += content.items.map(item => item.str).join(" ") + "\n";
+                    }
+                }
+                document.getElementById('contractText').value = secureDeIdentify(rawText);
+            } catch (err) { alert("文档载入失败"); }
+        });
+
+        async function startInitialAudit() {
+            const role = document.getElementById('role').value;
+            const focus = document.getElementById('focus').value;
+            const textarea = document.getElementById('contractText');
+            const apiKey = document.getElementById('apiKey').value;
+            let currentText = textarea.value.trim();
+            if (!apiKey || !currentText || !focus) return alert('请确保 API Key、合同文本和关注点已填写');
+            
+            const maskedText = secureDeIdentify(currentText);
+            textarea.value = maskedText; 
+            localStorage.setItem('ds_api_key', apiKey);
+            document.getElementById('reportOutput').innerHTML = "";
+            document.getElementById('followUpZone').classList.remove('hidden');
+            
+            chatHistory = [
+                { role: "user", content: `【身份】：${role}\n【特别关注】：${focus}\n\n【文本】：\n${maskedText}` }
+            ];
+            await callAI(chatHistory);
+        }
+
+        async function sendFollowUp() {
+            const input = document.getElementById('followUpInput');
+            const q = input.value.trim();
+            if (!q) return;
+            const maskedQ = secureDeIdentify(q);
+            input.value = "";
+            const qUi = document.createElement('div');
+            qUi.className = "bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-500 font-medium";
+            qUi.innerHTML = `<span class="text-emerald-700 font-bold">追问：</span> ${maskedQ}`;
+            document.getElementById('reportOutput').appendChild(qUi);
+            chatHistory.push({ role: "user", content: maskedQ });
+            await callAI(chatHistory);
+        }
+
+        function exportToWord() {
+            const content = document.getElementById('reportOutput').innerHTML;
+            const styles = `<style>body { font-family: 'SimSun', serif; font-size: 10.5pt; } table { width: 100%; border-collapse: collapse; margin: 1em 0; } th, td { border: 1pt solid black; padding: 6pt; } h1 { text-align: center; } h2 { color: #059669; }</style>`;
+            const html = `<html><head><meta charset='utf-8'>${styles}</head><body><h1>合同审核报告</h1><p style='text-align:right'>关联：${originalFileName}</p><hr>${content}</body></html>`;
+            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+            saveAs(blob, `${originalFileName}_诊断报告.doc`);
+        }
+
+        document.getElementById('followUpInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendFollowUp(); });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="common.js"></script>
+</body>
+</html>
