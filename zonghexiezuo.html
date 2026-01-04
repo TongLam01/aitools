@@ -3,130 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>写作瑞士军刀 | 2026专业写作舱</title>
+    <title>写作瑞士军刀 | 专业生产力工具</title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    
     <style>
-        html, body, #app { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: #f4f7fb; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap');
+        html, body, #app { height: 100%; margin: 0; background: #fcfcfd; font-family: -apple-system, sans-serif; overflow: hidden; }
         .app-layout { height: 100vh; display: flex; flex-direction: column; }
-        
-        /* PC端布局优化 */
-        .main-content { flex: 1; display: flex; overflow: hidden; padding: 1.5rem; gap: 1.5rem; }
+        .main-content { flex: 1; display: flex; overflow: hidden; padding: 2rem; gap: 2rem; max-width: 1400px; margin: 0 auto; width: 100%; }
         @media (max-width: 1023px) { .main-content { flex-direction: column; overflow-y: auto; } }
-
-        .panel { 
-            flex: 1; background: white; border-radius: 1.25rem; 
-            display: flex; flex-direction: column; 
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); 
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            overflow: hidden;
-        }
-
-        .scroll-area { flex: 1; overflow-y: auto; padding: 2rem; }
-        
-        /* Markdown 排版：增加呼吸感 */
-        .markdown-render { font-size: 16px; line-height: 2; color: #334155; }
-        .markdown-render h1, .markdown-render h2, .markdown-render h3 { color: #1e293b; margin-top: 1.5rem; margin-bottom: 1rem; font-weight: 700; }
+        .panel { flex: 1; background: white; border-radius: 1.5rem; display: flex; flex-direction: column; box-shadow: 0 4px 25px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; overflow: hidden; }
+        .scroll-area { flex: 1; overflow-y: auto; padding: 2.5rem; line-height: 2.1; font-size: 16px; color: #334155; }
+        .markdown-render h2 { font-family: 'Noto Serif SC', serif; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem; margin: 2rem 0 1rem; color: #111827; }
         .markdown-render p { margin-bottom: 1.2rem; }
-        .markdown-render strong { color: #4f46e5; }
-
-        /* 截图专用容器（平时隐藏） */
-        #screenshot-wrapper {
-            position: absolute; left: -9999px; top: -9999px;
-            width: 600px; padding: 60px;
-            background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%);
-        }
-        .capture-card {
-            background: white; padding: 40px; border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-
-        /* 底部导航 */
-        .fixed-footer { background: white; border-top: 1px solid #eef2f6; padding: 1.2rem 1.5rem; z-index: 50; }
-        .tool-btn { 
-            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-            padding: 0.75rem; border-radius: 1rem; border: 1px solid transparent;
-            transition: all 0.2s;
-        }
-        .tool-btn:hover { background: #f8faff; border-color: #e0e7ff; }
-        .tool-btn.active { background: #4f46e5; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-
-        .typing-effect::after { content: '▋'; animation: blink 1s step-end infinite; color: #6366f1; }
-        @keyframes blink { 50% { opacity: 0; } }
+        .fixed-footer { background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); border-top: 1px solid #f1f5f9; padding: 1rem 2rem; }
+        .tool-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.8rem; border-radius: 1rem; transition: 0.3s; cursor: pointer; border: 1px solid transparent; }
+        .tool-btn.active { background: #111827; color: white; }
+        /* 海报样式 */
+        #poster-wrap { position: absolute; left: -9999px; width: 700px; padding: 80px; background: #f3f4f6; }
+        .poster-card { background: white; padding: 50px; border-radius: 4px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .poster-head { border-bottom: 2px solid #111827; padding-bottom: 15px; margin-bottom: 40px; font-family: 'Noto Serif SC', serif; font-size: 20px; }
+        .typing::after { content: '▋'; animation: b 1s step-end infinite; color: #4f46e5; }
+        @keyframes b { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
-
 <div id="app" class="app-layout">
-    <header class="flex-none px-8 py-5 flex justify-between items-center bg-white border-b border-slate-100">
+    <header class="flex-none px-10 py-5 flex justify-between items-center bg-white/50">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-pen-nib text-white"></i></div>
-            <h1 class="text-xl font-black text-slate-800 tracking-tight">写作瑞士军刀</h1>
+            <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white"><i class="fa-solid fa-feather"></i></div>
+            <h1 class="font-bold text-lg">写作瑞士军刀</h1>
         </div>
-        <button @click="showConfig = true" class="text-slate-400 hover:text-indigo-600 transition-colors"><i class="fa-solid fa-gear text-xl"></i></button>
+        <button @click="showConfig = true" class="text-slate-400"><i class="fa-solid fa-gear"></i></button>
     </header>
 
     <main class="main-content">
         <section class="panel">
-            <div class="px-6 py-3 bg-slate-50 border-b flex justify-between items-center text-[11px] font-bold text-slate-400 uppercase">
-                <span>原文材料</span>
-                <span>{{ inputBody.length }} 字</span>
-            </div>
-            <textarea v-model="inputBody" placeholder="输入灵感或待处理文字..." class="flex-1 p-8 outline-none resize-none text-lg leading-relaxed text-slate-700"></textarea>
+            <textarea v-model="inputBody" placeholder="输入原始内容..." class="flex-1 p-10 outline-none resize-none bg-transparent text-lg"></textarea>
         </section>
-
         <section class="panel">
-            <div class="px-6 py-3 bg-slate-50 border-b flex justify-between items-center">
-                <span class="text-[11px] font-bold text-indigo-600">AI 专家输出</span>
+            <div class="px-8 py-3 bg-slate-50/50 border-b flex justify-between items-center">
+                <span class="text-[10px] font-bold">AI OUTPUT</span>
                 <div class="flex gap-4" v-if="outputBody">
-                    <button @click="generateImage" class="text-xs font-bold text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-camera mr-1"></i>导出精美图片</button>
-                    <button @click="copyText(outputBody)" class="text-xs font-bold text-indigo-600">复制全文</button>
+                    <button @click="generateImage" class="text-[11px] font-bold text-slate-400 hover:text-black">导出海报</button>
+                    <button @click="copyText" class="text-[11px] font-bold">复制</button>
                 </div>
             </div>
-            <div class="scroll-area" ref="outputScroll">
-                <div class="markdown-render" :class="{ 'typing-effect': isGenerating }" v-html="renderedOutput"></div>
-                <div v-if="!outputBody && !isGenerating" class="h-full flex flex-col items-center justify-center text-slate-200 mt-20">
-                    <i class="fa-solid fa-wand-magic-sparkles text-6xl mb-4"></i>
-                    <p class="font-bold tracking-widest">请选择下方功能开始</p>
-                </div>
+            <div class="scroll-area" ref="scrollBox">
+                <div class="markdown-render" :class="{typing: isGenerating}" v-html="rendered"></div>
             </div>
         </section>
     </main>
 
     <footer class="fixed-footer">
-        <div class="max-w-5xl mx-auto grid grid-cols-3 lg:grid-cols-6 gap-4">
-            <button v-for="tool in tools" :key="tool.id" @click="runTool(tool)" :disabled="isGenerating"
-                class="tool-btn" :class="{ 'active': currentToolId === tool.id }">
-                <i :class="tool.icon" class="text-xl"></i>
-                <span class="text-xs font-bold">{{ tool.name }}</span>
+        <div class="max-w-5xl mx-auto flex gap-4">
+            <button v-for="t in tools" @click="runTool(t)" :class="{active: currentId === t.id}" class="tool-btn">
+                <i :class="t.icon"></i><span class="text-[10px] font-bold">{{t.name}}</span>
             </button>
         </div>
     </footer>
 
-    <div id="screenshot-wrapper">
-        <div class="capture-card">
-            <div class="text-indigo-600 font-black text-sm mb-6 pb-4 border-b border-indigo-50 flex justify-between">
-                <span>写作瑞士军刀 | 智能生成</span>
-                <span>2026专业版</span>
-            </div>
-            <div class="markdown-render" v-html="renderedOutput"></div>
-            <div class="mt-12 pt-6 border-t border-slate-100 flex justify-between items-center">
-                <div class="text-[10px] text-slate-300 italic">由 DeepSeek R1 深度思考驱动</div>
-                <div class="text-xs font-bold text-slate-200 uppercase tracking-tighter">AI Expert Content</div>
-            </div>
+    <div id="poster-wrap">
+        <div class="poster-card">
+            <div class="poster-head">{{currentName}}</div>
+            <div class="markdown-render" v-html="rendered"></div>
         </div>
     </div>
 
     <div v-if="showConfig" class="fixed inset-0 z-[100] flex justify-end">
-        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showConfig = false"></div>
-        <div class="relative w-80 bg-white p-8 shadow-2xl h-full animate-slide-in">
-            <h3 class="font-bold text-lg mb-8">API 设置</h3>
-            <input v-model="config.apiKey" type="password" placeholder="DeepSeek API Key" class="w-full p-3 bg-slate-50 rounded-xl mb-4 outline-none">
-            <button @click="saveConfig" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold">保存</button>
+        <div class="absolute inset-0 bg-black/20 backdrop-blur-sm" @click="showConfig = false"></div>
+        <div class="relative w-80 bg-white p-10 h-full">
+            <h3 class="font-bold mb-8">API 设置</h3>
+            <input v-model="config.apiKey" type="password" placeholder="Key" class="w-full p-3 bg-slate-50 rounded-xl mb-6 outline-none">
+            <button @click="saveConfig" class="w-full py-4 bg-black text-white rounded-xl font-bold">保存</button>
         </div>
     </div>
 </div>
@@ -136,82 +88,36 @@ const { createApp, ref, computed, watch, nextTick, onMounted } = Vue;
 createApp({
     setup() {
         const inputBody = ref(''); const outputBody = ref(''); const isGenerating = ref(false);
-        const currentToolId = ref(null); const showConfig = ref(false);
-        const config = ref({ apiKey: '', model: 'deepseek-reasoner' });
-        const outputScroll = ref(null);
-
-        const tools = ref([
-            { id: 'gongwen', name: '资深公文', icon: 'fa-solid fa-file-contract' },
-            { id: 'redbook', name: '爆款红书', icon: 'fa-solid fa-fire' },
-            { id: 'risk', name: '逻辑排雷', icon: 'fa-solid fa-shield' },
-            { id: 'eq', name: '高情商说', icon: 'fa-solid fa-face-smile' },
-            { id: 'ghost', name: '灵感续写', icon: 'fa-solid fa-feather' },
-            { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-sitemap' }
-        ]);
-
-        const renderedOutput = computed(() => outputBody.value ? marked.parse(outputBody.value) : '');
-
-        watch(outputBody, () => {
-            if (isGenerating.value) {
-                nextTick(() => { if(outputScroll.value) outputScroll.value.scrollTop = outputScroll.value.scrollHeight; });
-            }
-        });
-
-        onMounted(() => {
-            const saved = localStorage.getItem('writer_v5_cfg');
-            if (saved) config.value = JSON.parse(saved);
-        });
-
-        const saveConfig = () => { localStorage.setItem('writer_v5_cfg', JSON.stringify(config.value)); showConfig.value = false; };
-        const copyText = (t) => { navigator.clipboard.writeText(t); alert('已复制'); };
-
+        const currentId = ref(null); const currentName = ref(''); const showConfig = ref(false);
+        const scrollBox = ref(null); const config = ref({ apiKey: '', model: 'deepseek-reasoner' });
+        const tools = [{id:'gongwen',name:'资深公文',icon:'fa-solid fa-file-contract'},{id:'redbook',name:'爆款红书',icon:'fa-solid fa-fire'},{id:'risk',name:'逻辑排雷',icon:'fa-solid fa-shield'},{id:'eq',name:'高情商说',icon:'fa-solid fa-smile'},{id:'ghost',name:'灵感续写',icon:'fa-solid fa-pen'},{id:'mindmap',name:'思维大纲',icon:'fa-solid fa-diagram-project'}];
+        
+        const rendered = computed(() => outputBody.value ? marked.parse(outputBody.value) : '');
+        watch(outputBody, () => { if(isGenerating.value) nextTick(() => scrollBox.value.scrollTop = scrollBox.value.scrollHeight); });
+        onMounted(() => { const s = localStorage.getItem('v7_cfg'); if(s) config.value = JSON.parse(s); });
+        
+        const saveConfig = () => { localStorage.setItem('v7_cfg', JSON.stringify(config.value)); showConfig.value = false; };
+        const copyText = () => { navigator.clipboard.writeText(outputBody.value); alert('已复制'); };
         const generateImage = async () => {
-            // 截图时增加额外渲染逻辑，确保美感
-            const el = document.getElementById('screenshot-wrapper');
-            try {
-                const canvas = await html2canvas(el, {
-                    scale: 3, // 高清
-                    backgroundColor: null,
-                    logging: false,
-                    useCORS: true
-                });
-                const link = document.createElement('a');
-                link.download = `瑞士军刀_${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            } catch (err) { alert('截图失败'); }
+            const canvas = await html2canvas(document.getElementById('poster-wrap'), { scale: 3 });
+            const link = document.createElement('a'); link.download = '创作海报.png'; link.href = canvas.toDataURL(); link.click();
         };
 
         const runTool = async (tool) => {
-            if (!inputBody.value) return alert('请输入内容');
-            if (!config.value.apiKey) { showConfig.value = true; return; }
-            
-            isGenerating.value = true;
-            outputBody.value = '';
-            currentToolId.value = tool.id;
-
-            // 核心修复点：通过前端提示词规避“空括号”问题
-            const promptCorrection = "。特别要求：请务必填充所有数据项，如果素材中缺失具体数字，请使用'[XX]'或'[待填充]'表示，严禁出现'()'、'（ ）'或空的百分比符号。";
-
+            if(!inputBody.value || !config.value.apiKey) return;
+            isGenerating.value = true; outputBody.value = ''; currentId.value = tool.id; currentName.value = tool.name;
             try {
-                const response = await fetch('/api/zonghexiezuo', {
+                const res = await fetch('/api/zonghexiezuo', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        message: inputBody.value + promptCorrection, 
-                        userKey: config.value.apiKey, 
-                        model: config.value.model, 
-                        toolId: tool.id 
-                    })
+                    body: JSON.stringify({ message: inputBody.value, userKey: config.value.apiKey, model: config.value.model, toolId: tool.id })
                 });
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+                const reader = res.body.getReader(); const decoder = new TextDecoder();
                 while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
+                    const { done, value } = await reader.read(); if (done) break;
                     const lines = decoder.decode(value).split('\n');
                     for (const line of lines) {
+                        if (line.trim() === ': heartbeat') continue;
                         if (line.startsWith('data: ')) {
                             try {
                                 const data = JSON.parse(line.substring(6));
@@ -221,11 +127,9 @@ createApp({
                         }
                     }
                 }
-            } catch (err) { alert('网络错误'); }
-            finally { isGenerating.value = false; currentToolId.value = null; }
+            } finally { isGenerating.value = false; currentId.value = null; }
         };
-
-        return { inputBody, outputBody, renderedOutput, isGenerating, tools, runTool, currentToolId, generateImage, copyText, showConfig, config, saveConfig, outputScroll };
+        return { inputBody, outputBody, rendered, isGenerating, tools, runTool, currentId, currentName, generateImage, copyText, showConfig, config, saveConfig, scrollBox };
     }
 }).mount('#app');
 </script>
