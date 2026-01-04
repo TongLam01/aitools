@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 灵感排版大师 v5.0 - 稳定增强版</title>
+    <title>AI 灵感排版大师 v5.1 - 修复响应版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -15,86 +15,81 @@
             background: white; height: 100%; min-height: 650px;
             overflow-y: auto; padding: 20px; outline: none; border-radius: 30px;
         }
-        /* 改进的块选择视觉 */
+        /* 块状态：增加选中后的外发光和边框 */
         .block-item { 
-            position: relative; margin-bottom: 8px; padding: 4px;
-            transition: all 0.2s; cursor: pointer; border: 2px solid transparent; 
+            position: relative; margin-bottom: 12px; padding: 4px;
+            transition: all 0.3s ease; cursor: pointer; border: 2px solid transparent; 
         }
-        .block-item:hover { background-color: #f8fafc; border-color: #e2e8f0; border-radius: 8px; }
+        .block-item:hover { border-color: #cbd5e1; border-radius: 8px; }
         .block-item.selected { 
             border-color: var(--primary) !important; 
             background-color: rgba(59, 130, 246, 0.05); 
             border-radius: 8px;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+            transform: scale(1.02); /* 选中后轻微放大 */
         }
-        /* 选中时的指示器 */
-        .block-item.selected::after {
-            content: '✓'; position: absolute; top: -10px; right: -10px;
-            background: var(--primary); color: white; width: 20px; height: 20px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: bold; z-index: 10;
+        /* 选中标记 */
+        .block-item.selected::before {
+            content: 'SELECTED'; position: absolute; left: -10px; top: -10px;
+            background: var(--primary); color: white; font-size: 8px; font-weight: bold;
+            padding: 2px 6px; border-radius: 4px; z-index: 20;
         }
         
-        .style-btn { @apply px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs rounded-lg border border-slate-200 shadow-sm transition-all font-bold; }
+        .style-btn:active { transform: scale(0.95); }
+        .style-btn { @apply px-3 py-2 bg-white hover:bg-blue-50 text-slate-700 text-xs rounded-lg border border-slate-200 shadow-sm transition-all font-bold; }
         .theme-card.active { border-color: var(--primary); background-color: white; ring: 2px; ring-color: var(--primary); }
-        .sticky-tools { position: sticky; top: 20px; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 pb-20">
+<body class="bg-slate-100 text-slate-900 pb-20 font-sans">
 
     <div class="max-w-7xl mx-auto py-10 px-4">
-        <header class="mb-8 flex justify-between items-end">
-            <div>
-                <h1 class="text-3xl font-black text-slate-800">🚀 AI 灵感排版 <span class="text-blue-600 text-sm">v5.0 Stable</span></h1>
-            </div>
-            <div class="flex gap-4">
-                <input type="password" id="api-key" oninput="saveConfig()" class="p-2 border rounded-lg text-xs w-48 shadow-sm" placeholder="DeepSeek API Key">
-            </div>
+        <header class="mb-8 flex justify-between items-center">
+            <h1 class="text-3xl font-black text-slate-800 tracking-tighter">🚀 AI 排版大师 <span class="text-blue-600">v5.1</span></h1>
+            <input type="password" id="api-key" oninput="saveConfig()" class="p-2 border rounded-lg text-xs w-48 shadow-sm" placeholder="DeepSeek API Key">
         </header>
 
         <div class="flex flex-col lg:flex-row gap-8">
             <div class="flex-1 space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
                     <div class="grid grid-cols-3 gap-4">
-                        <div onclick="selectTheme('tech')" id="theme-tech" class="theme-card active cursor-pointer p-4 border-2 rounded-xl text-center">
+                        <div onclick="selectTheme('tech')" id="theme-tech" class="theme-card active cursor-pointer p-4 border-2 rounded-2xl text-center transition-all">
                             <span class="block text-xl">🔵</span><span class="text-xs font-bold">科技蓝</span>
                         </div>
-                        <div onclick="selectTheme('fresh')" id="theme-fresh" class="theme-card cursor-pointer p-4 border-2 rounded-xl text-center">
+                        <div onclick="selectTheme('fresh')" id="theme-fresh" class="theme-card cursor-pointer p-4 border-2 rounded-2xl text-center transition-all">
                             <span class="block text-xl">🌿</span><span class="text-xs font-bold">清新绿</span>
                         </div>
-                        <div onclick="selectTheme('festive')" id="theme-festive" class="theme-card cursor-pointer p-4 border-2 rounded-xl text-center">
+                        <div onclick="selectTheme('festive')" id="theme-festive" class="theme-card cursor-pointer p-4 border-2 rounded-2xl text-center transition-all">
                             <span class="block text-xl">🧧</span><span class="text-xs font-bold">淡喜庆</span>
                         </div>
                     </div>
-                    <textarea id="user-input" class="w-full h-96 p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none" placeholder="在这里输入文章内容..."></textarea>
-                    <button id="btn-run" onclick="generateArticle()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 shadow-lg">
-                        ✨ 一键 AI 解析排版
+                    <textarea id="user-input" class="w-full h-80 p-5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="粘贴你的文章内容..."></textarea>
+                    <button id="btn-run" onclick="generateArticle()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:shadow-2xl transition-all active:scale-[0.98]">
+                        ✨ 开始一键智能排版
                     </button>
                 </div>
             </div>
 
-            <div class="w-full lg:w-[450px] flex flex-col gap-6">
+            <div class="w-full lg:w-[420px] space-y-4">
                 <div id="preview-container">
                     <div id="preview-content" contenteditable="true">
-                        <div style="margin-top:200px; text-align:center; color:#ccc;">等待生成内容...</div>
+                        <div style="margin-top:200px; text-align:center; color:#ccc;">点击左侧按钮生成排版</div>
                     </div>
                 </div>
 
-                <div class="sticky-tools space-y-4">
-                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200 space-y-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-slate-700">样式工作台</h3>
-                            <div class="flex gap-2">
-                                <button onclick="mergeSelected()" class="px-3 py-1 bg-amber-500 text-white text-[10px] rounded-full font-bold">合并选中</button>
-                                <button onclick="copyHtml()" class="px-3 py-1 bg-green-600 text-white text-[10px] rounded-full font-bold">复制全部</button>
-                            </div>
+                <div class="sticky top-6 bg-white p-5 rounded-3xl shadow-xl border border-blue-50 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800">样式工作台</h3>
+                        <button onclick="copyHtml()" class="px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-full">一键复制</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2" id="template-options"></div>
+                    
+                    <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+                        <div class="flex gap-3">
+                            <button onclick="selectAll()" class="text-[11px] text-blue-600 font-bold">全选</button>
+                            <button onclick="clearSelection()" class="text-[11px] text-slate-400 font-bold">取消</button>
                         </div>
-                        <div class="grid grid-cols-3 gap-2" id="template-options"></div>
-                        <div class="flex justify-between pt-2 border-t">
-                            <button onclick="selectAll()" class="text-[10px] text-blue-600">全选</button>
-                            <button onclick="clearSelection()" class="text-[10px] text-slate-400">取消选择</button>
-                            <button onclick="deleteSelected()" class="text-[10px] text-red-500">删除选中</button>
-                        </div>
+                        <button onclick="mergeSelected()" class="px-3 py-1 bg-amber-100 text-amber-700 text-[11px] rounded-lg font-bold">合并选中块</button>
                     </div>
                 </div>
             </div>
@@ -112,9 +107,9 @@
         };
 
         const STYLE_NAMES = {
-            big_title: "大标题", sub_title: "小标题", num_title: "数字标",
+            big_title: "大标题", sub_title: "小标题", num_title: "编号标",
             grad_title: "渐变标", key_point: "重点卡", quote: "引用",
-            code_block: "代码", bg_card: "底色卡", normal: "正文"
+            code_block: "深代码", bg_card: "底色卡", normal: "正文"
         };
 
         window.onload = () => {
@@ -126,20 +121,21 @@
                 const btn = document.createElement('button');
                 btn.className = 'style-btn';
                 btn.innerText = STYLE_NAMES[key];
-                btn.onclick = () => applyTemplateToSelection(key);
+                // 关键点：使用异步处理，防止 UI 线程阻塞
+                btn.onclick = () => {
+                    setTimeout(() => applyTemplateToSelection(key), 50);
+                };
                 btnContainer.appendChild(btn);
             });
 
-            // 关键：在捕获阶段监听预览区点击
-            document.getElementById('preview-content').addEventListener('mousedown', function(e) {
+            // 使用监听器捕捉点击，提高选中灵敏度
+            const preview = document.getElementById('preview-content');
+            preview.addEventListener('click', function(e) {
                 const block = e.target.closest('.block-item');
                 if (block) {
-                    // 如果点击的是块边缘或非正在编辑状态，则切换选中
-                    if (e.detail === 1) { // 单击
-                        toggleSelection(block);
-                    }
+                    toggleSelection(block);
                 }
-            }, true);
+            });
         };
 
         function selectTheme(t) {
@@ -150,14 +146,13 @@
         }
 
         function saveConfig() { localStorage.setItem('ds_api_key', document.getElementById('api-key').value); }
-        function clearStorage() { localStorage.clear(); location.reload(); }
 
         function getTemplate(type, text) {
             const c = THEME_COLORS[currentTheme];
             const tpls = {
-                big_title: `<section class="block-item" style="margin: 2em 0 1em; text-align: center;"><h1 style="font-size: 24px; color: #333; border-bottom: 3px solid ${c.main}; display: inline-block; padding-bottom: 5px;">${text}</h1></section>`,
+                big_title: `<section class="block-item" style="margin: 2em 0 1em; text-align: center;"><h1 style="font-size: 24px; color: #111; border-bottom: 3px solid ${c.main}; display: inline-block; padding-bottom: 5px;">${text}</h1></section>`,
                 sub_title: `<section class="block-item" style="margin: 1.5em 0 1em; padding-left: 12px; border-left: 5px solid ${c.main};"><h2 style="font-size: 19px; color: #1e293b; margin: 0;">${text}</h2></section>`,
-                num_title: `<section class="block-item" style="margin: 1.5em 0; display: flex; align-items: center;"><span style="background: ${c.main}; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size:14px;">N</span><h3 style="font-size: 18px; color: #333; margin:0;">${text}</h3></section>`,
+                num_title: `<section class="block-item" style="margin: 1.5em 0; display: flex; align-items: center;"><span style="background: ${c.main}; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold;">N</span><h3 style="font-size: 18px; color: #333; margin:0;">${text}</h3></section>`,
                 grad_title: `<section class="block-item" style="margin: 1.5em 0; background: linear-gradient(90deg, ${c.bg} 0%, rgba(255,255,255,0) 100%); padding: 12px; border-radius: 6px;"><h2 style="font-size: 18px; color: ${c.main}; margin: 0;">${text}</h2></section>`,
                 key_point: `<section class="block-item" style="margin: 1.5em 0; padding: 20px; border: 1px solid ${c.border}; background: ${c.bg}; border-radius: 12px; color: ${c.text};"><strong>📍 重点提示</strong><br>${text}</section>`,
                 quote: `<section class="block-item" style="margin: 1.5em 0; padding: 15px; border-left: 4px solid #cbd5e1; color: #64748b; font-style: italic; background: #f8fafc;">${text}</section>`,
@@ -175,13 +170,7 @@
             if (!apiKey || !text) return alert("信息不全");
 
             btn.disabled = true;
-            btn.innerText = "🚀 AI 正在以 JSON 格式深度解析...";
-
-            const systemPrompt = `你是一个排版大师。请分析用户文本，并将其转换为一个 JSON 数组。
-            每个对象包含 "type" (风格) 和 "content" (内容文字)。
-            可选 type: big_title, sub_title, num_title, grad_title, key_point, quote, code_block, bg_card, normal。
-            注意：合并逻辑上属于同一段落的内容，不要切得太碎。
-            格式要求：只输出原始 JSON 数组，不要 Markdown 标记。`;
+            btn.innerText = "🚀 AI 正在处理结构...";
 
             try {
                 const response = await fetch('https://api.deepseek.com/chat/completions', {
@@ -189,12 +178,14 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
                     body: JSON.stringify({
                         model: "deepseek-chat",
-                        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: text }]
+                        messages: [
+                            { role: "system", content: "你是一个排版专家。请将用户文本拆分为 JSON 数组。对象格式：{\"type\": \"类型\", \"content\": \"文字\"}。不要切得太碎，逻辑连贯的一段保持在一起。" },
+                            { role: "user", content: text }
+                        ]
                     })
                 });
                 const data = await response.json();
-                let jsonStr = data.choices[0].message.content.replace(/```json|```/gi, '').trim();
-                const blocks = JSON.parse(jsonStr);
+                const blocks = JSON.parse(data.choices[0].message.content.replace(/```json|```/gi, '').trim());
                 
                 const container = document.getElementById('preview-content');
                 container.innerHTML = '';
@@ -205,8 +196,8 @@
                     el.setAttribute('data-raw', b.content);
                     container.appendChild(el);
                 });
-            } catch (error) { alert("解析失败，请检查 API 或内容格式。"); console.error(error); }
-            finally { btn.disabled = false; btn.innerText = "✨ 一键 AI 解析排版"; }
+            } catch (error) { alert("生成出错"); }
+            finally { btn.disabled = false; btn.innerText = "✨ 开始一键智能排版"; }
         }
 
         function toggleSelection(el) {
@@ -219,49 +210,65 @@
             }
         }
 
+        // 核心修复函数：应用样式模板
         function applyTemplateToSelection(type) {
-            selectedElements.forEach(el => {
+            if (selectedElements.size === 0) return alert("请先点击右侧预览区的段落进行选择");
+            
+            const previewContent = document.getElementById('preview-content');
+            
+            // 1. 暂时关闭编辑模式，防止浏览器干扰
+            previewContent.setAttribute('contenteditable', 'false');
+
+            // 2. 将 Set 转为数组进行稳定迭代
+            const elementsToReplace = Array.from(selectedElements);
+            
+            elementsToReplace.forEach(el => {
                 const rawText = el.getAttribute('data-raw') || el.innerText;
                 const newHtml = getTemplate(type, rawText);
+                
                 const temp = document.createElement('div');
                 temp.innerHTML = newHtml;
                 const newEl = temp.firstElementChild;
+                
+                // 维持原始数据属性和选中状态
                 newEl.setAttribute('data-raw', rawText);
                 newEl.classList.add('selected');
+                
+                // 替换节点
                 el.replaceWith(newEl);
+                
+                // 更新 Set 中的引用
                 selectedElements.delete(el);
                 selectedElements.add(newEl);
             });
+
+            // 3. 恢复编辑模式
+            setTimeout(() => {
+                previewContent.setAttribute('contenteditable', 'true');
+            }, 100);
         }
 
         function mergeSelected() {
-            if (selectedElements.size < 2) return alert("请至少选中两个块进行合并");
+            if (selectedElements.size < 2) return alert("请选择至少两个块");
             const sorted = Array.from(selectedElements).sort((a, b) => a.offsetTop - b.offsetTop);
             const mergedText = sorted.map(el => el.getAttribute('data-raw') || el.innerText).join('\n');
             const first = sorted[0];
             
-            const newHtml = getTemplate('normal', mergedText);
+            const newElMarkup = getTemplate('normal', mergedText);
             const temp = document.createElement('div');
-            temp.innerHTML = newHtml;
+            temp.innerHTML = newElMarkup;
             const newEl = temp.firstElementChild;
             newEl.setAttribute('data-raw', mergedText);
             
             first.replaceWith(newEl);
             sorted.slice(1).forEach(el => el.remove());
+            
             clearSelection();
             toggleSelection(newEl);
         }
 
-        function deleteSelected() {
-            selectedElements.forEach(el => el.remove());
-            selectedElements.clear();
-        }
-
         function selectAll() {
-            document.querySelectorAll('.block-item').forEach(el => {
-                el.classList.add('selected');
-                selectedElements.add(el);
-            });
+            document.querySelectorAll('.block-item').forEach(el => toggleSelection(el));
         }
 
         function clearSelection() {
@@ -271,15 +278,11 @@
 
         async function copyHtml() {
             const content = document.getElementById('preview-content').cloneNode(true);
-            content.querySelectorAll('.block-item').forEach(el => {
-                el.classList.remove('selected');
-                el.removeAttribute('data-raw');
-                el.style.cursor = 'default';
-            });
+            content.querySelectorAll('.block-item').forEach(el => el.classList.remove('selected'));
             const blob = new Blob([content.innerHTML], { type: "text/html" });
             const data = [new ClipboardItem({ ["text/html"]: blob })];
             await navigator.clipboard.write(data);
-            alert("✅ 样式已复制，可前往后台粘贴！");
+            alert("✅ 样式已复制！");
         }
     </script>
 </body>
