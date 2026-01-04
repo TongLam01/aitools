@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 灵感排版大师 v9.0 - 交互大师版</title>
+    <title>AI 灵感排版大师 v10.0 - 灵感循环版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         #preview-container { 
@@ -15,23 +15,22 @@
             overflow-y: auto; padding: 20px 0; outline: none; border-radius: 32px;
         }
 
-        /* 预览区选中态：红色虚线 + 状态标签 */
+        /* 预览区选中态：红色虚线 + 变体状态标签 */
         .block-item { 
             position: relative; margin-bottom: 4px; padding: 10px 0;
-            transition: all 0.2s ease; cursor: pointer; border: 2px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: 2px solid transparent;
         }
         .block-item.selected { 
             border: 2px dashed #ff4d4f !important;
             background-color: rgba(255, 77, 79, 0.02);
         }
         .block-item.selected::after {
-            content: '✓ 被选中';
+            content: attr(data-status);
             position: absolute; top: -12px; right: 10px;
             background: #ff4d4f; color: white; font-size: 10px;
             padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 50;
         }
 
-        /* 底部工具栏布局 */
         .bottom-workbench {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: rgba(255, 255, 255, 0.98);
@@ -40,13 +39,7 @@
         }
 
         .style-btn { @apply px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs rounded-xl border border-slate-200 shadow-sm transition-all font-bold whitespace-nowrap; }
-        .style-btn:active { transform: scale(0.92); }
-        
-        /* 颜色球 */
         .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 0 1px #ddd; transition: 0.2s; }
-        .color-dot:hover { transform: scale(1.2); }
-        .color-dot.active { box-shadow: 0 0 0 2px #ff4d4f; }
-
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -55,21 +48,18 @@
     <div class="max-w-7xl mx-auto py-8 px-4">
         <header class="mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
             <div>
-                <h1 class="text-3xl font-black text-slate-800 italic">AI Editor <span class="text-red-500">v9.0</span></h1>
-                <p class="text-slate-400 text-[10px] font-bold tracking-[0.2em] uppercase">Interactive Master Edition</p>
+                <h1 class="text-3xl font-black text-slate-800 italic underline decoration-red-500">AI Master <span class="text-red-500 text-sm">v10.0</span></h1>
+                <p class="text-slate-400 text-[10px] font-bold tracking-[0.2em] uppercase mt-1">Multi-Variant Interaction Engine</p>
             </div>
-            <div class="flex items-center gap-3">
-                <input type="password" id="api-key" oninput="saveConfig()" class="p-2 border rounded-xl text-xs w-48 shadow-inner outline-none focus:ring-1 focus:ring-red-400" placeholder="API Key">
-                <button onclick="clearStorage()" class="text-[10px] text-slate-300">重置</button>
-            </div>
+            <input type="password" id="api-key" oninput="saveConfig()" class="p-2 border rounded-xl text-xs w-48 shadow-inner outline-none" placeholder="DeepSeek API Key">
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div class="lg:col-span-7 space-y-6">
+            <div class="lg:col-span-7">
                 <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-4">
-                    <textarea id="user-input" class="w-full h-[500px] p-6 bg-slate-50 border-none rounded-[1.5rem] outline-none focus:bg-white transition-all text-lg leading-relaxed" placeholder="在此粘贴原始内容..."></textarea>
-                    <button id="btn-run" onclick="generateArticle()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-xl hover:shadow-2xl active:scale-[0.98] transition-all">
-                        🚀 一键 AI 解析
+                    <textarea id="user-input" class="w-full h-[520px] p-6 bg-slate-50 border-none rounded-[1.5rem] outline-none focus:bg-white transition-all text-lg leading-relaxed" placeholder="输入原始内容..."></textarea>
+                    <button onclick="generateArticle()" id="btn-run" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-xl hover:shadow-2xl active:scale-[0.98] transition-all">
+                        🚀 一键 AI 智能排版
                     </button>
                 </div>
             </div>
@@ -77,12 +67,12 @@
             <div class="lg:col-span-5">
                 <div class="sticky top-6">
                     <div class="flex justify-between mb-4 items-center px-4">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone Frame Preview</span>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Variant Switcher Active</span>
                         <button onclick="copyHtml()" class="bg-green-600 text-white px-8 py-2 rounded-full font-bold text-xs shadow-lg hover:bg-green-700">一键复制内容</button>
                     </div>
                     <div id="preview-container">
                         <div id="preview-content" contenteditable="true" onclick="handleBlockClick(event)">
-                            <div class="flex items-center justify-center h-full text-slate-200 italic pt-56">结果显示区域</div>
+                            <div class="flex items-center justify-center h-full text-slate-200 italic pt-56">等待生成...</div>
                         </div>
                     </div>
                 </div>
@@ -94,7 +84,7 @@
         <div class="max-w-6xl mx-auto space-y-4">
             
             <div class="flex flex-wrap items-center gap-4 border-b pb-3">
-                <span class="text-[10px] font-black text-slate-400 uppercase">颜色实验室:</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase">调色盘:</span>
                 <div class="flex items-center gap-2" id="color-palette">
                     <div class="color-dot" style="background:#3b82f6" onclick="updateColor('#3b82f6')"></div>
                     <div class="color-dot" style="background:#10b981" onclick="updateColor('#10b981')"></div>
@@ -102,11 +92,7 @@
                     <div class="color-dot" style="background:#f59e0b" onclick="updateColor('#f59e0b')"></div>
                     <div class="color-dot" style="background:#8b5cf6" onclick="updateColor('#8b5cf6')"></div>
                 </div>
-                <div class="h-6 w-[1px] bg-slate-200"></div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] text-slate-400">自定义:</span>
-                    <input type="color" id="custom-color" oninput="updateColor(this.value)" class="w-6 h-6 border-none cursor-pointer p-0 bg-transparent">
-                </div>
+                <input type="color" id="custom-color" oninput="updateColor(this.value)" class="w-6 h-6 border-none cursor-pointer bg-transparent">
                 <div id="recent-colors" class="flex gap-2"></div>
             </div>
 
@@ -115,22 +101,22 @@
                     <button onclick="selectAll()" class="text-[10px] text-slate-800 font-bold">全选</button>
                     <button onclick="clearSelection()" class="text-[10px] text-slate-400 font-bold">取消</button>
                 </div>
-                <span id="current-style-name" class="text-[10px] font-bold text-red-500 uppercase"></span>
+                <span class="text-[10px] text-blue-500 font-bold animate-pulse">💡 连点击同一按钮可切换变体</span>
             </div>
             
             <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
-                <button onclick="applyTemplate('normal')" class="style-btn text-red-500">🗑️ 清除格式</button>
+                <button onclick="applyVariant('normal')" class="style-btn text-red-500">🗑️ 还原</button>
                 <div class="w-[1px] bg-slate-200 mx-1"></div>
-                <button onclick="applyTemplate('big_title')" class="style-btn">✦ 大标题</button>
-                <button onclick="applyTemplate('sub_title')" class="style-btn">◈ 小标题</button>
-                <button onclick="applyTemplate('num_title')" class="style-btn">❶ 序号标题</button>
-                <button onclick="applyTemplate('grad_title')" class="style-btn">▣ 渐变标</button>
-                <button onclick="applyTemplate('key_point')" class="style-btn">★ 重点卡</button>
-                <button onclick="applyTemplate('quote')" class="style-btn">❝ 引用块</button>
-                <button onclick="applyTemplate('code_block')" class="style-btn">⌨ 代码块</button>
-                <button onclick="applyTemplate('bg_card')" class="style-btn">▧ 底色卡</button>
+                <button onclick="applyVariant('big_title')" class="style-btn">✦ 大标题</button>
+                <button onclick="applyVariant('sub_title')" class="style-btn">◈ 小标题</button>
+                <button onclick="applyVariant('num_title')" class="style-btn">❶ 序号标</button>
+                <button onclick="applyVariant('grad_title')" class="style-btn">▣ 渐变标</button>
+                <button onclick="applyVariant('key_point')" class="style-btn">★ 重点卡</button>
+                <button onclick="applyVariant('quote')" class="style-btn">❝ 引用块</button>
+                <button onclick="applyVariant('code_block')" class="style-btn">⌨ 代码块</button>
+                <button onclick="applyVariant('bg_card')" class="style-btn">▧ 底色卡</button>
                 <div class="w-[1px] bg-slate-200 mx-1"></div>
-                <button onclick="mergeSelected()" class="style-btn bg-slate-800 text-white border-none">🧩 合并段落</button>
+                <button onclick="mergeSelected()" class="style-btn bg-slate-800 text-white border-none">🧩 合并</button>
             </div>
         </div>
     </div>
@@ -139,203 +125,163 @@
         let selectedElements = new Set();
         let currentColor = '#3b82f6';
         let recentColors = JSON.parse(localStorage.getItem('recent_colors') || '[]');
-        let lastAppliedType = 'normal';
 
-        window.onload = () => {
-            const savedKey = localStorage.getItem('ds_api_key');
-            if (savedKey) document.getElementById('api-key').value = savedKey;
-            renderRecentColors();
+        // 核心模板阵列 v10.0
+        const VARIANTS = {
+            big_title: [
+                (txt, c) => `<h1 style="font-size: 22px; color: #111; border-bottom: 3px solid ${c}; display: inline-block; padding: 0 15px 8px; font-weight:bold; margin: 0;">${txt}</h1>`,
+                (txt, c) => `<h1 style="font-size: 22px; color: ${c}; border-top: 2px solid ${c}; border-bottom: 2px solid ${c}; padding: 10px 0; font-weight:bold; width:100%; text-align:center;">${txt}</h1>`,
+                (txt, c) => `<h1 style="font-size: 20px; background: ${c}; color: white; padding: 12px 20px; border-radius: 4px; font-weight:bold; display:block;">${txt}</h1>`
+            ],
+            sub_title: [
+                (txt, c) => `<div style="border-left: 5px solid ${c}; padding-left: 12px;"><h2 style="font-size: 19px; color: #1e293b; font-weight:bold; margin:0;">${txt}</h2></div>`,
+                (txt, c) => `<div style="display:flex; align-items:center;"><span style="color:${c}; font-size:20px; margin-right:8px;">◆</span><h2 style="font-size: 19px; color: #1e293b; font-weight:bold; border-bottom:1px dashed ${c}; flex:1; padding-bottom:4px;">${txt}</h2></div>`,
+                (txt, c) => `<div style="text-align:center;"><span style="font-size:12px; color:${c}; display:block; letter-spacing:4px;">SECTION</span><h2 style="font-size: 18px; color: #333; font-weight:bold; margin-top:4px;">${txt}</h2><div style="width:30px; height:2px; background:${c}; margin:8px auto;"></div></div>`
+            ],
+            num_title: [
+                (txt, c) => `<div style="display:flex; align-items:center;"><span style="background:${c}; color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px; font-weight:bold; font-size:13px;">1</span><h3 style="font-size:18px; font-weight:bold;">${txt}</h3></div>`,
+                (txt, c) => `<div style="display:flex; align-items:flex-end;"><span style="color:${c}; font-size:32px; font-style:italic; font-weight:black; line-height:1; margin-right:8px;">01</span><h3 style="font-size:18px; font-weight:bold; border-bottom:2px solid ${c};">${txt}</h3></div>`
+            ],
+            key_point: [
+                (txt, c) => `<div style="padding:20px; border:2px solid ${c}; background:${c}10; border-radius:12px;">${format(txt)}</div>`,
+                (txt, c) => `<div style="padding:20px; border-radius:12px; background:white; box-shadow:0 10px 25px ${c}25; border-left:8px solid ${c};">${format(txt)}</div>`,
+                (txt, c) => `<div style="padding:20px; background:linear-gradient(135deg, ${c}15 0%, #ffffff 100%); border-radius:0 20px 0 20px; border:1px solid ${c}40;">${format(txt)}</div>`
+            ],
+            quote: [
+                (txt, c) => `<div style="padding:15px 20px; border-left:4px solid ${c}; color:#555; background:#f9f9f9; font-style:italic;">${format(txt)}</div>`,
+                (txt, c) => `<div style="text-align:center; padding:20px; position:relative;"><span style="color:${c}; font-size:40px; opacity:0.2; position:absolute; left:0; top:0;">“</span><p style="position:relative; z-index:1;">${txt}</p><span style="color:${c}; font-size:40px; opacity:0.2; position:absolute; right:0; bottom:0;">”</span></div>`
+            ],
+            normal: [(txt, c) => `<div style="line-height:1.8; color:#374151; text-align:justify;">${format(txt)}</div>`],
+            grad_title: [(txt, c) => `<div style="background:${c}; padding:8px 15px; border-radius:0 20px 20px 0; color:white; font-weight:bold;">${txt}</div>`],
+            code_block: [(txt, c) => `<div style="padding:15px; background:#2d3436; color:#dfe6e9; border-radius:8px; font-family:monospace; border-top:4px solid ${c};">${txt}</div>`],
+            bg_card: [(txt, c) => `<div style="padding:20px; background:${c}10; border-radius:15px; border-right:4px solid ${c};">${format(txt)}</div>`]
         };
 
-        function saveConfig() { localStorage.setItem('ds_api_key', document.getElementById('api-key').value); }
-        function clearStorage() { localStorage.clear(); location.reload(); }
+        function format(t) { return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin-bottom:0.8em;">${l}</p>`).join(''); }
 
-        // 颜色实验室逻辑
-        function updateColor(color) {
-            currentColor = color;
-            document.getElementById('custom-color').value = color;
-            // 如果已经有选中的，即时变换颜色
-            if (selectedElements.size > 0) {
-                applyTemplate(lastAppliedType);
-            }
-            addToRecent(color);
-        }
-
-        function addToRecent(color) {
-            recentColors = [color, ...recentColors.filter(c => c !== color)].slice(0, 5);
-            localStorage.setItem('recent_colors', JSON.stringify(recentColors));
-            renderRecentColors();
-        }
-
-        function renderRecentColors() {
-            const container = document.getElementById('recent-colors');
-            container.innerHTML = recentColors.length ? '<span class="text-[10px] text-slate-300 ml-2">最近:</span>' : '';
-            recentColors.forEach(c => {
-                const dot = document.createElement('div');
-                dot.className = 'color-dot';
-                dot.style.background = c;
-                dot.onclick = () => updateColor(c);
-                container.appendChild(dot);
-            });
-        }
-
-        // 核心排版引擎 v9.0
-        function getTemplate(type, text, color) {
-            const baseStyle = `padding: 0 10px; box-sizing: border-box;`;
-            const formattedText = text.split('\n').filter(l => l.trim()).map(line => `<p style="margin-bottom:0.8em; line-height:1.8;">${line}</p>`).join('');
-            const lightBg = color + '15'; // 约10%透明度
-
-            const tpls = {
-                big_title: `<section class="block-item" style="${baseStyle} margin: 2em 0; text-align: center;">
-                    <div style="font-size: 24px; color: ${color}; margin-bottom: 5px;">✦</div>
-                    <h1 style="font-size: 22px; color: #111; border-bottom: 2px solid ${color}; display: inline-block; padding: 0 15px 8px; font-weight:bold; margin: 0;">${text}</h1>
-                </section>`,
-                
-                sub_title: `<section class="block-item" style="${baseStyle} margin: 1.5em 0; text-align:left;">
-                    <div style="display: flex; align-items: center; border-left: 5px solid ${color}; padding-left: 12px; background: linear-gradient(to right, ${lightBg}, transparent);">
-                        <h2 style="font-size: 19px; color: #1e293b; margin: 0; font-weight:bold;">${text}</h2>
-                    </div>
-                </section>`,
-                
-                num_title: `<section class="block-item" style="${baseStyle} margin: 1.5em 0; text-align:left; display: flex; align-items: center;">
-                    <span style="background: ${color}; color: white; min-width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-weight: bold; font-size: 13px;">1</span>
-                    <h3 style="font-size: 18px; color: #333; margin:0; font-weight:bold;">${text}</h3>
-                </section>`,
-                
-                grad_title: `<section class="block-item" style="${baseStyle} margin: 1.5em 0; text-align:left;">
-                    <div style="background: ${color}; padding: 8px 15px; border-radius: 0 20px 20px 0; display: inline-block;">
-                        <h2 style="font-size: 17px; color: white; margin: 0; font-weight:bold;">${text}</h2>
-                    </div>
-                </section>`,
-                
-                key_point: `<section class="block-item" style="${baseStyle} margin: 1.5em 0;">
-                    <div style="padding: 20px; border-radius: 12px; border: 2px solid ${color}; background: ${lightBg}; text-align:left;">
-                        <div style="font-size: 16px; color: #333;">${formattedText}</div>
-                    </div>
-                </section>`,
-                
-                quote: `<section class="block-item" style="${baseStyle} margin: 1.5em 0;">
-                    <div style="padding: 15px 20px; border-left: 4px solid ${color}; color: #555; background: #f9f9f9; text-align:left;">
-                        <div style="font-size: 24px; color: ${color}; line-height: 10px; height: 15px; font-family: Georgia;">“</div>
-                        ${formattedText}
-                    </div>
-                </section>`,
-                
-                code_block: `<section class="block-item" style="${baseStyle} margin: 1.5em 0;">
-                    <div style="padding: 15px; background: #2d3436; color: #dfe6e9; border-radius: 8px; font-family: monospace; font-size: 13px; border-top: 4px solid ${color}; text-align:left;">
-                        ${text}
-                    </div>
-                </section>`,
-                
-                bg_card: `<section class="block-item" style="${baseStyle} margin: 1.5em 0;">
-                    <div style="padding: 20px; background: ${lightBg}; border-radius: 15px; text-align:left; border-right: 4px solid ${color};">
-                        ${formattedText}
-                    </div>
-                </section>`,
-                
-                normal: `<section class="block-item" style="${baseStyle} margin: 1.2em 0; line-height: 1.8; font-size: 16px; color: #374151; text-align: justify;">
-                    ${formattedText}
-                </section>`
-            };
-            return tpls[type] || tpls.normal;
-        }
-
-        // 交互逻辑
-        function handleBlockClick(e) {
-            const block = e.target.closest('.block-item');
-            if (!block) return;
-            if (block.classList.contains('selected')) {
-                block.classList.remove('selected');
-                selectedElements.delete(block);
-            } else {
-                block.classList.add('selected');
-                selectedElements.add(block);
-            }
-        }
-
-        function applyTemplate(type) {
-            lastAppliedType = type;
-            if (selectedElements.size === 0) return;
+        // 核心交互：循环变体逻辑
+        function applyVariant(type) {
+            if (selectedElements.size === 0) return alert("请在预览区选择内容块");
             
-            const currentSelected = Array.from(selectedElements);
-            currentSelected.forEach(el => {
+            Array.from(selectedElements).forEach(el => {
                 const rawText = el.getAttribute('data-raw') || el.innerText;
-                const newHtml = getTemplate(type, rawText, currentColor);
-                const temp = document.createElement('div');
-                temp.innerHTML = newHtml;
-                const newEl = temp.firstElementChild;
+                const currentType = el.getAttribute('data-type');
+                let variantIdx = parseInt(el.getAttribute('data-variant') || 0);
+
+                // 如果点击的是同一类型，则切换变体索引
+                if (currentType === type) {
+                    variantIdx = (variantIdx + 1) % VARIANTS[type].length;
+                } else {
+                    variantIdx = 0; // 不同类型，重置为第一个变体
+                }
+
+                const renderFn = VARIANTS[type][variantIdx];
+                const innerHtml = renderFn(rawText, currentColor);
+                
+                // 构造包裹容器
+                const newEl = document.createElement('section');
+                newEl.className = 'block-item selected';
+                newEl.style.padding = '0 10px';
+                newEl.setAttribute('data-type', type);
+                newEl.setAttribute('data-variant', variantIdx);
                 newEl.setAttribute('data-raw', rawText);
-                newEl.classList.add('selected');
+                newEl.setAttribute('data-status', `✓ ${STYLE_NAMES[type]} (${variantIdx + 1}/${VARIANTS[type].length})`);
+                newEl.innerHTML = innerHtml;
+
                 el.replaceWith(newEl);
                 selectedElements.delete(el);
                 selectedElements.add(newEl);
             });
-            document.getElementById('current-style-name').innerText = STYLE_NAMES[type] || '';
         }
 
-        // AI 解析逻辑
+        // 其余支持函数
+        function handleBlockClick(e) {
+            const block = e.target.closest('.block-item');
+            if (!block) return;
+            block.classList.toggle('selected');
+            if (block.classList.contains('selected')) {
+                selectedElements.add(block);
+                block.setAttribute('data-status', `✓ 已选中`);
+            } else {
+                selectedElements.delete(block);
+            }
+        }
+
+        function updateColor(color) {
+            currentColor = color;
+            document.getElementById('custom-color').value = color;
+            if (selectedElements.size > 0) {
+                selectedElements.forEach(el => {
+                    const type = el.getAttribute('data-type') || 'normal';
+                    applyVariant(type); // 颜色变化时重绘当前变体
+                });
+            }
+            addToRecent(color);
+        }
+
         async function generateArticle() {
             const apiKey = document.getElementById('api-key').value;
             const text = document.getElementById('user-input').value;
-            if (!apiKey || !text) return alert("信息缺失");
+            if(!apiKey || !text) return alert("请检查Key和输入");
             const btn = document.getElementById('btn-run');
-            btn.innerText = "⏳ AI 正在解析...";
+            btn.innerText = "⏳ AI 正在深度创作...";
 
             try {
-                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                const res = await fetch('https://api.deepseek.com/chat/completions', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
                     body: JSON.stringify({
                         model: "deepseek-chat",
-                        messages: [
-                            { role: "system", content: "你是一个排版师。将文本拆分为JSON数组，包含type和content。type选：big_title, sub_title, num_title, key_point, quote, bg_card, normal。保持原话。" },
-                            { role: "user", content: text }
-                        ]
+                        messages: [{role: "system", content: "你是一个排版师。返回JSON数组，包含type和content。type: big_title, sub_title, num_title, key_point, quote, bg_card, normal。保持原话。"}, {role: "user", content: text}]
                     })
                 });
-                const data = await response.json();
+                const data = await res.json();
                 const blocks = JSON.parse(data.choices[0].message.content.match(/\[[\s\S]*\]/)[0]);
                 const container = document.getElementById('preview-content');
                 container.innerHTML = '';
                 blocks.forEach(b => {
                     const temp = document.createElement('div');
-                    temp.innerHTML = getTemplate(b.type, b.content, currentColor);
-                    const el = temp.firstElementChild;
-                    el.setAttribute('data-raw', b.content);
-                    container.appendChild(el);
+                    temp.innerHTML = `<section class="block-item" data-type="${b.type}" data-variant="0" data-raw="${b.content}" style="padding:0 10px">${VARIANTS[b.type][0](b.content, currentColor)}</section>`;
+                    container.appendChild(temp.firstChild);
                 });
-            } catch (e) { alert("解析失败"); } finally { btn.innerText = "🚀 一键 AI 解析"; }
+            } catch(e) { alert("生成异常"); } finally { btn.innerText = "🚀 一键 AI 智能排版"; }
         }
 
-        function mergeSelected() {
-            if (selectedElements.size < 2) return alert("请至少选中两段");
-            const sorted = Array.from(selectedElements).sort((a, b) => a.offsetTop - b.offsetTop);
-            const mergedText = sorted.map(el => el.getAttribute('data-raw') || el.innerText).join('\n\n');
-            const first = sorted[0];
-            const newElMarkup = getTemplate('normal', mergedText, currentColor);
-            const temp = document.createElement('div');
-            temp.innerHTML = newElMarkup;
-            const newEl = temp.firstElementChild;
-            newEl.setAttribute('data-raw', mergedText);
-            newEl.classList.add('selected');
-            first.replaceWith(newEl);
-            sorted.slice(1).forEach(el => el.remove());
-            selectedElements.clear();
-            selectedElements.add(newEl);
+        function addToRecent(c) { recentColors = [c, ...recentColors.filter(x=>x!==c)].slice(0,5); localStorage.setItem('recent_colors', JSON.stringify(recentColors)); renderRecentColors(); }
+        function renderRecentColors() { 
+            const container = document.getElementById('recent-colors');
+            container.innerHTML = '';
+            recentColors.forEach(c => {
+                const dot = document.createElement('div');
+                dot.className = 'color-dot'; dot.style.background = c;
+                dot.onclick = () => updateColor(c);
+                container.appendChild(dot);
+            });
         }
-
-        function selectAll() { document.querySelectorAll('.block-item').forEach(el => { el.classList.add('selected'); selectedElements.add(el); }); }
+        function saveConfig() { localStorage.setItem('ds_api_key', document.getElementById('api-key').value); }
+        function selectAll() { document.querySelectorAll('.block-item').forEach(el => { el.classList.add('selected'); selectedElements.add(el); el.setAttribute('data-status', '✓ 已选中'); }); }
         function clearSelection() { selectedElements.forEach(el => el.classList.remove('selected')); selectedElements.clear(); }
-
         async function copyHtml() {
             const content = document.getElementById('preview-content').cloneNode(true);
-            content.querySelectorAll('.block-item').forEach(el => { el.classList.remove('selected'); el.removeAttribute('data-raw'); });
+            content.querySelectorAll('.block-item').forEach(el => { el.classList.remove('selected'); el.removeAttribute('data-raw'); el.removeAttribute('data-status'); el.removeAttribute('data-type'); el.removeAttribute('data-variant'); });
             const blob = new Blob([content.innerHTML], { type: "text/html" });
             const data = [new ClipboardItem({ ["text/html"]: blob })];
             await navigator.clipboard.write(data);
-            alert("✅ 排版已复制！");
+            alert("✅ 排版已复制，样式100%保留！");
         }
-        
+        function mergeSelected() {
+            if (selectedElements.size < 2) return alert("请至少选中两段");
+            const sorted = Array.from(selectedElements).sort((a,b)=>a.offsetTop - b.offsetTop);
+            const mergedText = sorted.map(el => el.getAttribute('data-raw')).join('\n\n');
+            const first = sorted[0];
+            const newElMarkup = `<section class="block-item selected" data-type="normal" data-variant="0" data-raw="${mergedText}" data-status="✓ 已合并" style="padding:0 10px">${VARIANTS.normal[0](mergedText, currentColor)}</section>`;
+            const temp = document.createElement('div');
+            temp.innerHTML = newElMarkup;
+            first.replaceWith(temp.firstChild);
+            sorted.slice(1).forEach(el => el.remove());
+            selectedElements.clear();
+            selectedElements.add(temp.firstChild);
+        }
         const STYLE_NAMES = { big_title: "大标题", sub_title: "小标题", num_title: "序号标", grad_title: "渐变标", key_point: "重点卡", quote: "引用块", code_block: "代码块", bg_card: "底色卡", normal: "正文" };
     </script>
 </body>
