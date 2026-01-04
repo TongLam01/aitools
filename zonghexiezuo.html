@@ -11,32 +11,49 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
     <style>
+        /* 1. 基础布局修复：确保整体高度填满屏幕，菜单固定底部 */
+        html, body, #app { height: 100%; margin: 0; padding: 0; overflow: hidden; }
         body { background-color: #f1f5f9; font-family: -apple-system, "Noto Sans SC", sans-serif; }
-        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
-        .glass-footer { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-top: 1px solid #e2e8f0; }
 
-        /* --- 显式 Markdown 渲染规范 --- */
-        .markdown-render h1 { font-size: 1.6rem; font-weight: 800; margin: 1.2rem 0 0.8rem; color: #1e293b; border-bottom: 2px solid #6366f1; padding-bottom: 0.3rem; }
-        .markdown-render h2 { font-size: 1.4rem; font-weight: 700; margin: 1.5rem 0 0.7rem; color: #334155; }
-        .markdown-render h3 { font-size: 1.2rem; font-weight: 700; margin: 1rem 0 0.5rem; color: #4f46e5; }
-        .markdown-render p { font-size: 1rem; line-height: 1.8; margin-bottom: 1rem; color: #475569; }
-        .markdown-render strong { color: #1e1b4b; font-weight: 700; background-color: rgba(99, 102, 241, 0.08); padding: 0 2px; }
-        .markdown-render ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
-        .markdown-render li { margin-bottom: 0.5rem; line-height: 1.7; }
-        .markdown-render blockquote { border-left: 4px solid #e2e8f0; padding-left: 1rem; font-style: italic; color: #64748b; }
+        .app-layout { height: 100vh; display: flex; flex-direction: column; }
+        .scroll-content { flex: 1; overflow-y: auto; }
+        
+        /* 2. Markdown 排版深度锁定 */
+        .markdown-render h1 { font-size: 1.5rem !important; font-weight: 800 !important; margin: 1.5rem 0 1rem !important; color: #1e293b; border-bottom: 2px solid #6366f1; padding-bottom: 0.3rem; }
+        .markdown-render h2 { font-size: 1.3rem !important; font-weight: 700 !important; margin: 1.2rem 0 0.8rem !important; color: #334155; }
+        .markdown-render h3 { font-size: 1.15rem !important; font-weight: 700 !important; margin: 1rem 0 0.5rem !important; color: #4f46e5; }
+        .markdown-render p { font-size: 1rem !important; line-height: 1.8 !important; margin-bottom: 1rem !important; color: #475569; }
+        .markdown-render strong { color: #1e1b4b !important; font-weight: 700 !important; background: rgba(99, 102, 241, 0.05); padding: 0 2px; }
+        .markdown-render ul, .markdown-render ol { padding-left: 1.5rem !important; margin-bottom: 1rem !important; }
+        .markdown-render li { margin-bottom: 0.5rem !important; font-size: 1rem !important; color: #475569; }
 
-        /* PC端双栏布局核心 */
+        /* 3. 底部悬浮菜单样式（修复宽度适配） */
+        .fixed-bottom-menu { 
+            position: fixed; 
+            bottom: 0; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 100%; 
+            max-width: 100%; /* 移动端平铺 */
+            background: rgba(255, 255, 255, 0.98); 
+            backdrop-filter: blur(15px); 
+            border-top: 1px solid #e2e8f0; 
+            z-index: 100;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+        }
+
+        /* PC端最大宽度限制 */
         @media (min-width: 1024px) {
-            .app-container { max-width: 1200px !important; display: flex; flex-direction: row; height: calc(100vh - 74px); }
-            .side-input { width: 45%; border-right: 1px solid #e2e8f0; }
-            .side-output { width: 55%; background: #ffffff; }
-            .fixed-footer { max-width: 1200px !important; }
+            .fixed-bottom-menu { max-width: 1200px; }
+            .side-layout { display: flex; flex-direction: row; height: 100%; }
+            .side-panel { width: 50%; height: 100%; }
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .typing-cursor::after { content: '▋'; animation: blink 1s step-end infinite; color: #6366f1; }
+        .typing-effect::after { content: '▋'; animation: blink 1s step-end infinite; color: #6366f1; margin-left: 4px; }
         @keyframes blink { 50% { opacity: 0; } }
-        
+
         /* 截图优化 */
         .capturing #share-area { border-radius: 0; border: none; padding: 40px !important; background: white !important; box-shadow: none !important; }
         .capture-only { display: none; }
@@ -45,97 +62,93 @@
 </head>
 <body class="text-slate-900">
 
-<div id="app" class="min-h-screen flex flex-col max-w-lg lg:max-w-7xl mx-auto bg-white shadow-2xl relative overflow-hidden">
+<div id="app" class="app-layout max-w-[1200px] mx-auto bg-white relative">
     
-    <header class="sticky top-0 z-50 glass-nav px-6 py-4 flex justify-between items-center">
+    <header class="flex-none bg-white/90 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-slate-100 z-50">
         <div class="flex items-center gap-2">
             <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-pen-nib text-white"></i></div>
-            <h1 class="text-lg font-extrabold bg-gradient-to-r from-slate-900 to-indigo-600 bg-clip-text text-transparent">写作瑞士军刀</h1>
+            <h1 class="text-lg font-extrabold text-slate-800">写作瑞士军刀</h1>
         </div>
-        <div class="flex items-center gap-3">
-            <button @click="showConfig = true" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center transition-all"><i class="fa-solid fa-sliders text-slate-400"></i></button>
-        </div>
+        <button @click="showConfig = true" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center transition-all">
+            <i class="fa-solid fa-gear text-slate-400"></i>
+        </button>
     </header>
 
-    <div class="app-container flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-50">
+    <div class="scroll-content side-layout bg-slate-50">
         
-        <section class="side-input p-5 lg:p-8 flex flex-col space-y-4 overflow-y-auto no-scrollbar">
+        <section class="side-panel p-5 lg:p-8 flex flex-col space-y-4">
             <div class="flex justify-between items-center px-1">
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic">Input Material</span>
-                <span class="text-[10px] bg-white border px-2 py-0.5 rounded-full text-slate-500 font-mono">{{ inputBody.length }} chars</span>
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic">Source Material</span>
+                <span class="text-[10px] text-slate-400 font-mono">{{ inputBody.length }}字</span>
             </div>
-            <div class="relative flex-1 min-h-[250px] lg:min-h-0">
-                <textarea v-model="inputBody" placeholder="输入灵感、大纲或待改写的段落..." 
-                    class="w-full h-full p-6 bg-white rounded-3xl border-none shadow-sm focus:ring-2 focus:ring-indigo-100 transition-all resize-none text-[16px] leading-relaxed"></textarea>
+            <div class="relative flex-1 min-h-[300px] lg:min-h-0">
+                <textarea v-model="inputBody" placeholder="输入灵感、大纲或需要润色的内容..." 
+                    class="w-full h-full p-6 bg-white rounded-3xl border-none shadow-sm focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none text-[16px] leading-relaxed"></textarea>
                 <div class="absolute bottom-4 right-4 flex gap-3">
                     <button @click="inputBody = ''" v-if="inputBody" class="p-2 text-slate-300 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
-                    <button @click="pasteText" class="p-3.5 bg-indigo-600 shadow-xl rounded-2xl text-white hover:bg-indigo-700 active:scale-90 transition-all shadow-indigo-200"><i class="fa-solid fa-paste"></i></button>
+                    <button @click="pasteText" class="p-4 bg-indigo-600 shadow-xl rounded-2xl text-white active:scale-90 transition-all shadow-indigo-100"><i class="fa-solid fa-paste"></i></button>
                 </div>
             </div>
         </section>
 
-        <section ref="outputContainer" class="side-output p-5 lg:p-8 flex flex-col space-y-4 overflow-y-auto no-scrollbar relative border-t lg:border-t-0">
-            <div class="flex justify-between items-center px-1 sticky top-0 bg-white/60 backdrop-blur-sm z-10 py-1">
+        <section ref="outputContainer" class="side-panel p-5 lg:p-8 flex flex-col space-y-4 bg-white border-t lg:border-t-0 lg:border-l border-slate-100">
+            <div class="flex justify-between items-center px-1">
                 <span class="text-[11px] font-bold text-indigo-600 flex items-center gap-2">
-                    <span v-if="isGenerating" class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>AI EXPERT ANALYSIS
+                    <span v-if="isGenerating" class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>AI EXPERT OUTPUT
                 </span>
                 <div class="flex gap-4" v-if="outputBody && !isGenerating">
-                    <button @click="generateImage" class="text-[11px] font-bold text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-camera mr-1"></i>生成长图</button>
-                    <button @click="copyText(outputBody)" class="text-[11px] font-bold text-indigo-600"><i class="fa-solid fa-copy mr-1"></i>一键复制</button>
+                    <button @click="generateImage" class="text-[11px] font-bold text-slate-400 hover:text-indigo-600"><i class="fa-solid fa-camera mr-1"></i>截图</button>
+                    <button @click="copyText(outputBody)" class="text-[11px] font-bold text-indigo-600">复制</button>
                 </div>
-                <div v-if="isGenerating">
-                    <button @click="stopGeneration" class="text-[11px] font-bold text-red-500 flex items-center gap-1"><i class="fa-solid fa-stop-circle"></i> 停止</button>
-                </div>
+                <button v-if="isGenerating" @click="stopGeneration" class="text-[11px] font-bold text-red-500 flex items-center gap-1"><i class="fa-solid fa-stop-circle"></i> 停止</button>
             </div>
 
-            <div id="share-area" class="bg-white rounded-3xl p-6 lg:p-8 shadow-sm border border-slate-100 min-h-[150px]">
-                <div class="capture-only mb-8 border-b pb-4 font-bold text-indigo-600 italic">© 写作瑞士军刀 | 2026专业灵感舱</div>
-                
-                <div class="markdown-render" :class="{ 'typing-cursor': isGenerating }" v-html="renderedOutput"></div>
-                
-                <div v-if="!outputBody && !isGenerating" class="h-40 flex flex-col items-center justify-center text-slate-300 space-y-2">
-                    <i class="fa-solid fa-wand-magic-sparkles text-4xl opacity-20"></i>
+            <div id="share-area" class="flex-1 bg-white relative">
+                <div class="capture-only mb-6 border-b pb-4 text-indigo-600 font-bold">© 写作瑞士军刀</div>
+                <div class="markdown-render" :class="{ 'typing-effect': isGenerating }" v-html="renderedOutput"></div>
+                <div v-if="!outputBody && !isGenerating" class="h-64 flex flex-col items-center justify-center text-slate-200">
+                    <i class="fa-solid fa-wand-sparkles text-6xl mb-3"></i>
                     <p class="text-xs font-bold tracking-widest">等待指令下达</p>
                 </div>
-                
-                <div class="capture-only mt-10 pt-4 border-t text-center text-[10px] text-slate-300">本内容由 DeepSeek R1 深度推理模型创作</div>
+                <div class="capture-only mt-10 pt-4 border-t text-center text-[10px] text-slate-300">本内容由 DeepSeek R1 创作</div>
+                <div class="h-32"></div>
             </div>
         </section>
     </div>
 
-    <footer class="fixed-footer sticky bottom-0 left-0 right-0 max-w-lg lg:max-w-7xl mx-auto px-6 py-6 glass-footer shadow-2xl z-40">
+    <footer class="fixed-bottom-menu">
         <div class="grid grid-cols-3 lg:grid-cols-6 gap-3">
             <button v-for="tool in tools" :key="tool.id" @click="runTool(tool)" :disabled="isGenerating"
                 class="flex flex-col items-center gap-2 p-3 lg:p-4 rounded-2xl transition-all border active:scale-95"
-                :class="currentToolId === tool.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-100' : 'bg-slate-50 border-slate-100 text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/50'">
+                :class="currentToolId === tool.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg' : 'bg-white border-slate-100 text-slate-600 hover:border-indigo-200'">
                 <i :class="tool.icon" class="text-xl"></i>
                 <span class="text-[10px] lg:text-[11px] font-bold">{{ tool.name }}</span>
             </button>
         </div>
     </footer>
 
-    <div v-if="showConfig" class="fixed inset-0 z-[100] flex justify-end">
+    <div v-if="showConfig" class="fixed inset-0 z-[110] flex justify-end">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showConfig = false"></div>
-        <div class="relative w-80 bg-white p-8 shadow-2xl h-full flex flex-col">
-            <h3 class="font-bold text-lg mb-8 flex items-center gap-2 text-slate-800"><i class="fa-solid fa-cog text-indigo-600"></i> 核心引擎配置</h3>
-            <div class="space-y-6 flex-1">
+        <div class="relative w-80 bg-white p-8 shadow-2xl h-full animate-slide-in">
+            <h3 class="font-bold text-lg mb-8 flex items-center gap-2"><i class="fa-solid fa-sliders text-indigo-600"></i> 配置</h3>
+            <div class="space-y-6">
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">DeepSeek API Key</label>
                     <input v-model="config.apiKey" type="password" placeholder="sk-..." class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-1 focus:ring-indigo-500 font-mono text-sm">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">模型引擎</label>
-                    <select v-model="config.model" class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl outline-none text-sm font-bold text-slate-700">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">模型</label>
+                    <select v-model="config.model" class="w-full mt-2 p-3.5 bg-slate-50 rounded-xl outline-none text-sm font-bold">
                         <option value="deepseek-reasoner">DeepSeek R1 (深度思考)</option>
-                        <option value="deepseek-chat">DeepSeek V3 (标准改写)</option>
+                        <option value="deepseek-chat">DeepSeek V3 (极速通用)</option>
                     </select>
                 </div>
+                <button @click="saveConfig" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl active:scale-95 transition-all">保存设置</button>
             </div>
-            <button @click="saveConfig" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">确认并保存</button>
         </div>
     </div>
 
-    <div v-if="toast" class="fixed top-24 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white text-[11px] font-bold rounded-full z-[120] shadow-2xl animate-bounce">{{ toast }}</div>
+    <div v-if="toast" class="fixed top-24 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white text-[11px] font-bold rounded-full z-[120] shadow-2xl">{{ toast }}</div>
 
 </div>
 
@@ -145,12 +158,11 @@ createApp({
     setup() {
         const inputBody = ref(''); const outputBody = ref(''); const isGenerating = ref(false);
         const showConfig = ref(false); const currentToolId = ref(null); const toast = ref('');
-        const outputContainer = ref(null);
-        const config = ref({ apiKey: '', model: 'deepseek-reasoner' });
+        const outputContainer = ref(null); const config = ref({ apiKey: '', model: 'deepseek-reasoner' });
         let abortController = null;
 
         const tools = ref([
-            { id: 'gongwen', name: '资深公文', icon: 'fa-solid fa-file-signature' },
+            { id: 'gongwen', name: '资深公文', icon: 'fa-solid fa-file-contract' },
             { id: 'redbook', name: '爆款红书', icon: 'fa-solid fa-fire-flame-curved' },
             { id: 'risk', name: '逻辑排雷', icon: 'fa-solid fa-shield-halved' },
             { id: 'eq', name: '高情商说', icon: 'fa-solid fa-face-smile-wink' },
@@ -158,12 +170,13 @@ createApp({
             { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-sitemap' }
         ]);
 
+        // 渲染 Markdown 内容
         const renderedOutput = computed(() => {
             if (!outputBody.value) return '';
             return marked.parse(outputBody.value);
         });
 
-        // 核心滚动逻辑：监听到内容变化且正在生成时，自动滚动右侧容器
+        // 自动跟随滚动
         watch(outputBody, () => {
             if (isGenerating.value) {
                 nextTick(() => {
@@ -174,30 +187,30 @@ createApp({
         });
 
         onMounted(() => {
-            const saved = localStorage.getItem('writer_v3_cfg');
+            const saved = localStorage.getItem('writer_v4_cfg');
             if (saved) config.value = JSON.parse(saved);
-            inputBody.value = localStorage.getItem('writer_v3_draft') || '';
+            inputBody.value = localStorage.getItem('writer_v4_draft') || '';
         });
 
         const showToast = (m) => { toast.value = m; setTimeout(() => toast.value = '', 2500); };
-        const saveConfig = () => { localStorage.setItem('writer_v3_cfg', JSON.stringify(config.value)); showConfig.value = false; showToast('设置已存档'); };
-        const copyText = (t) => { navigator.clipboard.writeText(t); showToast('已成功复制'); };
-        const pasteText = async () => { try { inputBody.value += await navigator.clipboard.readText(); showToast('已粘贴'); } catch (e) {} };
-        const stopGeneration = () => { if(abortController) { abortController.abort(); isGenerating.value = false; currentToolId.value = null; showToast('已中止生成'); } };
+        const saveConfig = () => { localStorage.setItem('writer_v4_cfg', JSON.stringify(config.value)); showConfig.value = false; showToast('设置已存档'); };
+        const copyText = (t) => { navigator.clipboard.writeText(t); showToast('复制成功'); };
+        const pasteText = async () => { try { inputBody.value += await navigator.clipboard.readText(); } catch (e) {} };
+        const stopGeneration = () => { if(abortController) { abortController.abort(); isGenerating.value = false; currentToolId.value = null; showToast('已中止'); } };
 
         const generateImage = async () => {
             const el = document.body; el.classList.add('capturing');
             try {
                 const canvas = await html2canvas(document.getElementById('share-area'), { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-                const link = document.createElement('a'); link.download = `瑞士军刀作品_${Date.now()}.png`;
+                const link = document.createElement('a'); link.download = `瑞士军刀_${Date.now()}.png`;
                 link.href = canvas.toDataURL(); link.click();
-            } catch (err) { showToast('图片渲染失败'); }
+            } catch (err) { showToast('截图失败'); }
             el.classList.remove('capturing');
         };
 
         const runTool = async (tool) => {
             if (!inputBody.value) return showToast('请输入原始内容');
-            if (!config.value.apiKey) { showConfig.value = true; return showToast('请先配置 API Key'); }
+            if (!config.value.apiKey) { showConfig.value = true; return showToast('请配置 Key'); }
             currentToolId.value = tool.id; isGenerating.value = true; outputBody.value = '';
             abortController = new AbortController();
 
@@ -208,8 +221,6 @@ createApp({
                     signal: abortController.signal
                 });
 
-                if (!response.ok) throw new Error('API Request Failed');
-
                 const reader = response.body.getReader(); const decoder = new TextDecoder();
                 while (true) {
                     const { done, value } = await reader.read(); if (done) break;
@@ -219,13 +230,16 @@ createApp({
                         if (line.startsWith('data: ')) {
                             try {
                                 const data = JSON.parse(line.replace('data: ', ''));
-                                outputBody.value += data.choices[0].delta.content || '';
+                                // 核心修复：DeepSeek R1 模型中，thinking 在 reasoning_content 字段，我们只取 content 字段
+                                // 如果 API 服务商合并了内容，通常是通过 stream 块来区分的，大部分官方/主流中转接口通过 content 返回正文
+                                const content = data.choices[0].delta.content;
+                                if (content) outputBody.value += content;
                             } catch (e) {}
                         }
                     }
                 }
             } catch (err) { if (err.name !== 'AbortError') showToast('网络连接中断'); }
-            finally { isGenerating.value = false; currentToolId.value = null; localStorage.setItem('writer_v3_draft', inputBody.value); }
+            finally { isGenerating.value = false; currentToolId.value = null; localStorage.setItem('writer_v4_draft', inputBody.value); }
         };
 
         return { inputBody, outputBody, renderedOutput, isGenerating, showConfig, config, tools, saveConfig, runTool, currentToolId, toast, pasteText, copyText, generateImage, outputContainer, stopGeneration };
