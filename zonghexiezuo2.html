@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>写作瑞士军刀 | 专业生产力工具</title>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&display=swap');
+
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: rgba(0,0,0,0.05);
+            --accent-color: #4f46e5;
+        }
+
+        .dark {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(255,255,255,0.1);
+        }
+
+        html, body, #app { 
+            height: 100%; margin: 0; padding: 0; overflow: hidden; 
+            background-color: var(--bg-primary); 
+            font-family: -apple-system, "Noto Sans SC", sans-serif; 
+            transition: background-color 0.3s ease;
+        }
+        
+        .app-layout { height: 100vh; display: flex; flex-direction: column; }
+        
+        .main-content { 
+            flex: 1; display: flex; overflow: hidden; 
+            padding: 24px; gap: 24px; 
+            max-width: 1600px; margin: 0 auto; width: 100%; 
+        }
+        
+        @media (max-width: 1023px) {
+            .main-content { 
+                flex-direction: column; 
+                overflow-y: auto; 
+                padding: 12px; 
+                gap: 12px;
+            }
+            .panel { min-height: 45vh; }
+        }
+
+        .panel { 
+            flex: 1; 
+            background: var(--bg-secondary); 
+            border-radius: 20px; 
+            display: flex; flex-direction: column; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02); 
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .panel:focus-within {
+            box-shadow: 0 0 0 2px var(--accent-color), 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .scroll-area { 
+            flex: 1; overflow-y: auto; padding: 32px; 
+            font-size: 16px; line-height: 2.2; 
+            color: var(--text-primary); 
+            scroll-behavior: smooth;
+        }
+
+        .scroll-area::-webkit-scrollbar { width: 6px; }
+        .scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .scroll-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark .scroll-area::-webkit-scrollbar-thumb { background: #475569; }
+
+        .markdown-render h1, .markdown-render h2, .markdown-render h3 { 
+            font-family: 'Noto Serif SC', serif; 
+            color: var(--text-primary);
+        }
+        
+        .markdown-render h2 { 
+            font-size: 1.5rem; 
+            border-bottom: 2px solid var(--border-color); 
+            padding-bottom: 8px; margin: 2rem 0 1rem; 
+        }
+
+        .markdown-render ol, .markdown-render ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+        .markdown-render li { margin-bottom: 0.8rem; list-style-position: outside; }
+        .markdown-render p { margin-bottom: 1.5rem; text-align: justify; }
+        .markdown-render code { 
+            background: rgba(0,0,0,0.05); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-size: 0.9em;
+        }
+        .dark .markdown-render code { background: rgba(255,255,255,0.1); }
+        
+        .markdown-render pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .markdown-render pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        .fixed-footer { 
+            background: var(--bg-secondary); 
+            backdrop-filter: blur(20px); 
+            border-top: 1px solid var(--border-color); 
+            padding: 12px 24px 20px 24px;
+            transition: background-color 0.3s ease;
+        }
+
+        .tool-btn { 
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 12px 8px; border-radius: 12px; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent; cursor: pointer;
+            min-width: 0;
+            background: transparent;
+        }
+        .tool-btn i { font-size: 1.25rem; color: var(--text-secondary); transition: color 0.2s; }
+        .tool-btn span { 
+            font-size: 10px; font-weight: 700; 
+            color: var(--text-secondary); 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            transition: color 0.2s;
+        }
+        .tool-btn:hover:not(:disabled) { 
+            background: var(--bg-primary); 
+            transform: translateY(-2px); 
+        }
+        .tool-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .tool-btn.active { 
+            background: #111827; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
+        }
+        .tool-btn.active i, .tool-btn.active span { color: white; }
+
+        @media (max-width: 640px) {
+            .tool-btn { padding: 10px 4px; }
+            .tool-btn span { font-size: 9px; }
+            .tool-btn i { font-size: 1.1rem; }
+        }
+
+        #poster-wrap { 
+            position: absolute; left: -9999px; width: 720px; 
+            padding: 100px; background: #f3f4f6; 
+        }
+        .poster-card { 
+            background: white; padding: 60px; border-radius: 4px; 
+            box-shadow: 0 40px 80px rgba(0,0,0,0.1); position: relative;
+        }
+        .poster-head { 
+            border-bottom: 3px solid #111827; padding-bottom: 12px; 
+            margin-bottom: 40px; font-family: 'Noto Serif SC', serif; 
+            font-size: 22px; color: #111827;
+        }
+        .poster-foot {
+            margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee;
+            display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8;
+        }
+
+        .typing::after { content: '▋'; animation: blink 1s step-end infinite; color: var(--accent-color); }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* 加载动画 */
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* 输入框样式 */
+        .input-area {
+            flex: 1; 
+            padding: 24px 32px; 
+            outline: none; 
+            resize: none; 
+            background: transparent; 
+            font-size: 16px; 
+            line-height: 1.8; 
+            color: var(--text-primary);
+            transition: color 0.3s;
+        }
+        .input-area::placeholder { color: var(--text-secondary); opacity: 0.6; }
+
+        /* 状态指示器 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .status-badge.generating {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .dark .status-badge.generating {
+            background: #78350f;
+            color: #fef3c7;
+        }
+        .status-badge.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* 历史记录抽屉 */
+        .history-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+        .history-item:hover {
+            background: var(--bg-primary);
+            border-color: var(--border-color);
+        }
+
+        /* Toast 样式增强 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 120;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            animation: slideDown 0.3s ease;
+        }
+        .toast.success { background: #10b981; color: white; }
+        .toast.error { background: #ef4444; color: white; }
+        .toast.info { background: #1e293b; color: white; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 快捷键提示 */
+        .kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-family: monospace;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="app-layout" :class="{ dark: isDark }">
+    <!-- 顶部导航 -->
+    <header class="flex-none px-6 lg:px-10 py-4 flex justify-between items-center border-b transition-colors"
+            :class="isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white/60 border-slate-50'"
+            style="backdrop-filter: blur(12px);">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <i class="fa-solid fa-pen-fancy text-sm"></i>
+            </div>
+            <div>
+                <h1 class="text-base lg:text-lg font-black tracking-tight" :class="isDark ? 'text-white' : 'text-slate-800'">
+                    写作瑞士军刀
+                </h1>
+                <p class="text-[10px] text-slate-400 hidden sm:block">Writer Swiss Knife</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <!-- 字数统计 -->
+            <div v-if="inputBody" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs"
+                 :class="isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-500'">
+                <i class="fa-solid fa-calculator"></i>
+                <span>{{ inputBody.length }} 字</span>
+            </div>
+            
+            <!-- 历史记录 -->
+            <button @click="showHistory = true" 
+                    class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                    :class="isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-400'"
+                    title="历史记录">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
+            
+            <!-- 深色模式 -->
+            <button @click="toggleDark" 
+                    class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                    :class="isDark ? 'hover:bg-slate-700 text-yellow-400' : 'hover:bg-slate-100 text-slate-400'"
+                    title="切换主题">
+                <i :class="isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"></i>
+            </button>
+            
+            <!-- 设置 -->
+            <button @click="showConfig = true" 
+                    class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                    :class="isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-400'"
+                    title="设置">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 输入面板 -->
+        <section class="panel">
+            <div class="px-6 lg:px-8 py-3 border-b flex justify-between items-center"
+                 :class="isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50/50 border-slate-100'">
+                <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-black tracking-widest uppercase"
+                          :class="isDark ? 'text-slate-400' : 'text-slate-400'">
+                        Source Material
+                    </span>
+                    <span v-if="inputBody" class="text-[10px] px-2 py-0.5 rounded-full sm:hidden"
+                          :class="isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-500'">
+                        {{ inputBody.length }}字
+                    </span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button v-if="inputBody" @click="inputBody = ''" 
+                            class="text-[10px] font-bold transition-colors"
+                            :class="isDark ? 'text-slate-500 hover:text-red-400' : 'text-slate-300 hover:text-red-500'">
+                        <i class="fa-solid fa-trash-can mr-1"></i>清空
+                    </button>
+                </div>
+            </div>
+            <textarea v-model="inputBody" 
+                      placeholder="输入素材、想法或草稿...&#10;&#10;💡 提示：按 Ctrl+Enter 使用上次选择的工具快速生成" 
+                      class="input-area"
+                      @keydown="handleKeydown"></textarea>
+        </section>
+
+        <!-- 输出面板 -->
+        <section class="panel">
+            <div class="px-6 lg:px-8 py-3 border-b flex justify-between items-center"
+                 :class="isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50/50 border-slate-100'">
+                <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-black tracking-widest uppercase"
+                          :class="isDark ? 'text-indigo-400' : 'text-black'">
+                        AI Output
+                    </span>
+                    <span v-if="isGenerating" class="status-badge generating">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        <span>生成中<span class="loading-dots"></span></span>
+                    </span>
+                    <span v-if="errorMsg" class="status-badge error">
+                        <i class="fa-solid fa-exclamation-circle"></i>
+                        错误
+                    </span>
+                </div>
+                <div class="flex gap-2 lg:gap-4">
+                    <template v-if="outputBody && !isGenerating">
+                        <button @click="generateImage" 
+                                class="text-[10px] font-bold transition-colors flex items-center gap-1"
+                                :class="isDark ? 'text-slate-400 hover:text-white' : 'text-slate-400 hover:text-black'">
+                            <i class="fa-solid fa-image"></i>
+                            <span class="hidden sm:inline">导出海报</span>
+                        </button>
+                        <button @click="copyText" 
+                                class="text-[10px] font-bold transition-colors flex items-center gap-1"
+                                :class="isDark ? 'text-slate-400 hover:text-white' : 'text-slate-400 hover:text-black'">
+                            <i class="fa-solid fa-copy"></i>
+                            <span class="hidden sm:inline">复制文本</span>
+                        </button>
+                    </template>
+                    <button v-if="isGenerating" @click="stopStream" 
+                            class="text-[10px] font-bold text-red-500 hover:text-red-600 flex items-center gap-1">
+                        <i class="fa-solid fa-stop"></i>
+                        停止
+                    </button>
+                </div>
+            </div>
+            <div class="scroll-area" ref="scrollBox">
+                <!-- 错误提示 -->
+                <div v-if="errorMsg" class="mb-4 p-4 rounded-xl border"
+                     :class="isDark ? 'bg-red-900/20 border-red-800 text-red-300' : 'bg-red-50 border-red-200 text-red-600'">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-exclamation-triangle mt-0.5"></i>
+                        <div>
+                            <p class="font-bold text-sm mb-1">生成出错</p>
+                            <p class="text-xs opacity-80">{{ errorMsg }}</p>
+                            <button @click="retryLast" class="mt-2 text-xs font-bold underline">重试</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Markdown 渲染内容 -->
+                <div class="markdown-render" :class="{ typing: isGenerating }" v-html="renderedOutput"></div>
+                
+                <!-- 空状态 -->
+                <div v-if="!outputBody && !isGenerating && !errorMsg" 
+                     class="h-full flex flex-col items-center justify-center mt-16">
+                    <div class="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+                         :class="isDark ? 'bg-slate-700' : 'bg-slate-100'">
+                        <i class="fa-solid fa-wand-magic-sparkles text-3xl"
+                           :class="isDark ? 'text-slate-500' : 'text-slate-300'"></i>
+                    </div>
+                    <p class="text-[11px] font-bold tracking-[0.2em] uppercase mb-2"
+                       :class="isDark ? 'text-slate-500' : 'text-slate-300'">
+                        Ready to Create
+                    </p>
+                    <p class="text-xs" :class="isDark ? 'text-slate-600' : 'text-slate-300'">
+                        选择下方工具开始创作
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部工具栏 -->
+    <footer class="fixed-footer">
+        <div class="max-w-5xl mx-auto flex gap-2 lg:gap-4">
+            <button v-for="t in tools" :key="t.id" 
+                    @click="runTool(t)" 
+                    :disabled="isGenerating || !inputBody"
+                    class="tool-btn" 
+                    :class="{ active: currentId === t.id }"
+                    :title="t.desc">
+                <i :class="t.icon"></i>
+                <span>{{ t.name }}</span>
+            </button>
+        </div>
+        <!-- 快捷键提示 -->
+        <div class="hidden lg:flex justify-center mt-2 gap-4 text-[10px]" :class="isDark ? 'text-slate-500' : 'text-slate-400'">
+            <span><span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> 快速生成</span>
+            <span><span class="kbd">Ctrl</span> + <span class="kbd">S</span> 保存草稿</span>
+            <span><span class="kbd">Esc</span> 停止生成</span>
+        </div>
+    </footer>
+
+    <!-- 海报导出容器（离屏渲染） -->
+    <div id="poster-wrap">
+        <div class="poster-card">
+            <div class="poster-head">{{ currentName || '创作萃取' }}成果</div>
+            <div class="markdown-render" v-html="renderedOutput"></div>
+            <div class="poster-foot">
+                <span>© 2025 写作瑞士军刀</span>
+                <span>由 DeepSeek 驱动</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置面板 -->
+    <Transition name="slide">
+        <div v-if="showConfig" class="fixed inset-0 z-[100] flex justify-end">
+            <div class="absolute inset-0 bg-black/20 backdrop-blur-sm" @click="showConfig = false"></div>
+            <div class="relative w-full max-w-sm h-full shadow-2xl flex flex-col overflow-hidden"
+                 :class="isDark ? 'bg-slate-800' : 'bg-white'">
+                <div class="p-6 border-b flex justify-between items-center"
+                     :class="isDark ? 'border-slate-700' : 'border-slate-100'">
+                    <h3 class="font-bold text-lg" :class="isDark ? 'text-white' : 'text-slate-800'">设置</h3>
+                    <button @click="showConfig = false" class="w-8 h-8 rounded-full flex items-center justify-center"
+                            :class="isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-400'">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block"
+                               :class="isDark ? 'text-slate-400' : 'text-slate-400'">
+                            DeepSeek API Key
+                        </label>
+                        <div class="relative">
+                            <input v-model="config.apiKey" 
+                                   :type="showApiKey ? 'text' : 'password'" 
+                                   placeholder="sk-..." 
+                                   class="w-full p-4 pr-12 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                                   :class="isDark ? 'bg-slate-700 text-white placeholder-slate-500' : 'bg-slate-50 text-slate-800'">
+                            <button @click="showApiKey = !showApiKey" 
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 p-2"
+                                    :class="isDark ? 'text-slate-400' : 'text-slate-400'">
+                                <i :class="showApiKey ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                            </button>
+                        </div>
+                        <p class="mt-2 text-[10px]" :class="isDark ? 'text-slate-500' : 'text-slate-400'">
+                            <a href="https://platform.deepseek.com/" target="_blank" class="underline">获取 API Key →</a>
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block"
+                               :class="isDark ? 'text-slate-400' : 'text-slate-400'">
+                            模型选择
+                        </label>
+                        <select v-model="config.model" 
+                                class="w-full p-4 rounded-xl outline-none font-medium focus:ring-2 focus:ring-indigo-500"
+                                :class="isDark ? 'bg-slate-700 text-white' : 'bg-slate-50 text-slate-800'">
+                            <option value="deepseek-reasoner">DeepSeek R1 (深度思考，较慢)</option>
+                            <option value="deepseek-chat">DeepSeek V3 (极速响应)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block"
+                               :class="isDark ? 'text-slate-400' : 'text-slate-400'">
+                            生成温度 ({{ config.temperature }})
+                        </label>
+                        <input type="range" v-model="config.temperature" min="0" max="1" step="0.1"
+                               class="w-full h-2 rounded-full appearance-none cursor-pointer"
+                               :class="isDark ? 'bg-slate-700' : 'bg-slate-200'">
+                        <div class="flex justify-between text-[10px] mt-1"
+                             :class="isDark ? 'text-slate-500' : 'text-slate-400'">
+                            <span>精确</span>
+                            <span>创意</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t" :class="isDark ? 'border-slate-700' : 'border-slate-100'">
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-3 block"
+                               :class="isDark ? 'text-slate-400' : 'text-slate-400'">
+                            数据管理
+                        </label>
+                        <div class="space-y-2">
+                            <button @click="exportData" 
+                                    class="w-full p-3 rounded-xl text-sm font-medium text-left flex items-center gap-3 transition-colors"
+                                    :class="isDark ? 'bg-slate-700 hover:bg-slate-600 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'">
+                                <i class="fa-solid fa-download"></i>
+                                导出数据备份
+                            </button>
+                            <button @click="clearAllData" 
+                                    class="w-full p-3 rounded-xl text-sm font-medium text-left flex items-center gap-3 transition-colors text-red-500"
+                                    :class="isDark ? 'bg-slate-700 hover:bg-red-900/30' : 'bg-slate-50 hover:bg-red-50'">
+                                <i class="fa-solid fa-trash"></i>
+                                清除所有数据
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6 border-t" :class="isDark ? 'border-slate-700' : 'border-slate-100'">
+                    <button @click="saveConfig" 
+                            class="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all">
+                        保存设置
+                    </button>
+                </div>
+            </div>
+        </div>
+    </Transition>
+
+    <!-- 历史记录面板 -->
+    <Transition name="slide">
+        <div v-if="showHistory" class="fixed inset-0 z-[100] flex justify-end">
+            <div class="absolute inset-0 bg-black/20 backdrop-blur-sm" @click="showHistory = false"></div>
+            <div class="relative w-full max-w-sm h-full shadow-2xl flex flex-col overflow-hidden"
+                 :class="isDark ? 'bg-slate-800' : 'bg-white'">
+                <div class="p-6 border-b flex justify-between items-center"
+                     :class="isDark ? 'border-slate-700' : 'border-slate-100'">
+                    <h3 class="font-bold text-lg" :class="isDark ? 'text-white' : 'text-slate-800'">历史记录</h3>
+                    <button @click="showHistory = false" class="w-8 h-8 rounded-full flex items-center justify-center"
+                            :class="isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-400'">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-4">
+                    <div v-if="history.length === 0" class="text-center py-20">
+                        <i class="fa-solid fa-clock-rotate-left text-4xl mb-4"
+                           :class="isDark ? 'text-slate-600' : 'text-slate-200'"></i>
+                        <p class="text-sm" :class="isDark ? 'text-slate-500' : 'text-slate-400'">暂无历史记录</p>
+                    </div>
+                    <div v-else class="space-y-2">
+                        <div v-for="(item, idx) in history" :key="idx" 
+                             @click="loadHistory(item)"
+                             class="history-item">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
+                                      :class="isDark ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'">
+                                    {{ item.toolName }}
+                                </span>
+                                <span class="text-[10px]" :class="isDark ? 'text-slate-500' : 'text-slate-400'">
+                                    {{ formatDate(item.time) }}
+                                </span>
+                            </div>
+                            <p class="text-sm line-clamp-2" :class="isDark ? 'text-slate-300' : 'text-slate-600'">
+                                {{ item.input.substring(0, 100) }}...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="history.length > 0" class="p-4 border-t" :class="isDark ? 'border-slate-700' : 'border-slate-100'">
+                    <button @click="clearHistory" 
+                            class="w-full py-3 rounded-xl text-sm font-medium text-red-500 transition-colors"
+                            :class="isDark ? 'bg-slate-700 hover:bg-red-900/30' : 'bg-slate-50 hover:bg-red-50'">
+                        <i class="fa-solid fa-trash mr-2"></i>清空历史
+                    </button>
+                </div>
+            </div>
+        </div>
+    </Transition>
+
+    <!-- Toast 容器 -->
+    <div class="toast-container">
+        <TransitionGroup name="toast">
+            <div v-for="t in toasts" :key="t.id" class="toast" :class="t.type">
+                <i :class="t.icon" class="mr-2"></i>{{ t.message }}
+            </div>
+        </TransitionGroup>
+    </div>
+</div>
+
+<script>
+const { createApp, ref, computed, watch, nextTick, onMounted, onUnmounted } = Vue;
+
+createApp({
+    setup() {
+        // ============ 状态定义 ============
+        const inputBody = ref('');
+        const outputBody = ref('');
+        const isGenerating = ref(false);
+        const currentId = ref(null);
+        const currentName = ref('');
+        const showConfig = ref(false);
+        const showHistory = ref(false);
+        const showApiKey = ref(false);
+        const scrollBox = ref(null);
+        const toasts = ref([]);
+        const errorMsg = ref('');
+        const isDark = ref(false);
+        const lastTool = ref(null);
+        
+        const config = ref({ 
+            apiKey: '', 
+            model: 'deepseek-reasoner',
+            temperature: 0.4
+        });
+        
+        const history = ref([]);
+        let abortController = null;
+        let toastId = 0;
+
+        // ============ 工具配置 ============
+        const tools = [
+            { id: 'gongwen', name: '资深公文', icon: 'fa-solid fa-file-shield', desc: '将素材重构为正式公文' },
+            { id: 'redbook', name: '爆款红书', icon: 'fa-solid fa-fire', desc: '改写为小红书风格笔记' },
+            { id: 'risk', name: '逻辑排雷', icon: 'fa-solid fa-shield-halved', desc: '检查逻辑漏洞和风险' },
+            { id: 'eq', name: '高情商说', icon: 'fa-solid fa-face-smile-wink', desc: '高情商表达改写' },
+            { id: 'ghost', name: '灵感续写', icon: 'fa-solid fa-feather', desc: '根据文风自然续写' },
+            { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-diagram-project', desc: '提炼结构化大纲' }
+        ];
+
+        // ============ 计算属性 ============
+        const renderedOutput = computed(() => {
+            if (!outputBody.value) return '';
+            try {
+                return marked.parse(outputBody.value);
+            } catch (e) {
+                return outputBody.value;
+            }
+        });
+
+        // ============ 监听器 ============
+        watch(outputBody, () => {
+            if (isGenerating.value) {
+                nextTick(() => { 
+                    if(scrollBox.value) {
+                        scrollBox.value.scrollTop = scrollBox.value.scrollHeight; 
+                    }
+                });
+            }
+        });
+
+        // 自动保存草稿
+        watch(inputBody, (val) => {
+            localStorage.setItem('knife_draft_v9', val);
+        }, { debounce: 1000 });
+
+        // ============ 生命周期 ============
+        onMounted(() => {
+            // 加载配置
+            const savedConfig = localStorage.getItem('knife_cfg_v9');
+            if (savedConfig) {
+                try {
+                    config.value = { ...config.value, ...JSON.parse(savedConfig) };
+                } catch (e) {}
+            }
+            
+            // 加载草稿
+            inputBody.value = localStorage.getItem('knife_draft_v9') || '';
+            
+            // 加载历史
+            const savedHistory = localStorage.getItem('knife_history_v9');
+            if (savedHistory) {
+                try {
+                    history.value = JSON.parse(savedHistory);
+                } catch (e) {}
+            }
+            
+            // 加载主题
+            isDark.value = localStorage.getItem('knife_dark') === 'true';
+            
+            // 加载上次使用的工具
+            lastTool.value = localStorage.getItem('knife_last_tool');
+
+            // 全局键盘事件
+            document.addEventListener('keydown', handleGlobalKeydown);
+        });
+
+        onUnmounted(() => {
+            document.removeEventListener('keydown', handleGlobalKeydown);
+        });
+
+        // ============ 方法定义 ============
+        const showToast = (message, type = 'info') => {
+            const icons = {
+                success: 'fa-solid fa-check-circle',
+                error: 'fa-solid fa-exclamation-circle',
+                info: 'fa-solid fa-info-circle'
+            };
+            const id = ++toastId;
+            toasts.value.push({ id, message, type, icon: icons[type] });
+            setTimeout(() => {
+                toasts.value = toasts.value.filter(t => t.id !== id);
+            }, 3000);
+        };
+
+        const toggleDark = () => {
+            isDark.value = !isDark.value;
+            localStorage.setItem('knife_dark', isDark.value);
+        };
+
+        const saveConfig = () => { 
+            localStorage.setItem('knife_cfg_v9', JSON.stringify(config.value)); 
+            showConfig.value = false; 
+            showToast('设置已保存', 'success'); 
+        };
+
+        const copyText = async () => { 
+            try {
+                await navigator.clipboard.writeText(outputBody.value); 
+                showToast('已复制到剪贴板', 'success'); 
+            } catch (e) {
+                showToast('复制失败', 'error');
+            }
+        };
+
+        const stopStream = () => { 
+            if(abortController) abortController.abort(); 
+            isGenerating.value = false;
+            showToast('已停止生成', 'info');
+        };
+
+        const generateImage = async () => {
+            showToast('海报渲染中...', 'info');
+            try {
+                const canvas = await html2canvas(document.getElementById('poster-wrap'), { 
+                    scale: 3, 
+                    useCORS: true,
+                    backgroundColor: null,
+                    logging: false
+                });
+                const link = document.createElement('a');
+                link.download = `写作成果_${new Date().toLocaleDateString()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast('海报已导出', 'success');
+            } catch (e) {
+                showToast('导出失败: ' + e.message, 'error');
+            }
+        };
+
+        const handleKeydown = (e) => {
+            // Ctrl+Enter 快速生成
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                if (lastTool.value && inputBody.value && !isGenerating.value) {
+                    const tool = tools.find(t => t.id === lastTool.value);
+                    if (tool) runTool(tool);
+                }
+            }
+        };
+
+        const handleGlobalKeydown = (e) => {
+            // Esc 停止生成
+            if (e.key === 'Escape' && isGenerating.value) {
+                stopStream();
+            }
+            // Ctrl+S 保存
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                localStorage.setItem('knife_draft_v9', inputBody.value);
+                showToast('草稿已保存', 'success');
+            }
+        };
+
+        const formatDate = (timestamp) => {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+            return date.toLocaleDateString();
+        };
+
+        const loadHistory = (item) => {
+            inputBody.value = item.input;
+            outputBody.value = item.output;
+            currentName.value = item.toolName;
+            showHistory.value = false;
+            showToast('已加载历史记录', 'success');
+        };
+
+        const clearHistory = () => {
+            if (confirm('确定要清空所有历史记录吗？')) {
+                history.value = [];
+                localStorage.removeItem('knife_history_v9');
+                showToast('历史已清空', 'success');
+            }
+        };
+
+        const saveToHistory = (toolName, input, output) => {
+            history.value.unshift({
+                toolName,
+                input,
+                output,
+                time: Date.now()
+            });
+            // 只保留最近 50 条
+            if (history.value.length > 50) {
+                history.value = history.value.slice(0, 50);
+            }
+            localStorage.setItem('knife_history_v9', JSON.stringify(history.value));
+        };
+
+        const exportData = () => {
+            const data = {
+                config: config.value,
+                history: history.value,
+                draft: inputBody.value,
+                exportTime: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.download = `写作瑞士军刀备份_${new Date().toLocaleDateString()}.json`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            showToast('数据已导出', 'success');
+        };
+
+        const clearAllData = () => {
+            if (confirm('确定要清除所有数据吗？这将删除您的设置、历史记录和草稿。')) {
+                localStorage.removeItem('knife_cfg_v9');
+                localStorage.removeItem('knife_draft_v9');
+                localStorage.removeItem('knife_history_v9');
+                localStorage.removeItem('knife_dark');
+                localStorage.removeItem('knife_last_tool');
+                location.reload();
+            }
+        };
+
+        const retryLast = () => {
+            if (lastTool.value) {
+                const tool = tools.find(t => t.id === lastTool.value);
+                if (tool) runTool(tool);
+            }
+        };
+
+        const runTool = async (tool) => {
+            if (!inputBody.value.trim()) {
+                return showToast('请输入内容', 'error');
+            }
+            if (!config.value.apiKey) { 
+                showConfig.value = true; 
+                return showToast('请先配置 API Key', 'error'); 
+            }
+            
+            isGenerating.value = true;
+            outputBody.value = '';
+            errorMsg.value = '';
+            currentId.value = tool.id;
+            currentName.value = tool.name;
+            lastTool.value = tool.id;
+            localStorage.setItem('knife_last_tool', tool.id);
+            abortController = new AbortController();
+
+            try {
+                const res = await fetch('/api/zonghexiezuo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        message: inputBody.value, 
+                        userKey: config.value.apiKey, 
+                        model: config.value.model,
+                        temperature: parseFloat(config.value.temperature),
+                        toolId: tool.id 
+                    }),
+                    signal: abortController.signal
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(errorText || `HTTP ${res.status}`);
+                }
+
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+                    
+                    for (const line of lines) {
+                        if (line.trim() === '' || line.trim() === ': heartbeat') continue;
+                        
+                        if (line.startsWith('data: ')) {
+                            const dataStr = line.substring(6).trim();
+                            if (dataStr === '[DONE]') continue;
+                            
+                            try {
+                                const data = JSON.parse(dataStr);
+                                
+                                // 处理错误响应
+                                if (data.error) {
+                                    throw new Error(data.error.message || '生成出错');
+                                }
+                                
+                                const content = data.choices?.[0]?.delta?.content;
+                                if (content) {
+                                    outputBody.value += content;
+                                }
+                            } catch (parseErr) {
+                                // 忽略解析错误，继续处理
+                                console.warn('Parse error:', parseErr);
+                            }
+                        }
+                    }
+                }
+
+                // 保存到历史
+                if (outputBody.value) {
+                    saveToHistory(tool.name, inputBody.value, outputBody.value);
+                }
+                
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    // 用户主动停止
+                } else {
+                    errorMsg.value = err.message || '连接出错';
+                    showToast('生成失败: ' + errorMsg.value, 'error');
+                }
+            } finally {
+                isGenerating.value = false;
+                currentId.value = null;
+            }
+        };
+
+        return { 
+            inputBody, outputBody, renderedOutput, isGenerating, 
+            tools, runTool, currentId, currentName, 
+            generateImage, copyText, stopStream,
+            showConfig, config, saveConfig, showApiKey,
+            scrollBox, toasts, errorMsg,
+            isDark, toggleDark,
+            showHistory, history, loadHistory, clearHistory, formatDate,
+            handleKeydown, retryLast, exportData, clearAllData,
+            lastTool
+        };
+    }
+}).mount('#app');
+</script>
+
+<style>
+/* Vue 过渡动画 */
+.slide-enter-active, .slide-leave-active {
+    transition: all 0.3s ease;
+}
+.slide-enter-from, .slide-leave-to {
+    opacity: 0;
+}
+.slide-enter-from > div:last-child,
+.slide-leave-to > div:last-child {
+    transform: translateX(100%);
+}
+
+.toast-enter-active, .toast-leave-active {
+    transition: all 0.3s ease;
+}
+.toast-enter-from {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+.toast-leave-to {
+    opacity: 0;
+    transform: translateX(100px);
+}
+
+/* 行数限制 */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+</body>
+</html>
