@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>公众号AI排版 v2.4</title>
+    <title>公众号AI排版 v2.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -15,7 +15,7 @@
         }
         #preview-content {
             background: white; height: 100%;
-            overflow-y: auto; padding: 20px 16px; outline: none;
+            overflow-y: auto; padding: 20px 10px; outline: none;
             transition: background 0.3s;
         }
 
@@ -120,7 +120,7 @@
     <div class="max-w-7xl mx-auto w-full py-4 px-4 flex-shrink-0">
         <header class="flex justify-between items-center mb-4">
             <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.4</span>
+                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.3</span>
             </h1>
             <div class="flex items-center gap-3">
                 <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="text-[12px] text-slate-400 hidden sm:block">如何获得API Key</a>
@@ -219,7 +219,7 @@
         let currentColor = '#3b82f6';
         let recentColors = ['#3b82f6', '#07c160', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'];
         
-        // 文章底色配置
+        // 文章底色配置（8种，含无底色）
         let currentArticleBg = null;
         const articleBgColors = [
             { id: 'none', value: null, preview: null, name: '无底色' },
@@ -253,78 +253,78 @@
         }
 
         // ==========================================
-        // 核心模板库 v2.4
-        // 正文内容 padding: 0 16px 增加左右留白
-        // 卡片类 margin: 25px 16px 保持一致
+        // 核心模板库 v2.3
+        // 正文内容保持 padding: 0 8px 缩进
+        // 卡片类保持 margin: 25px 8px 实现左右留白
         // ==========================================
         const VARIANTS = {
             big_title: [
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 16px; text-align: center;"><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 8px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 16px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 10px 24px; border-radius: 6px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 16px; text-align: center;"><strong style="font-size: 18px; color: ${c}; border: 2px solid ${c}; padding: 8px 24px; border-radius: 50px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 16px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px;"><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to right, transparent, ${c});"></span><strong style="font-size: 19px; color: #1f2937;">${t}</strong><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to left, transparent, ${c});"></span></section>`,
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 16px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: linear-gradient(135deg, ${c}, ${hexToRgba(c, 0.7)}); padding: 12px 28px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 12px ${hexToRgba(c, 0.3)};">${t}</strong></section>`
+                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 8px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 10px 24px; border-radius: 6px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: ${c}; border: 2px solid ${c}; padding: 8px 24px; border-radius: 50px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px;"><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to right, transparent, ${c});"></span><strong style="font-size: 19px; color: #1f2937;">${t}</strong><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to left, transparent, ${c});"></span></section>`,
+                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: linear-gradient(135deg, ${c}, ${hexToRgba(c, 0.7)}); padding: 12px 28px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 12px ${hexToRgba(c, 0.3)};">${t}</strong></section>`
             ],
             sub_title: [
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 16px; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 20px; background: ${c}; margin-right: 10px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 16px; display: inline-block;"><strong style="font-size: 17px; color: #1f2937; border-bottom: 2px solid ${c}; padding-bottom: 4px;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 16px; display: flex; align-items: center;"><span style="display: inline-block; width: 8px; height: 8px; background: ${c}; margin-right: 10px; border-radius: 50%;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 16px;"><strong style="font-size: 16px; color: ${c}; background: ${hexToRgba(c, 0.1)}; padding: 6px 14px; border-radius: 4px; display: inline-block;">${t}</strong></section>`
+                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 20px; background: ${c}; margin-right: 10px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: inline-block;"><strong style="font-size: 17px; color: #1f2937; border-bottom: 2px solid ${c}; padding-bottom: 4px;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-block; width: 8px; height: 8px; background: ${c}; margin-right: 10px; border-radius: 50%;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><strong style="font-size: 16px; color: ${c}; background: ${hexToRgba(c, 0.1)}; padding: 6px 14px; border-radius: 4px; display: inline-block;">${t}</strong></section>`
             ],
             num_title: [
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 10px 0 18px 0; padding: 0 16px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
+                    return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 10px 0 18px 0; padding: 0 16px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 2px solid ${c}; color: ${c}; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
+                    return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 2px solid ${c}; color: ${c}; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
                     const displayNum = n.length === 1 ? '0' + n : n;
-                    return `<section style="margin: 10px 0 18px 0; padding: 0 16px; display: flex; align-items: center;"><span style="font-size: 28px; font-weight: 900; color: ${hexToRgba(c, 0.25)}; margin-right: 8px; font-family: Arial; line-height: 1;">${displayNum}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
+                    return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="font-size: 28px; font-weight: 900; color: ${hexToRgba(c, 0.25)}; margin-right: 8px; font-family: Arial; line-height: 1;">${displayNum}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 10px 0 18px 0; padding: 0 16px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 4px; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
+                    return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 4px; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 }
             ],
             grad_title: [
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 16px;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 6px 16px; font-size: 15px; font-weight: bold; border-radius: 4px;">${t}</span></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 16px;"><span style="display: inline-block; background: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 8px 14px; color: #1f2937; font-weight: bold; font-size: 16px; border-radius: 0 6px 6px 0;">${t}</span></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 16px;"><span style="display: inline-block; position: relative;"><strong style="font-size: 17px; color: #1f2937; position: relative; z-index: 1;">${t}</strong><span style="position: absolute; bottom: 0; left: 0; right: 0; height: 8px; background: linear-gradient(90deg, ${hexToRgba(c, 0.4)}, ${hexToRgba(c, 0.1)}); border-radius: 4px; z-index: 0;"></span></span></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 16px;"><span style="display: inline-block; background: ${c}; color: #fff; padding: 5px 12px 5px 10px; font-size: 15px; font-weight: bold; border-radius: 4px 20px 20px 4px;">${t}</span></section>`
+                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 6px 16px; font-size: 15px; font-weight: bold; border-radius: 4px;">${t}</span></section>`,
+                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 8px 14px; color: #1f2937; font-weight: bold; font-size: 16px; border-radius: 0 6px 6px 0;">${t}</span></section>`,
+                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; position: relative;"><strong style="font-size: 17px; color: #1f2937; position: relative; z-index: 1;">${t}</strong><span style="position: absolute; bottom: 0; left: 0; right: 0; height: 8px; background: linear-gradient(90deg, ${hexToRgba(c, 0.4)}, ${hexToRgba(c, 0.1)}); border-radius: 4px; z-index: 0;"></span></span></section>`,
+                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: ${c}; color: #fff; padding: 5px 12px 5px 10px; font-size: 15px; font-weight: bold; border-radius: 4px 20px 20px 4px;">${t}</span></section>`
             ],
             key_point: [
-                (t, c) => `<section style="margin: 25px 16px; padding: 16px 18px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.2)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 16px 18px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; border-radius: 0 8px 8px 0;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid ${c}; border-radius: 0 0 8px 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 16px 18px 16px 50px; background: ${hexToRgba(c, 0.08)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; position: relative;"><span style="position: absolute; left: 16px; top: 16px; font-size: 20px;">💡</span>${format(t)}</section>`
+                (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.2)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; border-radius: 0 8px 8px 0;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid ${c}; border-radius: 0 0 8px 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px 16px 50px; background: ${hexToRgba(c, 0.08)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; position: relative;"><span style="position: absolute; left: 16px; top: 16px; font-size: 20px;">💡</span>${format(t)}</section>`
             ],
             quote: [
-                (t, c) => `<section style="margin: 25px 16px; padding: 14px 18px; background: #f8fafc; color: #64748b; border-radius: 6px; font-size: 16px; line-height: 1.8; border-left: 3px solid #cbd5e1;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 20px 18px 14px 18px; background: #f8fafc; color: #64748b; border-radius: 8px; font-size: 16px; line-height: 1.8; position: relative;"><span style="position: absolute; top: 8px; left: 14px; font-size: 28px; color: #cbd5e1; font-family: Georgia; line-height: 1;">"</span><span style="display: block; padding-left: 20px;">${format(t)}</span></section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 16px 20px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); color: #64748b; border-radius: 8px; font-size: 16px; line-height: 1.8; font-style: italic; border: 1px solid #e2e8f0;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 14px 18px; background: ${hexToRgba(c, 0.06)}; color: #475569; border-radius: 6px; font-size: 16px; line-height: 1.8; border-left: 3px solid ${c};">${format(t)}</section>`
+                (t, c) => `<section style="margin: 25px 8px; padding: 14px 18px; background: #f8fafc; color: #64748b; border-radius: 6px; font-size: 16px; line-height: 1.8; border-left: 3px solid #cbd5e1;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 20px 18px 14px 18px; background: #f8fafc; color: #64748b; border-radius: 8px; font-size: 16px; line-height: 1.8; position: relative;"><span style="position: absolute; top: 8px; left: 14px; font-size: 28px; color: #cbd5e1; font-family: Georgia; line-height: 1;">"</span><span style="display: block; padding-left: 20px;">${format(t)}</span></section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 16px 20px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); color: #64748b; border-radius: 8px; font-size: 16px; line-height: 1.8; font-style: italic; border: 1px solid #e2e8f0;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 14px 18px; background: ${hexToRgba(c, 0.06)}; color: #475569; border-radius: 6px; font-size: 16px; line-height: 1.8; border-left: 3px solid ${c};">${format(t)}</section>`
             ],
             bg_card: [
-                (t, c) => `<section style="margin: 25px 16px; padding: 18px; background: ${c}; border-radius: 8px; color: #fff; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 18px; background: ${hexToRgba(c, 0.12)}; border-radius: 8px; color: #334155; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 18px; background: linear-gradient(135deg, ${c}, ${hexToRgba(c, 0.8)}); border-radius: 8px; color: #fff; font-size: 16px; line-height: 1.8; text-align: justify; box-shadow: 0 4px 12px ${hexToRgba(c, 0.25)};">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 18px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.25)}; border-radius: 8px; color: #334155; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 25px 8px; padding: 18px; background: ${c}; border-radius: 8px; color: #fff; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 18px; background: ${hexToRgba(c, 0.12)}; border-radius: 8px; color: #334155; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 18px; background: linear-gradient(135deg, ${c}, ${hexToRgba(c, 0.8)}); border-radius: 8px; color: #fff; font-size: 16px; line-height: 1.8; text-align: justify; box-shadow: 0 4px 12px ${hexToRgba(c, 0.25)};">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 18px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.25)}; border-radius: 8px; color: #334155; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>`
             ],
             code_block: [
-                (t, c) => `<section style="margin: 25px 16px; padding: 14px 16px; background: #1e293b; color: #e2e8f0; font-family: Menlo, Monaco, Consolas, monospace; font-size: 13px; border-radius: 8px; overflow-x: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; padding: 14px 16px; background: #f8fafc; color: #334155; font-family: Menlo, Monaco, Consolas, monospace; font-size: 13px; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</section>`,
-                (t, c) => `<section style="margin: 25px 16px; border-radius: 8px; overflow: hidden; border: 1px solid #334155;"><table style="width: 100%; border-collapse: collapse;"><tr><td style="background: #334155; padding: 8px 14px;"><span style="display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; margin-right: 6px;"></span><span style="display: inline-block; width: 10px; height: 10px; background: #f59e0b; border-radius: 50%; margin-right: 6px;"></span><span style="display: inline-block; width: 10px; height: 10px; background: #22c55e; border-radius: 50%;"></span></td></tr><tr><td style="padding: 14px 16px; background: #1e293b; color: #e2e8f0; font-family: Menlo, Monaco, Consolas, monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</td></tr></table></section>`
+                (t, c) => `<section style="margin: 25px 8px; padding: 14px 16px; background: #1e293b; color: #e2e8f0; font-family: Menlo, Monaco, Consolas, monospace; font-size: 13px; border-radius: 8px; overflow-x: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; padding: 14px 16px; background: #f8fafc; color: #334155; font-family: Menlo, Monaco, Consolas, monospace; font-size: 13px; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</section>`,
+                (t, c) => `<section style="margin: 25px 8px; border-radius: 8px; overflow: hidden; border: 1px solid #334155;"><table style="width: 100%; border-collapse: collapse;"><tr><td style="background: #334155; padding: 8px 14px;"><span style="display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; margin-right: 6px;"></span><span style="display: inline-block; width: 10px; height: 10px; background: #f59e0b; border-radius: 50%; margin-right: 6px;"></span><span style="display: inline-block; width: 10px; height: 10px; background: #22c55e; border-radius: 50%;"></span></td></tr><tr><td style="padding: 14px 16px; background: #1e293b; color: #e2e8f0; font-family: Menlo, Monaco, Consolas, monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</td></tr></table></section>`
             ],
             normal: [
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 0 16px; line-height: 1.8; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 0 0 15px 0; padding: 0 8px; line-height: 1.8; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
             ]
         };
 
@@ -563,10 +563,10 @@
             let innerHtml = htmlParts.join('');
             
             // 如果有文章底色，用外层容器包裹
-            // 使用超大负边距 + 超大内边距确保底色铺满整个屏幕
+            // 关键：使用大负边距确保底色铺满整个屏幕宽度
             let html;
             if(currentArticleBg && currentArticleBg.value) {
-                html = `<section style="background: ${currentArticleBg.value}; padding: 20px 100px; margin: 0 -100px;">${innerHtml}</section>`;
+                html = `<section style="background: ${currentArticleBg.value}; padding: 20px 10px; margin-left: -10px; margin-right: -10px;">${innerHtml}</section>`;
             } else {
                 html = innerHtml;
             }
@@ -602,5 +602,6 @@
             }
         });
     </script>
+    <script src="common.js"></script>
 </body>
 </html>
