@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公文写作扩展工具 V1.2</title>
+    <title>公文写作扩展工具 V1.5</title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -168,11 +168,6 @@
             background: white; padding: 60px; border-radius: 4px; 
             box-shadow: 0 40px 80px rgba(0,0,0,0.1); position: relative;
         }
-        .poster-head { 
-            border-bottom: 3px solid #111827; padding-bottom: 12px; 
-            margin-bottom: 40px; font-family: 'Noto Serif SC', serif; 
-            font-size: 22px; color: #111827;
-        }
         .poster-foot {
             margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee;
             display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8;
@@ -181,7 +176,6 @@
         .typing::after { content: '▋'; animation: blink 1s step-end infinite; color: var(--accent-color); }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* 加载动画 */
         .loading-dots::after {
             content: '';
             animation: dots 1.5s infinite;
@@ -192,7 +186,6 @@
             60%, 100% { content: '...'; }
         }
 
-        /* 输入框样式 */
         .input-area {
             flex: 1; 
             padding: 24px 32px; 
@@ -206,7 +199,6 @@
         }
         .input-area::placeholder { color: var(--text-secondary); opacity: 0.6; }
 
-        /* 状态指示器 */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -229,7 +221,6 @@
             color: #dc2626;
         }
 
-        /* 历史记录抽屉 */
         .history-item {
             padding: 12px 16px;
             border-radius: 8px;
@@ -242,7 +233,6 @@
             border-color: var(--border-color);
         }
 
-        /* Toast 样式增强 */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -269,7 +259,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 快捷键提示 */
         .kbd {
             display: inline-block;
             padding: 2px 6px;
@@ -463,13 +452,12 @@
         </div>
     </footer>
 
-    <!-- 海报导出容器（离屏渲染） -->
+    <!-- 海报导出容器（离屏渲染，去掉标题） -->
     <div id="poster-wrap">
         <div class="poster-card">
-       
             <div class="markdown-render" v-html="renderedOutput"></div>
             <div class="poster-foot">
-                <span>© aibox6.com</span>
+                <span>© 2025 写作瑞士军刀</span>
                 <span>由 DeepSeek 驱动</span>
             </div>
         </div>
@@ -665,14 +653,13 @@ createApp({
         let abortController = null;
         let toastId = 0;
 
-        // ============ 工具配置 ============
+        // ============ 工具配置（5个工具） ============
         const tools = [
-            { id: 'gongwen', name: '资深公文', icon: 'fa-solid fa-file-shield', desc: '将素材重构为正式公文' },
-            { id: 'intent', name: '读懂意图', icon: 'fa-solid fa-brain', desc: '解读文字背后的核心意图和潜台词' },
-            { id: 'risk', name: '逻辑排雷', icon: 'fa-solid fa-shield-halved', desc: '检查逻辑漏洞和风险' },
-            { id: 'eq', name: '高情商说', icon: 'fa-solid fa-face-smile-wink', desc: '高情商表达改写' },
-            { id: 'ghost', name: '灵感续写', icon: 'fa-solid fa-feather', desc: '根据文风自然续写' },
-            { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-diagram-project', desc: '提炼结构化大纲' }
+            { id: 'style', name: '文风转换', icon: 'fa-solid fa-repeat', desc: '提供公文体和润色两种改写结果' },
+            { id: 'extract', name: '提炼要点', icon: 'fa-solid fa-crosshairs', desc: '直击核心，提炼关键观点（需200字以上）' },
+            { id: 'check', name: '纠错建议', icon: 'fa-solid fa-spell-check', desc: '校对逻辑、用词、敏感度、标点' },
+            { id: 'continue', name: '一键续写', icon: 'fa-solid fa-feather', desc: '理解意图，自然续写' },
+            { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-diagram-project', desc: '生成可视化思维导图大纲（需200字以上）' }
         ];
 
         // ============ 计算属性 ============
@@ -698,13 +685,13 @@ createApp({
 
         // 自动保存草稿
         watch(inputBody, (val) => {
-            localStorage.setItem('knife_draft_v9', val);
+            localStorage.setItem('knife_draft_v10', val);
         }, { debounce: 1000 });
 
         // ============ 生命周期 ============
         onMounted(() => {
             // 加载配置
-            const savedConfig = localStorage.getItem('knife_cfg_v9');
+            const savedConfig = localStorage.getItem('knife_cfg_v10');
             if (savedConfig) {
                 try {
                     config.value = { ...config.value, ...JSON.parse(savedConfig) };
@@ -712,10 +699,10 @@ createApp({
             }
             
             // 加载草稿
-            inputBody.value = localStorage.getItem('knife_draft_v9') || '';
+            inputBody.value = localStorage.getItem('knife_draft_v10') || '';
             
             // 加载历史
-            const savedHistory = localStorage.getItem('knife_history_v9');
+            const savedHistory = localStorage.getItem('knife_history_v10');
             if (savedHistory) {
                 try {
                     history.value = JSON.parse(savedHistory);
@@ -756,7 +743,7 @@ createApp({
         };
 
         const saveConfig = () => { 
-            localStorage.setItem('knife_cfg_v9', JSON.stringify(config.value)); 
+            localStorage.setItem('knife_cfg_v10', JSON.stringify(config.value)); 
             showConfig.value = false; 
             showToast('设置已保存', 'success'); 
         };
@@ -814,7 +801,7 @@ createApp({
             // Ctrl+S 保存
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
-                localStorage.setItem('knife_draft_v9', inputBody.value);
+                localStorage.setItem('knife_draft_v10', inputBody.value);
                 showToast('草稿已保存', 'success');
             }
         };
@@ -841,7 +828,7 @@ createApp({
         const clearHistory = () => {
             if (confirm('确定要清空所有历史记录吗？')) {
                 history.value = [];
-                localStorage.removeItem('knife_history_v9');
+                localStorage.removeItem('knife_history_v10');
                 showToast('历史已清空', 'success');
             }
         };
@@ -853,11 +840,11 @@ createApp({
                 output,
                 time: Date.now()
             });
-            // 只保留最近 50 条
+            // 只保留最近 10 条
             if (history.value.length > 10) {
                 history.value = history.value.slice(0, 10);
             }
-            localStorage.setItem('knife_history_v9', JSON.stringify(history.value));
+            localStorage.setItem('knife_history_v10', JSON.stringify(history.value));
         };
 
         const exportData = () => {
@@ -877,9 +864,9 @@ createApp({
 
         const clearAllData = () => {
             if (confirm('确定要清除所有数据吗？这将删除您的设置、历史记录和草稿。')) {
-                localStorage.removeItem('knife_cfg_v9');
-                localStorage.removeItem('knife_draft_v9');
-                localStorage.removeItem('knife_history_v9');
+                localStorage.removeItem('knife_cfg_v10');
+                localStorage.removeItem('knife_draft_v10');
+                localStorage.removeItem('knife_history_v10');
                 localStorage.removeItem('knife_dark');
                 localStorage.removeItem('knife_last_tool');
                 location.reload();
@@ -897,9 +884,12 @@ createApp({
             if (!inputBody.value.trim()) {
                 return showToast('请输入内容', 'error');
             }
-            if (tool.id === 'mindmap' && inputBody.value.length < 200) {
-                return showToast('内容少于200字，不适合生成逻辑大纲', 'error');
+            
+            // 字数限制检查：提炼要点和思维大纲需要200字以上
+            if ((tool.id === 'extract' || tool.id === 'mindmap') && inputBody.value.length < 200) {
+                return showToast('内容少于200字，不适合使用此功能', 'error');
             }
+            
             if (!config.value.apiKey) { 
                 showConfig.value = true; 
                 return showToast('请先配置 API Key', 'error'); 
@@ -915,7 +905,7 @@ createApp({
             abortController = new AbortController();
 
             try {
-                const res = await fetch('/api/zonghexiezuo2', {
+                const res = await fetch('/api/zonghexiezuo', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
