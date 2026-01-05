@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>公众号AI排版 v2.2</title>
+    <title>公众号AI排版 v2.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -120,7 +120,7 @@
     <div class="max-w-7xl mx-auto w-full py-4 px-4 flex-shrink-0">
         <header class="flex justify-between items-center mb-4">
             <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.2</span>
+                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.3</span>
             </h1>
             <div class="flex items-center gap-3">
                 <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="text-[12px] text-slate-400 hidden sm:block">如何获得API Key</a>
@@ -184,7 +184,6 @@
                 <div class="flex items-center gap-2">
                     <span class="text-[10px] font-bold text-slate-400 uppercase">主题色</span>
                     <div class="flex gap-1.5" id="color-palette"></div>
-                    <input type="color" id="custom-color" oninput="updateColor(this.value)" class="w-5 h-5 rounded cursor-pointer border-0 bg-transparent p-0" title="自定义颜色">
                 </div>
                 <div class="w-[1px] h-4 bg-slate-200"></div>
                 <div class="flex items-center gap-2">
@@ -229,7 +228,6 @@
             { id: 'green', value: '#f6fef9', preview: '#f6fef9', name: '淡青绿' },
             { id: 'blue', value: '#f0f7ff', preview: '#f0f7ff', name: '淡天蓝' },
             { id: 'purple', value: '#faf5ff', preview: '#faf5ff', name: '淡紫色' },
-            // 渐变底色
             { id: 'grad1', value: 'linear-gradient(180deg, #fdf6f0 0%, #fef9f5 50%, #fffdfb 100%)', preview: 'linear-gradient(180deg, #fdf6f0, #fffdfb)', name: '暖阳渐变' },
             { id: 'grad2', value: 'linear-gradient(180deg, #f0f5ff 0%, #f8faff 50%, #fffeff 100%)', preview: 'linear-gradient(180deg, #f0f5ff, #fffeff)', name: '天空渐变' }
         ];
@@ -255,7 +253,7 @@
         }
 
         // ==========================================
-        // 核心模板库 v2.2
+        // 核心模板库 v2.3
         // 正文内容保持 padding: 0 8px 缩进
         // 卡片类保持 margin: 25px 8px 实现左右留白
         // ==========================================
@@ -359,7 +357,6 @@
                 dot.onclick = () => updateColor(c);
                 el.appendChild(dot);
             });
-            document.getElementById('custom-color').value = currentColor;
         }
 
         function renderArticleBgPalette() {
@@ -367,7 +364,7 @@
             el.innerHTML = '';
             articleBgColors.forEach(bg => {
                 const dot = document.createElement('div');
-                const isActive = currentArticleBg && currentArticleBg.id === bg.id || (!currentArticleBg && bg.id === 'none');
+                const isActive = (currentArticleBg && currentArticleBg.id === bg.id) || (!currentArticleBg && bg.id === 'none');
                 dot.className = 'bg-dot' + (isActive ? ' active' : '') + (bg.id === 'none' ? ' none-bg' : '');
                 if(bg.preview) {
                     dot.style.background = bg.preview;
@@ -565,11 +562,11 @@
             
             let innerHtml = htmlParts.join('');
             
-            // 如果有文章底色，用外层容器包裹，底色铺满、内容保持缩进
+            // 如果有文章底色，用外层容器包裹
+            // 关键：使用大负边距确保底色铺满整个屏幕宽度
             let html;
             if(currentArticleBg && currentArticleBg.value) {
-                // 使用负边距让底色铺满，内部 padding 保持内容缩进
-                html = `<section style="background: ${currentArticleBg.value}; padding: 20px 2px; margin: 0 -10px;">${innerHtml}</section>`;
+                html = `<section style="background: ${currentArticleBg.value}; padding: 20px 10px; margin-left: -10px; margin-right: -10px;">${innerHtml}</section>`;
             } else {
                 html = innerHtml;
             }
