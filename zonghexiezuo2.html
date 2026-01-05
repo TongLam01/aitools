@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>写作瑞士军刀 | 专业生产力工具</title>
+    <title>公文写作扩展工具 V1.2</title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -295,7 +295,7 @@
             </div>
             <div>
                 <h1 class="text-base lg:text-lg font-black tracking-tight" :class="isDark ? 'text-white' : 'text-slate-800'">
-                    写作瑞士军刀
+                    公文写作扩展工具
                 </h1>
                 <p class="text-[10px] text-slate-400 hidden sm:block">Writer Swiss Knife</p>
             </div>
@@ -469,7 +469,7 @@
             <div class="poster-head">{{ currentName || '创作萃取' }}成果</div>
             <div class="markdown-render" v-html="renderedOutput"></div>
             <div class="poster-foot">
-                <span>© 2025 写作瑞士军刀</span>
+                <span>© 2026 公众号 67号技师</span>
                 <span>由 DeepSeek 驱动</span>
             </div>
         </div>
@@ -668,7 +668,7 @@ createApp({
         // ============ 工具配置 ============
         const tools = [
             { id: 'gongwen', name: '资深公文', icon: 'fa-solid fa-file-shield', desc: '将素材重构为正式公文' },
-            { id: 'redbook', name: '爆款红书', icon: 'fa-solid fa-fire', desc: '改写为小红书风格笔记' },
+            { id: 'intent', name: '读懂意图', icon: 'fa-solid fa-brain', desc: '解读文字背后的核心意图和潜台词' },
             { id: 'risk', name: '逻辑排雷', icon: 'fa-solid fa-shield-halved', desc: '检查逻辑漏洞和风险' },
             { id: 'eq', name: '高情商说', icon: 'fa-solid fa-face-smile-wink', desc: '高情商表达改写' },
             { id: 'ghost', name: '灵感续写', icon: 'fa-solid fa-feather', desc: '根据文风自然续写' },
@@ -1035,5 +1035,6 @@ createApp({
     overflow: hidden;
 }
 </style>
+<script src="common.js"></script>
 </body>
 </html>
