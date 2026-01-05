@@ -897,6 +897,9 @@ createApp({
             if (!inputBody.value.trim()) {
                 return showToast('请输入内容', 'error');
             }
+            if (tool.id === 'mindmap' && inputBody.value.length < 200) {
+                return showToast('内容少于200字，不适合生成逻辑大纲', 'error');
+            }
             if (!config.value.apiKey) { 
                 showConfig.value = true; 
                 return showToast('请先配置 API Key', 'error'); 
