@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 灵感排版大师 v28.1 - v18复刻修复版</title>
+    <title>AI 灵感排版大师 v28.0 - v18复刻修复版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -52,6 +52,30 @@
         
         .color-dot { width: 20px; height: 20px; border-radius: 4px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* 呼吸动画 */
+        @keyframes breathe {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+        .breathing-text {
+            animation: breathe 2s ease-in-out infinite;
+        }
+        .pulse-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #94a3b8;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: pulse-dot 1.4s ease-in-out infinite;
+        }
+        .pulse-dot:nth-child(2) { animation-delay: 0.2s; }
+        .pulse-dot:nth-child(3) { animation-delay: 0.4s; }
     </style>
 </head>
 <body class="flex flex-col h-screen">
@@ -97,7 +121,15 @@
                 </div>
                 <div id="preview-container" class="w-full flex-1">
                     <div id="preview-content" contenteditable="true">
-                        <div style="padding-top: 50%; text-align: center; color: #cbd5e1; font-size: 13px;">等待生成...</div>
+                        <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60%; color: #94a3b8;">
+                            <div class="breathing-text" style="font-size: 32px; margin-bottom: 16px;">✨</div>
+                            <div class="breathing-text" style="font-size: 14px; margin-bottom: 8px;">等待内容输入</div>
+                            <div style="display: flex; align-items: center;">
+                                <span class="pulse-dot"></span>
+                                <span class="pulse-dot"></span>
+                                <span class="pulse-dot"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,53 +188,49 @@
 
         // ==========================================
         // 核心模板库 v28.0 (v18 复刻版 + RGBA 修复 + 16px)
-        // 严格遵循 v18 的 margin 策略：margin: 0 0 10px 0 (无上边距)
+        // 间距优化：标题下方 18px，带样式块上下 20px，正文 15px
         // ==========================================
         const VARIANTS = {
             big_title: [
-                (t, c) => `<section style="margin: 0 0 10px 0; text-align: center;"><span style="display: block; font-size: 20px; color: ${c}; line-height: 1;">✦</span><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 5px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 10px 0; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 10px 0; text-align: center;"><strong style="font-size: 19px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block;">${t}</strong></section>`
+                (t, c) => `<section style="margin: 0 0 18px 0; text-align: center;"><span style="display: block; font-size: 20px; color: ${c}; line-height: 1;">✦</span><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 5px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0 0 18px 0; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0 0 18px 0; text-align: center;"><strong style="font-size: 19px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block;">${t}</strong></section>`
             ],
             sub_title: [
-                (t, c) => `<section style="margin: 0 0 10px 0; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 18px; background: ${c}; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 10px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;"><span style="color: ${c}; font-weight: bold; margin-right: 6px;">#</span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`
+                (t, c) => `<section style="margin: 8px 0 14px 0; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 18px; background: ${c}; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 8px 0 14px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;"><span style="color: ${c}; font-weight: bold; margin-right: 6px;">#</span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`
             ],
             num_title: [
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 0 0 10px 0;"><span style="display: inline-block; width: 22px; height: 22px; background: ${c}; color: #fff; text-align: center; line-height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; vertical-align: 2px; margin-right: 8px;">${n}</span><strong style="font-size: 17px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
+                    return `<section style="margin: 8px 0 14px 0;"><span style="display: inline-block; width: 22px; height: 22px; background: ${c}; color: #fff; text-align: center; line-height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; vertical-align: 2px; margin-right: 8px;">${n}</span><strong style="font-size: 17px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
-                    return `<section style="margin: 0 0 10px 0;"><span style="font-size: 24px; font-weight: 900; color: ${hexToRgba(c, 0.4)}; margin-right: 4px; font-family: Arial; vertical-align: -3px;">${n}</span><strong style="font-size: 18px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
+                    return `<section style="margin: 8px 0 14px 0;"><span style="font-size: 24px; font-weight: 900; color: ${hexToRgba(c, 0.4)}; margin-right: 4px; font-family: Arial; vertical-align: -3px;">${n}</span><strong style="font-size: 18px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
                 }
             ],
             grad_title: [
-                // 修复：使用 hexToRgba
-                (t, c) => `<section style="margin: 0 0 10px 0;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 5px 15px; font-size: 15px; font-weight: bold; border-radius: 4px; max-width: 100%; box-sizing: border-box; word-break: break-all;">${t}</span></section>`,
-                (t, c) => `<section style="margin: 0 0 10px 0;"><div style="background-color: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 5px 12px; color: ${c}; font-weight: bold; font-size: 15px; border-radius: 0 4px 4px 0; display: inline-block; max-width: 100%; box-sizing: border-box;">${t}</div></section>`
+                (t, c) => `<section style="margin: 8px 0 14px 0;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 5px 15px; font-size: 15px; font-weight: bold; border-radius: 4px; max-width: 100%; box-sizing: border-box; word-break: break-all;">${t}</span></section>`,
+                (t, c) => `<section style="margin: 8px 0 14px 0;"><div style="background-color: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 5px 12px; color: ${c}; font-weight: bold; font-size: 15px; border-radius: 0 4px 4px 0; display: inline-block; max-width: 100%; box-sizing: border-box;">${t}</div></section>`
             ],
             key_point: [
-                // 修复：背景色使用 rgba(r,g,b, 0.08) 替代 8位Hex，解决微信不显示问题
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 15px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.3)}; border-radius: 6px; font-size: 16px; color: #334155; line-height: 1.6; text-align: justify; word-break: break-all;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 15px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 16px; color: #334155; line-height: 1.6; text-align: justify; word-break: break-all;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 20px 0; padding: 15px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.3)}; border-radius: 6px; font-size: 16px; color: #334155; line-height: 1.6; text-align: justify; word-break: break-all;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 0; padding: 15px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 16px; color: #334155; line-height: 1.6; text-align: justify; word-break: break-all;">${format(t)}</section>`
             ],
             quote: [
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 12px 16px; background: #f8fafc; color: #64748b; border-radius: 4px; font-size: 16px; line-height: 1.6; border-left: 3px solid #cbd5e1; word-break: break-all;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 20px 0; padding: 12px 16px; background: #f8fafc; color: #64748b; border-radius: 4px; font-size: 16px; line-height: 1.6; border-left: 3px solid #cbd5e1; word-break: break-all;">${format(t)}</section>`
             ],
             bg_card: [
-                // 修复：背景色 rgba
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 16px; background: ${c}; border-radius: 6px; color: #fff; font-size: 16px; line-height: 1.6; text-align: justify; word-break: break-all;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 16px; background: ${hexToRgba(c, 0.1)}; border-radius: 6px; color: #334155; font-size: 16px; line-height: 1.6; text-align: justify; word-break: break-all;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 20px 0; padding: 16px; background: ${c}; border-radius: 6px; color: #fff; font-size: 16px; line-height: 1.6; text-align: justify; word-break: break-all;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 0; padding: 16px; background: ${hexToRgba(c, 0.1)}; border-radius: 6px; color: #334155; font-size: 16px; line-height: 1.6; text-align: justify; word-break: break-all;">${format(t)}</section>`
             ],
             code_block: [
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 12px; background: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 6px; overflow-x: auto; line-height: 1.5; word-break: break-all;">${t}</section>`
+                (t, c) => `<section style="margin: 20px 0; padding: 12px; background: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 6px; overflow-x: auto; line-height: 1.5; word-break: break-all;">${t}</section>`
             ],
             normal: [
-                // v18 经典参数 + 16px
                 (t, c) => `<section style="margin: 0 0 15px 0; line-height: 1.75; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
             ]
         };
@@ -253,6 +281,23 @@
             });
         }
 
+        // 显示加载动画
+        function showLoading() {
+            const container = document.getElementById('preview-content');
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60%; color: #64748b;">
+                    <div class="breathing-text" style="font-size: 36px; margin-bottom: 16px;">⏳</div>
+                    <div class="breathing-text" style="font-size: 14px; margin-bottom: 12px; font-weight: 500;">AI 正在分析排版</div>
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span class="pulse-dot"></span>
+                        <span class="pulse-dot"></span>
+                        <span class="pulse-dot"></span>
+                    </div>
+                    <div class="breathing-text" style="font-size: 12px; color: #94a3b8;">请稍候，通常需要 5-15 秒</div>
+                </div>
+            `;
+        }
+
         async function generateArticle() {
             const key = document.getElementById('api-key').value;
             const text = document.getElementById('user-input').value;
@@ -260,6 +305,9 @@
             
             const btn = document.getElementById('btn-run');
             btn.disabled = true; btn.innerHTML = "⏳ 正在排版...";
+            
+            // 显示加载动画
+            showLoading();
 
             try {
                 const cleanText = text.replace(/(\n\s*){2,}/g, '\n').trim();
@@ -285,7 +333,21 @@
                 
                 renderArticle(JSON.parse(jsonStr[0]));
                 
-            } catch(e) { alert("错误：" + e.message); }
+            } catch(e) { 
+                alert("错误：" + e.message);
+                // 恢复等待状态
+                document.getElementById('preview-content').innerHTML = `
+                    <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60%; color: #94a3b8;">
+                        <div class="breathing-text" style="font-size: 32px; margin-bottom: 16px;">✨</div>
+                        <div class="breathing-text" style="font-size: 14px; margin-bottom: 8px;">等待内容输入</div>
+                        <div style="display: flex; align-items: center;">
+                            <span class="pulse-dot"></span>
+                            <span class="pulse-dot"></span>
+                            <span class="pulse-dot"></span>
+                        </div>
+                    </div>
+                `;
+            }
             finally { btn.disabled = false; btn.innerHTML = "🚀 一键智能排版"; }
         }
 
