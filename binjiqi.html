@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 灵感排版大师 v23.0 - 高兼容舒朗版</title>
+    <title>AI 灵感排版大师 v24.0 - 样式锁死·间距精调</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -59,7 +59,7 @@
     <div class="max-w-7xl mx-auto w-full py-4 px-4 flex-shrink-0">
         <header class="flex justify-between items-center mb-4">
             <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> AI 排版大师 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v23.0 Airy</span>
+                <span>🎨</span> AI 排版大师 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v24.0 FinalGap</span>
             </h1>
             <div class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded border border-slate-200 hover:border-blue-400 transition" onclick="toggleSettings()">
                 <span class="text-xs font-medium text-slate-600">🔑 API 设置</span>
@@ -79,7 +79,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
             <div class="lg:col-span-7 h-full flex flex-col">
                 <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
-                    <textarea id="user-input" class="w-full flex-1 p-3 bg-transparent outline-none resize-none text-base leading-relaxed text-slate-700 placeholder:text-slate-300 font-mono overflow-y-auto" placeholder="请粘贴文章...&#10;&#10;v23.0 升级：&#10;1. 样式容器升级为 <section>，防丢失&#10;2. 正文行高 2.0，段间距 15px&#10;3. 标题上间距 35px"></textarea>
+                    <textarea id="user-input" class="w-full flex-1 p-3 bg-transparent outline-none resize-none text-base leading-relaxed text-slate-700 placeholder:text-slate-300 font-mono overflow-y-auto" placeholder="请粘贴文章...&#10;&#10;v24.0 修正：&#10;1. 保持重点卡、引用等样式生效&#10;2. 严格控制标题下方间距，消除大白边&#10;3. 正文行距 2.0，段间距 15px"></textarea>
                     <div class="p-2 border-t border-slate-100 bg-white flex-shrink-0 z-10">
                         <button onclick="generateArticle()" id="btn-run" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-sm shadow-sm transition flex justify-center items-center gap-2">
                             <span>🚀</span> 一键智能排版
@@ -133,7 +133,6 @@
         let currentColor = '#3b82f6';
         let recentColors = ['#3b82f6', '#07c160', '#f59e0b', '#ef4444', '#8b5cf6'];
         
-        // 颜色转换工具：Hex 转 RGBA (兼容性更强)
         function hexToRgba(hex, alpha) {
             let r = 0, g = 0, b = 0;
             if (hex.length === 4) {
@@ -155,63 +154,62 @@
         }
 
         // ==========================================
-        // 核心模板库 v23.0 (Section Upgrade & Spacing++)
+        // 核心模板库 v24.0 (Margin Tuning)
         // 关键改动：
-        // 1. 卡片类使用 <section> 标签
-        // 2. margin-top: 35px
-        // 3. line-height: 2.0
+        // 1. Title margin-bottom: 8px (防止大白边)
+        // 2. Title margin-top: 30px (板块区隔)
+        // 3. Normal margin-bottom: 15px (段落分明)
         // ==========================================
         const VARIANTS = {
             big_title: [
-                (t, c) => `<section style="margin: 35px 0 15px 0; text-align: center; line-height: 1.4;"><span style="display: block; font-size: 20px; color: ${c}; line-height: 1; margin-bottom: 5px;">✦</span><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 5px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 35px 0 15px 0; text-align: center;"><strong style="font-size: 18px; color: #fff; background-color: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 35px 0 15px 0; text-align: center;"><strong style="font-size: 19px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block;">${t}</strong></section>`
+                // 注意：margin-bottom 只有 8px，因为标题本身有高度，且下方文字有 line-height
+                (t, c) => `<section style="margin: 30px 0 8px 0; text-align: center; line-height: 1.4;"><span style="display: block; font-size: 20px; color: ${c}; line-height: 1; margin-bottom: 5px;">✦</span><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 5px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 30px 0 8px 0; text-align: center;"><strong style="font-size: 18px; color: #fff; background-color: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 30px 0 8px 0; text-align: center;"><strong style="font-size: 19px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block;">${t}</strong></section>`
             ],
             sub_title: [
-                (t, c) => `<section style="margin: 35px 0 15px 0; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 18px; background-color: ${c}; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 35px 0 15px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;"><span style="color: ${c}; font-weight: bold; margin-right: 6px;">#</span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`
+                (t, c) => `<section style="margin: 30px 0 8px 0; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 18px; background-color: ${c}; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 30px 0 8px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;"><span style="color: ${c}; font-weight: bold; margin-right: 6px;">#</span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`
             ],
             num_title: [
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 35px 0 15px 0;"><span style="display: inline-block; width: 22px; height: 22px; background-color: ${c}; color: #fff; text-align: center; line-height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; vertical-align: 2px; margin-right: 8px;">${n}</span><strong style="font-size: 17px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
+                    return `<section style="margin: 30px 0 8px 0;"><span style="display: inline-block; width: 22px; height: 22px; background-color: ${c}; color: #fff; text-align: center; line-height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; vertical-align: 2px; margin-right: 8px;">${n}</span><strong style="font-size: 17px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
-                    return `<section style="margin: 35px 0 15px 0;"><span style="font-size: 24px; font-weight: 900; color: ${hexToRgba(c, 0.4)}; margin-right: 4px; font-family: Arial; vertical-align: -3px;">${n}</span><strong style="font-size: 18px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
+                    return `<section style="margin: 30px 0 8px 0;"><span style="font-size: 24px; font-weight: 900; color: ${hexToRgba(c, 0.4)}; margin-right: 4px; font-family: Arial; vertical-align: -3px;">${n}</span><strong style="font-size: 18px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
                 }
             ],
             grad_title: [
-                // 渐变改用 rgba 混合，确保可见性
-                (t, c) => `<section style="margin: 35px 0 15px 0;"><span style="display: inline-block; background-image: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 5px 15px; font-size: 15px; font-weight: bold; border-radius: 4px; max-width: 100%; box-sizing: border-box; word-break: break-all;">${t}</span></section>`,
-                (t, c) => `<section style="margin: 35px 0 15px 0;"><div style="background-color: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 5px 12px; color: ${c}; font-weight: bold; font-size: 15px; border-radius: 0 4px 4px 0; display: inline-block; max-width: 100%; box-sizing: border-box;">${t}</div></section>`
+                (t, c) => `<section style="margin: 30px 0 8px 0;"><span style="display: inline-block; background-image: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 5px 15px; font-size: 15px; font-weight: bold; border-radius: 4px; max-width: 100%; box-sizing: border-box; word-break: break-all;">${t}</span></section>`,
+                (t, c) => `<section style="margin: 30px 0 8px 0;"><div style="background-color: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 5px 12px; color: ${c}; font-weight: bold; font-size: 15px; border-radius: 0 4px 4px 0; display: inline-block; max-width: 100%; box-sizing: border-box;">${t}</div></section>`
             ],
             key_point: [
-                // 重点卡：改为 section，使用 rgba 背景，确保不被过滤
-                (t, c) => `<section style="margin: 20px 0; padding: 15px; background-color: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.3)}; border-radius: 6px; font-size: 15px; color: #334155; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 20px 0; padding: 15px; border-left: 4px solid ${c}; background-color: #f8fafc; font-size: 15px; color: #334155; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 15px 0; padding: 15px; background-color: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.3)}; border-radius: 6px; font-size: 15px; color: #334155; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 15px 0; padding: 15px; border-left: 4px solid ${c}; background-color: #f8fafc; font-size: 15px; color: #334155; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</section>`
             ],
             quote: [
-                (t, c) => `<section style="margin: 20px 0; padding: 12px 16px; background-color: #f8fafc; color: #64748b; border-radius: 4px; font-size: 14px; line-height: 2.0; border-left: 3px solid #cbd5e1; word-break: break-all;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 15px 0; padding: 12px 16px; background-color: #f8fafc; color: #64748b; border-radius: 4px; font-size: 14px; line-height: 2.0; border-left: 3px solid #cbd5e1; word-break: break-all;">${format(t)}</section>`
             ],
             bg_card: [
-                (t, c) => `<section style="margin: 20px 0; padding: 16px; background-color: ${c}; border-radius: 6px; color: #fff; font-size: 15px; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 20px 0; padding: 16px; background-color: ${hexToRgba(c, 0.1)}; border-radius: 6px; color: #334155; font-size: 15px; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 15px 0; padding: 16px; background-color: ${c}; border-radius: 6px; color: #fff; font-size: 15px; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 15px 0; padding: 16px; background-color: ${hexToRgba(c, 0.1)}; border-radius: 6px; color: #334155; font-size: 15px; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</section>`
             ],
             code_block: [
-                (t, c) => `<section style="margin: 20px 0; padding: 12px; background-color: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 6px; overflow-x: auto; line-height: 1.6; word-break: break-all;">${t}</section>`
+                (t, c) => `<section style="margin: 15px 0; padding: 12px; background-color: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 6px; overflow-x: auto; line-height: 1.6; word-break: break-all;">${t}</section>`
             ],
             normal: [
-                // 正文：行高 2.0, 无上边距
-                (t, c) => `<section style="margin: 0; line-height: 2.0; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
+                // 正文：line-height 2.0, margin-bottom 15px
+                (t, c) => `<section style="margin: 0 0 15px 0; line-height: 2.0; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
             ]
         };
 
-        // 文本格式化：段落间距 15px
+        // 文本格式化：内部 P 标签 margin 为 0，靠外层 section 撑开间距
         function format(t) { 
-            return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0 0 15px 0; padding: 0;">${l}</p>`).join(''); 
+            return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0; padding: 0;">${l}</p>`).join(''); 
         }
 
         window.onload = () => {
@@ -342,7 +340,7 @@
             const html = clone.innerHTML.replace(/data-[a-z]+="[^"]*"/g, '').replace(/class=""/g, '');
             const blob = new Blob([html], {type: 'text/html'});
             await navigator.clipboard.write([new ClipboardItem({'text/html': blob})]);
-            alert("✅ 已复制！兼容性优化完毕。");
+            alert("✅ 已复制！样式已生效，空白问题已彻底修复。");
         }
     </script>
 </body>
