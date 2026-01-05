@@ -2,103 +2,103 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 灵感排版大师 v16.0 - 完美像素版</title>
+    <title>AI 灵感排版大师 v17.0 - 像素级修正版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary: #3b82f6; } /* 默认改为更通用的微信蓝 */
-        body { background-color: #f3f4f6; }
+        :root { --primary: #3b82f6; }
+        body { background-color: #f8fafc; color: #334155; }
         
         #preview-container { 
-            background: #fff; min-height: 600px; border-radius: 8px; /* 改为方形圆角，更像编辑器 */
-            padding: 0; border: 1px solid #e5e7eb; max-width: 375px; margin: 0 auto 180px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;
+            background: #fff; min-height: 600px; border-radius: 2px;
+            padding: 0; border: 1px solid #e2e8f0; max-width: 375px; margin: 0 auto 180px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;
         }
         #preview-content {
             background: white; height: 100%; min-height: 600px;
-            overflow-y: auto; padding: 20px 16px; outline: none;
+            overflow-y: auto; padding: 25px 16px; outline: none;
         }
 
         /* 交互选框 */
         .block-wrapper {
             position: relative; margin-bottom: 0; cursor: pointer;
-            transition: all 0.2s; border: 1px dashed transparent;
-            padding: 2px; /* 给选框一点呼吸空间 */
+            transition: all 0.15s; border: 1px solid transparent; padding: 2px;
         }
-        .block-wrapper:hover { border-color: #cbd5e1; }
+        .block-wrapper:hover { border-color: #94a3b8; border-style: dashed; }
         .block-wrapper.selected { 
-            border-color: #3b82f6 !important; 
-            background-color: rgba(59, 130, 246, 0.05);
+            border: 2px solid #3b82f6 !important; 
+            background-color: rgba(59, 130, 246, 0.03);
         }
-        /* 选中标记 */
         .block-wrapper.selected::after {
-            content: ''; position: absolute; top: 0; right: 0;
-            width: 0; height: 0; 
-            border-style: solid; border-width: 0 10px 10px 0; 
-            border-color: transparent #3b82f6 transparent transparent;
+            content: '✓'; position: absolute; top: 0; right: 0;
+            background: #3b82f6; color: white; font-size: 10px; width: 16px; height: 16px;
+            display: flex; alignItems: center; justify-content: center;
+            border-bottom-left-radius: 4px; z-index: 10;
         }
 
         .bottom-workbench {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(255, 255, 255, 0.98); border-top: 1px solid #e5e7eb;
-            z-index: 999; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-            box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);
+            border-top: 1px solid #e2e8f0; z-index: 999;
+            padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
         }
         .style-btn { 
-            padding: 6px 12px; background: white; border: 1px solid #e2e8f0; 
+            padding: 6px 12px; background: white; border: 1px solid #cbd5e1; 
             border-radius: 6px; font-size: 12px; font-weight: 600; color: #475569;
             white-space: nowrap; cursor: pointer; transition: 0.1s;
         }
-        .style-btn:hover { background: #f8fafc; border-color: #cbd5e1; color: #1e293b; }
-        .style-btn:active { background: #f1f5f9; transform: translateY(1px); }
-        .color-dot { width: 22px; height: 22px; border-radius: 4px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
+        .style-btn:hover { background: #f1f5f9; border-color: #94a3b8; color: #0f172a; }
+        .style-btn:active { background: #e2e8f0; transform: translateY(1px); }
+        .style-btn.active-style { background: #eff6ff; border-color: #3b82f6; color: #3b82f6; }
+        
+        .color-dot { width: 20px; height: 20px; border-radius: 4px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); transition: transform 0.1s; }
+        .color-dot:hover { transform: scale(1.1); }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="pb-48 text-slate-800">
+<body class="pb-48">
 
     <div class="max-w-7xl mx-auto py-6 px-4">
         <header class="mb-6 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> AI 排版大师 <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">v16.0 Pro</span>
+            <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <span>⚡️</span> AI 排版大师 <span class="bg-slate-100 text-slate-500 text-[10px] px-2 py-0.5 rounded border border-slate-200">v17.0 Clean</span>
             </h1>
-            <div class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-lg border hover:shadow-sm transition" onclick="toggleSettings()">
-                <span class="text-xs font-medium text-slate-600">🔑 API 设置</span>
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-white px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-200 transition" onclick="toggleSettings()">
+                <span class="text-xs font-medium text-slate-500">⚙️ API Key</span>
             </div>
         </header>
 
-        <div id="settings-panel" class="hidden fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
-            <div class="bg-white p-6 rounded-xl w-full max-w-sm shadow-2xl border border-slate-100">
-                <h3 class="font-bold text-base mb-1">DeepSeek API Key</h3>
-                <p class="text-xs text-slate-400 mb-4">Key 仅保存在本地浏览器，安全无忧。</p>
-                <input type="password" id="api-key" oninput="saveConfig()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:border-blue-500 transition mb-4" placeholder="sk-...">
-                <button onclick="toggleSettings()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm transition">保存</button>
+        <div id="settings-panel" class="hidden fixed inset-0 bg-slate-900/10 backdrop-blur-[2px] z-[2000] flex items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-lg w-full max-w-sm shadow-xl border border-slate-100 ring-1 ring-slate-900/5">
+                <h3 class="font-bold text-sm mb-4 text-slate-800">配置 DeepSeek API</h3>
+                <input type="password" id="api-key" oninput="saveConfig()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition mb-4" placeholder="sk-...">
+                <button onclick="toggleSettings()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded font-medium text-sm transition">确认</button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-140px)]">
             <div class="lg:col-span-7 h-full">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 h-full flex flex-col">
-                    <textarea id="user-input" class="w-full flex-1 p-2 bg-transparent outline-none resize-none text-base leading-relaxed text-slate-700 placeholder:text-slate-300" placeholder="在此粘贴文章内容...&#10;&#10;AI 将自动识别段落、标题和列表。"></textarea>
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 h-full flex flex-col">
+                    <textarea id="user-input" class="w-full flex-1 p-2 bg-transparent outline-none resize-none text-base leading-relaxed text-slate-700 placeholder:text-slate-300 font-mono" placeholder="请粘贴文章...&#10;&#10;系统将自动：&#10;1. 去除多余空行&#10;2. 识别小标题和序号&#10;3. 适配微信阅读体验"></textarea>
                     <div class="pt-4 border-t border-slate-100 flex gap-3">
-                        <button onclick="generateArticle()" id="btn-run" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-sm shadow-md transition-all flex justify-center items-center gap-2">
-                            <span>✨</span> 一键智能排版
+                        <button onclick="generateArticle()" id="btn-run" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-sm shadow-sm transition flex justify-center items-center gap-2">
+                            <span>🚀</span> 一键智能排版
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-5 h-full flex flex-col">
-                <div class="flex justify-between items-center px-1 mb-2">
-                    <span class="text-xs font-bold text-slate-400">实时预览 (WeChat)</span>
-                    <button onclick="copyHtml()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-md font-bold text-xs shadow-sm transition flex items-center gap-1">
-                        📋 复制到公众号
+            <div class="lg:col-span-5 h-full flex flex-col items-center">
+                <div class="w-full flex justify-between items-center px-1 mb-2 max-w-[375px]">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">WECHAT PREVIEW</span>
+                    <button onclick="copyHtml()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded font-bold text-xs shadow-sm transition flex items-center gap-1.5">
+                        <span>📋</span> 复制
                     </button>
                 </div>
                 <div id="preview-container" class="w-full flex-1">
                     <div id="preview-content" contenteditable="true">
-                        <div style="padding-top: 40%; text-align: center; color: #cbd5e1; font-size: 14px;">
-                            <p>等待排版...</p>
+                        <div style="padding-top: 50%; text-align: center; color: #cbd5e1; font-size: 13px;">
+                            <p>等待内容...</p>
                         </div>
                     </div>
                 </div>
@@ -109,15 +109,15 @@
     <div class="bottom-workbench">
         <div class="max-w-7xl mx-auto space-y-3">
             <div class="flex items-center gap-3">
-                <span class="text-xs font-bold text-slate-400 w-10">主题色</span>
-                <div class="flex gap-2" id="color-palette"></div>
-                <div class="w-[1px] h-4 bg-slate-200"></div>
-                <input type="color" id="custom-color" oninput="updateColor(this.value)" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0">
+                <span class="text-[10px] font-bold text-slate-400 uppercase w-8">Color</span>
+                <div class="flex gap-1.5" id="color-palette"></div>
+                <div class="w-[1px] h-3 bg-slate-300 mx-1"></div>
+                <input type="color" id="custom-color" oninput="updateColor(this.value)" class="w-5 h-5 rounded cursor-pointer border-0 bg-transparent p-0">
             </div>
 
             <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                <button onclick="applyVariant('normal')" class="style-btn text-red-500 border-red-100 bg-red-50">还原</button>
-                <div class="w-[1px] h-6 bg-slate-200 mx-1 self-center"></div>
+                <button onclick="applyVariant('normal')" class="style-btn text-slate-500">还原正文</button>
+                <div class="w-[1px] h-4 bg-slate-300 mx-1 self-center"></div>
                 <button onclick="applyVariant('big_title')" class="style-btn">大标题</button>
                 <button onclick="applyVariant('sub_title')" class="style-btn">小标题</button>
                 <button onclick="applyVariant('num_title')" class="style-btn text-blue-600">序号标</button>
@@ -125,79 +125,93 @@
                 <button onclick="applyVariant('key_point')" class="style-btn">重点卡</button>
                 <button onclick="applyVariant('quote')" class="style-btn">引用</button>
                 <button onclick="applyVariant('bg_card')" class="style-btn">底色卡</button>
-                <div class="w-[1px] h-6 bg-slate-200 mx-1 self-center"></div>
+                <button onclick="applyVariant('code_block')" class="style-btn">代码</button>
+                <div class="w-[1px] h-4 bg-slate-300 mx-1 self-center"></div>
                 <button onclick="mergeSelected()" class="style-btn bg-slate-800 text-white border-slate-800">合并</button>
             </div>
         </div>
     </div>
 
     <script>
-        let currentColor = '#3b82f6'; // 微信蓝
-        let recentColors = ['#3b82f6', '#07c160', '#ff6b6b', '#f59e0b', '#8b5cf6'];
+        let currentColor = '#3b82f6';
+        let recentColors = ['#3b82f6', '#07c160', '#f59e0b', '#ef4444', '#8b5cf6'];
         
         // ==========================================
-        // 核心模板库 (CSS Reset + Inline Block)
-        // 重点：padding:0, margin:0, box-sizing:border-box
+        // 核心排版引擎 v17.0 (Zero-Gap Logic)
+        // 关键改动：所有 margin-top = 0，仅使用 margin-bottom
         // ==========================================
         
-        // 辅助：智能分离序号和标题 "1. 市场调研" -> {num: "1", text: "市场调研"}
         function parseNumTitle(text) {
-            const match = text.match(/^(\d+)[.、\s]\s*(.*)$/);
+            // 智能分离序号，移除末尾标点
+            const match = text.match(/^(\d+|[一二三四五六七八九十]+)[.、\s]\s*(.*)$/);
             if (match) return { num: match[1], text: match[2] };
-            // 尝试匹配中文序号 "一、市场"
-            const matchCN = text.match(/^([一二三四五六七八九十]+)[.、\s]\s*(.*)$/);
-            if (matchCN) return { num: matchCN[1], text: matchCN[2] };
-            return { num: '•', text: text }; // 默认点号
+            return { num: '', text: text };
         }
 
         const VARIANTS = {
             big_title: [
-                (t, c) => `<section style="text-align: center; margin: 25px 0 15px; line-height: 1.4;"><span style="display: block; font-size: 20px; color: ${c}; margin-bottom: 4px;">✦</span><strong style="font-size: 22px; color: #333; border-bottom: 2px solid ${c}; padding-bottom: 8px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="text-align: center; margin: 25px 0 15px; line-height: 1.4;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 8px 24px; border-radius: 4px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">${t}</strong></section>`
+                // 样式1：底部粗线条
+                (t, c) => `<section style="margin: 0 0 20px 0; text-align: center; line-height: 1.4;"><span style="display: block; font-size: 20px; color: ${c}; margin-bottom: 4px;">✦</span><strong style="font-size: 22px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 8px 6px; display: inline-block;">${t}</strong></section>`,
+                // 样式2：全色块胶囊
+                (t, c) => `<section style="margin: 0 0 20px 0; text-align: center; line-height: 1.4;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">${t}</strong></section>`,
+                // 样式3：空心胶囊
+                (t, c) => `<section style="margin: 0 0 20px 0; text-align: center; line-height: 1.4;"><strong style="font-size: 19px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block;">${t}</strong></section>`
             ],
             sub_title: [
-                (t, c) => `<section style="margin: 20px 0 10px; line-height: 1.4;"><span style="display: inline-block; width: 4px; height: 18px; background: ${c}; vertical-align: middle; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 18px; color: #333; vertical-align: middle;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 20px 0 10px; border-bottom: 1px solid #eee; padding-bottom: 8px; line-height: 1.4;"><span style="color: ${c}; font-weight: bold; font-size: 18px; margin-right: 6px;">#</span><strong style="font-size: 18px; color: #333;">${t}</strong></section>`
+                // 样式1：左侧竖线
+                (t, c) => `<section style="margin: 0 0 15px 0; line-height: 1.4;"><span style="display: inline-block; width: 4px; height: 16px; background: ${c}; vertical-align: middle; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937; vertical-align: middle;">${t}</strong></section>`,
+                // 样式2：下划虚线
+                (t, c) => `<section style="margin: 0 0 15px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; line-height: 1.4;"><span style="color: ${c}; font-weight: bold; margin-right: 6px;">#</span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`
             ],
             num_title: [
-                // 方案A：圆圈数字+文字（Inline-Block 完美对齐版）
+                // 样式1：蓝圆圈 (Flex模拟：inline-block)
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
-                    return `<section style="margin: 20px 0 10px; line-height: 1.5;"><span style="display: inline-block; width: 22px; height: 22px; background: ${c}; color: #fff; text-align: center; line-height: 22px; border-radius: 50%; font-size: 13px; font-weight: bold; vertical-align: middle; margin-right: 8px;">${num}</span><strong style="font-size: 17px; color: #333; vertical-align: middle;">${text}</strong></section>`;
+                    const n = num || '1';
+                    return `<section style="margin: 0 0 15px 0; line-height: 1.5;"><span style="display: inline-block; width: 20px; height: 20px; background: ${c}; color: #fff; text-align: center; line-height: 20px; border-radius: 50%; font-size: 12px; font-weight: bold; vertical-align: 2px; margin-right: 8px;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
-                // 方案B：大数字+文字
+                // 样式2：大数字背景
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
-                    return `<section style="margin: 20px 0 10px; line-height: 1.4; border-bottom: 2px solid ${c}; padding-bottom: 8px;"><span style="font-size: 24px; font-weight: 900; color: ${c}20; vertical-align: bottom; margin-right: 4px; font-family: Arial;">${num}</span><strong style="font-size: 18px; color: #333; vertical-align: bottom;">${text}</strong></section>`;
+                    const n = num || '01';
+                    return `<section style="margin: 0 0 15px 0; line-height: 1.4;"><span style="font-size: 24px; font-weight: 900; color: ${c}30; margin-right: 2px; font-family: Arial; vertical-align: -2px;">${n}</span><strong style="font-size: 18px; color: #1f2937;">${text}</strong></section>`;
                 }
             ],
             grad_title: [
-                (t, c) => `<section style="margin: 20px 0 10px;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, #fff); color: #fff; padding: 4px 12px; font-size: 16px; font-weight: bold; border-radius: 4px;">${t}</span></section>`,
+                // 样式1：渐变背景 (display: block 适配长文)
+                (t, c) => `<section style="margin: 0 0 15px 0;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, #fff); color: #fff; padding: 5px 12px; font-size: 15px; font-weight: bold; border-radius: 4px; max-width: 100%; box-sizing: border-box;">${t}</span></section>`,
+                // 样式2：左侧渐变条
+                (t, c) => `<section style="margin: 0 0 15px 0;"><div style="background-color: ${c}10; border-left: 4px solid ${c}; padding: 6px 12px; color: ${c}; font-weight: bold; font-size: 15px; border-radius: 0 4px 4px 0; display: inline-block; max-width: 100%; box-sizing: border-box;">${t}</div></section>`
             ],
             key_point: [
-                (t, c) => `<section style="margin: 15px 0; padding: 15px; background: ${c}0C; border: 1px solid ${c}40; border-radius: 6px; font-size: 15px; color: #333; line-height: 1.6;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 15px 0; padding: 15px; border-left: 4px solid ${c}; background: #f9fafb; font-size: 15px; color: #333; line-height: 1.6;">${format(t)}</section>`
+                // 样式1：浅色底框
+                (t, c) => `<section style="margin: 0 0 15px 0; padding: 15px; background: ${c}0C; border: 1px solid ${c}30; border-radius: 6px; font-size: 15px; color: #334155; line-height: 1.6; text-align: justify;">${format(t)}</section>`,
+                // 样式2：左侧强调
+                (t, c) => `<section style="margin: 0 0 15px 0; padding: 15px; background: #f8fafc; border-left: 4px solid ${c}; border-radius: 2px; font-size: 15px; color: #334155; line-height: 1.6; text-align: justify;">${format(t)}</section>`
             ],
             quote: [
-                (t, c) => `<section style="margin: 15px 0; padding: 12px 16px; background: #f8f8f8; color: #64748b; border-radius: 4px; font-size: 14px; line-height: 1.6; border-left: 3px solid #cbd5e1;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 0 0 15px 0; padding: 12px 16px; background: #f8fafc; color: #64748b; border-radius: 4px; font-size: 14px; line-height: 1.6; border-left: 3px solid #cbd5e1; text-align: justify;">${format(t)}</section>`
             ],
             bg_card: [
-                (t, c) => `<section style="margin: 15px 0; padding: 16px; background: ${c}15; border-radius: 8px; color: #333; line-height: 1.6;">${format(t)}</section>`
+                // 样式1：实心深色卡 (白字)
+                (t, c) => `<section style="margin: 0 0 15px 0; padding: 16px; background: ${c}; border-radius: 6px; color: #fff; font-size: 15px; line-height: 1.6; text-align: justify;">${format(t)}</section>`,
+                // 样式2：浅色卡 (黑字)
+                (t, c) => `<section style="margin: 0 0 15px 0; padding: 16px; background: ${c}15; border-radius: 6px; color: #334155; font-size: 15px; line-height: 1.6; text-align: justify;">${format(t)}</section>`
+            ],
+            code_block: [
+                (t, c) => `<section style="margin: 0 0 15px 0; padding: 12px; background: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 6px; overflow-x: auto; line-height: 1.5;">${t}</section>`
             ],
             normal: [
-                // 极简正文：margin-bottom: 0, line-height: 1.75
-                (t, c) => `<section style="margin-bottom: 12px; line-height: 1.75; font-size: 16px; color: #333; text-align: justify;">${format(t)}</section>`
+                // 正文：纯净无 Margin-Top
+                (t, c) => `<section style="margin: 0 0 15px 0; line-height: 1.75; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
             ]
         };
 
-        // 文本格式化：去除所有 margin，使用 <br> 或极小 margin
+        // 文本格式化：去除空行，段落间距由 section 统一控制，内部 p margin 为 0
         function format(t) { 
-            return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0 0 6px 0; padding: 0;">${l}</p>`).join(''); 
+            return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0; min-height: 1em;">${l}</p>`).join('<br>'); 
         }
 
-        // ==========================================
-        // 逻辑控制
-        // ==========================================
         window.onload = () => {
             if(localStorage.getItem('ds_key')) document.getElementById('api-key').value = localStorage.getItem('ds_key');
             renderColors();
@@ -225,12 +239,12 @@
 
         function renderArticle(blocks) {
             const container = document.getElementById('preview-content');
-            container.innerHTML = ''; // 清空
-            // 外层包裹一个净化 div，防止微信样式污染
+            container.innerHTML = '';
+            // 微信兼容外壳
             const root = document.createElement('div');
             root.style.fontSize = "16px";
-            root.style.lineHeight = "1.6";
             root.style.color = "#333";
+            root.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', Arial, sans-serif";
             
             blocks.forEach(b => {
                 const wrapper = document.createElement('div');
@@ -248,14 +262,14 @@
         async function generateArticle() {
             const key = document.getElementById('api-key').value;
             const text = document.getElementById('user-input').value;
-            if(!key || !text) return alert('请先设置 Key 并输入文章');
+            if(!key || !text) return alert('请先设置 API Key 并输入文章');
             
             const btn = document.getElementById('btn-run');
             btn.disabled = true; btn.innerHTML = "⏳ 正在排版...";
 
             try {
-                // 清洗文本：去除多余空行
-                const cleanText = text.replace(/\n\s*\n/g, '\n').trim();
+                // 强力清洗：去除多余空行，去除行首行尾空白
+                const cleanText = text.replace(/(\n\s*){2,}/g, '\n').trim();
                 
                 const res = await fetch('https://api.deepseek.com/chat/completions', {
                     method: 'POST',
@@ -263,7 +277,7 @@
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [
-                            {role: "system", content: "你是一个排版辅助工具。将输入文本按逻辑段落拆分。如果某段文本看起来像标题（短小精悍），标记为 big_title, sub_title 或 num_title。如果是重点内容标记为 key_point。返回JSON数组[{type, content}]。严禁改动原文。"},
+                            {role: "system", content: "你是一个排版辅助工具。将输入文本按逻辑段落拆分。识别标题(big_title, sub_title, num_title)和重点(key_point, quote)。保持原文。返回JSON数组。"},
                             {role: "user", content: cleanText}
                         ],
                         temperature: 0.1
@@ -273,15 +287,15 @@
                 const data = await res.json();
                 if(data.error) throw new Error(data.error.message);
                 const jsonStr = data.choices[0].message.content.match(/\[[\s\S]*\]/);
-                if(!jsonStr) throw new Error("AI 返回格式有误，请重试");
+                
+                if(!jsonStr) throw new Error("AI 返回格式有误");
                 
                 renderArticle(JSON.parse(jsonStr[0]));
                 
             } catch(e) { alert("错误：" + e.message); }
-            finally { btn.disabled = false; btn.innerHTML = "✨ 一键智能排版"; }
+            finally { btn.disabled = false; btn.innerHTML = "🚀 一键智能排版"; }
         }
 
-        // 交互
         document.getElementById('preview-content').addEventListener('click', e => {
             const w = e.target.closest('.block-wrapper');
             if(w) w.classList.toggle('selected');
@@ -289,7 +303,7 @@
 
         function applyVariant(type, keepVariant = false) {
             const selected = document.querySelectorAll('.block-wrapper.selected');
-            if(selected.length === 0 && !keepVariant) return alert("请先点击预览区选择段落");
+            if(selected.length === 0 && !keepVariant) return alert("请先选中预览区的内容");
             
             selected.forEach(el => {
                 const raw = el.dataset.raw;
@@ -323,21 +337,17 @@
 
         async function copyHtml() {
             const clone = document.getElementById('preview-content').cloneNode(true);
-            // 清理交互层
             clone.querySelectorAll('.block-wrapper').forEach(el => {
                 el.classList.remove('selected', 'block-wrapper');
-                // 仅保留 style
                 while(el.attributes.length > 0) {
                    if(el.attributes[0].name !== 'style') el.removeAttribute(el.attributes[0].name);
-                   else break; // 简单处理，实际应遍历删除非 style
+                   else break; 
                 }
             });
-            // 额外清理：去除所有 data 属性 (兼容性处理)
             const html = clone.innerHTML.replace(/data-[a-z]+="[^"]*"/g, '').replace(/class=""/g, '');
-            
             const blob = new Blob([html], {type: 'text/html'});
             await navigator.clipboard.write([new ClipboardItem({'text/html': blob})]);
-            alert("✅ 已复制！间距和格式已优化，请粘贴测试。");
+            alert("✅ 已复制！粘贴到公众号看看效果吧。");
         }
     </script>
 </body>
