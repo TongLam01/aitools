@@ -207,9 +207,9 @@
             ]
         };
 
-        // 文本格式化：v18 逻辑，依靠 <br> 换行
+        // 【关键修复】文本格式化：移除 <br>，直接拼接 <p> 标签，避免微信编辑器产生额外空行
         function format(t) { 
-            return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0; padding: 0;">${l}</p>`).join('<br>'); 
+            return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0; padding: 0;">${l}</p>`).join(''); 
         }
 
         window.onload = () => {
