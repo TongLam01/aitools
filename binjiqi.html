@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 灵感排版大师 v28.0 - v18复刻修复版</title>
+    <title>AI 灵感排版大师 v28.1 - v18复刻修复版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -207,7 +207,7 @@
             ]
         };
 
-        // 【关键修复】文本格式化：移除 <br>，直接拼接 <p> 标签，避免微信编辑器产生额外空行
+        // 文本格式化：移除 <br>，直接拼接 <p> 标签
         function format(t) { 
             return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0; padding: 0;">${l}</p>`).join(''); 
         }
@@ -328,19 +328,22 @@
             selected.slice(1).forEach(el => el.remove());
         }
 
+        // 【关键修复】复制时移除 .block-wrapper 外层容器，只提取内部的 section 内容
         async function copyHtml() {
-            const clone = document.getElementById('preview-content').cloneNode(true);
-            clone.querySelectorAll('.block-wrapper').forEach(el => {
-                el.classList.remove('selected', 'block-wrapper');
-                while(el.attributes.length > 0) {
-                   if(el.attributes[0].name !== 'style') el.removeAttribute(el.attributes[0].name);
-                   else break; 
-                }
+            const container = document.getElementById('preview-content');
+            let htmlParts = [];
+            
+            // 遍历所有 block-wrapper，只提取其内部的 HTML（即 section 元素）
+            container.querySelectorAll('.block-wrapper').forEach(wrapper => {
+                htmlParts.push(wrapper.innerHTML);
             });
-            const html = clone.innerHTML.replace(/data-[a-z]+="[^"]*"/g, '').replace(/class=""/g, '');
+            
+            // 直接拼接所有 section，不保留外层 div
+            const html = htmlParts.join('');
+            
             const blob = new Blob([html], {type: 'text/html'});
             await navigator.clipboard.write([new ClipboardItem({'text/html': blob})]);
-            alert("✅ 已复制！v18 内核复刻完毕。");
+            alert("✅ 已复制！空白问题已修复。");
         }
     </script>
 </body>
