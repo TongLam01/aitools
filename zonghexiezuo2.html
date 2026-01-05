@@ -854,8 +854,8 @@ createApp({
                 time: Date.now()
             });
             // 只保留最近 50 条
-            if (history.value.length > 50) {
-                history.value = history.value.slice(0, 50);
+            if (history.value.length > 10) {
+                history.value = history.value.slice(0, 10);
             }
             localStorage.setItem('knife_history_v9', JSON.stringify(history.value));
         };
