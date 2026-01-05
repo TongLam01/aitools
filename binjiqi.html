@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 灵感排版大师 v25.0 - 内缩式零边距版</title>
+    <title>AI 灵感排版大师 v26.0 - 紧凑型16px版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -15,7 +15,7 @@
         }
         #preview-content {
             background: white; height: 100%;
-            overflow-y: auto; padding: 30px 20px; outline: none;
+            overflow-y: auto; padding: 25px 20px; outline: none;
         }
 
         /* 交互选框 */
@@ -59,7 +59,7 @@
     <div class="max-w-7xl mx-auto w-full py-4 px-4 flex-shrink-0">
         <header class="flex justify-between items-center mb-4">
             <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> AI 排版大师 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v25.0 ZeroMargin</span>
+                <span>🎨</span> AI 排版大师 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v26.0 16px</span>
             </h1>
             <div class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded border border-slate-200 hover:border-blue-400 transition" onclick="toggleSettings()">
                 <span class="text-xs font-medium text-slate-600">🔑 API 设置</span>
@@ -79,7 +79,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
             <div class="lg:col-span-7 h-full flex flex-col">
                 <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
-                    <textarea id="user-input" class="w-full flex-1 p-3 bg-transparent outline-none resize-none text-base leading-relaxed text-slate-700 placeholder:text-slate-300 font-mono overflow-y-auto" placeholder="请粘贴文章...&#10;&#10;v25.0 终极修复：&#10;1. 强制所有 Margin 为 0&#10;2. 使用 Padding 撑开间距（微信无法折叠 Padding）&#10;3. 完美保留颜色和卡片样式"></textarea>
+                    <textarea id="user-input" class="w-full flex-1 p-3 bg-transparent outline-none resize-none text-base leading-relaxed text-slate-700 placeholder:text-slate-300 font-mono overflow-y-auto" placeholder="请粘贴文章...&#10;&#10;v26.0 修正：&#10;1. 正文字号统一为 16px&#10;2. 极大压缩了代码间距，以抵消微信默认空行&#10;3. 修复了粘贴后空白过大的顽疾"></textarea>
                     <div class="p-2 border-t border-slate-100 bg-white flex-shrink-0 z-10">
                         <button onclick="generateArticle()" id="btn-run" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-sm shadow-sm transition flex justify-center items-center gap-2">
                             <span>🚀</span> 一键智能排版
@@ -154,61 +154,61 @@
         }
 
         // ==========================================
-        // 核心模板库 v25.0 (Padding-Only Strategy)
-        // 核心原则：Margin 永远为 0，间距全靠 Padding
+        // 核心模板库 v26.0 (Tight 16px)
+        // 策略：Margin 全 0，Padding 极小化，让微信默认空行充当间距
         // ==========================================
         const VARIANTS = {
             big_title: [
-                // 标题上方：padding-top: 30px (不折叠)
-                // 标题下方：padding-bottom: 10px
-                (t, c) => `<section style="margin: 0; padding: 30px 0 10px 0; text-align: center; line-height: 1.4;"><span style="display: block; font-size: 20px; color: ${c}; line-height: 1; margin-bottom: 5px;">✦</span><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 5px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0; padding: 30px 0 10px 0; text-align: center;"><strong style="font-size: 18px; color: #fff; background-color: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0; padding: 30px 0 10px 0; text-align: center;"><strong style="font-size: 19px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block;">${t}</strong></section>`
+                // 上间距仅给 10px，下间距 5px。微信会自动加空行，合起来正好。
+                (t, c) => `<section style="margin: 0; padding: 10px 0 5px 0; text-align: center; line-height: 1.4;"><span style="display: block; font-size: 20px; color: ${c}; line-height: 1; margin-bottom: 5px;">✦</span><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 5px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0; padding: 10px 0 5px 0; text-align: center;"><strong style="font-size: 18px; color: #fff; background-color: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0; padding: 10px 0 5px 0; text-align: center;"><strong style="font-size: 19px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block;">${t}</strong></section>`
             ],
             sub_title: [
-                (t, c) => `<section style="margin: 0; padding: 25px 0 10px 0; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 18px; background-color: ${c}; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0; padding: 25px 0 10px 0; border-bottom: 1px solid #e2e8f0;"><span style="color: ${c}; font-weight: bold; margin-right: 6px;">#</span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`
+                // 上间距 15px
+                (t, c) => `<section style="margin: 0; padding: 15px 0 5px 0; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 18px; background-color: ${c}; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0; padding: 15px 0 5px 0; border-bottom: 1px solid #e2e8f0;"><span style="color: ${c}; font-weight: bold; margin-right: 6px;">#</span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`
             ],
             num_title: [
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 0; padding: 25px 0 10px 0;"><span style="display: inline-block; width: 22px; height: 22px; background-color: ${c}; color: #fff; text-align: center; line-height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; vertical-align: 2px; margin-right: 8px;">${n}</span><strong style="font-size: 17px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
+                    return `<section style="margin: 0; padding: 15px 0 5px 0;"><span style="display: inline-block; width: 22px; height: 22px; background-color: ${c}; color: #fff; text-align: center; line-height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; vertical-align: 2px; margin-right: 8px;">${n}</span><strong style="font-size: 17px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
-                    return `<section style="margin: 0; padding: 25px 0 10px 0;"><span style="font-size: 24px; font-weight: 900; color: ${hexToRgba(c, 0.4)}; margin-right: 4px; font-family: Arial; vertical-align: -3px;">${n}</span><strong style="font-size: 18px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
+                    return `<section style="margin: 0; padding: 15px 0 5px 0;"><span style="font-size: 24px; font-weight: 900; color: ${hexToRgba(c, 0.4)}; margin-right: 4px; font-family: Arial; vertical-align: -3px;">${n}</span><strong style="font-size: 18px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
                 }
             ],
             grad_title: [
-                (t, c) => `<section style="margin: 0; padding: 25px 0 10px 0;"><span style="display: inline-block; background-image: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 5px 15px; font-size: 15px; font-weight: bold; border-radius: 4px; max-width: 100%; box-sizing: border-box; word-break: break-all;">${t}</span></section>`,
-                (t, c) => `<section style="margin: 0; padding: 25px 0 10px 0;"><div style="background-color: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 5px 12px; color: ${c}; font-weight: bold; font-size: 15px; border-radius: 0 4px 4px 0; display: inline-block; max-width: 100%; box-sizing: border-box;">${t}</div></section>`
+                (t, c) => `<section style="margin: 0; padding: 15px 0 5px 0;"><span style="display: inline-block; background-image: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 5px 15px; font-size: 15px; font-weight: bold; border-radius: 4px; max-width: 100%; box-sizing: border-box; word-break: break-all;">${t}</span></section>`,
+                (t, c) => `<section style="margin: 0; padding: 15px 0 5px 0;"><div style="background-color: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 5px 12px; color: ${c}; font-weight: bold; font-size: 15px; border-radius: 0 4px 4px 0; display: inline-block; max-width: 100%; box-sizing: border-box;">${t}</div></section>`
             ],
             key_point: [
-                // 卡片：padding-top/bottom 15px，确保卡片之间有间隙
-                (t, c) => `<section style="margin: 0; padding: 15px 0; box-sizing: border-box;"><div style="padding: 15px; background-color: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.3)}; border-radius: 6px; font-size: 15px; color: #334155; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</div></section>`,
-                (t, c) => `<section style="margin: 0; padding: 15px 0; box-sizing: border-box;"><div style="padding: 15px; border-left: 4px solid ${c}; background-color: #f8fafc; font-size: 15px; color: #334155; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</div></section>`
+                // 卡片：保留 10px 间隙，因为卡片通常需要一点独立空间
+                (t, c) => `<section style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 15px; background-color: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.3)}; border-radius: 6px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; word-break: break-all;">${format(t)}</div></section>`,
+                (t, c) => `<section style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 15px; border-left: 4px solid ${c}; background-color: #f8fafc; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; word-break: break-all;">${format(t)}</div></section>`
             ],
             quote: [
-                (t, c) => `<section style="margin: 0; padding: 15px 0; box-sizing: border-box;"><div style="padding: 12px 16px; background-color: #f8fafc; color: #64748b; border-radius: 4px; font-size: 14px; line-height: 2.0; border-left: 3px solid #cbd5e1; word-break: break-all;">${format(t)}</div></section>`
+                (t, c) => `<section style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 12px 16px; background-color: #f8fafc; color: #64748b; border-radius: 4px; font-size: 15px; line-height: 1.8; border-left: 3px solid #cbd5e1; word-break: break-all;">${format(t)}</div></section>`
             ],
             bg_card: [
-                (t, c) => `<section style="margin: 0; padding: 15px 0; box-sizing: border-box;"><div style="padding: 16px; background-color: ${c}; border-radius: 6px; color: #fff; font-size: 15px; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</div></section>`,
-                (t, c) => `<section style="margin: 0; padding: 15px 0; box-sizing: border-box;"><div style="padding: 16px; background-color: ${hexToRgba(c, 0.1)}; border-radius: 6px; color: #334155; font-size: 15px; line-height: 2.0; text-align: justify; word-break: break-all;">${format(t)}</div></section>`
+                (t, c) => `<section style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 16px; background-color: ${c}; border-radius: 6px; color: #fff; font-size: 16px; line-height: 1.8; text-align: justify; word-break: break-all;">${format(t)}</div></section>`,
+                (t, c) => `<section style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 16px; background-color: ${hexToRgba(c, 0.1)}; border-radius: 6px; color: #334155; font-size: 16px; line-height: 1.8; text-align: justify; word-break: break-all;">${format(t)}</div></section>`
             ],
             code_block: [
-                (t, c) => `<section style="margin: 0; padding: 15px 0; box-sizing: border-box;"><div style="padding: 12px; background-color: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 6px; overflow-x: auto; line-height: 1.6; word-break: break-all;">${t}</div></section>`
+                (t, c) => `<section style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 12px; background-color: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 6px; overflow-x: auto; line-height: 1.6; word-break: break-all;">${t}</div></section>`
             ],
             normal: [
-                // 正文：依靠 padding-bottom: 10px 撑开段落
-                (t, c) => `<section style="margin: 0; padding: 0 0 10px 0; line-height: 2.0; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
+                // 正文：字体 16px，Padding 缩减到 8px
+                (t, c) => `<section style="margin: 0; padding: 0 0 8px 0; line-height: 1.8; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
             ]
         };
 
-        // 文本格式化：p 标签无 margin, 无 padding
+        // 文本格式化：Padding 缩减到 5px
         function format(t) { 
-            return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0; padding: 0;">${l}</p>`).join(''); 
+            return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0; padding: 0 0 5px 0;">${l}</p>`).join(''); 
         }
 
         window.onload = () => {
@@ -327,23 +327,19 @@
             selected.slice(1).forEach(el => el.remove());
         }
 
-        // 核心修改：复制时压缩 HTML，去除标签间的换行符
         async function copyHtml() {
             const clone = document.getElementById('preview-content').cloneNode(true);
             clone.querySelectorAll('.block-wrapper').forEach(el => {
                 el.classList.remove('selected', 'block-wrapper');
-                // 仅保留 style
                 while(el.attributes.length > 0) {
                    if(el.attributes[0].name !== 'style') el.removeAttribute(el.attributes[0].name);
                    else break; 
                 }
             });
-            // 压缩 HTML，去除标签之间的空格和换行
             let html = clone.innerHTML.replace(/>\s+</g, '><'); 
-            
             const blob = new Blob([html], {type: 'text/html'});
             await navigator.clipboard.write([new ClipboardItem({'text/html': blob})]);
-            alert("✅ 已复制！零空白模式已启用。");
+            alert("✅ 已复制！16px 字体 + 紧凑间距。");
         }
     </script>
 </body>
