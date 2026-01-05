@@ -2,11 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 灵感排版大师 v20.0 - 紧凑修正版</title>
+    <title>AI 灵感排版大师 v21.0 - 零白边融合版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
-        body { background-color: #f1f5f9; color: #334155; height: 100vh; overflow: hidden; }
+        body { background-color: #f8fafc; color: #334155; height: 100vh; overflow: hidden; }
         
         #preview-container { 
             background: #fff; height: 100%; border-radius: 4px;
@@ -59,7 +59,7 @@
     <div class="max-w-7xl mx-auto w-full py-4 px-4 flex-shrink-0">
         <header class="flex justify-between items-center mb-4">
             <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> AI 排版大师 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v20.0 Compact</span>
+                <span>🎨</span> AI 排版大师 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v21.0 ZeroGap</span>
             </h1>
             <div class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded border border-slate-200 hover:border-blue-400 transition" onclick="toggleSettings()">
                 <span class="text-xs font-medium text-slate-600">🔑 API 设置</span>
@@ -77,10 +77,9 @@
 
     <div class="flex-1 overflow-hidden max-w-7xl mx-auto w-full px-4 pb-32">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
-            
             <div class="lg:col-span-7 h-full flex flex-col">
                 <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
-                    <textarea id="user-input" class="w-full flex-1 p-3 bg-transparent outline-none resize-none text-base leading-relaxed text-slate-700 placeholder:text-slate-300 font-mono overflow-y-auto" placeholder="请粘贴文章...&#10;&#10;v20.0 修复：&#10;1. 彻底消除标题与正文的巨大空白&#10;2. 优化列表对齐"></textarea>
+                    <textarea id="user-input" class="w-full flex-1 p-3 bg-transparent outline-none resize-none text-base leading-relaxed text-slate-700 placeholder:text-slate-300 font-mono overflow-y-auto" placeholder="请粘贴文章...&#10;&#10;v21.0 更新：&#10;1. 彻底移除所有外边距&#10;2. 解决微信强制空行问题&#10;3. 序号标题更紧凑"></textarea>
                     <div class="p-2 border-t border-slate-100 bg-white flex-shrink-0 z-10">
                         <button onclick="generateArticle()" id="btn-run" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-sm shadow-sm transition flex justify-center items-center gap-2">
                             <span>🚀</span> 一键智能排版
@@ -141,58 +140,57 @@
         }
 
         // ==========================================
-        // 核心模板库 v20.0 (Compact Mode)
-        // 重点：极度压缩 margin-bottom，防止微信编辑器叠加
+        // 核心模板库 v21.0 (Zero-Gap + Div结构)
+        // 重点：margin: 0 !important; 
         // ==========================================
         const VARIANTS = {
             big_title: [
-                (t, c) => `<section style="margin: 0 0 10px 0; text-align: center;"><span style="display: block; font-size: 20px; color: ${c}; line-height: 1;">✦</span><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 5px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 10px 0; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 10px 0; text-align: center;"><strong style="font-size: 19px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block;">${t}</strong></section>`
+                (t, c) => `<div style="margin: 0; padding: 10px 0 5px 0; text-align: center; line-height: 1.4;"><span style="display: block; font-size: 20px; color: ${c}; line-height: 1;">✦</span><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 5px; display: inline-block;">${t}</strong></div>`,
+                (t, c) => `<div style="margin: 0; padding: 10px 0 5px 0; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 8px 20px; border-radius: 4px; display: inline-block;">${t}</strong></div>`,
+                (t, c) => `<div style="margin: 0; padding: 10px 0 5px 0; text-align: center;"><strong style="font-size: 19px; color: ${c}; border: 2px solid ${c}; padding: 6px 20px; border-radius: 50px; display: inline-block;">${t}</strong></div>`
             ],
             sub_title: [
-                (t, c) => `<section style="margin: 0 0 8px 0; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 18px; background: ${c}; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 8px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;"><span style="color: ${c}; font-weight: bold; margin-right: 6px;">#</span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`
+                (t, c) => `<div style="margin: 0; padding: 10px 0 5px 0; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 18px; background: ${c}; margin-right: 8px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></div>`,
+                (t, c) => `<div style="margin: 0; padding: 10px 0 5px 0; border-bottom: 1px solid #e2e8f0;"><span style="color: ${c}; font-weight: bold; margin-right: 6px;">#</span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></div>`
             ],
             num_title: [
-                // 修复：margin-bottom 降至 5px，紧贴正文
+                // 蓝圆圈：将 margin 归零，使用 padding 进行微调
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 0 0 5px 0;"><span style="display: inline-block; width: 22px; height: 22px; background: ${c}; color: #fff; text-align: center; line-height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; vertical-align: 2px; margin-right: 8px;">${n}</span><strong style="font-size: 17px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
+                    return `<div style="margin: 0; padding: 10px 0 5px 0;"><span style="display: inline-block; width: 22px; height: 22px; background: ${c}; color: #fff; text-align: center; line-height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; vertical-align: 2px; margin-right: 8px;">${n}</span><strong style="font-size: 17px; color: #1f2937; vertical-align: middle;">${text}</strong></div>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
-                    return `<section style="margin: 0 0 5px 0;"><span style="font-size: 24px; font-weight: 900; color: ${c}40; margin-right: 4px; font-family: Arial; vertical-align: -3px;">${n}</span><strong style="font-size: 18px; color: #1f2937; vertical-align: middle;">${text}</strong></section>`;
+                    return `<div style="margin: 0; padding: 10px 0 5px 0;"><span style="font-size: 24px; font-weight: 900; color: ${c}40; margin-right: 4px; font-family: Arial; vertical-align: -3px;">${n}</span><strong style="font-size: 18px; color: #1f2937; vertical-align: middle;">${text}</strong></div>`;
                 }
             ],
             grad_title: [
-                // 渐变色文字修正：结束色为 ${c}99 (60%透明)
-                (t, c) => `<section style="margin: 0 0 10px 0;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${c}99); color: #fff; padding: 5px 15px; font-size: 15px; font-weight: bold; border-radius: 4px; max-width: 100%; box-sizing: border-box; word-break: break-all;">${t}</span></section>`,
-                (t, c) => `<section style="margin: 0 0 10px 0;"><div style="background-color: ${c}15; border-left: 4px solid ${c}; padding: 5px 12px; color: ${c}; font-weight: bold; font-size: 15px; border-radius: 0 4px 4px 0; display: inline-block; max-width: 100%; box-sizing: border-box;">${t}</div></section>`
+                (t, c) => `<div style="margin: 0; padding: 10px 0 5px 0;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${c}99); color: #fff; padding: 5px 15px; font-size: 15px; font-weight: bold; border-radius: 4px; max-width: 100%; box-sizing: border-box; word-break: break-all;">${t}</span></div>`,
+                (t, c) => `<div style="margin: 0; padding: 10px 0 5px 0;"><div style="background-color: ${c}15; border-left: 4px solid ${c}; padding: 5px 12px; color: ${c}; font-weight: bold; font-size: 15px; border-radius: 0 4px 4px 0; display: inline-block; max-width: 100%; box-sizing: border-box;">${t}</div></div>`
             ],
             key_point: [
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 15px; background: ${c}0C; border: 1px solid ${c}30; border-radius: 6px; font-size: 15px; color: #334155; line-height: 1.8; text-align: justify; word-break: break-all;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 15px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 15px; color: #334155; line-height: 1.8; text-align: justify; word-break: break-all;">${format(t)}</section>`
+                (t, c) => `<div style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 15px; background: ${c}0C; border: 1px solid ${c}30; border-radius: 6px; font-size: 15px; color: #334155; line-height: 1.9; text-align: justify; word-break: break-all;">${format(t)}</div></div>`,
+                (t, c) => `<div style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 15px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 15px; color: #334155; line-height: 1.9; text-align: justify; word-break: break-all;">${format(t)}</div></div>`
             ],
             quote: [
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 12px 16px; background: #f8fafc; color: #64748b; border-radius: 4px; font-size: 14px; line-height: 1.8; border-left: 3px solid #cbd5e1; word-break: break-all;">${format(t)}</section>`
+                (t, c) => `<div style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 12px 16px; background: #f8fafc; color: #64748b; border-radius: 4px; font-size: 14px; line-height: 1.9; border-left: 3px solid #cbd5e1; word-break: break-all;">${format(t)}</div></div>`
             ],
             bg_card: [
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 16px; background: ${c}; border-radius: 6px; color: #fff; font-size: 15px; line-height: 1.8; text-align: justify; word-break: break-all;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 16px; background: ${c}15; border-radius: 6px; color: #334155; font-size: 15px; line-height: 1.8; text-align: justify; word-break: break-all;">${format(t)}</section>`
+                (t, c) => `<div style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 16px; background: ${c}; border-radius: 6px; color: #fff; font-size: 15px; line-height: 1.9; text-align: justify; word-break: break-all;">${format(t)}</div></div>`,
+                (t, c) => `<div style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 16px; background: ${c}15; border-radius: 6px; color: #334155; font-size: 15px; line-height: 1.9; text-align: justify; word-break: break-all;">${format(t)}</div></div>`
             ],
             code_block: [
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 12px; background: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 6px; overflow-x: auto; line-height: 1.6; word-break: break-all;">${t}</section>`
+                (t, c) => `<div style="margin: 0; padding: 10px 0; box-sizing: border-box;"><div style="padding: 12px; background: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 6px; overflow-x: auto; line-height: 1.6; word-break: break-all;">${t}</div></div>`
             ],
             normal: [
-                // 修正：段落间距恢复为 10px，内部 p 标签 margin 归 0
-                (t, c) => `<section style="margin: 0 0 10px 0; line-height: 1.8; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
+                // 核心修复：外层 margin 为 0，仅依靠 padding 撑开一点点视觉距离
+                (t, c) => `<div style="margin: 0; padding: 0 0 10px 0; line-height: 1.9; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</div>`
             ]
         };
 
-        // 文本格式化：内部 P 标签 Margin 强制为 0
+        // 文本格式化：所有 P 标签 margin 归零
         function format(t) { 
             return t.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin: 0; padding: 0;">${l}</p>`).join('<br>'); 
         }
@@ -225,11 +223,6 @@
         function renderArticle(blocks) {
             const container = document.getElementById('preview-content');
             container.innerHTML = '';
-            const root = document.createElement('div');
-            root.style.fontSize = "16px";
-            root.style.lineHeight = "1.6";
-            root.style.color = "#333";
-            root.style.fontFamily = "-apple-system, BlinkMacSystemFont, Arial, sans-serif";
             
             blocks.forEach(b => {
                 const wrapper = document.createElement('div');
@@ -239,9 +232,8 @@
                 wrapper.dataset.raw = b.content;
                 const renderer = VARIANTS[b.type] ? VARIANTS[b.type][0] : VARIANTS.normal[0];
                 wrapper.innerHTML = renderer(b.content, currentColor);
-                root.appendChild(wrapper);
+                container.appendChild(wrapper);
             });
-            container.appendChild(root);
         }
 
         async function generateArticle() {
@@ -331,7 +323,7 @@
             const html = clone.innerHTML.replace(/data-[a-z]+="[^"]*"/g, '').replace(/class=""/g, '');
             const blob = new Blob([html], {type: 'text/html'});
             await navigator.clipboard.write([new ClipboardItem({'text/html': blob})]);
-            alert("✅ 已复制！空白问题已修复。");
+            alert("✅ 已复制！样式已适配微信 ZeroGap。");
         }
     </script>
 </body>
