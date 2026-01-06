@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI股票分析 Pro - www.aibox6.com</title>
+    <title>AI股票分析 Pro - aibox6.com</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
@@ -1106,22 +1106,12 @@ createApp({
         const fetchDetail = async (code) => {
     try {
         const secid = getSecId(code);
-        
-        // 使用 qt/stock/get 接口，支持更多字段
-        const url = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&ut=fa5fd1943c7b386f172d6893dbfba10b&fields=f43,f50,f57,f58,f116,f162,f167,f168,f170,f128,f140,f141&fltt=2&invt=2`;
+        const url = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&ut=fa5fd1943c7b386f172d6893dbfba10b&fields=f43,f50,f57,f58,f116,f162,f167,f168,f170&fltt=2&invt=2`;
         
         const res = await jsonp(url, 'detail');
         
         if (res?.data && currentStock.value?.code === code) {
             const d = res.data;
-            
-            // f128 是行业板块名称
-            let sector = d.f128 || '-';
-            
-            // 如果 f128 是数字或无效，尝试从其他来源
-            if (sector === '-' || /^\d+$/.test(sector)) {
-                sector = await fetchSectorName(code);
-            }
             
             currentStock.value = {
                 ...currentStock.value,
@@ -1132,31 +1122,54 @@ createApp({
                 pe: d.f162 ?? '-',
                 pb: d.f167 ?? '-',
                 totalCap: d.f116 ?? '-',
-                sector: sector,
                 turnover: d.f168 ?? '-',
                 volRatio: d.f50 ?? '-',
+                sector: '-',
             };
+            
+            // 单独获取行业信息
+            fetchIndustry(code);
         }
     } catch (e) {
         console.error('[fetchDetail] 错误:', e);
     }
 };
 
-// 单独获取行业名称
-const fetchSectorName = async (code) => {
+// 获取行业信息
+const fetchIndustry = async (code) => {
     try {
+        // 使用同花顺概念板块接口
+        const market = code.startsWith('6') ? 'sh' : 'sz';
+        const url = `https://basic.10jqka.com.cn/${market}${code}/company.html`;
+        
+        // 由于跨域限制，改用东财的板块归属接口
         const secid = getSecId(code);
-        const url = `https://datacenter.eastmoney.com/securities/api/data/get?type=RPT_F10_ORG_BASICINFO&sty=SECURITY_CODE,EM2016,INDUSTRYCSRC1&filter=(SECURITY_CODE="${code}")&p=1&ps=1&sr=1`;
+        const bkUrl = `https://push2.eastmoney.com/api/qt/slist/get?spt=3&fltt=2&invt=2&secid=${secid}&ut=bd1d9ddb04089700cf9c27f6f7426281&fields=f14&np=1&pn=1&pz=10`;
         
-        const res = await fetch(url).then(r => r.json());
+        const res = await jsonp(bkUrl, 'industry');
         
-        if (res?.result?.data?.[0]) {
-            return res.result.data[0].INDUSTRYCSRC1 || res.result.data[0].EM2016 || '-';
+        if (res?.data?.diff && currentStock.value?.code === code) {
+            const list = res.data.diff;
+            // 找到行业板块（通常第一个是行业）
+            if (list && list.length > 0) {
+                // f14 是板块名称
+                const industry = list[0]?.f14;
+                if (industry && typeof industry === 'string') {
+                    currentStock.value.sector = industry;
+                    return;
+                }
+            }
         }
+        
+        // 备用：从热门列表查找
+        const hotStock = hotStocks.value.find(s => s.code === code);
+        if (hotStock?.sector) {
+            currentStock.value.sector = hotStock.sector;
+        }
+        
     } catch (e) {
-        console.warn('[fetchSectorName] 失败:', e);
+        console.warn('[fetchIndustry] 失败:', e);
     }
-    return '-';
 };
         
         // 获取K线
