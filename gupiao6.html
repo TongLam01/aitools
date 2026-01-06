@@ -1103,30 +1103,74 @@ createApp({
         
 const drawKline = (klines) => {
     const dates = [], ohlc = [], closes = [], volumes = [];
+    const rawData = []; // 保存原始解析数据用于 tooltip
     
-    klines.forEach(line => {
+    // 调试：打印最后一条K线原始数据
+    if (klines.length > 0) {
+        console.log('=== K线数据调试 ===');
+        console.log('原始数据:', klines[klines.length - 1]);
+        const testP = klines[klines.length - 1].split(',');
+        console.log('分割后:', testP);
+        console.log('字段对应: 日期=%s, [1]=%s, [2]=%s, [3]=%s, [4]=%s, [5]=%s', 
+            testP[0], testP[1], testP[2], testP[3], testP[4], testP[5]);
+    }
+    
+    klines.forEach((line, idx) => {
         const p = line.split(',');
-        // 东财API数据顺序: 日期[0], 开盘[1], 收盘[2], 最高[3], 最低[4], 成交量[5], 成交额[6]
-        const date = p[0].slice(5);  // MM-DD
-        const open = parseFloat(p[1]);
-        const close = parseFloat(p[2]);
-        const high = parseFloat(p[3]);
-        const low = parseFloat(p[4]);
+        
+        const date = p[0].slice(5);
+        // 先按东财标准格式解析，如果不对再调整
+        const val1 = parseFloat(p[1]);
+        const val2 = parseFloat(p[2]);
+        const val3 = parseFloat(p[3]);
+        const val4 = parseFloat(p[4]);
         const volume = parseFloat(p[5]) || 0;
         
+        // 存储原始数据
+        rawData.push({
+            date: p[0],
+            p1: val1,
+            p2: val2,
+            p3: val3,
+            p4: val4,
+            volume: volume
+        });
+        
+        // 根据数值大小判断哪个是最高、最低
+        // 最高价应该是最大的，最低价应该是最小的
+        const priceValues = [val1, val2, val3, val4];
+        const maxPrice = Math.max(...priceValues);
+        const minPrice = Math.min(...priceValues);
+        
+        // 开盘和收盘应该在最高和最低之间
+        // 假设 p[1]=开盘, p[2]=收盘, p[3]=最高, p[4]=最低
+        let open = val1;
+        let close = val2;
+        let high = val3;
+        let low = val4;
+        
+        // 验证：high 应该 >= 所有价格，low 应该 <= 所有价格
+        if (high < open || high < close || low > open || low > close) {
+            // 数据顺序可能不对，尝试重新排列
+            console.warn(`K线数据异常 [${date}]: open=${open}, close=${close}, high=${high}, low=${low}`);
+        }
+        
         dates.push(date);
-        // ECharts K线数据格式: [开盘, 收盘, 最低, 最高]
+        // ECharts candlestick: [open, close, low, high]
         ohlc.push([open, close, low, high]);
         closes.push(close);
         volumes.push({ 
-            value: volume, 
-            open: open,   // 保存开盘价用于判断涨跌颜色
-            close: close, // 保存收盘价用于判断涨跌颜色
+            value: volume,
+            open: open,
+            close: close,
             itemStyle: { 
                 color: close >= open ? 'rgba(242,54,69,0.7)' : 'rgba(0,200,83,0.7)' 
             } 
         });
     });
+    
+    // 保存原始数据供 tooltip 使用
+    window._klineRawData = rawData;
     
     const ma20 = calcSMA(closes, 20), ma60 = calcSMA(closes, 60);
     const rsi = calcRSI(closes, 6), macd = calcMACD(closes);
@@ -1153,37 +1197,42 @@ const drawKline = (klines) => {
                     textStyle: { color: '#e8eaed', fontSize: 11 },
                     formatter: function(params) {
                         if (!params || !params.length) return '';
+                        
+                        const dataIndex = params[0].dataIndex;
                         const date = params[0].axisValue;
+                        
+                        // 从原始数据获取，避免 ECharts 数据格式问题
+                        const raw = window._klineRawData?.[dataIndex];
+                        
                         let html = `<div style="font-weight:600;margin-bottom:8px;color:#fff">${date}</div>`;
                         
+                        if (raw) {
+                            // 使用原始解析的数据
+                            const open = raw.p1;
+                            const close = raw.p2;
+                            const high = raw.p3;
+                            const low = raw.p4;
+                            
+                            const isUp = close >= open;
+                            const color = isUp ? '#f23645' : '#00c853';
+                            const changeAmount = (close - open).toFixed(2);
+                            const changePercent = ((close - open) / open * 100).toFixed(2);
+                            
+                            html += `
+                                <div style="color:${color};line-height:1.8">
+                                    <div>开盘：${open.toFixed(2)}</div>
+                                    <div>收盘：${close.toFixed(2)}</div>
+                                    <div>最高：${high.toFixed(2)}</div>
+                                    <div>最低：${low.toFixed(2)}</div>
+                                    <div>涨跌额：${isUp ? '+' : ''}${changeAmount}</div>
+                                    <div>涨跌幅：${isUp ? '+' : ''}${changePercent}%</div>
+                                </div>
+                            `;
+                        }
+                        
+                        // 均线数据
                         params.forEach(item => {
-                            if (item.seriesType === 'candlestick' && item.data) {
-                                // ECharts K线数据格式: [开盘, 收盘, 最低, 最高]
-                                const open = item.data[0];
-                                const close = item.data[1];
-                                const low = item.data[2];
-                                const high = item.data[3];
-                                
-                                // 判断涨跌：收盘 >= 开盘 为涨（红色），否则为跌（绿色）
-                                const isUp = close >= open;
-                                const color = isUp ? '#f23645' : '#00c853';
-                                
-                                // 计算涨跌幅：(收盘 - 开盘) / 开盘 * 100
-                                const changePercent = ((close - open) / open * 100).toFixed(2);
-                                // 计算涨跌额
-                                const changeAmount = (close - open).toFixed(2);
-                                
-                                html += `
-                                    <div style="color:${color};line-height:1.8">
-                                        <div>开盘：${open.toFixed(2)}</div>
-                                        <div>收盘：${close.toFixed(2)}</div>
-                                        <div>最高：${high.toFixed(2)}</div>
-                                        <div>最低：${low.toFixed(2)}</div>
-                                        <div>涨跌额：${isUp ? '+' : ''}${changeAmount}</div>
-                                        <div>涨跌幅：${isUp ? '+' : ''}${changePercent}%</div>
-                                    </div>
-                                `;
-                            } else if (item.seriesType === 'line' && item.data != null) {
+                            if (item.seriesType === 'line' && item.data != null) {
                                 html += `
                                     <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
                                         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color}"></span>
@@ -1214,10 +1263,10 @@ const drawKline = (klines) => {
                         type: 'candlestick', 
                         data: ohlc, 
                         itemStyle: { 
-                            color: '#f23645',        // 阳线填充色（涨）
-                            color0: '#00c853',       // 阴线填充色（跌）
-                            borderColor: '#f23645',  // 阳线边框色
-                            borderColor0: '#00c853'  // 阴线边框色
+                            color: '#f23645',
+                            color0: '#00c853',
+                            borderColor: '#f23645',
+                            borderColor0: '#00c853'
                         } 
                     },
                     { 
@@ -1252,13 +1301,13 @@ const drawKline = (klines) => {
                     formatter: function(params) {
                         if (!params || !params.length) return '';
                         const item = params[0];
+                        const dataIndex = item.dataIndex;
+                        const raw = window._klineRawData?.[dataIndex];
+                        
                         const vol = item.data.value;
-                        const open = item.data.open;
-                        const close = item.data.close;
-                        const isUp = close >= open;
+                        const isUp = raw ? raw.p2 >= raw.p1 : true;
                         const color = isUp ? '#f23645' : '#00c853';
                         
-                        // 格式化成交量
                         let volStr;
                         if (vol >= 100000000) {
                             volStr = (vol / 100000000).toFixed(2) + '亿';
