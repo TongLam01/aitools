@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI股票分析 Pro - www.aibox6.com</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #0a0c10;
+            --bg-secondary: #12151a;
+            --bg-tertiary: #1a1d24;
+            --bg-card: #1e222a;
+            --border-color: #2a2e37;
+            --border-light: #363b47;
+            --border-subtle: #1e2228;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0a9;
+            --text-muted: #5f6670;
+            --accent: #7c5cff;
+            --accent-light: #9d85ff;
+            --color-up: #f23645;
+            --color-down: #00c853;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overscroll-behavior: none;
+        }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+
+        .input-field {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15);
+        }
+        .input-field::placeholder { color: var(--text-muted); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124, 92, 255, 0.3); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover { background: var(--bg-card); color: var(--text-primary); }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+        .badge-default { background: var(--bg-tertiary); color: var(--text-secondary); }
+        .badge-up { background: rgba(242, 54, 69, 0.15); color: #ff6b6b; }
+        .badge-down { background: rgba(0, 200, 83, 0.15); color: #4ade80; }
+        .badge-info { background: rgba(33, 150, 243, 0.15); color: #60a5fa; }
+        .badge-warning { background: rgba(255, 152, 0, 0.15); color: #fbbf24; }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            color: var(--text-muted);
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-item:hover { color: var(--text-secondary); }
+        .nav-item.active { color: var(--accent-light); }
+        .nav-item.active svg { stroke: var(--accent-light); }
+
+        .prose { font-size: 14px; line-height: 1.8; color: var(--text-secondary); }
+        .prose h3 {
+            color: var(--accent-light);
+            font-size: 15px;
+            font-weight: 600;
+            margin: 20px 0 12px;
+            padding-left: 12px;
+            border-left: 3px solid var(--accent);
+        }
+        .prose h4 { color: var(--text-primary); font-size: 14px; margin: 16px 0 8px; }
+        .prose p { margin-bottom: 12px; }
+        .prose strong { color: var(--text-primary); font-weight: 600; }
+        .prose ul, .prose ol { padding-left: 20px; margin-bottom: 12px; }
+        .prose li { margin-bottom: 4px; }
+        .prose table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+        .prose th, .prose td { padding: 8px; border: 1px solid var(--border-color); text-align: left; }
+        .prose th { background: var(--bg-tertiary); font-weight: 600; }
+        .prose blockquote { border-left: 3px solid var(--border-light); padding-left: 12px; color: var(--text-muted); margin: 12px 0; }
+        .prose code { background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+
+        .data-section { margin-bottom: 16px; }
+        .data-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .data-item { background: var(--bg-tertiary); border-radius: 8px; padding: 10px 12px; }
+        .data-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+        .data-value { font-size: 14px; font-weight: 600; font-family: 'SF Mono', Monaco, monospace; }
+
+        .collapse-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+        .collapse-header:hover { color: var(--text-primary); }
+        .collapse-icon { transition: transform 0.2s; }
+        .collapse-icon.expanded { transform: rotate(180deg); }
+        
+        .announcement-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .announcement-item:hover { color: var(--accent-light); }
+        .announcement-item:last-child { border-bottom: none; }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-color) 50%, var(--bg-tertiary) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+        .confidence-bar { height: 4px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; }
+        .confidence-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .export-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+        .export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .report-container {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .report-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .report-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+        .report-meta { font-size: 11px; color: var(--text-muted); }
+
+        /* 心跳指示器 */
+        .heartbeat-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .heartbeat-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-down);
+            animation: heartbeat 1s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        /* 分析进度 */
+        .analysis-progress {
+            margin-top: 12px;
+        }
+        .progress-bar {
+            height: 3px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #6366f1);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        [v-cloak] { display: none !important; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+        .link-text {
+            color: var(--accent-light);
+            text-decoration: none;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+        .link-text:hover { color: var(--accent); text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div id="app" v-cloak class="h-[100dvh] flex flex-col overflow-hidden">
+
+    <!-- 顶部栏 -->
+    <header class="flex-none h-12 border-b border-[var(--border-color)] bg-[var(--bg-secondary)] flex items-center justify-between px-3 z-30">
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-gradient-to-br from-[var(--accent)] to-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold">AI</div>
+            <span class="font-semibold text-sm">股票分析</span>
+            <span class="text-[10px] text-[var(--accent-light)] bg-[var(--accent)]/10 px-1.5 py-0.5 rounded">PRO</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <div class="relative">
+                <input type="text" v-model="searchQuery" @input="debouncedSearch" @focus="showSearchResults = true" @blur="hideSearchResults"
+                       placeholder="搜索股票" class="input-field w-32 md:w-44 text-xs py-1.5">
+                <transition name="fade">
+                    <div v-if="showSearchResults && searchResults.length" 
+                         class="absolute top-full right-0 mt-1 w-52 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
+                        <div v-for="item in searchResults" :key="item.code" @mousedown.prevent="selectSearchResult(item)"
+                             class="p-2.5 hover:bg-[var(--bg-tertiary)] cursor-pointer flex justify-between items-center text-xs">
+                            <span>{{ item.name }}</span>
+                            <span class="text-[var(--text-muted)] font-mono">{{ item.code }}</span>
+                        </div>
+                    </div>
+                </transition>
+            </div>
+
+            <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="link-text hidden md:inline">获取API Key</a>
+
+            <button @click="showConfig = true" class="btn btn-secondary py-1.5 px-2.5 text-xs">
+                <span v-if="apiKey" class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- API配置弹窗 -->
+    <transition name="fade">
+        <div v-if="showConfig" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div @click="showConfig = false" class="absolute inset-0 bg-black/70"></div>
+            <div class="relative w-full max-w-sm bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-5 shadow-2xl">
+                <h3 class="text-base font-semibold mb-1">API 配置</h3>
+                <p class="text-xs text-[var(--text-muted)] mb-4">配置 DeepSeek API Key 启用 AI 分析</p>
+                <input type="password" v-model="tempApiKey" placeholder="sk-..." class="input-field w-full mb-3">
+                <div class="flex gap-2 mb-3">
+                    <button @click="saveApiKey" class="btn btn-primary flex-1">保存</button>
+                    <button @click="clearApiKey" class="btn btn-secondary">清除</button>
+                </div>
+                <div class="text-center">
+                    <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="link-text">
+                        📖 如何获取 API Key？
+                    </a>
+                </div>
+                <p class="text-[10px] text-[var(--text-muted)] text-center mt-3">🔒 Key 仅存储在本地浏览器</p>
+            </div>
+        </div>
+    </transition>
+
+    <!-- 主内容 -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- 左侧：股票列表 -->
+        <aside class="flex-col bg-[var(--bg-primary)] border-r border-[var(--border-color)] w-full md:w-64 md:flex"
+               :class="mobileTab === 'list' ? 'flex absolute inset-0 z-20 md:relative' : 'hidden'">
+            
+            <div class="p-3 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-secondary)]">
+                <span class="text-xs font-semibold text-[var(--text-muted)]">热门股票</span>
+                <button @click="fetchTopList" :disabled="isListLoading" class="text-[var(--accent-light)] text-xs hover:text-white transition flex items-center gap-1 disabled:opacity-50">
+                    <svg :class="{ 'animate-spin': isListLoading }" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    刷新
+                </button>
+            </div>
+
+            <div class="grid grid-cols-12 px-3 py-2 text-[10px] text-[var(--text-muted)] font-semibold border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+                <div class="col-span-2 text-center">评分</div>
+                <div class="col-span-6 pl-1">名称</div>
+                <div class="col-span-4 text-right pr-1">涨跌</div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pb-14 md:pb-0">
+                <template v-if="isListLoading && stockList.length === 0">
+                    <div v-for="i in 12" :key="i" class="p-3 border-b border-[var(--border-subtle)]">
+                        <div class="flex items-center gap-2">
+                            <div class="skeleton w-8 h-4"></div>
+                            <div class="flex-1"><div class="skeleton w-20 h-4 mb-1"></div><div class="skeleton w-14 h-3"></div></div>
+                            <div class="skeleton w-12 h-4"></div>
+                        </div>
+                    </div>
+                </template>
+
+                <div v-for="stock in stockList" :key="stock.code" @click="selectStock(stock)"
+                     class="grid grid-cols-12 items-center p-3 border-b border-[var(--border-subtle)] cursor-pointer hover:bg-[var(--bg-secondary)] transition"
+                     :class="{ 'bg-[var(--bg-secondary)] border-l-2 border-l-[var(--accent)]': currentStock?.code === stock.code }">
+                    <div class="col-span-2 text-center">
+                        <span class="text-xs font-bold font-mono" :class="getScoreColor(stock.score)">{{ stock.score.toFixed(0) }}</span>
+                    </div>
+                    <div class="col-span-6 pl-1 overflow-hidden">
+                        <div class="text-sm truncate">{{ stock.name }}</div>
+                        <div class="text-[10px] text-[var(--text-muted)] font-mono">{{ stock.code }}</div>
+                    </div>
+                    <div class="col-span-4 text-right pr-1">
+                        <span class="text-sm font-mono font-medium" :class="stock.change >= 0 ? 'text-[var(--color-up)]' : 'text-[var(--color-down)]'">
+                            {{ stock.change >= 0 ? '+' : '' }}{{ stock.change }}%
+                        </span>
+                    </div>
+                </div>
+
+                <div v-if="!isListLoading && stockList.length === 0" class="flex flex-col items-center justify-center py-16 text-[var(--text-muted)]">
+                    <svg class="w-12 h-12 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p class="text-sm">点击刷新加载数据</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 中间：图表 -->
+        <main class="flex-col flex-1 bg-[var(--bg-primary)] min-w-0"
+              :class="mobileTab === 'chart' ? 'flex absolute inset-0 z-20 md:relative' : 'hidden md:flex'">
+            
+            <div v-if="currentStock" class="p-3 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-bold">{{ currentStock.name }}</h2>
+                            <span class="badge badge-default">{{ currentStock.code }}</span>
+                        </div>
+                        <div class="flex items-center gap-3 mt-1">
+                            <span class="text-xl font-bold font-mono" :class="currentStock.change >= 0 ? 'text-[var(--color-up)]' : 'text-[var(--color-down)]'">
+                                {{ formatPrice(currentStock.price) }}
+                            </span>
+                            <span class="text-sm font-mono" :class="currentStock.change >= 0 ? 'text-[var(--color-up)]' : 'text-[var(--color-down)]'">
+                                {{ currentStock.change >= 0 ? '+' : '' }}{{ currentStock.change }}%
+                            </span>
+                        </div>
+                    </div>
+                    <button @click="mobileTab = 'ai'" class="md:hidden btn btn-secondary text-xs py-1.5">AI分析 →</button>
+                </div>
+                
+                <div class="flex flex-wrap gap-1.5">
+                    <span class="badge badge-info">换手 {{ formatPercent(currentStock.turnover) }}</span>
+                    <span class="badge badge-info">量比 {{ formatValue(currentStock.volRatio) }}</span>
+                    <span class="badge badge-default">PE {{ formatRatio(currentStock.pe) }}</span>
+                    <span class="badge badge-default">PB {{ formatRatio(currentStock.pb) }}</span>
+                    <span class="badge badge-warning">{{ currentStock.sector || '-' }}</span>
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col relative pb-14 md:pb-0">
+                <div v-if="!currentStock" class="absolute inset-0 flex flex-col items-center justify-center text-[var(--text-muted)]">
+                    <svg class="w-16 h-16 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                    </svg>
+                    <p class="text-sm">选择股票查看K线</p>
+                </div>
+                <div id="klineChart" class="flex-1 w-full min-h-0"></div>
+                <div id="volumeChart" class="h-20 w-full border-t border-[var(--border-color)]"></div>
+            </div>
+        </main>
+
+        <!-- 右侧：AI分析 -->
+        <aside class="flex-col w-full md:w-[380px] lg:w-[420px] bg-[var(--bg-secondary)] border-l border-[var(--border-color)]"
+               :class="mobileTab === 'ai' ? 'flex absolute inset-0 z-20 md:relative' : 'hidden md:flex'">
+            
+            <div class="p-3 border-b border-[var(--border-color)] bg-[var(--bg-tertiary)] flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-base">🧠</span>
+                    <span class="font-semibold text-sm">AI 深度分析</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span v-if="isDataLoading" class="text-[10px] text-[var(--text-muted)] flex items-center gap-1">
+                        <span class="spinner" style="width:10px;height:10px;border-width:1.5px"></span>
+                        加载数据...
+                    </span>
+                    <span v-else-if="dataConfidence > 0" class="text-[10px] px-1.5 py-0.5 rounded" 
+                          :class="dataConfidence >= 60 ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'">
+                        数据 {{ dataConfidence }}%
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 pb-20 md:pb-4">
+                
+                <!-- 未配置API -->
+                <div v-if="!apiKey" class="h-full flex flex-col items-center justify-center text-center px-8">
+                    <div class="w-14 h-14 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm text-[var(--text-secondary)] mb-1">需要配置 API Key</p>
+                    <p class="text-xs text-[var(--text-muted)] mb-3">点击右上角按钮配置</p>
+                    <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="link-text">
+                        📖 如何获取 API Key？
+                    </a>
+                </div>
+
+                <!-- 未选股票 -->
+                <div v-else-if="!currentStock" class="h-full flex flex-col items-center justify-center text-center">
+                    <div class="text-4xl mb-4 opacity-30">📊</div>
+                    <p class="text-sm text-[var(--text-muted)]">请先选择股票</p>
+                </div>
+
+                <!-- 正常状态 -->
+                <div v-else>
+                    
+                    <!-- 增强数据展示 -->
+                    <div v-if="enhancedData && !isDataLoading" class="space-y-4 mb-4">
+                        
+                        <!-- 财务数据 -->
+                        <div v-if="enhancedData.financials" class="data-section">
+                            <div class="data-section-title"><span>📊</span> 财务概况</div>
+                            <div class="data-grid">
+                                <div class="data-item">
+                                    <div class="data-label">营收同比</div>
+                                    <div class="data-value" :class="getChangeColor(enhancedData.financials.revenueYoY)">
+                                        {{ formatChangePercent(enhancedData.financials.revenueYoY) }}
+                                    </div>
+                                </div>
+                                <div class="data-item">
+                                    <div class="data-label">净利润同比</div>
+                                    <div class="data-value" :class="getChangeColor(enhancedData.financials.netProfitYoY)">
+                                        {{ formatChangePercent(enhancedData.financials.netProfitYoY) }}
+                                    </div>
+                                </div>
+                                <div class="data-item">
+                                    <div class="data-label">ROE</div>
+                                    <div class="data-value">{{ formatPercent(enhancedData.financials.roe) }}</div>
+                                </div>
+                                <div class="data-item">
+                                    <div class="data-label">负债率</div>
+                                    <div class="data-value">{{ formatPercent(enhancedData.financials.debtRatio) }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 机构评级 -->
+                        <div v-if="enhancedData.ratings?.length" class="data-section">
+                            <div class="data-section-title"><span>🏦</span> 机构评级</div>
+                            <div class="space-y-2">
+                                <div v-for="(r, i) in enhancedData.ratings.slice(0, 3)" :key="i" 
+                                     class="flex items-center justify-between text-xs p-2 bg-[var(--bg-tertiary)] rounded-lg">
+                                    <span class="text-[var(--text-muted)] truncate max-w-[120px]">{{ r.org }}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="badge" :class="getRatingClass(r.rating)">{{ r.rating }}</span>
+                                        <span v-if="r.targetPrice" class="font-mono text-[var(--text-secondary)]">{{ r.targetPrice }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 公告 -->
+                        <div v-if="enhancedData.announcements?.length" class="data-section">
+                            <div class="collapse-header data-section-title" @click="announcementsExpanded = !announcementsExpanded">
+                                <div class="flex items-center gap-2">
+                                    <span>📢</span> 最新公告
+                                    <span class="text-[10px] text-[var(--text-muted)]">({{ enhancedData.announcements.length }})</span>
+                                </div>
+                                <svg class="w-4 h-4 collapse-icon" :class="{ expanded: announcementsExpanded }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                            <transition name="fade">
+                                <div v-show="announcementsExpanded" class="bg-[var(--bg-tertiary)] rounded-lg p-3">
+                                    <div v-for="(a, i) in enhancedData.announcements" :key="i" 
+                                         class="announcement-item"
+                                         @click="openAnnouncement(a)">
+                                        <div class="text-[var(--text-muted)] text-[10px]">{{ a.date }}</div>
+                                        <div class="text-[var(--text-secondary)] text-xs leading-relaxed hover:text-[var(--accent-light)]">
+                                            {{ a.title }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </transition>
+                        </div>
+
+                        <!-- 北向资金 -->
+                        <div v-if="enhancedData.northbound" class="data-section">
+                            <div class="data-section-title"><span>🌏</span> 北向资金</div>
+                            <div class="data-grid">
+                                <div class="data-item">
+                                    <div class="data-label">持股占比</div>
+                                    <div class="data-value">{{ formatPercent(enhancedData.northbound.ratio) }}</div>
+                                </div>
+                                <div class="data-item">
+                                    <div class="data-label">近期增减</div>
+                                    <div class="data-value" :class="getChangeColor(enhancedData.northbound.changeRatio)">
+                                        {{ formatChangePercent(enhancedData.northbound.changeRatio) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 数据完整度 -->
+                        <div class="bg-[var(--bg-tertiary)] rounded-lg p-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[11px] text-[var(--text-muted)]">数据完整度</span>
+                                <span class="text-[11px] font-mono" :class="dataConfidence >= 60 ? 'text-green-400' : 'text-yellow-400'">{{ dataConfidence }}%</span>
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" :class="dataConfidence >= 60 ? 'bg-green-500' : 'bg-yellow-500'" :style="{ width: dataConfidence + '%' }"></div>
+                            </div>
+                            <div class="flex flex-wrap gap-1 mt-2">
+                                <span v-for="item in confidenceItems" :key="item.key" class="text-[10px] px-1.5 py-0.5 rounded"
+                                      :class="item.ok ? 'bg-green-500/20 text-green-400' : 'bg-[var(--bg-primary)] text-[var(--text-muted)]'">
+                                    {{ item.label }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 分析按钮 -->
+                    <button v-if="aiStatus !== 'loading'" @click="startAnalysis" :disabled="isDataLoading"
+                            class="btn btn-primary w-full py-3 mb-4">
+                        <span v-if="reportCache[currentStock?.code]">🔄 重新分析</span>
+                        <span v-else>✨ 启动 AI 分析</span>
+                    </button>
+
+                    <!-- AI加载中 - 带心跳指示 -->
+                    <div v-if="aiStatus === 'loading'" class="p-4 border border-[var(--accent)]/30 rounded-lg bg-[var(--accent)]/5 mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2 text-[var(--accent-light)] text-xs font-medium">
+                                <div class="spinner"></div>
+                                <span>AI 正在深度分析...</span>
+                            </div>
+                            <!-- 心跳指示器 -->
+                            <div class="heartbeat-indicator">
+                                <span class="heartbeat-dot"></span>
+                                <span>连接中</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 分析进度 -->
+                        <div class="analysis-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" :style="{ width: analysisProgress + '%' }"></div>
+                            </div>
+                            <div class="progress-text">
+                                <span>{{ analysisStage }}</span>
+                                <span>{{ analysisElapsed }}s</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mt-3">
+                            <div class="skeleton h-3 w-full"></div>
+                            <div class="skeleton h-3 w-4/5"></div>
+                            <div class="skeleton h-3 w-3/4"></div>
+                        </div>
+                    </div>
+
+                    <!-- AI输出 -->
+                    <div v-if="aiOutput" class="report-container" ref="reportRef">
+                        <div class="report-header">
+                            <div>
+                                <div class="report-title">{{ currentStock?.name }} 分析报告</div>
+                                <div class="report-meta">{{ currentStock?.code }} · {{ new Date().toLocaleDateString('zh-CN') }}</div>
+                            </div>
+                            <div class="text-[10px] text-[var(--text-muted)]">
+                                <div>www.aibox6.com</div>
+                            </div>
+                        </div>
+                        <div class="prose" v-html="renderMarkdown(aiOutput)"></div>
+                    </div>
+
+                    <!-- 导出按钮 -->
+                    <div v-if="aiOutput" class="flex justify-center gap-3 mt-4">
+                        <button @click="exportAsImage" class="export-btn" :disabled="isExporting">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span v-if="isExporting">导出中...</span>
+                            <span v-else>导出图片</span>
+                        </button>
+                    </div>
+
+                    <!-- 错误 -->
+                    <div v-if="aiStatus === 'error'" class="p-4 bg-red-500/10 border border-red-500/30 rounded-lg mt-4">
+                        <div class="text-red-400 text-sm font-medium mb-1">分析失败</div>
+                        <p class="text-xs text-red-300">{{ aiError }}</p>
+                        <button @click="startAnalysis" class="mt-2 text-xs text-red-400 underline">重试</button>
+                    </div>
+
+                    <div v-if="aiOutput" class="mt-6 pt-4 border-t border-[var(--border-color)] text-[10px] text-[var(--text-muted)] text-center">
+                        DeepSeek-R1 · 仅供参考，投资需谨慎 · <a href="https://www.aibox6.com" target="_blank" class="text-[var(--accent-light)]">www.aibox6.com</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 移动端导航 -->
+    <nav class="md:hidden flex-none h-12 bg-[var(--bg-tertiary)] border-t border-[var(--border-color)] flex justify-around items-center z-30 pb-safe">
+        <div @click="mobileTab = 'list'" class="nav-item" :class="{ active: mobileTab === 'list' }">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <span>列表</span>
+        </div>
+        <div @click="mobileTab = 'chart'; resizeCharts()" class="nav-item" :class="{ active: mobileTab === 'chart' }">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+            </svg>
+            <span>图表</span>
+        </div>
+        <div @click="mobileTab = 'ai'" class="nav-item" :class="{ active: mobileTab === 'ai' }">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+            <span>研报</span>
+        </div>
+    </nav>
+</div>
+
+<!-- 引入提示词模块 -->
+<script src="/api/gupiao5.js"></script>
+
+<script>
+const { createApp, ref, computed, nextTick, onMounted, onUnmounted } = Vue;
+
+// ===== 域名验证 =====
+const ALLOWED_DOMAINS = ['www.aibox6.com', 'aibox6.com', 'localhost', '127.0.0.1'];
+const validateDomain = () => {
+    const hostname = window.location.hostname;
+    if (ALLOWED_DOMAINS.includes(hostname)) return true;
+    if (/^.*\.aibox6\.com$/.test(hostname)) return true;
+    if (/^.*\.vercel\.app$/.test(hostname)) return true;
+    if (/^localhost(:\d+)?$/.test(hostname)) return true;
+    return false;
+};
+
+if (!validateDomain()) {
+    document.body.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#0a0c10;color:#ff4444;font-family:system-ui;text-align:center;padding:20px">
+            <div style="font-size:48px;margin-bottom:20px">⚠️</div>
+            <h1 style="font-size:24px;margin-bottom:10px">未授权使用</h1>
+            <p style="font-size:14px;color:#999;max-width:400px">
+                本程序仅授权在 aibox6.com 域名下使用。<br>
+                请访问 <a href="https://www.aibox6.com" style="color:#7c5cff">www.aibox6.com</a>
+            </p>
+        </div>
+    `;
+    throw new Error('未授权的域名');
+}
+
+// ===== 配置 =====
+const CONFIG = {
+    STORAGE_KEY: 'ds_api_key_v3',
+    API: {
+        TOP_LIST: 'https://push2.eastmoney.com/api/qt/clist/get',
+        STOCK_DETAIL: 'https://push2.eastmoney.com/api/qt/stock/get',
+        KLINE: 'https://push2his.eastmoney.com/api/qt/stock/kline/get',
+        SEARCH: 'https://searchapi.eastmoney.com/api/suggest/get',
+        FINANCIAL: 'https://datacenter.eastmoney.com/securities/api/data/get',
+        ANNOUNCEMENT: 'https://np-anotice-stock.eastmoney.com/api/security/ann',
+        DEEPSEEK: 'https://api.deepseek.com/chat/completions'
+    },
+    // 心跳配置
+    HEARTBEAT_INTERVAL: 5000,  // 每5秒发送一次心跳
+    ANALYSIS_TIMEOUT: 180000   // 分析超时时间3分钟
+};
+
+// ===== 工具函数 =====
+const debounce = (fn, delay) => {
+    let t = null;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+};
+
+const getSecId = (code) => code.startsWith('6') ? `1.${code}` : `0.${code}`;
+const getSecCode = (code) => code.startsWith('6') ? `SH${code}` : `SZ${code}`;
+
+const storage = {
+    get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
+    del: (k) => { try { localStorage.removeItem(k); } catch {} }
+};
+
+// ===== JSONP =====
+let jsonpId = 0;
+const jsonp = (url, prefix = 'cb') => new Promise((resolve, reject) => {
+    const cbName = `${prefix}_${++jsonpId}_${Date.now()}`;
+    const script = document.createElement('script');
+    script.src = `${url}${url.includes('?') ? '&' : '?'}cb=${cbName}&_=${Date.now()}`;
+    
+    const timer = setTimeout(() => { cleanup(); reject(new Error('超时')); }, 15000);
+    const cleanup = () => { clearTimeout(timer); delete window[cbName]; script.remove(); };
+    
+    window[cbName] = (data) => { cleanup(); resolve(data); };
+    script.onerror = () => { cleanup(); reject(new Error('请求失败')); };
+    document.body.appendChild(script);
+});
+
+// ===== Fetch =====
+const fetchJson = async (url) => {
+    try { const r = await fetch(url); return await r.json(); }
+    catch { return null; }
+};
+
+// ===== 格式化 =====
+const fmt = {
+    price: (v) => v == null || v === '-' ? '-' : parseFloat(v).toFixed(2),
+    percent: (v) => v == null || v === '-' ? '-' : parseFloat(v).toFixed(2) + '%',
+    ratio: (v) => { if (v == null || v === '-') return '-'; const n = parseFloat(v); return isNaN(n) ? '-' : n.toFixed(2); },
+    value: (v) => v == null || v === '-' ? '-' : parseFloat(v).toFixed(2),
+    change: (v) => { if (v == null) return '-'; const n = parseFloat(v); return (n >= 0 ? '+' : '') + n.toFixed(2) + '%'; },
+    cap: (v) => v ? (v / 1e8).toFixed(0) + '亿' : '-',
+    forAI: (v) => { const r = fmt.value(v); return r === '-' ? '暂无' : r; }
+};
+
+// ===== 图表 =====
+const charts = { k: null, v: null };
+const initChart = (id) => {
+    if (charts[id]) charts[id].dispose();
+    const dom = document.getElementById(id);
+    if (!dom) return null;
+    charts[id] = echarts.init(dom);
+    return charts[id];
+};
+const resizeCharts = () => setTimeout(() => { Object.values(charts).forEach(c => c?.resize()); }, 100);
+
+// ===== 技术指标 =====
+const calcSMA = (data, period) => data.map((_, i, arr) => {
+    if (i < period - 1) return null;
+    let sum = 0; for (let j = 0; j < period; j++) sum += arr[i - j];
+    return (sum / period).toFixed(2);
+});
+
+const calcEMA = (data, period) => {
+    const k = 2 / (period + 1);
+    return data.reduce((r, v, i) => { r.push(i === 0 ? v : v * k + r[i - 1] * (1 - k)); return r; }, []);
+};
+
+const calcMACD = (closes) => {
+    const e12 = calcEMA(closes, 12), e26 = calcEMA(closes, 26);
+    const dif = e12.map((v, i) => v - e26[i]);
+    const dea = calcEMA(dif, 9);
+    const n = closes.length - 1;
+    return { dif: dif[n].toFixed(3), dea: dea[n].toFixed(3) };
+};
+
+const calcRSI = (closes, period = 6) => closes.map((_, i, arr) => {
+    if (i < period) return null;
+    let gain = 0, loss = 0;
+    for (let j = i - period + 1; j <= i; j++) {
+        const d = arr[j] - arr[j - 1];
+        if (d > 0) gain += d; else loss -= d;
+    }
+    return (100 - 100 / (1 + gain / (loss || 0.001))).toFixed(2);
+});
+
+// ===== 心跳管理器 =====
+class HeartbeatManager {
+    constructor() {
+        this.intervalId = null;
+        this.controller = null;
+        this.startTime = 0;
+        this.onTick = null;
+    }
+    
+    start(onTick) {
+        this.stop();
+        this.startTime = Date.now();
+        this.onTick = onTick;
+        this.controller = new AbortController();
+        
+        // 定期发送心跳
+        this.intervalId = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+            if (this.onTick) this.onTick(elapsed);
+            
+            // 发送一个轻量级请求保持连接
+            fetch('/api/heartbeat', { 
+                method: 'HEAD',
+                signal: this.controller.signal 
+            }).catch(() => {});
+        }, CONFIG.HEARTBEAT_INTERVAL);
+        
+        return this.controller;
+    }
+    
+    stop() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+        if (this.controller) {
+            this.controller.abort();
+            this.controller = null;
+        }
+    }
+    
+    getElapsed() {
+        return Math.floor((Date.now() - this.startTime) / 1000);
+    }
+}
+
+const heartbeat = new HeartbeatManager();
+
+// ===== Vue 应用 =====
+createApp({
+    setup() {
+        // 状态
+        const showConfig = ref(false);
+        const apiKey = ref(storage.get(CONFIG.STORAGE_KEY) || '');
+        const tempApiKey = ref(apiKey.value);
+        const mobileTab = ref('list');
+        
+        const isListLoading = ref(false);
+        const stockList = ref([]);
+        const currentStock = ref(null);
+        
+        const searchQuery = ref('');
+        const searchResults = ref([]);
+        const showSearchResults = ref(false);
+        
+        const enhancedData = ref(null);
+        const isDataLoading = ref(false);
+        
+        const aiStatus = ref('idle');
+        const aiOutput = ref('');
+        const aiError = ref('');
+        const reportCache = ref({});
+        
+        const indicators = ref({ ma20: '-', ma60: '-', rsi: '-', macd: null });
+        
+        const announcementsExpanded = ref(true);
+        
+        const isExporting = ref(false);
+        const reportRef = ref(null);
+        
+        // 分析进度状态
+        const analysisProgress = ref(0);
+        const analysisStage = ref('准备中...');
+        const analysisElapsed = ref(0);
+        
+        const md = window.markdownit({ html: false, breaks: true });
+        
+        // 计算属性
+        const dataConfidence = computed(() => {
+            if (!enhancedData.value) return 0;
+            let s = 30;
+            if (enhancedData.value.financials) s += 25;
+            if (enhancedData.value.ratings?.length) s += 15;
+            if (enhancedData.value.announcements?.length) s += 15;
+            if (enhancedData.value.northbound) s += 15;
+            return Math.min(100, s);
+        });
+        
+        const confidenceItems = computed(() => [
+            { key: 'basic', label: '行情', ok: true },
+            { key: 'fin', label: '财务', ok: !!enhancedData.value?.financials },
+            { key: 'rating', label: '评级', ok: !!enhancedData.value?.ratings?.length },
+            { key: 'ann', label: '公告', ok: !!enhancedData.value?.announcements?.length },
+            { key: 'north', label: '北向', ok: !!enhancedData.value?.northbound }
+        ]);
+        
+        // 方法
+        const saveApiKey = () => {
+            apiKey.value = tempApiKey.value.trim();
+            apiKey.value ? storage.set(CONFIG.STORAGE_KEY, apiKey.value) : storage.del(CONFIG.STORAGE_KEY);
+            showConfig.value = false;
+        };
+        
+        const clearApiKey = () => {
+            tempApiKey.value = ''; apiKey.value = '';
+            storage.del(CONFIG.STORAGE_KEY);
+            showConfig.value = false;
+        };
+        
+        // 格式化
+        const formatPrice = fmt.price;
+        const formatPercent = fmt.percent;
+        const formatRatio = fmt.ratio;
+        const formatValue = fmt.value;
+        const formatChangePercent = fmt.change;
+        const renderMarkdown = (t) => md.render(t || '');
+        
+        const getScoreColor = (s) => s >= 70 ? 'text-[var(--color-up)]' : s >= 50 ? 'text-[var(--color-down)]' : 'text-[var(--text-muted)]';
+        const getChangeColor = (v) => v > 0 ? 'text-[var(--color-up)]' : v < 0 ? 'text-[var(--color-down)]' : '';
+        const getRatingClass = (r) => {
+            if (!r) return 'badge-default';
+            if (r.includes('买入') || r.includes('增持') || r.includes('强烈')) return 'badge-up';
+            if (r.includes('减持') || r.includes('卖出')) return 'badge-down';
+            return 'badge-default';
+        };
+        
+        const openAnnouncement = (announcement) => {
+            if (announcement.url) {
+                window.open(announcement.url, '_blank');
+            } else if (announcement.code) {
+                const url = `https://data.eastmoney.com/notices/detail/${currentStock.value?.code}/${announcement.code}.html`;
+                window.open(url, '_blank');
+            } else {
+                const searchUrl = `https://so.eastmoney.com/news/s?keyword=${encodeURIComponent(announcement.title)}`;
+                window.open(searchUrl, '_blank');
+            }
+        };
+        
+        const exportAsImage = async () => {
+            if (!reportRef.value || isExporting.value) return;
+            
+            isExporting.value = true;
+            
+            try {
+                const canvas = await html2canvas(reportRef.value, {
+                    backgroundColor: '#12151a',
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                });
+                
+                const link = document.createElement('a');
+                link.download = `${currentStock.value?.name}_${currentStock.value?.code}_分析报告_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (e) {
+                console.error('导出失败:', e);
+                alert('导出失败，请重试');
+            } finally {
+                isExporting.value = false;
+            }
+        };
+        
+        // 获取热门列表
+        const fetchTopList = async () => {
+            isListLoading.value = true;
+            try {
+                const url = `${CONFIG.API.TOP_LIST}?pn=1&pz=50&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23&fields=f12,f14,f2,f3,f62,f9,f23,f20,f100,f8,f10`;
+                const res = await jsonp(url, 'top');
+                if (res?.data?.diff) {
+                    stockList.value = res.data.diff.map(d => ({
+                        code: d.f12, name: d.f14, price: d.f2, change: d.f3, flow: d.f62,
+                        pe: d.f9, pb: d.f23, totalCap: d.f20, sector: d.f100 || '-',
+                        turnover: d.f8 ?? '-', volRatio: d.f10,
+                        score: Math.min(99, Math.max(1, 50 + d.f3 * 1.5 + (d.f62 > 0 ? 5 : -5)))
+                    })).sort((a, b) => b.score - a.score);
+                }
+            } catch (e) { console.error('列表加载失败:', e); }
+            finally { isListLoading.value = false; }
+        };
+        
+        // 搜索
+        const doSearch = async (q) => {
+            if (!q.trim()) { searchResults.value = []; return; }
+            try {
+                const url = `${CONFIG.API.SEARCH}?input=${encodeURIComponent(q)}&type=14`;
+                const res = await jsonp(url, 'search');
+                if (res?.QuotationCodeTable?.Data) {
+                    searchResults.value = res.QuotationCodeTable.Data.slice(0, 8).map(d => ({ code: d.Code, name: d.Name }));
+                }
+            } catch {}
+        };
+        const debouncedSearch = debounce(() => doSearch(searchQuery.value), 300);
+        const hideSearchResults = () => setTimeout(() => { showSearchResults.value = false; }, 200);
+        
+        const selectSearchResult = (item) => {
+            searchQuery.value = ''; searchResults.value = []; showSearchResults.value = false;
+            selectStock({ code: item.code, name: item.name, price: '-', change: 0, score: 50 });
+        };
+        
+        // 选择股票
+        const selectStock = async (stock) => {
+            currentStock.value = {
+                code: stock.code, name: stock.name, price: stock.price ?? '-', change: stock.change ?? 0,
+                pe: stock.pe ?? '-', pb: stock.pb ?? '-', totalCap: stock.totalCap ?? '-',
+                sector: stock.sector ?? '-', turnover: stock.turnover ?? '-', volRatio: stock.volRatio ?? '-',
+                flow: stock.flow ?? 0, score: stock.score ?? 50
+            };
+            
+            enhancedData.value = null;
+            
+            if (reportCache.value[stock.code]) {
+                aiOutput.value = reportCache.value[stock.code];
+                aiStatus.value = 'success';
+            } else {
+                aiOutput.value = ''; aiStatus.value = 'idle';
+            }
+            
+            mobileTab.value = 'chart';
+            
+            await Promise.all([
+                fetchDetail(stock.code),
+                fetchKline(stock.code),
+                fetchEnhanced(stock.code)
+            ]);
+        };
+        
+        // 获取详情
+        const fetchDetail = async (code) => {
+            try {
+                const url = `${CONFIG.API.STOCK_DETAIL}?secid=${getSecId(code)}&ut=bd1d9ddb04089700cf9c27f6f7426281&fields=f162,f167,f116,f100,f170,f43,f8,f10&fltt=2&invt=2`;
+                const res = await jsonp(url, 'detail');
+                if (res?.data && currentStock.value?.code === code) {
+                    const d = res.data;
+                    Object.assign(currentStock.value, {
+                        pe: d.f162, pb: d.f167, totalCap: d.f116, price: d.f43, change: d.f170,
+                        ...(d.f8 && d.f8 !== '-' && { turnover: d.f8 }),
+                        ...(d.f10 && d.f10 !== '-' && { volRatio: d.f10 }),
+                        ...(d.f100 && d.f100 !== '-' && { sector: d.f100 })
+                    });
+                }
+            } catch {}
+        };
+        
+        // 获取K线
+        const fetchKline = async (code) => {
+            try {
+                const url = `${CONFIG.API.KLINE}?secid=${getSecId(code)}&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55,f56&klt=101&fqt=1&end=20500101&lmt=120`;
+                const res = await jsonp(url, 'kline');
+                if (res?.data?.klines && currentStock.value?.code === code) {
+                    drawKline(res.data.klines);
+                }
+            } catch {}
+        };
+        
+        const drawKline = (klines) => {
+            const dates = [], ohlc = [], closes = [], volumes = [];
+            klines.forEach(line => {
+                const p = line.split(',');
+                dates.push(p[0].slice(5));
+                const o = +p[1], c = +p[2], h = +p[3], l = +p[4], v = +p[5] || 0;
+                ohlc.push([o, c, l, h]);
+                closes.push(c);
+                volumes.push({ value: v, itemStyle: { color: c >= o ? 'rgba(242,54,69,0.7)' : 'rgba(0,200,83,0.7)' } });
+            });
+            
+            const ma20 = calcSMA(closes, 20), ma60 = calcSMA(closes, 60);
+            const rsi = calcRSI(closes, 6), macd = calcMACD(closes);
+            indicators.value = { ma20: ma20[ma20.length - 1], ma60: ma60[ma60.length - 1], rsi: rsi[rsi.length - 1], macd };
+            
+            nextTick(() => {
+                const kChart = initChart('klineChart');
+                const vChart = initChart('volumeChart');
+                
+                if (kChart) {
+                    kChart.setOption({
+                        animation: false,
+                        grid: { left: 50, right: 8, top: 20, bottom: 30 },
+                        tooltip: { 
+                            trigger: 'axis', 
+                            axisPointer: { type: 'cross' }, 
+                            backgroundColor: 'rgba(30,34,42,0.95)', 
+                            borderColor: '#363b47', 
+                            textStyle: { color: '#e8eaed', fontSize: 11 },
+                            formatter: function(params) {
+                                if (!params || !params.length) return '';
+                                const date = params[0].axisValue;
+                                let html = `<div style="font-weight:600;margin-bottom:8px;color:#fff">${date}</div>`;
+                                
+                                params.forEach(item => {
+                                    if (item.seriesType === 'candlestick') {
+                                        const [open, close, low, high] = item.data;
+                                        const color = close >= open ? '#f23645' : '#00c853';
+                                        const change = ((close - open) / open * 100).toFixed(2);
+                                        html += `
+                                            <div style="color:${color};line-height:1.8">
+                                                <div>开盘：${open.toFixed(2)}</div>
+                                                <div>收盘：${close.toFixed(2)}</div>
+                                                <div>最低：${low.toFixed(2)}</div>
+                                                <div>最高：${high.toFixed(2)}</div>
+                                                <div>涨跌：${change}%</div>
+                                            </div>
+                                        `;
+                                    } else if (item.seriesType === 'line' && item.data) {
+                                        html += `
+                                            <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+                                                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color}"></span>
+                                                <span style="color:#9aa0a9">${item.seriesName}：</span>
+                                                <span style="color:#fff">${parseFloat(item.data).toFixed(2)}</span>
+                                            </div>
+                                        `;
+                                    }
+                                });
+                                return html;
+                            }
+                        },
+                        xAxis: { data: dates, axisLine: { lineStyle: { color: '#2a2e37' } }, axisLabel: { color: '#5f6670', fontSize: 10 } },
+                        yAxis: { scale: true, splitLine: { lineStyle: { color: '#2a2e37', type: 'dashed' } }, axisLabel: { color: '#5f6670', fontSize: 10 } },
+                        dataZoom: [{ type: 'inside', start: 50, end: 100 }],
+                        series: [
+                            { name: 'K线', type: 'candlestick', data: ohlc, itemStyle: { color: '#f23645', color0: '#00c853', borderColor: '#f23645', borderColor0: '#00c853' } },
+                            { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#f59e0b' } },
+                            { name: 'MA60', type: 'line', data: ma60, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#22c55e' } }
+                        ]
+                    });
+                }
+                
+                if (vChart) {
+                    vChart.setOption({
+                        animation: false,
+                        grid: { left: 50, right: 8, top: 8, bottom: 20 },
+                        tooltip: {
+                            trigger: 'axis',
+                            backgroundColor: 'rgba(30,34,42,0.95)',
+                            borderColor: '#363b47',
+                            textStyle: { color: '#e8eaed', fontSize: 11 },
+                            formatter: function(params) {
+                                if (!params || !params.length) return '';
+                                const item = params[0];
+                                const vol = item.data.value;
+                                let volStr;
+                                if (vol >= 100000000) {
+                                    volStr = (vol / 100000000).toFixed(2) + '亿';
+                                } else if (vol >= 10000) {
+                                    volStr = (vol / 10000).toFixed(2) + '万';
+                                } else {
+                                    volStr = vol.toFixed(0);
+                                }
+                                return `
+                                    <div style="font-weight:600;margin-bottom:4px;color:#fff">${item.axisValue}</div>
+                                    <div>成交量：${volStr}手</div>
+                                `;
+                            }
+                        },
+                        xAxis: { data: dates, axisLine: { lineStyle: { color: '#2a2e37' } }, axisLabel: { show: false } },
+                        yAxis: { scale: true, splitLine: { show: false }, axisLabel: { show: false } },
+                        dataZoom: [{ type: 'inside', start: 50, end: 100 }],
+                        series: [{ name: '成交量', type: 'bar', data: volumes, barWidth: '60%' }]
+                    });
+                }
+                
+                if (kChart && vChart) echarts.connect([kChart, vChart]);
+            });
+        };
+        
+        // 获取增强数据
+        const fetchEnhanced = async (code) => {
+            isDataLoading.value = true;
+            enhancedData.value = {};
+            
+            await Promise.allSettled([
+                fetchFinancial(code),
+                fetchRatings(code),
+                fetchAnnouncements(code),
+                fetchNorthbound(code)
+            ]);
+            
+            isDataLoading.value = false;
+        };
+        
+        const fetchFinancial = async (code) => {
+            try {
+                const secCode = getSecCode(code);
+                const url = `${CONFIG.API.FINANCIAL}?type=RPT_F10_FINANCE_MAINFINADATA&sty=ALL&filter=(SECUCODE="${secCode}")&p=1&ps=4&sr=-1&st=REPORT_DATE&source=HSF10&client=PC`;
+                const res = await fetchJson(url);
+                if (res?.result?.data?.length && currentStock.value?.code === code) {
+                    const d = res.result.data[0];
+                    enhancedData.value.financials = {
+                        revenueYoY: d.YSTZ, netProfitYoY: d.SJLTZ,
+                        grossMargin: d.XSMLL, roe: d.ROEJQ, debtRatio: d.ZCFZL,
+                        reportDate: d.REPORT_DATE?.slice(0, 10)
+                    };
+                }
+            } catch {}
+        };
+        
+        const fetchRatings = async (code) => {
+            try {
+                const url = `${CONFIG.API.FINANCIAL}?type=RPT_RATINGCHANGE_TS&sty=ALL&filter=(SCODE="${code}")&p=1&ps=10&sr=-1&st=RATINGDATE&source=HSF10&client=PC`;
+                const res = await fetchJson(url);
+                if (res?.result?.data?.length && currentStock.value?.code === code) {
+                    enhancedData.value.ratings = res.result.data.slice(0, 5).map(d => ({
+                        org: d.RESEARCHER_ORG_NAME || d.ORG_NAME || '-',
+                        rating: d.NEW_RATING || d.RATING || '-',
+                        targetPrice: d.NEW_TARGET_PRICE || d.TARGET_PRICE,
+                        date: d.RATINGDATE?.slice(0, 10)
+                    }));
+                }
+            } catch {}
+        };
+        
+        const fetchAnnouncements = async (code) => {
+            try {
+                const url = `${CONFIG.API.ANNOUNCEMENT}?page_size=10&page_index=1&ann_type=A&client_source=web&stock_list=${code}&f_node=0&s_node=0`;
+                const res = await fetchJson(url);
+                if (res?.data?.list?.length && currentStock.value?.code === code) {
+                    enhancedData.value.announcements = res.data.list.slice(0, 5).map(d => ({
+                        title: d.title,
+                        date: d.notice_date?.slice(0, 10),
+                        code: d.art_code,
+                        url: d.pdf_url || null
+                    }));
+                }
+            } catch {}
+        };
+        
+        const fetchNorthbound = async (code) => {
+            try {
+                const url = `${CONFIG.API.FINANCIAL}?type=RPT_MUTUAL_HOLDSTOCKNORTH_STA&sty=ALL&filter=(SECURITY_CODE="${code}")&p=1&ps=30&sr=-1&st=TRADE_DATE&source=HSF10&client=PC`;
+                const res = await fetchJson(url);
+                if (res?.result?.data?.length && currentStock.value?.code === code) {
+                    const d = res.result.data;
+                    const latest = d[0], oldest = d[d.length - 1] || latest;
+                    enhancedData.value.northbound = {
+                        ratio: latest.HOLD_SHARES_RATIO,
+                        change: latest.HOLD_SHARES - oldest.HOLD_SHARES,
+                        changeRatio: ((latest.HOLD_SHARES - oldest.HOLD_SHARES) / (oldest.HOLD_SHARES || 1) * 100)
+                    };
+                }
+            } catch {}
+        };
+        
+        // ===== AI 分析（带心跳机制）=====
+        const startAnalysis = async () => {
+            if (!apiKey.value || !currentStock.value) return;
+            
+            const code = currentStock.value.code;
+            aiStatus.value = 'loading';
+            aiOutput.value = '';
+            aiError.value = '';
+            analysisProgress.value = 0;
+            analysisStage.value = '准备数据...';
+            analysisElapsed.value = 0;
+            
+            // 启动心跳
+            const controller = heartbeat.start((elapsed) => {
+                analysisElapsed.value = elapsed;
+                
+                // 更新进度和阶段
+                if (elapsed < 5) {
+                    analysisProgress.value = Math.min(10, elapsed * 2);
+                    analysisStage.value = '发送请求...';
+                } else if (elapsed < 15) {
+                    analysisProgress.value = Math.min(30, 10 + (elapsed - 5));
+                    analysisStage.value = 'AI 思考中...';
+                } else if (elapsed < 45) {
+                    analysisProgress.value = Math.min(60, 30 + (elapsed - 15) * 0.8);
+                    analysisStage.value = '深度分析中...';
+                } else if (elapsed < 90) {
+                    analysisProgress.value = Math.min(85, 60 + (elapsed - 45) * 0.5);
+                    analysisStage.value = '生成报告中...';
+                } else {
+                    analysisProgress.value = Math.min(95, 85 + (elapsed - 90) * 0.1);
+                    analysisStage.value = '即将完成...';
+                }
+            });
+            
+            // 构建提示词
+            const prompt = window.PromptBuilder.build({
+                stock: currentStock.value,
+                indicators: indicators.value,
+                enhancedData: enhancedData.value,
+                dataConfidence: dataConfidence.value,
+                formatters: fmt
+            });
+            
+            try {
+                // 使用 fetch 的流式读取来保持连接活跃
+                const res = await fetch(CONFIG.API.DEEPSEEK, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${apiKey.value}` 
+                    },
+                    body: JSON.stringify({ 
+                        model: 'deepseek-reasoner', 
+                        messages: [{ role: 'user', content: prompt }], 
+                        stream: true  // 使用流式响应
+                    }),
+                    signal: controller.signal
+                });
+                
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error?.message || `错误: ${res.status}`);
+                }
+                
+                // 流式读取响应
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let content = '';
+                let thinkContent = '';
+                let isInThink = false;
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[DONE]') continue;
+                            
+                            try {
+                                const json = JSON.parse(data);
+                                const delta = json.choices?.[0]?.delta?.content || '';
+                                
+                                // 处理思考标签
+                                if (delta.includes('<think>')) {
+                                    isInThink = true;
+                                }
+                                if (isInThink) {
+                                    thinkContent += delta;
+                                    if (delta.includes('</think>')) {
+                                        isInThink = false;
+                                    }
+                                } else {
+                                    content += delta;
+                                    // 实时更新显示（去除思考内容）
+                                    aiOutput.value = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+                                }
+                                
+                                // 更新进度
+                                analysisProgress.value = Math.min(95, analysisProgress.value + 0.5);
+                            } catch {}
+                        }
+                    }
+                }
+                
+                // 最终处理
+                content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+                aiOutput.value = content;
+                reportCache.value[code] = content;
+                aiStatus.value = 'success';
+                analysisProgress.value = 100;
+                analysisStage.value = '完成';
+                
+            } catch (e) {
+                if (e.name === 'AbortError') {
+                    aiError.value = '分析已取消';
+                } else {
+                    aiError.value = e.message || '分析失败';
+                }
+                aiStatus.value = 'error';
+            } finally {
+                heartbeat.stop();
+            }
+        };
+        
+        // 生命周期
+        onMounted(() => { 
+            window.addEventListener('resize', resizeCharts); 
+            fetchTopList(); 
+        });
+        
+        onUnmounted(() => { 
+            window.removeEventListener('resize', resizeCharts);
+            heartbeat.stop();
+        });
+        
+        return {
+            showConfig, apiKey, tempApiKey, mobileTab,
+            isListLoading, stockList, currentStock,
+            searchQuery, searchResults, showSearchResults,
+            enhancedData, isDataLoading, dataConfidence, confidenceItems,
+            aiStatus, aiOutput, aiError, reportCache,
+            announcementsExpanded,
+            isExporting, reportRef,
+            analysisProgress, analysisStage, analysisElapsed,
+            
+            saveApiKey, clearApiKey, fetchTopList, selectStock,
+            debouncedSearch, hideSearchResults, selectSearchResult,
+            startAnalysis, resizeCharts,
+            openAnnouncement, exportAsImage,
+            
+            formatPrice, formatPercent, formatRatio, formatValue, formatChangePercent,
+            renderMarkdown, getScoreColor, getChangeColor, getRatingClass
+        };
+    }
+}).mount('#app');
+</script>
+<script src="common.js"></script>
+</body>
+</html>
