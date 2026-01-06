@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI股票分析 Pro - aibox6.com</title>
+    <title>AI股票分析 Pro - aibox6</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
@@ -1121,6 +1121,7 @@ createApp({
             'f60',   // 昨收
             'f116',  // 总市值
             'f117',  // 流通市值
+            'f127',  // 行业名称
             'f162',  // 市盈率PE
             'f167',  // 市净率PB
             'f168',  // 换手率
@@ -1147,6 +1148,7 @@ createApp({
                 pe: d.f162 ?? '-',
                 pb: d.f167 ?? '-',
                 totalCap: d.f116 ?? '-',
+                sector: d.f127 || '-', 
                 sector: d.f100 || d.f103 || '-',
                 turnover: d.f168 ?? '-',
                 volRatio: d.f50 ?? '-',
