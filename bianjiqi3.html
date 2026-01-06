@@ -7,21 +7,43 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
-        /* 移动端 body 保持 hidden，通过内部容器滚动，防止整个页面弹跳 */
         body { background-color: #f1f5f9; color: #334155; height: 100vh; overflow: hidden; }
         
+        /* === 核心修复区域 START === */
         #preview-container { 
-            background: #fff; height: 100%; border-radius: 4px;
+            background: #fff; 
+            border-radius: 4px;
             padding: 0; border: 1px solid #cbd5e1; max-width: 375px; margin: 0 auto;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;
-            /* 移动端适配：在小屏幕上占满宽度 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative;
             width: 100%;
+            /* 移动端默认：高度自动，由内容撑开，不隐藏溢出 */
+            height: auto; 
+            min-height: 600px;
+            overflow: visible;
         }
         #preview-content {
-            background: white; height: 100%;
-            overflow-y: auto; padding: 20px 10px; outline: none;
+            background: white; 
+            padding: 20px 10px; outline: none;
             transition: background 0.3s;
+            /* 移动端默认：高度自动，由内容撑开，无内部滚动条 */
+            height: auto;
+            min-height: 100%; 
+            overflow: visible;
         }
+
+        /* 电脑端 (Large Screen) 恢复独立滚动模式 */
+        @media (min-width: 1024px) {
+            #preview-container {
+                height: 100%;
+                min-height: 0; /* 重置最小高度 */
+                overflow: hidden; /* 电脑端隐藏外层溢出 */
+            }
+            #preview-content {
+                height: 100%;
+                overflow-y: auto; /* 电脑端开启内部滚动 */
+            }
+        }
+        /* === 核心修复区域 END === */
 
         /* 交互选框 */
         .block-wrapper {
@@ -157,16 +179,16 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-5 min-h-[600px] lg:h-full flex flex-col items-center overflow-hidden">
+            <div class="lg:col-span-5 lg:h-full flex flex-col items-center">
                 <div class="w-full flex justify-between items-center px-1 mb-2 max-w-[375px] flex-shrink-0">
                     <span class="text-[12px] font-bold text-slate-400 uppercase tracking-wider">📱 手机端预览</span>
                     <button onclick="copyHtml()" id="btn-copy" class="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs shadow-sm transition">
                         复制到公众号
                     </button>
                 </div>
-                <div id="preview-container" class="w-full flex-1">
+                <div id="preview-container" class="w-full">
                     <div id="preview-content" contenteditable="true">
-                        <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; color: #94a3b8;">
+                        <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; padding-top: 100px; color: #94a3b8;">
                             <div class="floating-icon" style="font-size: 40px; margin-bottom: 20px;">✨</div>
                             <div class="breathing-text" style="font-size: 15px; margin-bottom: 10px; color: #64748b; font-weight: 500;">等待内容输入</div>
                             <div style="display: flex; align-items: center;">
@@ -256,8 +278,6 @@
 
         // ==========================================
         // 核心模板库 v2.3
-        // 正文内容保持 padding: 0 8px 缩进
-        // 卡片类保持 margin: 25px 8px 实现左右留白
         // ==========================================
         const VARIANTS = {
             big_title: [
@@ -424,7 +444,7 @@
         function showLoading() {
             const container = document.getElementById('preview-content');
             container.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; color: #64748b;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; min-height: 400px; color: #64748b;">
                     <div class="floating-icon" style="font-size: 44px; margin-bottom: 20px;">🎨</div>
                     <div class="breathing-text" style="font-size: 15px; margin-bottom: 14px; font-weight: 600; color: #475569;">AI 正在智能排版</div>
                     <div style="display: flex; align-items: center; margin-bottom: 12px;">
@@ -440,7 +460,7 @@
 
         function showWaiting() {
             document.getElementById('preview-content').innerHTML = `
-                <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; color: #94a3b8;">
+                <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; padding-top: 100px; color: #94a3b8;">
                     <div class="floating-icon" style="font-size: 40px; margin-bottom: 20px;">✨</div>
                     <div class="breathing-text" style="font-size: 15px; margin-bottom: 10px; color: #64748b; font-weight: 500;">等待内容输入</div>
                     <div style="display: flex; align-items: center;">
