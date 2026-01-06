@@ -1101,115 +1101,202 @@ createApp({
             } catch {}
         };
         
-        const drawKline = (klines) => {
-            const dates = [], ohlc = [], closes = [], volumes = [];
-            klines.forEach(line => {
-                const p = line.split(',');
-                dates.push(p[0].slice(5));
-                const o = +p[1], c = +p[2], h = +p[3], l = +p[4], v = +p[5] || 0;
-                ohlc.push([o, c, l, h]);
-                closes.push(c);
-                volumes.push({ value: v, itemStyle: { color: c >= o ? 'rgba(242,54,69,0.7)' : 'rgba(0,200,83,0.7)' } });
-            });
-            
-            const ma20 = calcSMA(closes, 20), ma60 = calcSMA(closes, 60);
-            const rsi = calcRSI(closes, 6), macd = calcMACD(closes);
-            indicators.value = { ma20: ma20[ma20.length - 1], ma60: ma60[ma60.length - 1], rsi: rsi[rsi.length - 1], macd };
-            
-            nextTick(() => {
-                const kChart = initChart('klineChart');
-                const vChart = initChart('volumeChart');
-                
-                if (kChart) {
-                    kChart.setOption({
-                        animation: false,
-                        grid: { left: 50, right: 8, top: 20, bottom: 30 },
-                        tooltip: { 
-                            trigger: 'axis', 
-                            axisPointer: { type: 'cross' }, 
-                            backgroundColor: 'rgba(30,34,42,0.95)', 
-                            borderColor: '#363b47', 
-                            textStyle: { color: '#e8eaed', fontSize: 11 },
-                            formatter: function(params) {
-                                if (!params || !params.length) return '';
-                                const date = params[0].axisValue;
-                                let html = `<div style="font-weight:600;margin-bottom:8px;color:#fff">${date}</div>`;
+const drawKline = (klines) => {
+    const dates = [], ohlc = [], closes = [], volumes = [];
+    
+    klines.forEach(line => {
+        const p = line.split(',');
+        // 东财API数据顺序: 日期[0], 开盘[1], 收盘[2], 最高[3], 最低[4], 成交量[5], 成交额[6]
+        const date = p[0].slice(5);  // MM-DD
+        const open = parseFloat(p[1]);
+        const close = parseFloat(p[2]);
+        const high = parseFloat(p[3]);
+        const low = parseFloat(p[4]);
+        const volume = parseFloat(p[5]) || 0;
+        
+        dates.push(date);
+        // ECharts K线数据格式: [开盘, 收盘, 最低, 最高]
+        ohlc.push([open, close, low, high]);
+        closes.push(close);
+        volumes.push({ 
+            value: volume, 
+            open: open,   // 保存开盘价用于判断涨跌颜色
+            close: close, // 保存收盘价用于判断涨跌颜色
+            itemStyle: { 
+                color: close >= open ? 'rgba(242,54,69,0.7)' : 'rgba(0,200,83,0.7)' 
+            } 
+        });
+    });
+    
+    const ma20 = calcSMA(closes, 20), ma60 = calcSMA(closes, 60);
+    const rsi = calcRSI(closes, 6), macd = calcMACD(closes);
+    indicators.value = { 
+        ma20: ma20[ma20.length - 1], 
+        ma60: ma60[ma60.length - 1], 
+        rsi: rsi[rsi.length - 1], 
+        macd 
+    };
+    
+    nextTick(() => {
+        const kChart = initChart('klineChart');
+        const vChart = initChart('volumeChart');
+        
+        if (kChart) {
+            kChart.setOption({
+                animation: false,
+                grid: { left: 50, right: 8, top: 20, bottom: 30 },
+                tooltip: { 
+                    trigger: 'axis', 
+                    axisPointer: { type: 'cross' }, 
+                    backgroundColor: 'rgba(30,34,42,0.95)', 
+                    borderColor: '#363b47', 
+                    textStyle: { color: '#e8eaed', fontSize: 11 },
+                    formatter: function(params) {
+                        if (!params || !params.length) return '';
+                        const date = params[0].axisValue;
+                        let html = `<div style="font-weight:600;margin-bottom:8px;color:#fff">${date}</div>`;
+                        
+                        params.forEach(item => {
+                            if (item.seriesType === 'candlestick' && item.data) {
+                                // ECharts K线数据格式: [开盘, 收盘, 最低, 最高]
+                                const open = item.data[0];
+                                const close = item.data[1];
+                                const low = item.data[2];
+                                const high = item.data[3];
                                 
-                                params.forEach(item => {
-                                    if (item.seriesType === 'candlestick') {
-                                        const [open, close, low, high] = item.data;
-                                        const color = close >= open ? '#f23645' : '#00c853';
-                                        const change = ((close - open) / open * 100).toFixed(2);
-                                        html += `
-                                            <div style="color:${color};line-height:1.8">
-                                                <div>开盘：${open.toFixed(2)}</div>
-                                                <div>收盘：${close.toFixed(2)}</div>
-                                                <div>最低：${low.toFixed(2)}</div>
-                                                <div>最高：${high.toFixed(2)}</div>
-                                                <div>涨跌：${change}%</div>
-                                            </div>
-                                        `;
-                                    } else if (item.seriesType === 'line' && item.data) {
-                                        html += `
-                                            <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
-                                                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color}"></span>
-                                                <span style="color:#9aa0a9">${item.seriesName}：</span>
-                                                <span style="color:#fff">${parseFloat(item.data).toFixed(2)}</span>
-                                            </div>
-                                        `;
-                                    }
-                                });
-                                return html;
-                            }
-                        },
-                        xAxis: { data: dates, axisLine: { lineStyle: { color: '#2a2e37' } }, axisLabel: { color: '#5f6670', fontSize: 10 } },
-                        yAxis: { scale: true, splitLine: { lineStyle: { color: '#2a2e37', type: 'dashed' } }, axisLabel: { color: '#5f6670', fontSize: 10 } },
-                        dataZoom: [{ type: 'inside', start: 50, end: 100 }],
-                        series: [
-                            { name: 'K线', type: 'candlestick', data: ohlc, itemStyle: { color: '#f23645', color0: '#00c853', borderColor: '#f23645', borderColor0: '#00c853' } },
-                            { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#f59e0b' } },
-                            { name: 'MA60', type: 'line', data: ma60, smooth: true, showSymbol: false, lineStyle: { width: 1, color: '#22c55e' } }
-                        ]
-                    });
-                }
-                
-                if (vChart) {
-                    vChart.setOption({
-                        animation: false,
-                        grid: { left: 50, right: 8, top: 8, bottom: 20 },
-                        tooltip: {
-                            trigger: 'axis',
-                            backgroundColor: 'rgba(30,34,42,0.95)',
-                            borderColor: '#363b47',
-                            textStyle: { color: '#e8eaed', fontSize: 11 },
-                            formatter: function(params) {
-                                if (!params || !params.length) return '';
-                                const item = params[0];
-                                const vol = item.data.value;
-                                let volStr;
-                                if (vol >= 100000000) {
-                                    volStr = (vol / 100000000).toFixed(2) + '亿';
-                                } else if (vol >= 10000) {
-                                    volStr = (vol / 10000).toFixed(2) + '万';
-                                } else {
-                                    volStr = vol.toFixed(0);
-                                }
-                                return `
-                                    <div style="font-weight:600;margin-bottom:4px;color:#fff">${item.axisValue}</div>
-                                    <div>成交量：${volStr}手</div>
+                                // 判断涨跌：收盘 >= 开盘 为涨（红色），否则为跌（绿色）
+                                const isUp = close >= open;
+                                const color = isUp ? '#f23645' : '#00c853';
+                                
+                                // 计算涨跌幅：(收盘 - 开盘) / 开盘 * 100
+                                const changePercent = ((close - open) / open * 100).toFixed(2);
+                                // 计算涨跌额
+                                const changeAmount = (close - open).toFixed(2);
+                                
+                                html += `
+                                    <div style="color:${color};line-height:1.8">
+                                        <div>开盘：${open.toFixed(2)}</div>
+                                        <div>收盘：${close.toFixed(2)}</div>
+                                        <div>最高：${high.toFixed(2)}</div>
+                                        <div>最低：${low.toFixed(2)}</div>
+                                        <div>涨跌额：${isUp ? '+' : ''}${changeAmount}</div>
+                                        <div>涨跌幅：${isUp ? '+' : ''}${changePercent}%</div>
+                                    </div>
+                                `;
+                            } else if (item.seriesType === 'line' && item.data != null) {
+                                html += `
+                                    <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+                                        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color}"></span>
+                                        <span style="color:#9aa0a9">${item.seriesName}：</span>
+                                        <span style="color:#fff">${parseFloat(item.data).toFixed(2)}</span>
+                                    </div>
                                 `;
                             }
-                        },
-                        xAxis: { data: dates, axisLine: { lineStyle: { color: '#2a2e37' } }, axisLabel: { show: false } },
-                        yAxis: { scale: true, splitLine: { show: false }, axisLabel: { show: false } },
-                        dataZoom: [{ type: 'inside', start: 50, end: 100 }],
-                        series: [{ name: '成交量', type: 'bar', data: volumes, barWidth: '60%' }]
-                    });
-                }
-                
-                if (kChart && vChart) echarts.connect([kChart, vChart]);
+                        });
+                        
+                        return html;
+                    }
+                },
+                xAxis: { 
+                    data: dates, 
+                    axisLine: { lineStyle: { color: '#2a2e37' } }, 
+                    axisLabel: { color: '#5f6670', fontSize: 10 } 
+                },
+                yAxis: { 
+                    scale: true, 
+                    splitLine: { lineStyle: { color: '#2a2e37', type: 'dashed' } }, 
+                    axisLabel: { color: '#5f6670', fontSize: 10 } 
+                },
+                dataZoom: [{ type: 'inside', start: 50, end: 100 }],
+                series: [
+                    { 
+                        name: 'K线', 
+                        type: 'candlestick', 
+                        data: ohlc, 
+                        itemStyle: { 
+                            color: '#f23645',        // 阳线填充色（涨）
+                            color0: '#00c853',       // 阴线填充色（跌）
+                            borderColor: '#f23645',  // 阳线边框色
+                            borderColor0: '#00c853'  // 阴线边框色
+                        } 
+                    },
+                    { 
+                        name: 'MA20', 
+                        type: 'line', 
+                        data: ma20, 
+                        smooth: true, 
+                        showSymbol: false, 
+                        lineStyle: { width: 1, color: '#f59e0b' } 
+                    },
+                    { 
+                        name: 'MA60', 
+                        type: 'line', 
+                        data: ma60, 
+                        smooth: true, 
+                        showSymbol: false, 
+                        lineStyle: { width: 1, color: '#22c55e' } 
+                    }
+                ]
             });
-        };
+        }
+        
+        if (vChart) {
+            vChart.setOption({
+                animation: false,
+                grid: { left: 50, right: 8, top: 8, bottom: 20 },
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(30,34,42,0.95)',
+                    borderColor: '#363b47',
+                    textStyle: { color: '#e8eaed', fontSize: 11 },
+                    formatter: function(params) {
+                        if (!params || !params.length) return '';
+                        const item = params[0];
+                        const vol = item.data.value;
+                        const open = item.data.open;
+                        const close = item.data.close;
+                        const isUp = close >= open;
+                        const color = isUp ? '#f23645' : '#00c853';
+                        
+                        // 格式化成交量
+                        let volStr;
+                        if (vol >= 100000000) {
+                            volStr = (vol / 100000000).toFixed(2) + '亿';
+                        } else if (vol >= 10000) {
+                            volStr = (vol / 10000).toFixed(2) + '万';
+                        } else {
+                            volStr = vol.toFixed(0);
+                        }
+                        
+                        return `
+                            <div style="font-weight:600;margin-bottom:4px;color:#fff">${item.axisValue}</div>
+                            <div style="color:${color}">成交量：${volStr}手</div>
+                        `;
+                    }
+                },
+                xAxis: { 
+                    data: dates, 
+                    axisLine: { lineStyle: { color: '#2a2e37' } }, 
+                    axisLabel: { show: false } 
+                },
+                yAxis: { 
+                    scale: true, 
+                    splitLine: { show: false }, 
+                    axisLabel: { show: false } 
+                },
+                dataZoom: [{ type: 'inside', start: 50, end: 100 }],
+                series: [{ 
+                    name: '成交量', 
+                    type: 'bar', 
+                    data: volumes, 
+                    barWidth: '60%' 
+                }]
+            });
+        }
+        
+        if (kChart && vChart) echarts.connect([kChart, vChart]);
+    });
+};
         
         // 获取增强数据
         const fetchEnhanced = async (code) => {
