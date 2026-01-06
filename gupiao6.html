@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI股票分析 Pro - aibox6</title>
+    <title>AI股票分析 Pro - www.aibox6.com</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
@@ -1105,40 +1105,24 @@ createApp({
         // 获取详情
         const fetchDetail = async (code) => {
     try {
-        // 使用更完整的字段列表
-        const fields = [
-            'f43',   // 最新价
-            'f44',   // 最高
-            'f45',   // 最低
-            'f46',   // 今开
-            'f47',   // 成交量
-            'f48',   // 成交额
-            'f50',   // 量比
-            'f51',   // 涨停价
-            'f52',   // 跌停价
-            'f57',   // 代码
-            'f58',   // 名称
-            'f60',   // 昨收
-            'f116',  // 总市值
-            'f117',  // 流通市值
-            'f127',  // 行业名称
-            'f162',  // 市盈率PE
-            'f167',  // 市净率PB
-            'f168',  // 换手率
-            'f169',  // 涨跌额
-            'f170',  // 涨跌幅
-            'f171',  // 振幅
-            'f100',  // 所属板块
-            'f103',  // 行业
-        ].join(',');
+        const secid = getSecId(code);
         
-        const url = `${CONFIG.API.STOCK_DETAIL}?secid=${getSecId(code)}&ut=bd1d9ddb04089700cf9c27f6f7426281&fields=${fields}&fltt=2&invt=2`;
+        // 使用 qt/stock/get 接口，支持更多字段
+        const url = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&ut=fa5fd1943c7b386f172d6893dbfba10b&fields=f43,f50,f57,f58,f116,f162,f167,f168,f170,f128,f140,f141&fltt=2&invt=2`;
+        
         const res = await jsonp(url, 'detail');
         
         if (res?.data && currentStock.value?.code === code) {
             const d = res.data;
             
-            // 更新股票数据
+            // f128 是行业板块名称
+            let sector = d.f128 || '-';
+            
+            // 如果 f128 是数字或无效，尝试从其他来源
+            if (sector === '-' || /^\d+$/.test(sector)) {
+                sector = await fetchSectorName(code);
+            }
+            
             currentStock.value = {
                 ...currentStock.value,
                 code: d.f57 || code,
@@ -1148,22 +1132,31 @@ createApp({
                 pe: d.f162 ?? '-',
                 pb: d.f167 ?? '-',
                 totalCap: d.f116 ?? '-',
-                sector: d.f127 || '-', 
-                sector: d.f100 || d.f103 || '-',
+                sector: sector,
                 turnover: d.f168 ?? '-',
                 volRatio: d.f50 ?? '-',
             };
-            
-            console.log('[fetchDetail] 数据更新:', {
-                name: currentStock.value.name,
-                turnover: currentStock.value.turnover,
-                volRatio: currentStock.value.volRatio,
-                sector: currentStock.value.sector
-            });
         }
     } catch (e) {
         console.error('[fetchDetail] 错误:', e);
     }
+};
+
+// 单独获取行业名称
+const fetchSectorName = async (code) => {
+    try {
+        const secid = getSecId(code);
+        const url = `https://datacenter.eastmoney.com/securities/api/data/get?type=RPT_F10_ORG_BASICINFO&sty=SECURITY_CODE,EM2016,INDUSTRYCSRC1&filter=(SECURITY_CODE="${code}")&p=1&ps=1&sr=1`;
+        
+        const res = await fetch(url).then(r => r.json());
+        
+        if (res?.result?.data?.[0]) {
+            return res.result.data[0].INDUSTRYCSRC1 || res.result.data[0].EM2016 || '-';
+        }
+    } catch (e) {
+        console.warn('[fetchSectorName] 失败:', e);
+    }
+    return '-';
 };
         
         // 获取K线
