@@ -2,286 +2,887 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字转图片 v1.2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>卡片工坊 - 文字卡片生成器</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://npm.elemecdn.com/lxgw-wenkai-screen-webfont/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         :root {
-            --bg-app: #f2f2f7;
-            --accent-main: #1c1c1e;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow-soft: 0 8px 32px rgba(31, 38, 135, 0.15);
+            --shadow-strong: 0 20px 60px rgba(31, 38, 135, 0.25);
+            --accent: #667eea;
+            --accent-dark: #5a67d8;
+            --text-primary: #1a1a2e;
+            --text-secondary: #64748b;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
         }
 
-        /* --- 风格定义 --- */
+        /* 风格定义 */
         .style-modern {
             --card-bg: #ffffff;
-            --text-p: #2c2c2e;
-            --text-s: rgba(122, 134, 138, 0.7);
-            --quote-c: rgba(0,0,0,0.05);
-            --line-c: #e5e5ea;
+            --card-bg-img: none;
+            --text-p: #1a1a2e;
+            --text-s: #94a3b8;
+            --quote-c: rgba(102, 126, 234, 0.08);
+            --line-c: #e2e8f0;
+            --accent-card: #667eea;
         }
 
         .style-classic {
-            --card-bg: #fdfaf5; 
-            --card-bg-img: linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(253,250,245,0.6)), url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c0-1.105.895-2 2-2s2 .895 2 2-.895 2-2 2-2-.895-2-2z' fill='%23d4c5b4' fill-opacity='0.15'/%3E%3C/svg%3E");
-            --text-p: #483d33;
-            --text-s: rgba(166, 147, 130, 0.7);
-            --quote-c: rgba(212, 197, 180, 0.35);
+            --card-bg: #fdfaf5;
+            --card-bg-img: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(253,250,245,0.5)), 
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c0-1.105.895-2 2-2s2 .895 2 2-.895 2-2 2-2-.895-2-2z' fill='%23d4c5b4' fill-opacity='0.12'/%3E%3C/svg%3E");
+            --text-p: #4a4033;
+            --text-s: #a89b8c;
+            --quote-c: rgba(180, 160, 140, 0.2);
             --line-c: #d4c5b4;
+            --accent-card: #8b7355;
         }
 
         .style-dark {
-            --card-bg: #1c1c1e;
-            --text-p: #f2f2f7;
-            --text-s: rgba(99, 99, 102, 0.7);
-            --quote-c: rgba(255,255,255,0.03);
-            --line-c: #3a3a3c;
+            --card-bg: #1e1e2e;
+            --card-bg-img: none;
+            --text-p: #f1f5f9;
+            --text-s: #64748b;
+            --quote-c: rgba(255, 255, 255, 0.03);
+            --line-c: #334155;
+            --accent-card: #a78bfa;
         }
 
-        /* --- 字体系列 --- */
+        .style-gradient {
+    --card-bg: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    --card-bg-img: none;
+    --text-p: #4a5568;
+    --text-s: #718096;
+    --quote-c: rgba(168, 237, 234, 0.25);
+    --line-c: #b8d4d0;
+    --accent-card: #a8edea;
+        }
+
+        .style-warm {
+            --card-bg: #fff8f0;
+            --card-bg-img: none;
+            --text-p: #78350f;
+            --text-s: #d97706;
+            --quote-c: rgba(251, 191, 36, 0.1);
+            --line-c: #fcd34d;
+            --accent-card: #f59e0b;
+        }
+
+        /* 字体系列 */
         .font-sans { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
         .font-serif { font-family: "Georgia", "Source Serif Pro", "Songti SC", "SimSun", serif; }
         .font-lxgw { font-family: "LXGW WenKai Screen", sans-serif; }
 
-        body {
-            font-family: -apple-system, sans-serif;
-            background-color: var(--bg-app);
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
+        /* 字体大小 */
+        .size-small { font-size: 14px !important; }
+        .size-medium { font-size: 16px !important; }
+        .size-large { font-size: 18px !important; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        /* --- 控制面板 --- */
+        body {
+            font-family: -apple-system, "PingFang SC", sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 头部标题 */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 主容器 */
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+        }
+
+        /* 控制面板 */
         .panel {
-            width: 100%; max-width: 420px;
-            background: white; padding: 24px; border-radius: 24px;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.06); margin-bottom: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-strong);
+            border: 1px solid var(--glass-border);
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title i {
+            color: var(--accent);
         }
 
         textarea {
-            width: 100%; height: 90px; padding: 14px; border: 1px solid #eee;
-            border-radius: 12px; margin-bottom: 16px; box-sizing: border-box;
-            font-size: 15px; line-height: 1.5; outline: none; transition: 0.3s;
+            width: 100%;
+            height: 120px;
+            padding: 16px;
+            border: 2px solid #f1f5f9;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            line-height: 1.7;
+            resize: none;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #fafafa;
+            color: var(--text-primary);
         }
 
-        .control-row {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 14px;
+        textarea:focus {
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
-        .label-text { font-size: 12px; color: #8e8e93; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        /* 输入框样式优化 */
-        .brand-input {
-            width: 180px; padding: 6px 10px; border: 1px solid #f2f2f7;
-            border-radius: 8px; font-size: 13px; background: #f2f2f7;
-            outline: none; transition: 0.3s; text-align: right;
+        textarea::placeholder {
+            color: #94a3b8;
         }
-        .brand-input:focus { background: #fff; border-color: #007aff; }
 
-        .tabs {
-            display: flex; gap: 4px; background: #f2f2f7; padding: 3px; border-radius: 8px;
+        .control-section {
+            margin-top: 20px;
         }
-        .tab {
-            padding: 4px 10px; border: none; background: none; border-radius: 6px;
-            font-size: 12px; cursor: pointer; transition: 0.2s; color: #666;
-        }
-        .tab.active { background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-weight: 600; color: #000; }
 
-        /* --- 预览区域 --- */
+        .control-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-label i {
+            font-size: 14px;
+            color: var(--accent);
+        }
+
+        /* 输入框 */
+        .text-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #f1f5f9;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .text-input:focus {
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        /* 选项卡组 */
+        .tabs-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* 颜色选项 */
+        .color-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .color-btn.active {
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .color-btn.active::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-modern { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .color-classic { background: linear-gradient(135deg, #d4c5b4, #a89b8c); }
+        .color-dark { background: linear-gradient(135deg, #1e1e2e, #334155); }
+        .color-gradient { background: linear-gradient(135deg, #fdfbfb, #ebedee); border: 1px solid #e2e8f0; }
+        .color-warm { background: linear-gradient(135deg, #fcd34d, #f59e0b); }
+
+        /* 开关 */
+        .switch-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+        }
+
+        .switch-label {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e2e8f0;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        /* 保存按钮 */
+        .save-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 24px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .save-btn:active {
+            transform: translateY(0);
+        }
+
+        .save-btn.loading {
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        /* 预览区域 */
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .preview-label {
+            font-size: 14px;
+            color: white;
+            margin-bottom: 16px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .preview-wrapper {
+            background: white;
+            padding: 16px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-strong);
+        }
+
         #capture-area {
-            width: 375px; min-height: 520px;
+            width: 320px;
+            min-height: 450px;
             background-color: var(--card-bg);
             background-image: var(--card-bg-img, none);
-            padding: 20px; box-sizing: border-box;
-            display: flex; transition: 0.4s ease;
+            padding: 16px;
+            display: flex;
+            transition: all 0.4s ease;
         }
 
         .frame {
-            flex: 1; display: flex; flex-direction: column;
-            padding: 45px 32px 32px 32px; position: relative;
-            border: 1px solid transparent; transition: border 0.3s ease;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 28px 28px 28px;
+            position: relative;
+            border: 1px solid transparent;
+            transition: border 0.3s ease;
         }
 
-        .has-border .frame { border-color: var(--line-c); }
+        .has-border .frame {
+            border-color: var(--line-c);
+        }
 
         .quote {
-            position: absolute; top: 20px; left: 20px;
-            font-size: 110px; font-family: "Georgia", serif;
-            color: var(--quote-c); line-height: 1; z-index: 1;
+            position: absolute;
+            top: 15px;
+            left: 18px;
+            font-size: 95px;
+            font-family: "Georgia", "Times New Roman", serif;
+            color: var(--quote-c);
+            line-height: 1;
+            z-index: 1;
+            user-select: none;
+            font-weight: 500;  /* 可以调整粗细 */
+            opacity: 0.8;      /* 可以调整透明度 */
         }
 
         .main-text {
-            font-size: 16px; line-height: 1.65;
-            /* 移除了这里默认的 text-align: justify */
-            color: var(--text-p); white-space: pre-wrap; z-index: 2;
-            flex-grow: 1; margin-top: 45px;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-p);
+            white-space: pre-wrap;
+            z-index: 2;
+            flex-grow: 1;
+            margin-top: 40px;
+            word-break: break-word;
         }
 
-        .meta { margin-top: 50px; display: flex; justify-content: space-between; align-items: center; z-index: 2; }
+        .meta {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+        }
 
         .date-style {
-            font-family: "Georgia", serif; font-style: italic;
-            font-size: 13px; color: var(--text-s); font-weight: 200;
+            font-family: "Georgia", serif;
+            font-style: italic;
+            font-size: 12px;
+            color: var(--text-s);
+            font-weight: 400;
         }
 
-        .brand-style { 
-            font-size: 12px; color: var(--text-s); letter-spacing: 2px; 
-            text-transform: uppercase; font-family: -apple-system, sans-serif;font-style: italic;
+        .brand-style {
+            font-size: 11px;
+            color: var(--text-s);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-style: italic;
         }
 
-        .save-btn {
-            width: 100%; padding: 15px; background: var(--accent-main);
-            color: white; border: none; border-radius: 14px;
-            font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 10px;
-        }
-
-        /* 简易开关 */
-        .toggle { position: relative; display: inline-block; width: 36px; height: 20px; }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #e5e5ea; transition: .3s; border-radius: 20px;
-        }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: #34c759; }
-        input:checked + .slider:before { transform: translateX(16px); }
-
-        /* --- 【修复】将对齐样式移到最后，确保优先级最高 --- */
+        /* 对齐样式 */
         .align-default { text-align: justify; }
         .align-center { text-align: center; }
+        .align-left { text-align: left; }
 
+        /* 移动端提示模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            max-width: 340px;
+            width: 100%;
+            text-align: center;
+            animation: modalSlideUp 0.3s ease;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-image {
+            max-width: 100%;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 响应式 */
+        @media (max-width: 767px) {
+            body {
+                padding: 16px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+
+            #capture-area {
+                width: 280px;
+                min-height: 400px;
+            }
+
+            .frame {
+                padding: 35px 24px 24px 24px;
+            }
+
+            .quote {
+                font-size: 70px;
+            }
+
+            .main-text {
+                font-size: 15px;
+                margin-top: 35px;
+            }
+
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .preview-wrapper {
+                padding: 12px;
+            }
+        }
+
+        /* 底部信息 */
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+            opacity: 0.7;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="panel">
-        <textarea id="input" placeholder="请在这里粘贴或输入文本"></textarea>
-        
-        <div class="control-row">
-            <span class="label-text">Signature / 自定义落款</span>
-            <input type="text" id="brandInput" class="brand-input" placeholder="输入落款..." value="Reading Moment">
+    <header class="header">
+        <h1><i class="fas fa-quote-left"></i> 卡片工坊</h1>
+        <p>将文字变成精美的分享卡片</p>
+    </header>
+
+    <div class="main-container">
+        <!-- 控制面板 -->
+        <div class="panel">
+            <div class="panel-title">
+                <i class="fas fa-edit"></i>
+                编辑内容
+            </div>
+            
+            <textarea id="input" placeholder="在这里输入或粘贴您想要转换的文字..."></textarea>
+
+            <div class="control-section">
+                <div class="control-label">
+                    <i class="fas fa-signature"></i>
+                    落款签名
+                </div>
+                <input type="text" id="brandInput" class="text-input" placeholder="输入落款..." value="Reading Moment">
+            </div>
+
+            <div class="control-section">
+                <div class="control-label">
+                    <i class="fas fa-palette"></i>
+                    卡片风格
+                </div>
+                <div class="color-options" id="styleOptions">
+                    <button class="color-btn color-modern active" data-style="style-modern" title="现代"></button>
+                    <button class="color-btn color-classic" data-style="style-classic" title="经典"></button>
+                    <button class="color-btn color-dark" data-style="style-dark" title="深色"></button>
+                    <button class="color-btn color-gradient" data-style="style-gradient" title="渐变"></button>
+                    <button class="color-btn color-warm" data-style="style-warm" title="暖阳"></button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="control-label">
+                    <i class="fas fa-font"></i>
+                    字体选择
+                </div>
+                <div class="tabs-group" id="fontTabs">
+                    <button class="tab-btn active" data-font="font-sans">黑体</button>
+                    <button class="tab-btn" data-font="font-serif">宋体</button>
+                    <button class="tab-btn" data-font="font-lxgw">文楷</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="control-label">
+                    <i class="fas fa-text-height"></i>
+                    字体大小
+                </div>
+                <div class="tabs-group" id="sizeTabs">
+                    <button class="tab-btn" data-size="size-small">小</button>
+                    <button class="tab-btn active" data-size="size-medium">中</button>
+                    <button class="tab-btn" data-size="size-large">大</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="control-label">
+                    <i class="fas fa-align-justify"></i>
+                    文字对齐
+                </div>
+                <div class="tabs-group" id="alignTabs">
+                    <button class="tab-btn" data-align="align-left">
+                        <i class="fas fa-align-left"></i> 左对齐
+                    </button>
+                    <button class="tab-btn active" data-align="align-default">
+                        <i class="fas fa-align-justify"></i> 两端
+                    </button>
+                    <button class="tab-btn" data-align="align-center">
+                        <i class="fas fa-align-center"></i> 居中
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="switch-row">
+                    <span class="switch-label"><i class="fas fa-border-style"></i> 显示边框</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="borderToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <button class="save-btn" id="saveBtn">
+                <i class="fas fa-download"></i>
+                生成并保存图片
+            </button>
         </div>
 
-        <div class="control-row">
-            <span class="label-text">Style / 视觉风格</span>
-            <div class="tabs" id="styleTabs">
-                <button class="tab active" onclick="updateStyle('style-modern', this)">现代</button>
-                <button class="tab" onclick="updateStyle('style-classic', this)">经典</button>
-                <button class="tab" onclick="updateStyle('style-dark', this)">深色</button>
+        <!-- 预览区域 -->
+        <div class="preview-section">
+            <div class="preview-label">
+                <i class="fas fa-eye"></i> 实时预览
+            </div>
+            <div class="preview-wrapper">
+                <div id="capture-area" class="style-modern has-border">
+                    <div class="frame">
+                        <div class="quote">"</div>
+                        <div class="main-text font-sans size-medium align-default" id="output-text">我们曾如此渴望命运的波澜，到最后才发现：人生最曼妙的风景，竟是内心的淡定与从容。
+
+——杨绛</div>
+                        <div class="meta">
+                            <span id="date" class="date-style"></span>
+                            <span id="brand-display" class="brand-style">Reading Moment</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="control-row">
-            <span class="label-text">Font / 字体选择</span>
-            <div class="tabs" id="fontTabs">
-                <button class="tab active" onclick="updateFont('font-sans', this)">黑体</button>
-                <button class="tab" onclick="updateFont('font-serif', this)">宋体</button>
-                <button class="tab" onclick="updateFont('font-lxgw', this)">文楷</button>
-            </div>
-        </div>
-
-        <div class="control-row">
-            <span class="label-text">Align / 对齐方式</span>
-            <div class="tabs" id="alignTabs">
-                <button class="tab active" onclick="updateAlign('align-default', this)">默认</button>
-                <button class="tab" onclick="updateAlign('align-center', this)">居中</button>
-            </div>
-        </div>
-
-        <div class="control-row">
-            <span class="label-text">Border / 艺术边框</span>
-            <label class="toggle">
-                <input type="checkbox" id="borderToggle" onchange="updateBorder()" checked>
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <button class="save-btn" onclick="exportImage()">生成并保存图片</button>
     </div>
 
-    <div id="capture-area" class="style-modern has-border">
-        <div class="frame">
-            <div class="quote">“</div>
-            <div class="main-text font-sans align-default" id="output-text">我们曾如此渴望命运的波澜，到最后才发现：人生最曼妙的风景，竟是内心的淡定与从容。——杨绛</div>
-            <div class="meta">
-                <span id="date" class="date-style">2025 / 12 / 26</span>
-                <span id="brand-display" class="brand-style">Reading Moment</span>
-            </div>
+    <footer class="footer">
+        <p>长按或点击保存按钮下载卡片图片</p>
+    </footer>
+
+    <!-- 移动端保存模态框 -->
+    <div class="modal-overlay" id="mobileModal">
+        <div class="modal-content">
+            <img id="modalImage" class="modal-image" src="" alt="生成的卡片">
+            <h3 class="modal-title">卡片生成成功！</h3>
+            <p class="modal-desc">长按上方图片，选择「保存图片」即可下载到手机相册</p>
+            <button class="modal-btn" onclick="closeModal()">我知道了</button>
         </div>
     </div>
 
     <script>
+        // DOM 元素
         const area = document.getElementById('capture-area');
         const output = document.getElementById('output-text');
         const input = document.getElementById('input');
         const brandInput = document.getElementById('brandInput');
         const brandDisplay = document.getElementById('brand-display');
+        const saveBtn = document.getElementById('saveBtn');
+        const mobileModal = document.getElementById('mobileModal');
+        const modalImage = document.getElementById('modalImage');
 
-        // 文字同步逻辑
-        input.addEventListener('input', () => { 
-            // 如果输入框有字，显示输入的字；如果没有，显示默认占位符
-            output.innerText = input.value || "这里将显示您的文字预览..."; 
+        // 检测是否为移动设备
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        // 初始化日期
+        const d = new Date();
+        document.getElementById('date').innerText = `${d.getFullYear()} / ${String(d.getMonth() + 1).padStart(2, '0')} / ${String(d.getDate()).padStart(2, '0')}`;
+
+        // 文字同步
+        input.addEventListener('input', () => {
+            output.innerText = input.value || "这里将显示您的文字预览...";
         });
 
-        // 落款同步逻辑
-        brandInput.addEventListener('input', () => { 
-            brandDisplay.innerText = brandInput.value || " "; 
+        // 落款同步
+        brandInput.addEventListener('input', () => {
+            brandDisplay.innerText = brandInput.value || " ";
         });
 
-        function updateStyle(styleName, el) {
-            const hasBorder = area.classList.contains('has-border');
-            area.className = styleName + (hasBorder ? ' has-border' : '');
-            document.querySelectorAll('#styleTabs .tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-        }
+        // 风格选择
+        document.querySelectorAll('#styleOptions .color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#styleOptions .color-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const styleName = btn.dataset.style;
+                const hasBorder = area.classList.contains('has-border');
+                area.className = styleName + (hasBorder ? ' has-border' : '');
+            });
+        });
 
-        function updateFont(fontClass, el) {
-            output.classList.remove('font-sans', 'font-serif', 'font-lxgw');
-            output.classList.add(fontClass);
-            document.querySelectorAll('#fontTabs .tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-        }
+        // 字体选择
+        document.querySelectorAll('#fontTabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#fontTabs .tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                output.classList.remove('font-sans', 'font-serif', 'font-lxgw');
+                output.classList.add(btn.dataset.font);
+            });
+        });
 
-        // 更新对齐方式函数
-        function updateAlign(alignClass, el) {
-            output.classList.remove('align-default', 'align-center');
-            output.classList.add(alignClass);
-            document.querySelectorAll('#alignTabs .tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-        }
+        // 字体大小
+        document.querySelectorAll('#sizeTabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#sizeTabs .tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                output.classList.remove('size-small', 'size-medium', 'size-large');
+                output.classList.add(btn.dataset.size);
+            });
+        });
 
-        function updateBorder() {
-            if(document.getElementById('borderToggle').checked) {
+        // 对齐方式
+        document.querySelectorAll('#alignTabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#alignTabs .tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                output.classList.remove('align-default', 'align-center', 'align-left');
+                output.classList.add(btn.dataset.align);
+            });
+        });
+
+        // 边框开关
+        document.getElementById('borderToggle').addEventListener('change', function() {
+            if (this.checked) {
                 area.classList.add('has-border');
             } else {
                 area.classList.remove('has-border');
             }
+        });
+
+        // 关闭模态框
+        function closeModal() {
+            mobileModal.classList.remove('show');
         }
 
-        const d = new Date();
-        document.getElementById('date').innerText = `${d.getFullYear()} / ${String(d.getMonth()+1).padStart(2,'0')} / ${String(d.getDate()).padStart(2,'0')}`;
+        // 点击遮罩关闭
+        mobileModal.addEventListener('click', (e) => {
+            if (e.target === mobileModal) {
+                closeModal();
+            }
+        });
 
+        // 导出图片
         async function exportImage() {
-            const btn = document.querySelector('.save-btn');
-            btn.innerText = "正在精心排版...";
+            saveBtn.classList.add('loading');
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 生成中...';
+            
             try {
                 const canvas = await html2canvas(area, {
                     scale: 3,
-                    backgroundColor: getComputedStyle(area).backgroundColor,
-                    useCORS: true
+                    backgroundColor: null,
+                    useCORS: true,
+                    logging: false
                 });
-                const link = document.createElement('a');
-                link.download = `Quote_Card_${Date.now()}.png`;
-                link.href = canvas.toDataURL("image/png");
-                link.click();
+
+                if (isMobile) {
+                    // 移动端：显示模态框让用户长按保存
+                    modalImage.src = canvas.toDataURL('image/png');
+                    mobileModal.classList.add('show');
+                } else {
+                    // 桌面端：直接下载
+                    const link = document.createElement('a');
+                    link.download = `卡片_${Date.now()}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }
             } catch (e) {
-                alert("生成失败，请刷新重试");
+                console.error(e);
+                alert('生成失败，请刷新页面重试');
             } finally {
-                btn.innerText = "生成并保存图片";
+                saveBtn.classList.remove('loading');
+                saveBtn.innerHTML = '<i class="fas fa-download"></i> 生成并保存图片';
             }
         }
+
+        saveBtn.addEventListener('click', exportImage);
     </script>
 <script src="common.js"></script>
-
 </body>
 </html>
