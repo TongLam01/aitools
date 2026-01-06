@@ -16,16 +16,16 @@
             padding: 0; border: 1px solid #cbd5e1; max-width: 375px; margin: 0 auto;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative;
             width: 100%;
-            /* 移动端默认：高度自动，由内容撑开，不隐藏溢出 */
+            /* 移动端默认配置：高度自适应，由内容撑开 */
             height: auto; 
-            min-height: 600px;
+            min-height: 600px; /* 移动端最小高度 */
             overflow: visible;
         }
         #preview-content {
             background: white; 
             padding: 20px 10px; outline: none;
             transition: background 0.3s;
-            /* 移动端默认：高度自动，由内容撑开，无内部滚动条 */
+            /* 移动端默认配置 */
             height: auto;
             min-height: 100%; 
             overflow: visible;
@@ -34,13 +34,15 @@
         /* 电脑端 (Large Screen) 恢复独立滚动模式 */
         @media (min-width: 1024px) {
             #preview-container {
-                height: 100%;
-                min-height: 0; /* 重置最小高度 */
-                overflow: hidden; /* 电脑端隐藏外层溢出 */
+                /* PC端强制填满父容器高度，并隐藏溢出，配合 flex-1 使用 */
+                height: 100% !important;
+                min-height: 0 !important; /* 关键：防止 flex 子项溢出 */
+                overflow: hidden !important; 
             }
             #preview-content {
-                height: 100%;
-                overflow-y: auto; /* 电脑端开启内部滚动 */
+                /* PC端内容区高度100%，开启内部滚动条 */
+                height: 100% !important;
+                overflow-y: auto !important;
             }
         }
         /* === 核心修复区域 END === */
@@ -186,7 +188,7 @@
                         复制到公众号
                     </button>
                 </div>
-                <div id="preview-container" class="w-full">
+                <div id="preview-container" class="w-full lg:flex-1">
                     <div id="preview-content" contenteditable="true">
                         <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; padding-top: 100px; color: #94a3b8;">
                             <div class="floating-icon" style="font-size: 40px; margin-bottom: 20px;">✨</div>
