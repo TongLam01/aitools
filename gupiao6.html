@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI股票分析 Pro </title>
+    <title>AI股票分析 Pro - aibox6.com</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
@@ -1041,10 +1041,39 @@ createApp({
         const debouncedSearch = debounce(() => doSearch(searchQuery.value), 300);
         const hideSearchResults = () => setTimeout(() => { showSearchResults.value = false; }, 200);
         
-        const selectSearchResult = (item) => {
-            searchQuery.value = ''; searchResults.value = []; showSearchResults.value = false;
-            selectStock({ code: item.code, name: item.name, price: '-', change: 0, score: 50 });
-        };
+        const selectSearchResult = async (item) => {
+    searchQuery.value = '';
+    searchResults.value = [];
+    showSearchResults.value = false;
+    
+    // 先设置基础信息，显示加载状态
+    currentStock.value = {
+        code: item.code,
+        name: item.name,
+        price: '-',
+        change: 0,
+        pe: '-',
+        pb: '-',
+        totalCap: '-',
+        sector: '-',
+        turnover: '-',
+        volRatio: '-',
+        flow: 0,
+        score: 50
+    };
+    
+    enhancedData.value = null;
+    aiOutput.value = '';
+    aiStatus.value = 'idle';
+    mobileTab.value = 'chart';
+    
+    // 获取完整数据
+    await Promise.all([
+        fetchDetail(item.code),
+        fetchKline(item.code),
+        fetchEnhanced(item.code)
+    ]);
+};
         
         // 选择股票
         const selectStock = async (stock) => {
@@ -1075,20 +1104,65 @@ createApp({
         
         // 获取详情
         const fetchDetail = async (code) => {
-            try {
-                const url = `${CONFIG.API.STOCK_DETAIL}?secid=${getSecId(code)}&ut=bd1d9ddb04089700cf9c27f6f7426281&fields=f162,f167,f116,f100,f170,f43,f8,f10&fltt=2&invt=2`;
-                const res = await jsonp(url, 'detail');
-                if (res?.data && currentStock.value?.code === code) {
-                    const d = res.data;
-                    Object.assign(currentStock.value, {
-                        pe: d.f162, pb: d.f167, totalCap: d.f116, price: d.f43, change: d.f170,
-                        ...(d.f8 && d.f8 !== '-' && { turnover: d.f8 }),
-                        ...(d.f10 && d.f10 !== '-' && { volRatio: d.f10 }),
-                        ...(d.f100 && d.f100 !== '-' && { sector: d.f100 })
-                    });
-                }
-            } catch {}
-        };
+    try {
+        // 使用更完整的字段列表
+        const fields = [
+            'f43',   // 最新价
+            'f44',   // 最高
+            'f45',   // 最低
+            'f46',   // 今开
+            'f47',   // 成交量
+            'f48',   // 成交额
+            'f50',   // 量比
+            'f51',   // 涨停价
+            'f52',   // 跌停价
+            'f57',   // 代码
+            'f58',   // 名称
+            'f60',   // 昨收
+            'f116',  // 总市值
+            'f117',  // 流通市值
+            'f162',  // 市盈率PE
+            'f167',  // 市净率PB
+            'f168',  // 换手率
+            'f169',  // 涨跌额
+            'f170',  // 涨跌幅
+            'f171',  // 振幅
+            'f100',  // 所属板块
+            'f103',  // 行业
+        ].join(',');
+        
+        const url = `${CONFIG.API.STOCK_DETAIL}?secid=${getSecId(code)}&ut=bd1d9ddb04089700cf9c27f6f7426281&fields=${fields}&fltt=2&invt=2`;
+        const res = await jsonp(url, 'detail');
+        
+        if (res?.data && currentStock.value?.code === code) {
+            const d = res.data;
+            
+            // 更新股票数据
+            currentStock.value = {
+                ...currentStock.value,
+                code: d.f57 || code,
+                name: d.f58 || currentStock.value.name,
+                price: d.f43 ?? currentStock.value.price,
+                change: d.f170 ?? currentStock.value.change,
+                pe: d.f162 ?? '-',
+                pb: d.f167 ?? '-',
+                totalCap: d.f116 ?? '-',
+                sector: d.f100 || d.f103 || '-',
+                turnover: d.f168 ?? '-',
+                volRatio: d.f50 ?? '-',
+            };
+            
+            console.log('[fetchDetail] 数据更新:', {
+                name: currentStock.value.name,
+                turnover: currentStock.value.turnover,
+                volRatio: currentStock.value.volRatio,
+                sector: currentStock.value.sector
+            });
+        }
+    } catch (e) {
+        console.error('[fetchDetail] 错误:', e);
+    }
+};
         
         // 获取K线
         const fetchKline = async (code) => {
@@ -1387,34 +1461,51 @@ const startAnalysis = async () => {
     aiStatus.value = 'loading';
     aiOutput.value = '';
     aiError.value = '';
-    analysisProgress.value = 0;
+    
+    // 重置进度
+    analysisProgress.value = 5;
     analysisStage.value = '准备数据...';
     analysisElapsed.value = 0;
     
-    // 简单的计时器更新进度
     const startTime = Date.now();
-    const progressTimer = setInterval(() => {
+    
+    // 进度更新定时器
+    const updateProgress = () => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
         analysisElapsed.value = elapsed;
         
-        // 模拟进度
-        if (elapsed < 10) {
-            analysisProgress.value = elapsed * 2;
-            analysisStage.value = '发送请求...';
+        // 根据时间模拟进度（永远不会到100%，直到真正完成）
+        let progress, stage;
+        if (elapsed < 5) {
+            progress = 5 + elapsed * 2;
+            stage = '发送请求...';
+        } else if (elapsed < 15) {
+            progress = 15 + (elapsed - 5) * 2;
+            stage = 'AI 接收数据...';
         } else if (elapsed < 30) {
-            analysisProgress.value = 20 + (elapsed - 10) * 1.5;
-            analysisStage.value = 'AI 思考中...';
+            progress = 35 + (elapsed - 15) * 1.5;
+            stage = 'AI 深度思考中...';
         } else if (elapsed < 60) {
-            analysisProgress.value = 50 + (elapsed - 30) * 0.8;
-            analysisStage.value = '深度分析中...';
+            progress = 57 + (elapsed - 30) * 0.6;
+            stage = '分析市场数据...';
+        } else if (elapsed < 90) {
+            progress = 75 + (elapsed - 60) * 0.3;
+            stage = '生成投资建议...';
         } else if (elapsed < 120) {
-            analysisProgress.value = 74 + (elapsed - 60) * 0.2;
-            analysisStage.value = '生成报告中...';
+            progress = 84 + (elapsed - 90) * 0.2;
+            stage = '整理分析报告...';
         } else {
-            analysisProgress.value = Math.min(95, 86 + (elapsed - 120) * 0.05);
-            analysisStage.value = '即将完成...';
+            progress = Math.min(94, 90 + (elapsed - 120) * 0.05);
+            stage = '即将完成...';
         }
-    }, 1000);
+        
+        analysisProgress.value = progress;
+        analysisStage.value = stage;
+    };
+    
+    // 立即更新一次，然后每秒更新
+    updateProgress();
+    const progressTimer = setInterval(updateProgress, 1000);
     
     // 构建提示词
     const prompt = window.PromptBuilder.build({
@@ -1425,8 +1516,10 @@ const startAnalysis = async () => {
         formatters: fmt
     });
     
+    console.log('[AI分析] 开始分析:', currentStock.value.name);
+    console.log('[AI分析] 提示词长度:', prompt.length);
+    
     try {
-        // 使用非流式请求，更稳定
         const res = await fetch(CONFIG.API.DEEPSEEK, {
             method: 'POST',
             headers: { 
@@ -1436,43 +1529,55 @@ const startAnalysis = async () => {
             body: JSON.stringify({ 
                 model: 'deepseek-reasoner', 
                 messages: [{ role: 'user', content: prompt }], 
-                stream: false,  // 非流式
+                stream: false,
                 max_tokens: 4096
             })
         });
         
+        // 清除进度定时器
         clearInterval(progressTimer);
+        
+        console.log('[AI分析] 响应状态:', res.status);
         
         if (!res.ok) {
             let errMsg = `HTTP ${res.status}`;
             try {
                 const errData = await res.json();
                 errMsg = errData.error?.message || errMsg;
+                console.error('[AI分析] 错误响应:', errData);
             } catch {}
             throw new Error(errMsg);
         }
         
         const data = await res.json();
+        console.log('[AI分析] 响应成功, 处理内容...');
+        
         let content = data.choices?.[0]?.message?.content || '';
         
-        // 去除思考标签
+        // 去除思考过程标签
         content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
         
         if (!content) {
             throw new Error('AI 返回内容为空');
         }
         
+        // 成功
         aiOutput.value = content;
         reportCache.value[code] = content;
         aiStatus.value = 'success';
         analysisProgress.value = 100;
-        analysisStage.value = '完成';
+        analysisStage.value = '分析完成';
+        
+        console.log('[AI分析] 完成, 内容长度:', content.length);
         
     } catch (e) {
         clearInterval(progressTimer);
-        console.error('AI 分析失败:', e);
+        console.error('[AI分析] 失败:', e);
+        
         aiStatus.value = 'error';
         aiError.value = e.message || '分析失败，请重试';
+        analysisProgress.value = 0;
+        analysisStage.value = '分析失败';
     }
 };
         
