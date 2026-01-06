@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商事合同诊断助手 V1.2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        
+        .prose table { border-collapse: collapse; width: 100%; margin: 1.5em 0; }
+        .prose th, .prose td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+        .prose th { background-color: #f8fafc; font-weight: 600; }
+        .prose { line-height: 1.75; color: #374151; }
+        .prose p { margin-bottom: 1.25em; }
+        .prose li { margin-bottom: 0.5em; }
+        .prose h1, .prose h2, .prose h3 { color: #111827; margin-top: 1.5em; margin-bottom: 0.75em; }
+        
+        .upload-zone { 
+            border: 2px dashed #d1d5db; 
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+        }
+        .upload-zone:hover, .upload-zone.drag-over { 
+            border-color: #10b981; 
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-primary:active { transform: translateY(0); }
+        
+        .btn-export-waiting { 
+            background: #e5e7eb; 
+            color: #9ca3af; 
+            cursor: not-allowed; 
+        }
+        .btn-export-active { 
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            cursor: pointer;
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow { 
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 
+            50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); } 
+        }
+        
+        .thinking-indicator { animation: thinking 1.5s infinite; }
+        @keyframes thinking { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        
+        .card { 
+            background: white; 
+            border-radius: 16px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 100%;
+            max-width: 360px;
+            background: white;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+        .settings-panel.open { transform: translateX(0); }
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        .settings-overlay.open { opacity: 1; visibility: visible; }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: #fafafa;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #10b981;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .select-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #fafafa;
+            cursor: pointer;
+        }
+        .select-field:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        
+        .chat-container {
+            height: calc(100vh - 280px);
+            min-height: 400px;
+        }
+        @media (max-width: 1024px) {
+            .chat-container { height: 50vh; min-height: 300px; }
+        }
+        
+        .follow-up-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            font-size: 14px;
+            background: #fafafa;
+        }
+        .follow-up-input:focus {
+            outline: none;
+            border-color: #10b981;
+            background: white;
+        }
+        
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .icon-btn:hover { background: #f3f4f6; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Settings Overlay -->
+    <div class="settings-overlay" id="settingsOverlay" onclick="toggleSettings()"></div>
+    
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-lg font-semibold text-gray-900">设置</h2>
+                <button onclick="toggleSettings()" class="icon-btn">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                    <input type="password" id="apiKey" class="input-field" placeholder="输入 DeepSeek API Key">
+                    <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" 
+                       class="inline-flex items-center mt-3 text-sm text-emerald-600 hover:text-emerald-700">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                        去获取 API Key
+                    </a>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">AI 模型</label>
+                    <select id="model" class="select-field">
+                        <option value="deepseek-reasoner">DeepSeek-R1 (深度思维)</option>
+                        <option value="deepseek-chat">DeepSeek-V3 (极速模式)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mt-auto pt-6 border-t">
+                <p class="text-xs text-gray-400 text-center">设置会自动保存到本地</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-6 lg:mb-8">
+            <div>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">
+                    合同诊断助手
+                    <span class="text-emerald-500 text-xs font-normal ml-1">v1.2</span>
+                </h1>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 自动脱敏</p>
+            </div>
+            
+            <div class="flex items-center space-x-2 lg:space-x-3">
+                <button id="exportBtn" disabled onclick="exportToWord()" 
+                        class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">
+                    导出报告
+                </button>
+                <button onclick="toggleSettings()" class="icon-btn bg-white shadow-sm border border-gray-100">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
+            <!-- Left Panel - Config -->
+            <aside class="lg:col-span-2 space-y-4">
+                <!-- Upload Card -->
+                <div class="card p-5">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">上传合同文档</label>
+                    <div class="upload-zone rounded-xl p-6 text-center relative" id="uploadArea">
+                        <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept=".docx,.pdf">
+                        <div class="mb-2">
+                            <svg class="w-8 h-8 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                        </div>
+                        <p class="text-sm text-gray-500" id="fileStatus">点击或拖拽上传</p>
+                        <p class="text-xs text-gray-400 mt-1">支持 .docx / .pdf</p>
+                    </div>
+                </div>
+                
+                <!-- Config Card -->
+                <div class="card p-5 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">我的身份</label>
+                        <select id="role" class="select-field">
+                            <option value="甲方">甲方</option>
+                            <option value="乙方">乙方</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <span class="text-emerald-600">★</span> 特别关注点
+                            <span class="text-xs text-gray-400 font-normal ml-1">(必填)</span>
+                        </label>
+                        <input type="text" id="focus" class="input-field" placeholder="如：合规性、违约金公平性、付款条款">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">合同文本</label>
+                        <textarea id="contractText" rows="6" 
+                                  class="input-field resize-none text-xs font-mono leading-relaxed" 
+                                  placeholder="上传文档后自动填充脱敏内容，或直接粘贴合同文本"></textarea>
+                    </div>
+                    
+                    <button onclick="startInitialAudit()" id="submitBtn" 
+                            class="w-full btn-primary text-white py-3.5 rounded-xl font-medium text-sm">
+                        开始诊断
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Right Panel - Chat -->
+            <main class="lg:col-span-3 flex flex-col">
+                <div class="card flex-1 flex flex-col overflow-hidden">
+                    <div id="chatScrollZone" class="chat-container flex-1 overflow-y-auto p-5 lg:p-8">
+                        <div id="reportOutput" class="prose prose-slate max-w-none">
+                            <div class="flex flex-col items-center justify-center h-full text-center py-16">
+                                <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <p class="text-gray-300 text-sm">上传合同文档开始诊断</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Follow-up Input -->
+                    <div id="followUpZone" class="hidden border-t border-gray-100 p-4">
+                        <div class="flex items-center space-x-3">
+                            <input type="text" id="followUpInput" class="follow-up-input" placeholder="继续追问...">
+                            <button onclick="sendFollowUp()" id="sendFollowUpBtn" 
+                                    class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-3 rounded-full font-medium text-sm transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let identityMap = new Map();
+        let companyCount = 0;
+        let addressCount = 0;
+        let originalFileName = "手动输入";
+        let chatHistory = [];
+
+        // Settings Panel Toggle
+        function toggleSettings() {
+            document.getElementById('settingsPanel').classList.toggle('open');
+            document.getElementById('settingsOverlay').classList.toggle('open');
+        }
+
+        // Load saved API key
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('ds_api_key');
+            if (savedKey) document.getElementById('apiKey').value = savedKey;
+        });
+
+        // --- 核心脱敏算法保持不变 ---
+        function secureDeIdentify(text) {
+            if (!text) return "";
+            let result = text;
+            const companyRegex = /(?:[\u4e00-\u9fa5]{2,30})(?:有限公司|有限责任公司|集团|研究所|事务所|分公司|代表处)|(?!(?:社区|双方))(?:[\u4e00-\u9fa5]{2,10}(?:省|市|区(?!域)|县))[\u4e00-\u9fa5]{0,20}(?:中心|工厂|学校|协会|商会)/g;
+            const addressRegex = /(?!(?:社区|双方))(?:[\u4e00-\u9fa5]{2,}(?:省|自治区|市|区(?!域)|县|镇|街道|路|街|弄))+(?:[\u4e00-\u9fa5\d\-A-Za-z]+(?:号|幢|栋|单元|层|室|房|弄))/g;
+
+            let rawMatches = Array.from(new Set([...(text.match(companyRegex) || []), ...(text.match(addressRegex) || [])]));
+            let filteredMatches = rawMatches.filter((item, index) => !rawMatches.some((other, otherIndex) => index !== otherIndex && other.includes(item)));
+            filteredMatches.sort((a, b) => b.length - a.length);
+
+            filteredMatches.forEach(trimmedStr => {
+                if (!identityMap.has(trimmedStr)) {
+                    if (addressRegex.test(trimmedStr)) {
+                        addressCount++;
+                        identityMap.set(trimmedStr, `[地址_${addressCount}]`);
+                    } else {
+                        companyCount++;
+                        identityMap.set(trimmedStr, `[企业_${String.fromCharCode(64 + companyCount)}]`);
+                    }
+                    addressRegex.lastIndex = 0;
+                }
+                const escaped = trimmedStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                result = result.replace(new RegExp(escaped, 'g'), identityMap.get(trimmedStr));
+            });
+            return result;
+        }
+
+        // --- 核心流式引擎 (连接后端 /api/hetong) ---
+        async function callAI(messages) {
+            const userKey = document.getElementById('apiKey').value || localStorage.getItem('ds_api_key');
+            const model = document.getElementById('model').value;
+            const output = document.getElementById('reportOutput');
+            const exportBtn = document.getElementById('exportBtn');
+
+            exportBtn.disabled = true;
+            exportBtn.className = "btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "mb-8";
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = "flex items-center space-x-3 text-emerald-600 py-6 thinking-indicator";
+            thinkingDiv.innerHTML = `
+                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="font-medium">AI 正在进行深度分析...</span>
+            `;
+            
+            output.appendChild(msgDiv);
+            msgDiv.appendChild(thinkingDiv);
+            document.getElementById('chatScrollZone').scrollTop = document.getElementById('chatScrollZone').scrollHeight;
+
+            let fullContent = "";
+            let hasStartedStream = false;
+
+            try {
+                const response = await fetch('/api/hetong', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userKey, messages, model })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const dataStr = line.slice(6);
+                            if (dataStr === '[DONE]') break;
+                            try {
+                                const data = JSON.parse(dataStr);
+                                const delta = data.choices[0].delta.content || "";
+                                if (delta) {
+                                    if (!hasStartedStream) { thinkingDiv.remove(); hasStartedStream = true; }
+                                    fullContent += delta;
+                                    msgDiv.innerHTML = marked.parse(fullContent);
+                                    document.getElementById('chatScrollZone').scrollTop = document.getElementById('chatScrollZone').scrollHeight;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+                chatHistory.push({ role: "assistant", content: fullContent });
+                exportBtn.disabled = false;
+                exportBtn.className = "btn-export-active px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
+            } catch (e) {
+                thinkingDiv.remove();
+                msgDiv.innerHTML += `<p class="text-red-500">连接异常: ${e.message}</p>`;
+            }
+        }
+
+        // 文件载入保持原逻辑
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            originalFileName = file.name.replace(/\.[^/.]+$/, "");
+            document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600 font-medium">${file.name}</span>`;
+            try {
+                let rawText = "";
+                if (file.name.endsWith('.docx')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({arrayBuffer});
+                    rawText = result.value;
+                } else if (file.name.endsWith('.pdf')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const loadingTask = pdfjsLib.getDocument({data: arrayBuffer});
+                    const pdf = await loadingTask.promise;
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        rawText += content.items.map(item => item.str).join(" ") + "\n";
+                    }
+                }
+                document.getElementById('contractText').value = secureDeIdentify(rawText);
+            } catch (err) { alert("文档载入失败"); }
+        });
+
+        // Drag and drop
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+        uploadArea.addEventListener('dragleave', () => { uploadArea.classList.remove('drag-over'); });
+        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('drag-over'); });
+
+        async function startInitialAudit() {
+            const role = document.getElementById('role').value;
+            const focus = document.getElementById('focus').value;
+            const textarea = document.getElementById('contractText');
+            const apiKey = document.getElementById('apiKey').value;
+            let currentText = textarea.value.trim();
+            
+            if (!apiKey) {
+                toggleSettings();
+                return alert('请先设置 API Key');
+            }
+            if (!currentText || !focus) return alert('请确保合同文本和关注点已填写');
+            
+            const maskedText = secureDeIdentify(currentText);
+            textarea.value = maskedText; 
+            localStorage.setItem('ds_api_key', apiKey);
+            document.getElementById('reportOutput').innerHTML = "";
+            document.getElementById('followUpZone').classList.remove('hidden');
+            
+            chatHistory = [
+                { role: "user", content: `【身份】：${role}\n【特别关注】：${focus}\n\n【文本】：\n${maskedText}` }
+            ];
+            await callAI(chatHistory);
+        }
+
+        async function sendFollowUp() {
+            const input = document.getElementById('followUpInput');
+            const q = input.value.trim();
+            if (!q) return;
+            const maskedQ = secureDeIdentify(q);
+            input.value = "";
+            const qUi = document.createElement('div');
+            qUi.className = "bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-400";
+            qUi.innerHTML = `<span class="text-emerald-700 font-medium">追问：</span> ${maskedQ}`;
+            document.getElementById('reportOutput').appendChild(qUi);
+            chatHistory.push({ role: "user", content: maskedQ });
+            await callAI(chatHistory);
+        }
+
+        function exportToWord() {
+            const content = document.getElementById('reportOutput').innerHTML;
+            const styles = `<style>body { font-family: 'SimSun', serif; font-size: 10.5pt; } table { width: 100%; border-collapse: collapse; margin: 1em 0; } th, td { border: 1pt solid black; padding: 6pt; } h1 { text-align: center; } h2 { color: #059669; }</style>`;
+            const html = `<html><head><meta charset='utf-8'>${styles}</head><body><h1>合同审核报告</h1><p style='text-align:right'>关联：${originalFileName}</p><hr>${content}</body></html>`;
+            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+            saveAs(blob, `${originalFileName}_诊断报告.doc`);
+        }
+
+        document.getElementById('followUpInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendFollowUp(); });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="common.js"></script>
+</body>
+</html>
