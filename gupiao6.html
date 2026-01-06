@@ -1103,73 +1103,36 @@ createApp({
         
 const drawKline = (klines) => {
     const dates = [], ohlc = [], closes = [], volumes = [];
-    const rawData = []; // 保存原始解析数据用于 tooltip
+    const rawData = []; // 保存原始数据用于 tooltip
     
-    // 调试：打印最后一条K线原始数据
-    if (klines.length > 0) {
-        console.log('=== K线数据调试 ===');
-        console.log('原始数据:', klines[klines.length - 1]);
-        const testP = klines[klines.length - 1].split(',');
-        console.log('分割后:', testP);
-        console.log('字段对应: 日期=%s, [1]=%s, [2]=%s, [3]=%s, [4]=%s, [5]=%s', 
-            testP[0], testP[1], testP[2], testP[3], testP[4], testP[5]);
-    }
-    
-    klines.forEach((line, idx) => {
+    klines.forEach((line) => {
         const p = line.split(',');
         
+        // 东财API数据格式已确认：
+        // [0]=日期, [1]=开盘, [2]=收盘, [3]=最高, [4]=最低, [5]=成交量
         const date = p[0].slice(5);
-        // 先按东财标准格式解析，如果不对再调整
-        const val1 = parseFloat(p[1]);
-        const val2 = parseFloat(p[2]);
-        const val3 = parseFloat(p[3]);
-        const val4 = parseFloat(p[4]);
+        const open = parseFloat(p[1]);
+        const close = parseFloat(p[2]);
+        const high = parseFloat(p[3]);
+        const low = parseFloat(p[4]);
         const volume = parseFloat(p[5]) || 0;
         
-        // 存储原始数据
-        rawData.push({
-            date: p[0],
-            p1: val1,
-            p2: val2,
-            p3: val3,
-            p4: val4,
-            volume: volume
-        });
-        
-        // 根据数值大小判断哪个是最高、最低
-        // 最高价应该是最大的，最低价应该是最小的
-        const priceValues = [val1, val2, val3, val4];
-        const maxPrice = Math.max(...priceValues);
-        const minPrice = Math.min(...priceValues);
-        
-        // 开盘和收盘应该在最高和最低之间
-        // 假设 p[1]=开盘, p[2]=收盘, p[3]=最高, p[4]=最低
-        let open = val1;
-        let close = val2;
-        let high = val3;
-        let low = val4;
-        
-        // 验证：high 应该 >= 所有价格，low 应该 <= 所有价格
-        if (high < open || high < close || low > open || low > close) {
-            // 数据顺序可能不对，尝试重新排列
-            console.warn(`K线数据异常 [${date}]: open=${open}, close=${close}, high=${high}, low=${low}`);
-        }
+        // 保存原始数据
+        rawData.push({ open, close, high, low, volume });
         
         dates.push(date);
-        // ECharts candlestick: [open, close, low, high]
+        // ECharts K线格式: [open, close, low, high]
         ohlc.push([open, close, low, high]);
         closes.push(close);
         volumes.push({ 
             value: volume,
-            open: open,
-            close: close,
             itemStyle: { 
                 color: close >= open ? 'rgba(242,54,69,0.7)' : 'rgba(0,200,83,0.7)' 
             } 
         });
     });
     
-    // 保存原始数据供 tooltip 使用
+    // 保存供 tooltip 使用
     window._klineRawData = rawData;
     
     const ma20 = calcSMA(closes, 20), ma60 = calcSMA(closes, 60);
@@ -1200,19 +1163,12 @@ const drawKline = (klines) => {
                         
                         const dataIndex = params[0].dataIndex;
                         const date = params[0].axisValue;
-                        
-                        // 从原始数据获取，避免 ECharts 数据格式问题
                         const raw = window._klineRawData?.[dataIndex];
                         
                         let html = `<div style="font-weight:600;margin-bottom:8px;color:#fff">${date}</div>`;
                         
                         if (raw) {
-                            // 使用原始解析的数据
-                            const open = raw.p1;
-                            const close = raw.p2;
-                            const high = raw.p3;
-                            const low = raw.p4;
-                            
+                            const { open, close, high, low } = raw;
                             const isUp = close >= open;
                             const color = isUp ? '#f23645' : '#00c853';
                             const changeAmount = (close - open).toFixed(2);
@@ -1230,7 +1186,6 @@ const drawKline = (klines) => {
                             `;
                         }
                         
-                        // 均线数据
                         params.forEach(item => {
                             if (item.seriesType === 'line' && item.data != null) {
                                 html += `
@@ -1305,7 +1260,7 @@ const drawKline = (klines) => {
                         const raw = window._klineRawData?.[dataIndex];
                         
                         const vol = item.data.value;
-                        const isUp = raw ? raw.p2 >= raw.p1 : true;
+                        const isUp = raw ? raw.close >= raw.open : true;
                         const color = isUp ? '#f23645' : '#00c853';
                         
                         let volStr;
