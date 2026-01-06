@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公众号AI排版 v2.3</title>
+    <title>公众号AI排版 v2.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -16,31 +16,34 @@
             padding: 0; border: 1px solid #cbd5e1; max-width: 375px; margin: 0 auto;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative;
             width: 100%;
-            /* 移动端默认配置：高度自适应，由内容撑开 */
+            /* 移动端默认：高度自适应，由内容撑开 */
             height: auto; 
-            min-height: 600px; /* 移动端最小高度 */
+            min-height: 600px;
             overflow: visible;
         }
         #preview-content {
             background: white; 
             padding: 20px 10px; outline: none;
             transition: background 0.3s;
-            /* 移动端默认配置 */
+            /* 移动端默认 */
             height: auto;
             min-height: 100%; 
             overflow: visible;
         }
 
-        /* 电脑端 (Large Screen) 恢复独立滚动模式 */
+        /* 电脑端 (Large Screen) 深度修复滚动问题 */
         @media (min-width: 1024px) {
             #preview-container {
-                /* PC端强制填满父容器高度，并隐藏溢出，配合 flex-1 使用 */
-                height: 100% !important;
-                min-height: 0 !important; /* 关键：防止 flex 子项溢出 */
+                /* 关键：PC端变成 Flex 容器，且高度由父级 Flex 决定，不再由内容决定 */
+                display: flex !important;
+                flex-direction: column !important;
+                height: auto !important; /* 让 lg:flex-1 生效 */
+                min-height: 0 !important; /* 核心：允许容器压缩，触发内部滚动 */
                 overflow: hidden !important; 
             }
             #preview-content {
-                /* PC端内容区高度100%，开启内部滚动条 */
+                /* 关键：内容区占满容器剩余空间，并负责滚动 */
+                flex: 1 1 0% !important;
                 height: 100% !important;
                 overflow-y: auto !important;
             }
@@ -188,7 +191,7 @@
                         复制到公众号
                     </button>
                 </div>
-                <div id="preview-container" class="w-full lg:flex-1">
+                <div id="preview-container" class="w-full lg:flex-1 lg:min-h-0">
                     <div id="preview-content" contenteditable="true">
                         <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; padding-top: 100px; color: #94a3b8;">
                             <div class="floating-icon" style="font-size: 40px; margin-bottom: 20px;">✨</div>
