@@ -1379,135 +1379,102 @@ const drawKline = (klines) => {
             } catch {}
         };
         
-        // ===== AI 分析（带心跳机制）=====
-        const startAnalysis = async () => {
-            if (!apiKey.value || !currentStock.value) return;
-            
-            const code = currentStock.value.code;
-            aiStatus.value = 'loading';
-            aiOutput.value = '';
-            aiError.value = '';
-            analysisProgress.value = 0;
-            analysisStage.value = '准备数据...';
-            analysisElapsed.value = 0;
-            
-            // 启动心跳
-            const controller = heartbeat.start((elapsed) => {
-                analysisElapsed.value = elapsed;
-                
-                // 更新进度和阶段
-                if (elapsed < 5) {
-                    analysisProgress.value = Math.min(10, elapsed * 2);
-                    analysisStage.value = '发送请求...';
-                } else if (elapsed < 15) {
-                    analysisProgress.value = Math.min(30, 10 + (elapsed - 5));
-                    analysisStage.value = 'AI 思考中...';
-                } else if (elapsed < 45) {
-                    analysisProgress.value = Math.min(60, 30 + (elapsed - 15) * 0.8);
-                    analysisStage.value = '深度分析中...';
-                } else if (elapsed < 90) {
-                    analysisProgress.value = Math.min(85, 60 + (elapsed - 45) * 0.5);
-                    analysisStage.value = '生成报告中...';
-                } else {
-                    analysisProgress.value = Math.min(95, 85 + (elapsed - 90) * 0.1);
-                    analysisStage.value = '即将完成...';
-                }
-            });
-            
-            // 构建提示词
-            const prompt = window.PromptBuilder.build({
-                stock: currentStock.value,
-                indicators: indicators.value,
-                enhancedData: enhancedData.value,
-                dataConfidence: dataConfidence.value,
-                formatters: fmt
-            });
-            
+// ===== AI 分析（简化稳定版）=====
+const startAnalysis = async () => {
+    if (!apiKey.value || !currentStock.value) return;
+    
+    const code = currentStock.value.code;
+    aiStatus.value = 'loading';
+    aiOutput.value = '';
+    aiError.value = '';
+    analysisProgress.value = 0;
+    analysisStage.value = '准备数据...';
+    analysisElapsed.value = 0;
+    
+    // 简单的计时器更新进度
+    const startTime = Date.now();
+    const progressTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        analysisElapsed.value = elapsed;
+        
+        // 模拟进度
+        if (elapsed < 10) {
+            analysisProgress.value = elapsed * 2;
+            analysisStage.value = '发送请求...';
+        } else if (elapsed < 30) {
+            analysisProgress.value = 20 + (elapsed - 10) * 1.5;
+            analysisStage.value = 'AI 思考中...';
+        } else if (elapsed < 60) {
+            analysisProgress.value = 50 + (elapsed - 30) * 0.8;
+            analysisStage.value = '深度分析中...';
+        } else if (elapsed < 120) {
+            analysisProgress.value = 74 + (elapsed - 60) * 0.2;
+            analysisStage.value = '生成报告中...';
+        } else {
+            analysisProgress.value = Math.min(95, 86 + (elapsed - 120) * 0.05);
+            analysisStage.value = '即将完成...';
+        }
+    }, 1000);
+    
+    // 构建提示词
+    const prompt = window.PromptBuilder.build({
+        stock: currentStock.value,
+        indicators: indicators.value,
+        enhancedData: enhancedData.value,
+        dataConfidence: dataConfidence.value,
+        formatters: fmt
+    });
+    
+    try {
+        // 使用非流式请求，更稳定
+        const res = await fetch(CONFIG.API.DEEPSEEK, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${apiKey.value}` 
+            },
+            body: JSON.stringify({ 
+                model: 'deepseek-reasoner', 
+                messages: [{ role: 'user', content: prompt }], 
+                stream: false,  // 非流式
+                max_tokens: 4096
+            })
+        });
+        
+        clearInterval(progressTimer);
+        
+        if (!res.ok) {
+            let errMsg = `HTTP ${res.status}`;
             try {
-                // 使用 fetch 的流式读取来保持连接活跃
-                const res = await fetch(CONFIG.API.DEEPSEEK, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'Authorization': `Bearer ${apiKey.value}` 
-                    },
-                    body: JSON.stringify({ 
-                        model: 'deepseek-reasoner', 
-                        messages: [{ role: 'user', content: prompt }], 
-                        stream: true  // 使用流式响应
-                    }),
-                    signal: controller.signal
-                });
-                
-                if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
-                    throw new Error(err.error?.message || `错误: ${res.status}`);
-                }
-                
-                // 流式读取响应
-                const reader = res.body.getReader();
-                const decoder = new TextDecoder();
-                let content = '';
-                let thinkContent = '';
-                let isInThink = false;
-                
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    
-                    const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split('\n');
-                    
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const data = line.slice(6);
-                            if (data === '[DONE]') continue;
-                            
-                            try {
-                                const json = JSON.parse(data);
-                                const delta = json.choices?.[0]?.delta?.content || '';
-                                
-                                // 处理思考标签
-                                if (delta.includes('<think>')) {
-                                    isInThink = true;
-                                }
-                                if (isInThink) {
-                                    thinkContent += delta;
-                                    if (delta.includes('</think>')) {
-                                        isInThink = false;
-                                    }
-                                } else {
-                                    content += delta;
-                                    // 实时更新显示（去除思考内容）
-                                    aiOutput.value = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-                                }
-                                
-                                // 更新进度
-                                analysisProgress.value = Math.min(95, analysisProgress.value + 0.5);
-                            } catch {}
-                        }
-                    }
-                }
-                
-                // 最终处理
-                content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-                aiOutput.value = content;
-                reportCache.value[code] = content;
-                aiStatus.value = 'success';
-                analysisProgress.value = 100;
-                analysisStage.value = '完成';
-                
-            } catch (e) {
-                if (e.name === 'AbortError') {
-                    aiError.value = '分析已取消';
-                } else {
-                    aiError.value = e.message || '分析失败';
-                }
-                aiStatus.value = 'error';
-            } finally {
-                heartbeat.stop();
-            }
-        };
+                const errData = await res.json();
+                errMsg = errData.error?.message || errMsg;
+            } catch {}
+            throw new Error(errMsg);
+        }
+        
+        const data = await res.json();
+        let content = data.choices?.[0]?.message?.content || '';
+        
+        // 去除思考标签
+        content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+        
+        if (!content) {
+            throw new Error('AI 返回内容为空');
+        }
+        
+        aiOutput.value = content;
+        reportCache.value[code] = content;
+        aiStatus.value = 'success';
+        analysisProgress.value = 100;
+        analysisStage.value = '完成';
+        
+    } catch (e) {
+        clearInterval(progressTimer);
+        console.error('AI 分析失败:', e);
+        aiStatus.value = 'error';
+        aiError.value = e.message || '分析失败，请重试';
+    }
+};
         
         // 生命周期
         onMounted(() => { 
