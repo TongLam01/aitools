@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>公文自动撰写助手 V1.3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --accent: #dc2626;
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body { 
+            background-color: var(--background); 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            color: var(--text-primary);
+        }
+        
+        /* 公文预览区样式 */
+        .doc-preview { 
+            font-family: 'Noto Serif SC', 'SimSun', serif; 
+            line-height: 2.2; 
+            color: #000; 
+        }
+        .doc-preview h1 { font-weight: 700; font-size: 28pt; text-align: center; margin-bottom: 24pt; line-height: 1; }
+        .doc-preview h2 { font-weight: 700; font-size: 16pt; margin-top: 18pt; margin-bottom: 12pt; }
+        .doc-preview p { margin-bottom: 12pt; text-align: justify; font-size: 12pt; }
+        .doc-preview ul, .doc-preview ol { margin-bottom: 12pt; padding-left: 2em; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 呼吸灯动画 */
+        .thinking-pill {
+            display: none;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            animation: pulse-glow 2s infinite ease-in-out;
+            margin: 0 auto 2rem auto;
+            width: fit-content;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+        }
+        
+        @keyframes pulse-glow { 
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3); } 
+            50% { transform: scale(1.02); box-shadow: 0 4px 30px rgba(37, 99, 235, 0.5); } 
+        }
+
+        .bubble-enter {
+            animation: bubbleFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes bubbleFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 输入框样式 */
+        .input-field {
+            background-color: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            font-size: 16px !important;
+        }
+        .input-field:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .input-field:hover:not(:focus) {
+            border-color: #cbd5e1;
+        }
+        
+        .field-label {
+            font-size: 0.8125rem; 
+            font-weight: 600;    
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .field-label .required {
+            color: var(--accent);
+        }
+
+        /* 版本标签 */
+        .version-tab {
+            padding: 0.375rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .version-tab.active { 
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: #fff; 
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+        .version-tab.inactive { 
+            background-color: var(--surface); 
+            color: var(--text-muted); 
+            border: 1px solid var(--border);
+        }
+        .version-tab.inactive:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* 主按钮 */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* 次要按钮 */
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.8125rem;
+        }
+        .btn-secondary:hover {
+            background: var(--background);
+            color: var(--text-primary);
+            border-color: #cbd5e1;
+        }
+
+        /* 开关样式 */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #e2e8f0;
+            border-radius: 9999px;
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        /* A4纸张效果 */
+        .paper {
+            background: white;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .paper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), #f97316, #eab308, #22c55e, var(--primary));
+        }
+        
+        /* 分组标题 */
+        .section-title {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* 移动端底部安全区域 */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .mobile-safe-bottom {
+                padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+            }
+        }
+        
+        /* 移动端特定样式 */
+        @media (max-width: 768px) {
+            .mobile-panel {
+                position: fixed;
+                inset: 0;
+                z-index: 30;
+                background: var(--background);
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .mobile-panel.hidden-mobile {
+                display: none;
+            }
+            
+            .preview-panel {
+                display: none;
+            }
+            
+            .preview-panel.show-mobile {
+                display: flex;
+                position: fixed;
+                inset: 0;
+                z-index: 30;
+            }
+        }
+        
+        /* 下拉选择框样式 */
+        .select-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* 空状态样式 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="h-[100dvh] flex flex-col overflow-hidden">
+
+    <!-- 顶部导航 -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 md:px-6 py-3 flex justify-between items-center z-20 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl flex items-center justify-center text-lg font-bold shadow-lg shadow-red-500/20">公</div>
+            <div class="flex flex-col">
+                <span class="text-sm font-bold tracking-tight text-gray-900">公文撰写助手</span>
+                <span class="text-[10px] text-gray-400 font-medium">本地脱敏 · 保护隐私</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <a href="https://platform.deepseek.com/api_keys" target="_blank" 
+               class="btn-secondary text-xs hidden sm:flex">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                获取 Key
+            </a>
+            <button onclick="toggleSettings()" class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors" id="settingsBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 设置弹窗 -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="card w-full max-w-sm p-6 transform transition-all scale-100">
+            <div class="flex items-center justify-center w-12 h-12 bg-blue-50 rounded-2xl mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2 text-center">配置 API Key</h3>
+            <p class="text-sm text-gray-500 text-center mb-6">请输入您的 DeepSeek API Key</p>
+            <div class="mb-6">
+                <input type="password" id="apiKeyInput" placeholder="sk-..." 
+                       class="w-full input-field p-4 text-center tracking-wider">
+            </div>
+            <div class="flex gap-3">
+                <button onclick="toggleSettings()" class="flex-1 px-4 py-3 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-colors">取消</button>
+                <button onclick="saveSettings()" class="flex-1 btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+        
+        <!-- 左侧输入面板 -->
+        <div class="w-full md:w-[400px] lg:w-[440px] bg-white flex flex-col z-10 md:border-r border-gray-100" id="inputPanel">
+            <div class="flex-1 overflow-y-auto p-5 md:p-6 space-y-6 no-scrollbar">
+                
+                <!-- 基本设置 -->
+                <div class="space-y-4">
+                    <div class="section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        基本设置
+                    </div>
+                    
+                    <div>
+                        <label class="field-label">文种类型</label>
+                        <select id="docType" class="w-full input-field select-field p-3.5">
+                            <option value="根据内容自动匹配文种">✨ 智能匹配</option>
+                            <option value="工作总结">📈 工作总结</option>
+                            <option value="工作计划">📅 工作计划</option>
+                            <option value="工作通知">📢 工作通知</option>
+                            <option value="会议纪要">📝 会议纪要</option>
+                            <option value="请示报告">📄 请示报告</option>
+                            <option value="工作方案">📊 工作方案</option>
+                            <option value="领导讲话">🎙️ 领导讲话</option>
+                            <option value="来往公函">✉️ 来往公函</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="field-label">撰稿者角色</label>
+                            <input type="text" id="authorIdentity" placeholder="如：办公室" class="w-full input-field p-3.5">
+                        </div>
+                        <div>
+                            <label class="field-label">阅读对象 <span class="required">*</span></label>
+                            <input type="text" id="targetAudience" placeholder="如：全体人员" class="w-full input-field p-3.5">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="field-label">背景信息 <span class="text-xs font-normal text-gray-400 ml-1">选填</span></label>
+                        <textarea id="orgContext" rows="2" class="w-full input-field p-3.5 resize-none" placeholder="例如：xxx公司，核心业务是..."></textarea>
+                    </div>
+                </div>
+
+                <!-- 素材输入 -->
+                <div class="flex-1 flex flex-col">
+                    <div class="section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        素材内容
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="field-label !mb-0">素材 / 意图 / 背景</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-emerald-600">自动脱敏</span>
+                            <div id="anonymizeToggleBtn" class="toggle-switch active" onclick="toggleAnonymize()"></div>
+                            <input type="checkbox" id="anonymizeToggle" class="hidden" checked>
+                        </div>
+                    </div>
+                    <textarea id="userInput" class="w-full input-field p-4 text-sm leading-relaxed resize-none flex-1 min-h-[200px] md:min-h-[280px]" placeholder="请在此输入AI还不了解的关键信息..."></textarea>
+                </div>
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="p-4 md:p-5 bg-white border-t border-gray-100 mobile-safe-bottom">
+                <button onclick="generateDoc()" id="submitBtn" class="w-full btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>开始撰写</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 右侧预览区 -->
+        <div class="hidden md:flex w-full md:w-auto flex-1 bg-gray-50/50 relative flex-col h-full preview-panel" id="previewPanel">
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12" id="previewContainer">
+                
+                <!-- 思考指示器 -->
+                <div id="thinkingIndicator" class="thinking-pill">
+                    <span class="flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        AI 正在思考...
+                    </span>
+                </div>
+
+                <!-- 版本切换 -->
+                <div id="versionBar" class="max-w-[21cm] mx-auto mb-4 flex gap-2 overflow-x-auto no-scrollbar hidden transition-all pb-1"></div>
+
+                <!-- A4 纸张 -->
+                <div class="max-w-[21cm] mx-auto paper min-h-[29.7cm] relative" id="paperCard">
+                    <div class="p-8 md:p-12 lg:p-[2.54cm] pt-12">
+                        <!-- 操作按钮 -->
+                        <div class="absolute top-6 right-6 flex gap-2">
+                            <button onclick="copyResult()" class="btn-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                复制
+                            </button>
+                            <button onclick="exportToWord()" class="btn-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                导出
+                            </button>
+                        </div>
+
+                        <div id="resultOutput" class="doc-preview">
+                            <div class="empty-state">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p class="text-sm font-medium">请在左侧输入信息</p>
+                                <p class="text-xs mt-1">填写完成后点击「开始撰写」</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 追问输入 -->
+                <div id="followUpContainer" class="hidden max-w-[21cm] mx-auto mt-6">
+                    <div class="card p-4 flex gap-3">
+                        <input type="text" id="followUpInput" class="flex-1 input-field p-3" placeholder="追问或修改要求..." onkeydown="if(event.key==='Enter') sendFollowUp()">
+                        <button onclick="sendFollowUp()" id="followUpBtn" class="btn-primary px-6 py-2.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            发送
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8 text-gray-300 text-[10px] font-medium tracking-wider">POWERED BY DEEPSEEK R1</div>
+            </div>
+        </div>
+        
+        <!-- 移动端预览返回按钮 -->
+        <button id="mobileBackBtn" onclick="hideMobilePreview()" class="hidden fixed top-4 left-4 z-40 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        let chatHistory = [];
+        let versionHistory = []; 
+        let currentVersionIndex = -1;
+
+        window.onload = function() {
+            const savedKey = localStorage.getItem('deepseek_api_key');
+            if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+        }
+
+        function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
+        function saveSettings() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (key) { localStorage.setItem('deepseek_api_key', key); toggleSettings(); }
+            else alert('请输入 API Key');
+        }
+        
+        function toggleAnonymize() {
+            const checkbox = document.getElementById('anonymizeToggle');
+            const btn = document.getElementById('anonymizeToggleBtn');
+            checkbox.checked = !checkbox.checked;
+            btn.classList.toggle('active', checkbox.checked);
+        }
+        
+        // 移动端显示预览
+        function showMobilePreview() {
+            if (window.innerWidth < 768) {
+                document.getElementById('previewPanel').classList.add('show-mobile');
+                document.getElementById('previewPanel').classList.remove('hidden');
+                document.getElementById('mobileBackBtn').classList.remove('hidden');
+                document.getElementById('mobileBackBtn').classList.add('flex');
+                document.getElementById('inputPanel').style.display = 'none';
+            }
+        }
+        
+        function hideMobilePreview() {
+            document.getElementById('previewPanel').classList.remove('show-mobile');
+            document.getElementById('previewPanel').classList.add('hidden');
+            document.getElementById('mobileBackBtn').classList.add('hidden');
+            document.getElementById('mobileBackBtn').classList.remove('flex');
+            document.getElementById('inputPanel').style.display = 'flex';
+        }
+
+        /**
+         * 强化脱敏核心函数 (完全保留原逻辑)
+         */
+        function anonymizeData(text, mapping) {
+            if (!text) return text;
+            const suffixes = ['公司', '市', '区'];
+            let processedText = text;
+
+            suffixes.forEach(suffix => {
+                const regex = new RegExp(`([A-Za-z0-9\\u4e00-\\u9fa5]+?${suffix})`, 'g');
+                processedText = processedText.replace(regex, (match) => {
+                    if (mapping[match]) return mapping[match];
+                    const codeLabel = String.fromCharCode(65 + (mapping.count % 26));
+                    const suffixLabel = mapping.count >= 26 ? Math.floor(mapping.count / 26) : "";
+                    const replacement = `${codeLabel}${suffixLabel}${suffix}`;
+                    mapping[match] = replacement;
+                    mapping.count++;
+                    return replacement;
+                });
+            });
+            return processedText;
+        }
+
+        // 核心流式请求 (连接 /api/gongwen)
+        async function processStream(userKey, messages) {
+            const outputDiv = document.getElementById('resultOutput');
+            const thinkingDiv = document.getElementById('thinkingIndicator');
+            const submitBtn = document.getElementById('submitBtn');
+            const followUpContainer = document.getElementById('followUpContainer');
+
+            submitBtn.disabled = true;
+            thinkingDiv.style.display = 'block';
+            outputDiv.innerHTML = '';
+            followUpContainer.classList.add('hidden');
+            
+            // 移动端自动显示预览
+            showMobilePreview();
+
+            try {
+                const response = await fetch('/api/gongwen', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userKey, messages })
+                });
+
+                if (!response.ok) throw new Error('网络请求失败，请检查 Key 或重试');
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let accumulatedText = ""; 
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const dataStr = line.slice(6);
+                            if (dataStr === '[DONE]') break;
+                            try {
+                                const data = JSON.parse(dataStr);
+                                accumulatedText += data.choices[0].delta.content || "";
+                                
+                                if (accumulatedText.includes('</think>')) thinkingDiv.style.display = 'none';
+                                const clean = accumulatedText.replace(/<think>[\s\S]*?<\/think>/g, "").replace(/<think>[\s\S]*/g, "").trim();
+                                if (clean) outputDiv.innerHTML = marked.parse(clean);
+                            } catch (e) {}
+                        }
+                    }
+                }
+
+                chatHistory.push({ role: "assistant", content: accumulatedText.replace(/<think>[\s\S]*?<\/think>/g, "").trim() });
+                versionHistory.push(outputDiv.innerHTML);
+                currentVersionIndex = versionHistory.length - 1;
+                renderVersionTabs();
+                followUpContainer.classList.remove('hidden');
+
+            } catch (error) {
+                outputDiv.innerHTML = `<div class="p-6 text-center"><div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><p class="text-red-600 font-medium">出错了</p><p class="text-sm text-gray-500 mt-1">${error.message}</p></div>`;
+            } finally {
+                submitBtn.disabled = false;
+                thinkingDiv.style.display = 'none';
+            }
+        }
+
+        async function generateDoc() {
+            const apiKey = localStorage.getItem('deepseek_api_key');
+            if (!apiKey) { alert('请先设置 API Key'); toggleSettings(); return; }
+
+            const docType = document.getElementById('docType').value;
+            let orgContext = document.getElementById('orgContext').value.trim();
+            let author = document.getElementById('authorIdentity').value.trim() || "办公室";
+            let audience = document.getElementById('targetAudience').value.trim();
+            let userInput = document.getElementById('userInput').value.trim();
+
+            if (!audience || !userInput) { alert('请填写阅读对象和素材'); return; }
+
+            // 保持脱敏逻辑
+            if (document.getElementById('anonymizeToggle').checked) {
+                const mapping = { count: 0 };
+                orgContext = anonymizeData(orgContext, mapping);
+                author = anonymizeData(author, mapping);
+                audience = anonymizeData(audience, mapping);
+                userInput = anonymizeData(userInput, mapping);
+            }
+
+            const prompt = `撰写公文：\n【背景】：${orgContext}\n【文种】：${docType}\n【角色】：${author}\n【对象】：${audience}\n【素材】：${userInput}`;
+            
+            chatHistory = [{ role: "user", content: prompt }];
+            versionHistory = [];
+            await processStream(apiKey, chatHistory);
+        }
+
+        async function sendFollowUp() {
+            const inputEl = document.getElementById('followUpInput');
+            const val = inputEl.value.trim();
+            const apiKey = localStorage.getItem('deepseek_api_key');
+            if (!val || !apiKey) return;
+
+            chatHistory.push({ role: "user", content: val });
+            inputEl.value = '';
+            await processStream(apiKey, chatHistory);
+        }
+
+        function renderVersionTabs() {
+            const bar = document.getElementById('versionBar');
+            if (versionHistory.length <= 1) return;
+            bar.classList.remove('hidden');
+            bar.innerHTML = versionHistory.map((_, i) => `<div onclick="switchVersion(${i})" class="version-tab ${i===currentVersionIndex?'active':'inactive'}">版本 ${i+1}</div>`).join('');
+        }
+
+        function switchVersion(i) {
+            currentVersionIndex = i;
+            document.getElementById('resultOutput').innerHTML = versionHistory[i];
+            renderVersionTabs();
+        }
+
+        function copyResult() {
+            const text = document.getElementById('resultOutput').innerText;
+            navigator.clipboard.writeText(text).then(() => alert('已复制到剪贴板'));
+        }
+
+        function exportToWord() {
+            const content = document.getElementById('resultOutput').innerHTML;
+            const blob = htmlDocx.asBlob(`<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${content}</body></html>`);
+            saveAs(blob, `公文_${new Date().getTime()}.docx`);
+        }
+    </script>
+<script src="common.js"></script>
+</body>
+</html>
