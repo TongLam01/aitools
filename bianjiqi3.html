@@ -3,52 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公众号AI排版 v2.4</title>
+    <title>公众号AI排版 v2.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
         body { background-color: #f1f5f9; color: #334155; height: 100vh; overflow: hidden; }
         
-        /* === 核心修复区域 START === */
         #preview-container { 
-            background: #fff; 
-            border-radius: 4px;
+            background: #fff; height: 100%; border-radius: 4px;
             padding: 0; border: 1px solid #cbd5e1; max-width: 375px; margin: 0 auto;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative;
-            width: 100%;
-            /* 移动端默认：高度自适应，由内容撑开 */
-            height: auto; 
-            min-height: 600px;
-            overflow: visible;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;
         }
         #preview-content {
-            background: white; 
-            padding: 20px 10px; outline: none;
+            background: white; height: 100%;
+            overflow-y: auto; padding: 20px 10px; outline: none;
             transition: background 0.3s;
-            /* 移动端默认 */
-            height: auto;
-            min-height: 100%; 
-            overflow: visible;
         }
-
-        /* 电脑端 (Large Screen) 深度修复滚动问题 */
-        @media (min-width: 1024px) {
-            #preview-container {
-                /* 关键：PC端变成 Flex 容器，且高度由父级 Flex 决定，不再由内容决定 */
-                display: flex !important;
-                flex-direction: column !important;
-                height: auto !important; /* 让 lg:flex-1 生效 */
-                min-height: 0 !important; /* 核心：允许容器压缩，触发内部滚动 */
-                overflow: hidden !important; 
-            }
-            #preview-content {
-                /* 关键：内容区占满容器剩余空间，并负责滚动 */
-                flex: 1 1 0% !important;
-                height: 100% !important;
-                overflow-y: auto !important;
-            }
-        }
-        /* === 核心修复区域 END === */
 
         /* 交互选框 */
         .block-wrapper {
@@ -71,7 +41,7 @@
         .bottom-workbench {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: rgba(255, 255, 255, 0.98); border-top: 1px solid #e2e8f0;
-            z-index: 999; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+            z-index: 999; padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
             box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
         }
         .style-btn { 
@@ -144,6 +114,66 @@
         }
         .pulse-dot:nth-child(2) { animation-delay: 0.2s; }
         .pulse-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* 移动端适配 */
+        @media (max-width: 1024px) {
+            .bottom-workbench {
+                padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+            }
+            .style-btn {
+                padding: 5px 8px;
+                font-size: 11px;
+            }
+            .color-dot, .bg-dot {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                height: auto;
+                min-height: 100vh;
+            }
+            .flex-1.overflow-hidden {
+                overflow: visible;
+            }
+            .grid {
+                display: flex;
+                flex-direction: column;
+                height: auto;
+            }
+            .lg\:col-span-7, .lg\:col-span-5 {
+                height: auto;
+                min-height: 300px;
+            }
+            .lg\:col-span-7 {
+                order: 1;
+            }
+            .lg\:col-span-5 {
+                order: 2;
+                margin-bottom: 140px;
+            }
+            #preview-container {
+                max-width: 100%;
+                height: 450px;
+            }
+            .bottom-workbench {
+                padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+            }
+            .style-btn {
+                padding: 4px 6px;
+                font-size: 10px;
+            }
+            .color-dot, .bg-dot {
+                width: 18px;
+                height: 18px;
+            }
+            .bg-dot.none-bg::after {
+                width: 14px;
+            }
+        }
     </style>
 </head>
 <body class="flex flex-col h-screen">
@@ -171,9 +201,9 @@
         </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto lg:overflow-hidden max-w-7xl mx-auto w-full px-4 pb-40">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:h-full">
-            <div class="lg:col-span-7 min-h-[300px] lg:h-full flex flex-col">
+    <div class="flex-1 overflow-hidden max-w-7xl mx-auto w-full px-4 pb-40">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+            <div class="lg:col-span-7 h-full flex flex-col">
                 <div class="bg-white p-2 rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
                     <textarea id="user-input" class="w-full flex-1 p-3 bg-transparent outline-none resize-none text-base leading-relaxed text-slate-700 placeholder:text-slate-400 overflow-y-auto" placeholder="在此粘贴您的文章内容...&#10;&#10;💡 使用提示：&#10;1. 粘贴文章后点击「一键智能排版」&#10;2. 点右侧预览区内容块选中（可多选）&#10;3. 点底部工具栏对选定内容切换样式&#10;4. 点击「复制到公众号」后粘贴即可"></textarea>
                     <div class="p-2 border-t border-slate-100 bg-white flex-shrink-0 z-10">
@@ -184,16 +214,16 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-5 lg:h-full flex flex-col items-center">
+            <div class="lg:col-span-5 h-full flex flex-col items-center overflow-hidden">
                 <div class="w-full flex justify-between items-center px-1 mb-2 max-w-[375px] flex-shrink-0">
                     <span class="text-[12px] font-bold text-slate-400 uppercase tracking-wider">📱 手机端预览</span>
                     <button onclick="copyHtml()" id="btn-copy" class="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white px-5 py-1.5 rounded-lg font-bold text-xs shadow-sm transition">
                         复制到公众号
                     </button>
                 </div>
-                <div id="preview-container" class="w-full lg:flex-1 lg:min-h-0">
+                <div id="preview-container" class="w-full flex-1">
                     <div id="preview-content" contenteditable="true">
-                        <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; padding-top: 100px; color: #94a3b8;">
+                        <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; color: #94a3b8;">
                             <div class="floating-icon" style="font-size: 40px; margin-bottom: 20px;">✨</div>
                             <div class="breathing-text" style="font-size: 15px; margin-bottom: 10px; color: #64748b; font-weight: 500;">等待内容输入</div>
                             <div style="display: flex; align-items: center;">
@@ -209,7 +239,8 @@
     </div>
 
     <div class="bottom-workbench">
-        <div class="max-w-7xl mx-auto space-y-2">
+        <div class="max-w-7xl mx-auto space-y-1.5">
+            <!-- 第一行：主题色 + 文章底色 -->
             <div class="flex items-center gap-4 flex-wrap">
                 <div class="flex items-center gap-2">
                     <span class="text-[10px] font-bold text-slate-400 uppercase">主题色</span>
@@ -222,8 +253,13 @@
                 </div>
             </div>
 
+            <!-- 第二行：样式按钮 -->
             <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
                 <button onclick="applyVariant('normal')" class="style-btn text-red-500 bg-red-50 border-red-200 hover:bg-red-100">还原</button>
+                <div class="w-[1px] bg-slate-200 mx-1"></div>
+                <button onclick="toggleBold()" class="style-btn">加粗</button>
+                <button onclick="changeFontSize('increase')" class="style-btn">字号+</button>
+                <button onclick="changeFontSize('decrease')" class="style-btn">字号-</button>
                 <div class="w-[1px] bg-slate-200 mx-1"></div>
                 <button onclick="applyVariant('big_title')" class="style-btn">大标题</button>
                 <button onclick="applyVariant('sub_title')" class="style-btn">小标题</button>
@@ -236,10 +272,6 @@
                 <button onclick="applyVariant('code_block')" class="style-btn">代码</button>
                 <div class="w-[1px] bg-slate-200 mx-1"></div>
                 <button onclick="mergeSelected()" class="style-btn bg-slate-800 text-white border-slate-700 hover:bg-slate-700">合并</button>
-            </div>
-            
-            <div class="text-center">
-                <span class="text-[12px] text-slate-400">💡 多次点击同一样式按钮可切换不同风格</span>
             </div>
         </div>
     </div>
@@ -283,6 +315,8 @@
 
         // ==========================================
         // 核心模板库 v2.3
+        // 正文内容保持 padding: 0 8px 缩进
+        // 卡片类保持 margin: 25px 8px 实现左右留白
         // ==========================================
         const VARIANTS = {
             big_title: [
@@ -438,6 +472,8 @@
                 wrapper.dataset.type = b.type;
                 wrapper.dataset.variant = 0;
                 wrapper.dataset.raw = b.content;
+                wrapper.dataset.fontSizeOffset = 0;
+                wrapper.dataset.isBold = 'false';
                 const renderer = VARIANTS[b.type] ? VARIANTS[b.type][0] : VARIANTS.normal[0];
                 wrapper.innerHTML = renderer(b.content, currentColor);
                 container.appendChild(wrapper);
@@ -449,7 +485,7 @@
         function showLoading() {
             const container = document.getElementById('preview-content');
             container.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; min-height: 400px; color: #64748b;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; color: #64748b;">
                     <div class="floating-icon" style="font-size: 44px; margin-bottom: 20px;">🎨</div>
                     <div class="breathing-text" style="font-size: 15px; margin-bottom: 14px; font-weight: 600; color: #475569;">AI 正在智能排版</div>
                     <div style="display: flex; align-items: center; margin-bottom: 12px;">
@@ -465,7 +501,7 @@
 
         function showWaiting() {
             document.getElementById('preview-content').innerHTML = `
-                <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; padding-top: 100px; color: #94a3b8;">
+                <div id="waiting-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70%; color: #94a3b8;">
                     <div class="floating-icon" style="font-size: 40px; margin-bottom: 20px;">✨</div>
                     <div class="breathing-text" style="font-size: 15px; margin-bottom: 10px; color: #64748b; font-weight: 500;">等待内容输入</div>
                     <div style="display: flex; align-items: center;">
@@ -554,6 +590,76 @@
                 el.innerHTML = renderer(raw, currentColor);
                 el.dataset.type = type;
                 el.dataset.variant = vIdx;
+                
+                // 重新应用字号和加粗设置
+                const fontSizeOffset = parseInt(el.dataset.fontSizeOffset) || 0;
+                const isBold = el.dataset.isBold === 'true';
+                if(fontSizeOffset !== 0 || isBold) {
+                    applyFontStyles(el, fontSizeOffset, isBold);
+                }
+            });
+        }
+
+        // 加粗/去掉加粗功能
+        function toggleBold() {
+            const selected = document.querySelectorAll('.block-wrapper.selected');
+            if(selected.length === 0) return alert("请先点击预览区选中内容块");
+            
+            selected.forEach(el => {
+                const currentBold = el.dataset.isBold === 'true';
+                const newBold = !currentBold;
+                el.dataset.isBold = newBold.toString();
+                
+                const fontSizeOffset = parseInt(el.dataset.fontSizeOffset) || 0;
+                applyFontStyles(el, fontSizeOffset, newBold);
+            });
+        }
+
+        // 字号变大/变小功能
+        function changeFontSize(direction) {
+            const selected = document.querySelectorAll('.block-wrapper.selected');
+            if(selected.length === 0) return alert("请先点击预览区选中内容块");
+            
+            selected.forEach(el => {
+                let fontSizeOffset = parseInt(el.dataset.fontSizeOffset) || 0;
+                
+                if(direction === 'increase') {
+                    fontSizeOffset = Math.min(fontSizeOffset + 2, 10); // 最大增加10px
+                } else {
+                    fontSizeOffset = Math.max(fontSizeOffset - 2, -6); // 最小减少6px
+                }
+                
+                el.dataset.fontSizeOffset = fontSizeOffset;
+                const isBold = el.dataset.isBold === 'true';
+                applyFontStyles(el, fontSizeOffset, isBold);
+            });
+        }
+
+        // 应用字体样式（字号和加粗）
+        function applyFontStyles(wrapper, fontSizeOffset, isBold) {
+            const elements = wrapper.querySelectorAll('section, p, span, strong');
+            elements.forEach(elem => {
+                // 处理字号
+                const currentFontSize = window.getComputedStyle(elem).fontSize;
+                const baseFontSize = parseInt(currentFontSize);
+                if(!elem.dataset.originalFontSize) {
+                    elem.dataset.originalFontSize = baseFontSize;
+                }
+                const originalSize = parseInt(elem.dataset.originalFontSize);
+                const newSize = originalSize + fontSizeOffset;
+                elem.style.fontSize = newSize + 'px';
+                
+                // 处理加粗
+                if(isBold) {
+                    elem.style.fontWeight = 'bold';
+                } else {
+                    // 如果是strong标签，保持bold；否则恢复normal
+                    if(elem.tagName.toLowerCase() === 'strong') {
+                        elem.style.fontWeight = 'bold';
+                    } else {
+                        elem.style.fontWeight = '';
+                    }
+                }
             });
         }
 
@@ -568,6 +674,8 @@
             wrapper.dataset.type = 'normal';
             wrapper.dataset.variant = 0;
             wrapper.dataset.raw = mergedText;
+            wrapper.dataset.fontSizeOffset = 0;
+            wrapper.dataset.isBold = 'false';
             wrapper.innerHTML = VARIANTS.normal[0](mergedText, currentColor);
             
             selected[0].replaceWith(wrapper);
