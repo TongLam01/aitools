@@ -139,7 +139,7 @@ async function generateImage() {
             
             logStatus("🎉 生成成功！正在通过 Vercel 中转进行智能裁切...");
 
-            // 延迟一点点，确保 UI 渲染完毕
+            // 延迟确保 UI 渲染
             setTimeout(() => {
                 sliceImageToNine(resultUrl);
             }, 500);
@@ -158,13 +158,13 @@ async function generateImage() {
 }
 
 // ==========================================
-// 4. 九宫格自动裁切 (智能去边框版)
+// 4. 九宫格自动裁切 (回归严格均分 + 极微缩边)
 // ==========================================
 async function sliceImageToNine(imageUrl) {
     const container = document.getElementById('slices-grid');
     if(!container) return;
     
-    container.innerHTML = "🔄 正在处理高清切片 (通过中转)...";
+    container.innerHTML = "🔄 正在处理高清切片...";
     
     try {
         const proxyUrl = `/api/proxy?url=${encodeURIComponent(imageUrl)}`;
@@ -186,38 +186,42 @@ async function sliceImageToNine(imageUrl) {
             const w = tempImg.width;
             const h = tempImg.height;
 
-            // ★★★ 核心修改：智能去边框逻辑 ★★★
-            // 经验值：假设图片四周有约 3.5% 的白边需要切除
-            // 这个比例是根据你提供的截图估算出来的
-            const PADDING_RATIO = 0.035; 
-            const padX = Math.floor(w * PADDING_RATIO);
-            const padY = Math.floor(h * PADDING_RATIO);
+            // ★★★ 核心修复：回归严格均分逻辑 ★★★
+            // 不再猜测 Padding，直接除以 3，保证位置绝对准确
+            const cellW = w / 3;
+            const cellH = h / 3;
 
-            // 计算有效内容区域（去掉四周白边后的区域）
-            const contentW = w - 2 * padX;
-            const contentH = h - 2 * padY;
+            // ★★★ 细节优化：微缩裁切 (安全边距) ★★★
+            // 为了避免切到相邻格子的黑线或白线，我们只取格子中间的 98%
+            // 这样既不会切掉文字，又能切掉讨厌的分割线
+            const SAFETY_RATIO = 0.98; // 取 98% 的内容
+            const drawW = cellW * SAFETY_RATIO;
+            const drawH = cellH * SAFETY_RATIO;
+            
+            // 居中偏移量
+            const offsetX = (cellW - drawW) / 2;
+            const offsetY = (cellH - drawH) / 2;
 
-            // 基于有效区域计算每个小格子的大小
-            const sliceW = Math.floor(contentW / 3);
-            const sliceH = Math.floor(contentH / 3);
-            // ----------------------------------
-
-            logStatus("✅ 图片已就绪，正在智能切割...");
+            logStatus("✅ 图片已就绪，正在精准切割...");
 
             for (let row = 0; row < 3; row++) {
                 for (let col = 0; col < 3; col++) {
                     const canvas = document.createElement('canvas');
-                    canvas.width = sliceW;
-                    canvas.height = sliceH;
+                    // 画布大小等于裁切后的大小
+                    canvas.width = drawW;
+                    canvas.height = drawH;
                     const ctx = canvas.getContext('2d');
 
-                    // ★★★ 修改：计算裁切的起始坐标 ★★★
-                    // 起点 = 左/上边框 + 格子索引 * 格子大小
-                    const sourceX = padX + col * sliceW;
-                    const sourceY = padY + row * sliceH;
-                    
-                    // 从源图的 (sourceX, sourceY) 开始裁切
-                    ctx.drawImage(tempImg, sourceX, sourceY, sliceW, sliceH, 0, 0, sliceW, sliceH);
+                    // 1. 计算理论上的格子的左上角
+                    const gridX = col * cellW;
+                    const gridY = row * cellH;
+
+                    // 2. 加上微小的偏移量 (往里缩一点点)
+                    const sourceX = gridX + offsetX;
+                    const sourceY = gridY + offsetY;
+
+                    // 3. 执行裁切
+                    ctx.drawImage(tempImg, sourceX, sourceY, drawW, drawH, 0, 0, drawW, drawH);
 
                     const dataUrl = canvas.toDataURL("image/png");
                     
@@ -241,7 +245,7 @@ async function sliceImageToNine(imageUrl) {
                 }
             }
             URL.revokeObjectURL(localUrl);
-            logStatus("🎉 完美！9张小图已智能裁切完毕，点击小图即可下载。");
+            logStatus("🎉 完美！9张小图已精准裁切，位置已校准。");
         };
 
         tempImg.onerror = function() {
