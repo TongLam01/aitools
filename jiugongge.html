@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI马年九宫格头像生成器 (Ark版)</title>
+    <title>AI马年九宫格头像生成3器</title>
     <style>
-        /* 样式保持不变 */
         :root { --primary-red: #D93636; --gold: #F2C780; --bg-color: #FEF8F5; }
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: var(--bg-color); color: #333; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { max-width: 600px; width: 100%; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(217, 54, 54, 0.15); border: 2px solid var(--gold); }
         h1 { color: var(--primary-red); text-align: center; margin-bottom: 30px; font-weight: 800; }
         .config-section { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #ccc; }
-        .config-section h3 { margin-top: 0; font-size: 14px; color: #666; }
         .input-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        /* 这里的 ID 很重要，JS 靠它来识别点击区域 */
-        #upload-click-area { border: 2px dashed var(--primary-red); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 20px; background: #fff0f0; }
-        #upload-click-area:hover { background: #ffe0e0; }
+        
+        /* 上传区域样式 */
+        .upload-area { border: 2px dashed var(--primary-red); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 20px; background: #fff0f0; }
+        .upload-area:hover { background: #ffe0e0; }
+        
         #preview-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px; display: none; }
         button { width: 100%; background-color: var(--primary-red); color: var(--gold); border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.3s; }
         button:hover { background-color: #b82525; }
@@ -25,17 +25,15 @@
         .result-area { margin-top: 30px; text-align: center; }
         #result-img { width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .loading { display: none; color: var(--primary-red); font-weight: bold; margin-top: 10px; text-align: center;}
-        .note { font-size: 12px; color: #888; margin-top: 10px; line-height: 1.5; }
         .error-msg { color: red; font-size: 14px; margin-top: 10px; display: none; word-break: break-all;}
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>🧧 马年九宫格2 (Ark API版)</h1>
+        <h1>🧧 马年九宫格 (Ark API版)</h1>
 
         <div class="config-section">
-            <h3>API 配置 (火山方舟 Ark)</h3>
             <div class="input-group">
                 <label>API Key (Bearer Token):</label>
                 <input type="password" id="api-key" placeholder="输入你的 API Key">
@@ -44,24 +42,22 @@
                 <label>Model ID (模型名称):</label>
                 <input type="text" id="model-id" value="doubao-seedream-4-5-251128" placeholder="输入模型ID">
             </div>
-            <div class="note">注意：请确保浏览器已安装并开启 <b>Allow CORS</b> 插件。</div>
         </div>
 
-        <div class="upload-area" id="upload-click-area">
+        <div class="upload-area" id="my-upload-zone">
             <p>📸 点击上传个人照片</p>
-            <input type="file" id="file-input" accept="image/*" style="display: none">
+            <input type="file" id="my-file-input" accept="image/*" style="display: none">
             <img id="preview-img" alt="预览">
         </div>
 
-        <button id="generate-btn">✨ 生成新年九宫格 ✨</button>
+        <button id="btn-generate">✨ 生成新年九宫格 ✨</button>
         
-        <div class="loading" id="loading-text">正在请求 Doubao-Seedream 生成中...<br><small>(可能需要 10-20 秒)</small></div>
+        <div class="loading" id="loading-text">正在请求 Doubao-Seedream 生成中...</div>
         <div class="error-msg" id="error-msg"></div>
 
         <div class="result-area" id="result-area" style="display:none;">
             <h3>生成结果：</h3>
             <img id="result-img" alt="生成结果">
-            <p style="font-size:12px; color:#666; margin-top:10px;">长按或右键保存图片</p>
         </div>
     </div>
 
