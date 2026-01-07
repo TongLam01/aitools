@@ -85,14 +85,14 @@
             <h3>API 配置 (火山方舟 Ark)</h3>
             <div class="input-group">
                 <label>API Key (Bearer Token):</label>
-                <input type="password" id="api-key" placeholder="输入你的 API Key (例如 c2121...)">
+                <input type="password" id="api-key" placeholder="输入你的 API Key">
             </div>
             <div class="input-group">
                 <label>Model ID (模型名称):</label>
-                <input type="text" id="model-id" value="doubao-seedream-4-5-251128" placeholder="输入模型ID 或 Endpoint ID">
+                <input type="text" id="model-id" value="doubao-seedream-4-5-251128" placeholder="输入模型ID">
             </div>
             <div class="note">
-                注意：请确保浏览器已安装并开启 <b>Allow CORS</b> 插件，否则浏览器会拦截请求。
+                注意：请确保浏览器已安装并开启 <b>Allow CORS</b> 插件。
             </div>
         </div>
 
@@ -105,7 +105,7 @@
         <button id="generate-btn" onclick="generateImage()">✨ 生成新年九宫格 ✨</button>
         <div class="loading" id="loading-text">
             正在请求 Doubao-Seedream 生成中...<br>
-            <small>(可能需要 10-20 秒)</small>
+            <small>(可能需要 20-40 秒)</small>
         </div>
         <div class="error-msg" id="error-msg"></div>
 
@@ -116,137 +116,6 @@
         </div>
     </div>
 
-    <script>
-        // === 核心提示词 ===
-        const PROMPT_TEMPLATE = `一张3x3九宫格形式的男生新年祝福肖像摄影，比例1:1。
-
-【整体风格与环境】
-极简新年祝福风，视觉基调干净、温和且克制。背景为纯白色墙面，无任何装饰。光线采用均匀的自然柔光，无强阴影。画面整体色彩重点为中国红（体现在服装与文字上）。
-
-【人物特征】
-九宫格内为同一位亚洲男性，气质干净、阳光、自然，不油腻。黑色短发，自然蓬松且利落。穿着一件纯红色的简约针织毛衣或卫衣，无图案。面部保持真实自然的肤质，无明显妆感。表情为克制的微笑，透出开心的氛围。
-
-【九宫格动作分布】
-1. 第一格：食指竖于嘴前，做轻松安静的“嘘”手势。
-2. 第二格：单手在脸部附近比出 V 手势。
-3. 第三格：单手做出 OK 手势或三指手势。
-4. 第四格：双手举起，做轻松俏皮的手势（避免过度卖萌）。
-5. 第五格：单手张开，轻轻遮住半边脸。
-6. 第六格：单手在脸侧做出电话手势。
-7. 第七格：单手手指轻点脸颊或下巴。
-8. 第八格：单手托住下巴，呈现轻微思考的姿态。
-9. 第九格：双手指向脸部，或克制的比心变体动作。
-
-【文字排版】
-每一格图片的顶部居中位置均有文字覆盖。使用传统中文新年书法字体，主文字颜色为中国红，年份颜色为深蓝色。文字结构为“四字祝福语 + 2026”。
-具体对应内容为：
-- 格1：一帆风顺 2026
-- 格2：双喜临门 2026
-- 格3：三阳开泰 2026
-- 格4：四季发财 2026
-- 格5：五福临门 2026
-- 格6：六六大顺 2026
-- 格7：七星高照 2026
-- 格8：八方来财 2026
-- 格9：九九同心 2026
-
-【核心限制】
-严禁改变人物身份，九宫格内必须是同一个人，脸型五官、服装材质与颜色、拍摄角度与距离必须保持高度一致。禁止使用复杂背景或节日道具，禁止女性化姿态，禁止夸张表情。`;
-
-        let base64Data = "";
-
-        // === 图片处理 ===
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // 限制图片大小，避免Base64过长导致请求失败 (建议压缩到 1MB 以内)
-            if (file.size > 2 * 1024 * 1024) {
-                alert("图片过大，建议上传 2MB 以内的图片");
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.getElementById('preview-img');
-                img.src = e.target.result;
-                img.style.display = 'inline-block';
-                // 完整的 Base64 字符串 (包含 data:image/jpeg;base64,...)
-                base64Data = e.target.result; 
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function generateImage() {
-            const apiKey = document.getElementById('api-key').value.trim();
-            const modelId = document.getElementById('model-id').value.trim();
-            const errorDiv = document.getElementById('error-msg');
-            
-            errorDiv.style.display = 'none';
-            errorDiv.innerText = '';
-
-            if (!apiKey) { alert("请输入 API Key"); return; }
-            if (!base64Data) { alert("请先上传一张图片"); return; }
-
-            const btn = document.getElementById('generate-btn');
-            const loading = document.getElementById('loading-text');
-            const resultArea = document.getElementById('result-area');
-            
-            btn.disabled = true;
-            loading.style.display = 'block';
-            resultArea.style.display = 'none';
-
-            try {
-                // API 端点
-                const endpoint = "https://ark.cn-beijing.volces.com/api/v3/images/generations";
-
-                // 构造 Payload，完全参考用户提供的 curl 结构
-                const payload = {
-                    model: modelId,
-                    prompt: PROMPT_TEMPLATE,
-                    image: base64Data, // 将本地图片转为 Base64 传入
-                    sequential_image_generation: "disabled",
-                    response_format: "url", // 期望返回 URL
-                    size: "2K",
-                    stream: false,
-                    watermark: true
-                };
-
-                const response = await fetch(endpoint, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error?.message || "请求失败，请检查 API Key 和 Model ID");
-                }
-
-                // 处理返回数据
-                if (data.data && data.data.length > 0) {
-                    const resultUrl = data.data[0].url;
-                    document.getElementById('result-img').src = resultUrl;
-                    resultArea.style.display = 'block';
-                } else {
-                    throw new Error("API 返回的数据格式不符合预期");
-                }
-
-            } catch (error) {
-                console.error(error);
-                errorDiv.innerText = "错误: " + error.message;
-                errorDiv.style.display = 'block';
-                if(error.message.includes("Failed to fetch")) {
-                    errorDiv.innerText += " (很可能是跨域问题，请安装并开启 'Allow CORS' 浏览器插件)";
-                }
-            } finally {
-                btn.disabled = false;
-                loading.style.display = 'none';
-            }
-        }
-    </script>
+    <script src="api/9gongge.js"></script>
 </body>
 </html>
