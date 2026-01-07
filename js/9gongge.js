@@ -132,14 +132,12 @@ async function generateImage() {
         if (data.data && data.data.length > 0) {
             const resultUrl = data.data[0].url;
             
-            // 显示大图
             const resImg = document.getElementById('result-img');
             resImg.src = resultUrl;
             document.getElementById('result-area').style.display = 'block';
             
-            logStatus("🎉 生成成功！正在通过 Vercel 中转进行智能裁切...");
+            logStatus("🎉 生成成功！正在执行无损精修裁切...");
 
-            // 延迟确保 UI 渲染
             setTimeout(() => {
                 sliceImageToNine(resultUrl);
             }, 500);
@@ -158,13 +156,13 @@ async function generateImage() {
 }
 
 // ==========================================
-// 4. 九宫格自动裁切 (回归严格均分 + 极微缩边)
+// 4. 九宫格自动裁切 (非对称精修版)
 // ==========================================
 async function sliceImageToNine(imageUrl) {
     const container = document.getElementById('slices-grid');
     if(!container) return;
     
-    container.innerHTML = "🔄 正在处理高清切片...";
+    container.innerHTML = "🔄 正在处理...";
     
     try {
         const proxyUrl = `/api/proxy?url=${encodeURIComponent(imageUrl)}`;
@@ -186,41 +184,43 @@ async function sliceImageToNine(imageUrl) {
             const w = tempImg.width;
             const h = tempImg.height;
 
-            // ★★★ 核心修复：回归严格均分逻辑 ★★★
-            // 不再猜测 Padding，直接除以 3，保证位置绝对准确
+            // 基础格子大小
             const cellW = w / 3;
             const cellH = h / 3;
 
-            // ★★★ 细节优化：微缩裁切 (安全边距) ★★★
-            // 为了避免切到相邻格子的黑线或白线，我们只取格子中间的 98%
-            // 这样既不会切掉文字，又能切掉讨厌的分割线
-            const SAFETY_RATIO = 0.98; // 取 98% 的内容
-            const drawW = cellW * SAFETY_RATIO;
-            const drawH = cellH * SAFETY_RATIO;
+            // ★★★ 核心修改：非对称裁切参数 ★★★
+            // 目标：顶部少切（保文字），底部多切（去白边）
             
-            // 居中偏移量
-            const offsetX = (cellW - drawW) / 2;
-            const offsetY = (cellH - drawH) / 2;
+            const CUT_TOP = 0.002;    // 顶部切掉 0.2% (几乎不切，防黑线即可)
+            const CUT_BOTTOM = 0.04;  // 底部切掉 4%   (大力切，去除底部白条)
+            const CUT_X = 0.02;       // 左右切掉 2%   (正常去边)
 
-            logStatus("✅ 图片已就绪，正在精准切割...");
+            // 计算实际绘图区域的宽高
+            // 宽度 = 基础宽 * (1 - 左切 - 右切)
+            const drawW = cellW * (1 - CUT_X * 2);
+            // 高度 = 基础高 * (1 - 顶切 - 底切)
+            const drawH = cellH * (1 - CUT_TOP - CUT_BOTTOM);
+
+            logStatus("✅ 图片已就绪，正在执行非对称裁切...");
 
             for (let row = 0; row < 3; row++) {
                 for (let col = 0; col < 3; col++) {
                     const canvas = document.createElement('canvas');
-                    // 画布大小等于裁切后的大小
                     canvas.width = drawW;
                     canvas.height = drawH;
                     const ctx = canvas.getContext('2d');
 
-                    // 1. 计算理论上的格子的左上角
+                    // 1. 基础坐标
                     const gridX = col * cellW;
                     const gridY = row * cellH;
 
-                    // 2. 加上微小的偏移量 (往里缩一点点)
-                    const sourceX = gridX + offsetX;
-                    const sourceY = gridY + offsetY;
+                    // 2. 应用非对称偏移
+                    // X轴：往右移 2%
+                    const sourceX = gridX + (cellW * CUT_X);
+                    // Y轴：往下移 0.2% (让出顶部空间，裁切框整体上移，从而切掉更多底部)
+                    const sourceY = gridY + (cellH * CUT_TOP);
 
-                    // 3. 执行裁切
+                    // 3. 裁切
                     ctx.drawImage(tempImg, sourceX, sourceY, drawW, drawH, 0, 0, drawW, drawH);
 
                     const dataUrl = canvas.toDataURL("image/png");
@@ -245,7 +245,7 @@ async function sliceImageToNine(imageUrl) {
                 }
             }
             URL.revokeObjectURL(localUrl);
-            logStatus("🎉 完美！9张小图已精准裁切，位置已校准。");
+            logStatus("🎉 完美！底部白边已去除，文字已完整保留。");
         };
 
         tempImg.onerror = function() {
