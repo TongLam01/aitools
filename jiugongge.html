@@ -39,8 +39,8 @@
         .status-bar {
             margin: 15px 0;
             padding: 10px;
-            background-color: #eee;
-            border-left: 4px solid #ccc;
+            background-color: #eef;
+            border-left: 4px solid #007bff;
             font-size: 14px;
             color: #333;
             word-break: break-all;
@@ -76,12 +76,10 @@
         <div class="result-area" id="result-area" style="display:none;">
             <h3>生成结果：</h3>
             <img id="result-img" alt="生成结果">
+            <p style="font-size:12px; color:#666; margin-top:10px;">长按或右键保存图片</p>
         </div>
     </div>
 
-    <script 
-        src="api/9gongge.js" 
-        onerror="alert('🔴 严重错误：找不到 JS 文件！\n\n请检查：\n1. 是否有名为 api 的文件夹？\n2. 文件名是否真的是 9gongge.js (小心 .txt 后缀)？'); document.getElementById('status-log').innerText='🔴 JS 文件加载失败，请检查路径。'; document.getElementById('status-log').style.color='red';">
-    </script>
+    <script src="api/9gongge.js"></script>
 </body>
 </html>
