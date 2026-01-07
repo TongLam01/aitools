@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI马年九宫格头像生成器 (终极全能版)</title>
+    <title>AI马年九宫格头像生成器 (原生多图版)</title>
     <style>
         :root { --primary-red: #D93636; --gold: #F2C780; --bg-color: #FEF8F5; }
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: var(--bg-color); color: #333; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -11,18 +11,15 @@
         h1 { color: var(--primary-red); text-align: center; margin-bottom: 30px; font-weight: 800; }
         .config-section { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #ccc; }
         
-        /* 输入框样式 */
         .input-group { margin-bottom: 15px; transition: all 0.3s; opacity: 0.6; }
         .input-group.active-group { opacity: 1; transform: scale(1.02); }
         .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #555; }
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
-        /* 模式选择器 */
         .mode-selector { display: flex; justify-content: space-between; margin-bottom: 20px; background: #eee; padding: 5px; border-radius: 10px; }
         .mode-option { flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 8px; font-weight: bold; color: #666; transition: all 0.3s; }
         .mode-option.active { background: var(--primary-red); color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
-        /* 上传区域 */
         .upload-wrapper { display: flex; gap: 10px; margin-bottom: 20px; }
         .upload-label { 
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -32,9 +29,8 @@
         .upload-label:hover { background: #ffe0e0; }
         .preview-img { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 5px; display: none; }
         .upload-text { font-size: 14px; color: #d93636; font-weight: bold; }
-        #upload-box-2 { display: none; } /* 默认隐藏第二个框 */
+        #upload-box-2 { display: none; }
 
-        /* 开关样式 */
         .switch-wrapper { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
         .switch-label { font-size: 16px; font-weight: bold; margin-right: 10px; color: #555; }
         .toggle-checkbox { display: none; }
@@ -43,7 +39,6 @@
         .toggle-checkbox:checked + .toggle-switch { background-color: var(--primary-red); }
         .toggle-checkbox:checked + .toggle-switch::after { transform: translateX(24px); }
 
-        /* 按钮与结果区 */
         button { width: 100%; background-color: var(--primary-red); color: var(--gold); border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.3s; }
         button:hover { background-color: #b82525; }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
@@ -52,7 +47,6 @@
         .result-area { margin-top: 30px; text-align: center; }
         #result-img { width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
-        /* 切片展示区 */
         .slices-container { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; background: #eee; padding: 5px; border-radius: 8px; }
         .slice-item { width: 100%; aspect-ratio: 1 / 1; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s; }
         .slice-item:hover { transform: scale(1.05); }
@@ -62,7 +56,7 @@
 <body>
 
     <div class="container">
-        <h1>🧧 马年九宫格 (全能版)</h1>
+        <h1>🧧 马年九宫格 (原生多图版)</h1>
         
         <div class="config-section">
             <div class="input-group active-group" style="opacity: 1;">
@@ -71,13 +65,13 @@
             </div>
             
             <div class="input-group" id="group-model-single">
-                <label>🧍 单人模型 ID (男生/女生模式):</label>
-                <input type="text" id="model-id-single" value="doubao-seedream-4-5-251128" placeholder="单人图生图 Model ID">
+                <label>🧍 单人模型 ID (Model A):</label>
+                <input type="text" id="model-id-single" value="doubao-seedream-4-5-251128" placeholder="单人任务 Model ID">
             </div>
 
             <div class="input-group" id="group-model-couple">
-                <label>👫 双人模型 ID (情侣模式):</label>
-                <input type="text" id="model-id-couple" value="doubao-seedream-4-5-251128" placeholder="双人/拼接图生图 Model ID">
+                <label>👫 双人模型 ID (Model B - 支持多参考图):</label>
+                <input type="text" id="model-id-couple" value="doubao-seedream-4-5-251128" placeholder="双人任务 Model ID">
             </div>
         </div>
 
@@ -114,7 +108,6 @@
         <div class="result-area" id="result-area" style="display:none;">
             <h3>生成结果 (大图)：</h3>
             <img id="result-img" alt="生成结果">
-            
             <div class="slice-title">👇 自动拆分结果 (长按保存单张) 👇</div>
             <div id="slices-grid" class="slices-container"></div>
         </div>
