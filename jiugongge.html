@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI马年九宫格头像生成器 (原生多图版)</title>
+    <title>AI马年九宫格头像生成器 (最终稳定版)</title>
     <style>
         :root { --primary-red: #D93636; --gold: #F2C780; --bg-color: #FEF8F5; }
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: var(--bg-color); color: #333; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -56,7 +56,7 @@
 <body>
 
     <div class="container">
-        <h1>🧧 马年九宫格 (原生多图版)</h1>
+        <h1>🧧 马年九宫格 (最终稳定版)</h1>
         
         <div class="config-section">
             <div class="input-group active-group" style="opacity: 1;">
@@ -65,12 +65,12 @@
             </div>
             
             <div class="input-group" id="group-model-single">
-                <label>🧍 单人模型 ID (Model A):</label>
-                <input type="text" id="model-id-single" value="doubao-seedream-4-5-251128" placeholder="单人任务 Model ID">
+                <label>🧍 单人模型 ID (单图参考):</label>
+                <input type="text" id="model-id-single" value="doubao-seedream-4-5-251128" placeholder="单人图生图 Model ID">
             </div>
 
             <div class="input-group" id="group-model-couple">
-                <label>👫 双人模型 ID (Model B - 支持多参考图):</label>
+                <label>👫 双人模型 ID (双图参考):</label>
                 <input type="text" id="model-id-couple" value="doubao-seedream-4-5-251128" placeholder="双人任务 Model ID">
             </div>
         </div>
@@ -108,6 +108,7 @@
         <div class="result-area" id="result-area" style="display:none;">
             <h3>生成结果 (大图)：</h3>
             <img id="result-img" alt="生成结果">
+            
             <div class="slice-title">👇 自动拆分结果 (长按保存单张) 👇</div>
             <div id="slices-grid" class="slices-container"></div>
         </div>
