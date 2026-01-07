@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI马年33九宫格头像生成器</title>
+    <title>AI马年九宫格头像生成器</title>
     <style>
         :root { --primary-red: #D93636; --gold: #F2C780; --bg-color: #FEF8F5; }
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: var(--bg-color); color: #333; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -14,7 +14,6 @@
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
-        /* 样式：上传按钮/标签 */
         .upload-label { 
             display: block; 
             border: 2px dashed var(--primary-red); 
@@ -37,12 +36,11 @@
         .result-area { margin-top: 30px; text-align: center; }
         #result-img { width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
-        /* 新增：状态日志栏样式 */
         .status-bar {
             margin: 15px 0;
             padding: 10px;
-            background-color: #eef;
-            border-left: 4px solid #007bff;
+            background-color: #eee;
+            border-left: 4px solid #ccc;
             font-size: 14px;
             color: #333;
             word-break: break-all;
@@ -71,17 +69,19 @@
         </label>
         <input type="file" id="file-input" accept="image/*" style="display: none">
 
-        <div id="status-log" class="status-bar">等待操作...</div>
+        <div id="status-log" class="status-bar">等待加载 JS 文件...</div>
 
         <button id="btn-generate">✨ 生成新年九宫格 ✨</button>
 
         <div class="result-area" id="result-area" style="display:none;">
             <h3>生成结果：</h3>
             <img id="result-img" alt="生成结果">
-            <p style="font-size:12px; color:#666; margin-top:10px;">长按或右键保存图片</p>
         </div>
     </div>
 
-    <script src="api/9gongge.js"></script>
+    <script 
+        src="api/9gongge.js" 
+        onerror="alert('🔴 严重错误：找不到 JS 文件！\n\n请检查：\n1. 是否有名为 api 的文件夹？\n2. 文件名是否真的是 9gongge.js (小心 .txt 后缀)？'); document.getElementById('status-log').innerText='🔴 JS 文件加载失败，请检查路径。'; document.getElementById('status-log').style.color='red';">
+    </script>
 </body>
 </html>
