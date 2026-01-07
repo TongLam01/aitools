@@ -92,12 +92,17 @@ async function generateImage() {
     const modelId = document.getElementById('model-id').value.trim();
     const btn = document.getElementById('btn-generate');
     
+    // ★★★ 获取开关状态 ★★★
+    const isAutoSlice = document.getElementById('auto-slice').checked;
+
     if (!apiKey) { alert("请输入 API Key"); return; }
     if (!base64Data) { alert("请先上传图片"); return; }
 
     btn.disabled = true;
     btn.innerText = "⏳ 正在生成中...";
     document.getElementById('result-area').style.display = 'none';
+    
+    // 清空以前的切片，避免混淆
     const gridContainer = document.getElementById('slices-grid');
     if(gridContainer) gridContainer.innerHTML = ""; 
 
@@ -132,15 +137,21 @@ async function generateImage() {
         if (data.data && data.data.length > 0) {
             const resultUrl = data.data[0].url;
             
+            // 显示大图
             const resImg = document.getElementById('result-img');
             resImg.src = resultUrl;
             document.getElementById('result-area').style.display = 'block';
             
-            logStatus("🎉 生成成功！正在执行无损精修裁切...");
-
-            setTimeout(() => {
-                sliceImageToNine(resultUrl);
-            }, 500);
+            // ★★★ 核心修改：根据开关决定是否裁切 ★★★
+            if (isAutoSlice) {
+                logStatus("🎉 生成成功！正在执行自动裁切...");
+                setTimeout(() => {
+                    sliceImageToNine(resultUrl);
+                }, 500);
+            } else {
+                logStatus("🎉 生成成功！(自动裁切未开启)");
+                if(gridContainer) gridContainer.innerHTML = "<p style='color:#999; font-size:12px; padding:10px; text-align:center;'>自动裁切已关闭</p>";
+            }
 
         } else {
             throw new Error("API 返回空数据");
@@ -183,22 +194,15 @@ async function sliceImageToNine(imageUrl) {
             
             const w = tempImg.width;
             const h = tempImg.height;
-
-            // 基础格子大小
             const cellW = w / 3;
             const cellH = h / 3;
 
-            // ★★★ 核心修改：非对称裁切参数 ★★★
-            // 目标：顶部少切（保文字），底部多切（去白边）
-            
-            const CUT_TOP = 0.002;    // 顶部切掉 0.2% (几乎不切，防黑线即可)
-            const CUT_BOTTOM = 0.04;  // 底部切掉 4%   (大力切，去除底部白条)
-            const CUT_X = 0.02;       // 左右切掉 2%   (正常去边)
+            // 非对称裁切参数 (顶部保字，底部去边)
+            const CUT_TOP = 0.002;
+            const CUT_BOTTOM = 0.04;
+            const CUT_X = 0.02;
 
-            // 计算实际绘图区域的宽高
-            // 宽度 = 基础宽 * (1 - 左切 - 右切)
             const drawW = cellW * (1 - CUT_X * 2);
-            // 高度 = 基础高 * (1 - 顶切 - 底切)
             const drawH = cellH * (1 - CUT_TOP - CUT_BOTTOM);
 
             logStatus("✅ 图片已就绪，正在执行非对称裁切...");
@@ -210,17 +214,12 @@ async function sliceImageToNine(imageUrl) {
                     canvas.height = drawH;
                     const ctx = canvas.getContext('2d');
 
-                    // 1. 基础坐标
                     const gridX = col * cellW;
                     const gridY = row * cellH;
 
-                    // 2. 应用非对称偏移
-                    // X轴：往右移 2%
                     const sourceX = gridX + (cellW * CUT_X);
-                    // Y轴：往下移 0.2% (让出顶部空间，裁切框整体上移，从而切掉更多底部)
                     const sourceY = gridY + (cellH * CUT_TOP);
 
-                    // 3. 裁切
                     ctx.drawImage(tempImg, sourceX, sourceY, drawW, drawH, 0, 0, drawW, drawH);
 
                     const dataUrl = canvas.toDataURL("image/png");
