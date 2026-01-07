@@ -98,7 +98,8 @@ async function generateImage() {
     btn.disabled = true;
     btn.innerText = "⏳ 正在生成中...";
     document.getElementById('result-area').style.display = 'none';
-    document.getElementById('slices-grid').innerHTML = ""; 
+    const gridContainer = document.getElementById('slices-grid');
+    if(gridContainer) gridContainer.innerHTML = ""; 
 
     try {
         logStatus("🚀 正在请求生成，请稍候...");
@@ -136,9 +137,9 @@ async function generateImage() {
             resImg.src = resultUrl;
             document.getElementById('result-area').style.display = 'block';
             
-            logStatus("🎉 生成成功！正在准备裁切...");
+            logStatus("🎉 生成成功！正在执行智能裁切...");
 
-            // ★★★ 关键修改：延迟一点点再切，防止 DOM 没渲染完
+            // 延迟一点点，确保 UI 渲染完毕
             setTimeout(() => {
                 sliceImageToNine(resultUrl);
             }, 500);
@@ -157,35 +158,40 @@ async function generateImage() {
 }
 
 // ==========================================
-// 4. 九宫格自动裁切功能 (增强版)
+// 4. 九宫格自动裁切 (Blob流下载版)
 // ==========================================
-function sliceImageToNine(imageUrl) {
+async function sliceImageToNine(imageUrl) {
     const container = document.getElementById('slices-grid');
     if(!container) return;
     
-    container.innerHTML = "正在裁切中...";
+    container.innerHTML = "🔄 正在下载原图数据以进行无损裁切...";
     
-    const tempImg = new Image();
-    
-    // ★★★ 关键修改1：开启跨域许可 ★★★
-    tempImg.crossOrigin = "Anonymous"; 
-    
-    // ★★★ 关键修改2：加时间戳，强制浏览器不使用缓存，重新请求跨域头 ★★★
-    // 检查 url 里是否已经有 ? 了
-    const separator = imageUrl.includes('?') ? '&' : '?';
-    tempImg.src = imageUrl + separator + "t=" + new Date().getTime();
-
-    tempImg.onload = function() {
-        container.innerHTML = ""; // 清空文字
+    try {
+        // ★★★ 核心修复：使用 fetch 获取图片数据流 (Blob) ★★★
+        // 这一步不会破坏签名，并且能正确处理跨域
+        const response = await fetch(imageUrl);
         
-        const w = tempImg.width;
-        const h = tempImg.height;
-        const sliceW = Math.floor(w / 3);
-        const sliceH = Math.floor(h / 3);
+        if (!response.ok) {
+            throw new Error("图片下载失败，服务器拒绝访问");
+        }
 
-        logStatus("✅ 正在执行切片算法...");
+        const blob = await response.blob();
+        // 创建一个本地的临时 URL，这样浏览器就认为图片是“本地”的了，随便切！
+        const localUrl = URL.createObjectURL(blob);
+        
+        const tempImg = new Image();
+        tempImg.src = localUrl;
 
-        try {
+        tempImg.onload = function() {
+            container.innerHTML = ""; // 清空提示
+            
+            const w = tempImg.width;
+            const h = tempImg.height;
+            const sliceW = Math.floor(w / 3);
+            const sliceH = Math.floor(h / 3);
+
+            logStatus("✅ 图片数据已就绪，正在切片...");
+
             for (let row = 0; row < 3; row++) {
                 for (let col = 0; col < 3; col++) {
                     const canvas = document.createElement('canvas');
@@ -196,7 +202,7 @@ function sliceImageToNine(imageUrl) {
                     // 绘图
                     ctx.drawImage(tempImg, col * sliceW, row * sliceH, sliceW, sliceH, 0, 0, sliceW, sliceH);
 
-                    // 导出图片
+                    // 导出小图
                     const dataUrl = canvas.toDataURL("image/png");
                     
                     const imgElem = document.createElement('img');
@@ -204,7 +210,7 @@ function sliceImageToNine(imageUrl) {
                     imgElem.className = "slice-item";
                     imgElem.title = "点击下载这张图";
                     
-                    // 点击下载功能
+                    // 绑定下载事件
                     (function(r, c, url) {
                         imgElem.onclick = function() {
                             const link = document.createElement('a');
@@ -219,21 +225,25 @@ function sliceImageToNine(imageUrl) {
                     container.appendChild(imgElem);
                 }
             }
-            logStatus("🎉 全部完成！大图已生成，下方9张小图已切好 (点击小图可下载)");
-        } catch (e) {
-            console.error("切图报错:", e);
-            // 如果报错 SecurityError，说明火山引擎的图片链接不允许跨域
-            if (e.name === "SecurityError") {
-                container.innerHTML = "<p style='color:red; font-size:12px;'>⚠️ 无法自动裁切：API 返回的图片禁止跨域访问。</p>";
-                logStatus("⚠️ 生成成功，但自动裁切失败 (跨域限制)。请手动保存大图裁剪。", true);
-            } else {
-                logStatus("⚠️ 裁切出错: " + e.message, true);
-            }
-        }
-    };
+            // 释放内存
+            URL.revokeObjectURL(localUrl);
+            logStatus("🎉 完美！9张高清小图已生成，点击小图即可下载。");
+        };
 
-    tempImg.onerror = function() {
-        container.innerHTML = "图片加载失败";
-        logStatus("⚠️ 裁切失败：无法加载原始图片。", true);
-    };
+        tempImg.onerror = function() {
+            container.innerHTML = "裁切失败";
+            logStatus("⚠️ 裁切失败：本地 Blob 图片加载异常。", true);
+        };
+
+    } catch (e) {
+        console.error("切图错误:", e);
+        // 如果 fetch 报错，说明浏览器真的完全禁止了跨域访问
+        if (e.message.includes("Failed to fetch") || e.name === 'TypeError') {
+            container.innerHTML = "<p style='color:red; font-size:12px; padding:10px;'>⚠️ 无法自动裁切：火山引擎服务器未返回 CORS 许可头。</p>";
+            logStatus("⚠️ 大图生成成功，但自动裁切被浏览器拦截。请长按上方大图保存后手动裁切。", true);
+        } else {
+            container.innerHTML = "出错";
+            logStatus("⚠️ 裁切出错: " + e.message, true);
+        }
+    }
 }
