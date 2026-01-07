@@ -101,9 +101,9 @@ const PROMPTS = {
 // ==========================================
 // 2. 状态与初始化
 // ==========================================
-let currentMode = 'male'; // 默认模式: male, female, couple
-let base64Data1 = ""; // 第一张图 (男或女)
-let base64Data2 = ""; // 第二张图 (仅情侣模式用)
+let currentMode = 'male'; 
+let base64Data1 = ""; 
+let base64Data2 = ""; 
 
 function logStatus(message, isError = false) {
     const statusDiv = document.getElementById('status-log');
@@ -119,51 +119,56 @@ function logStatus(message, isError = false) {
 window.switchMode = function(mode) {
     currentMode = mode;
     
-    // 1. UI 样式切换
+    // UI 样式切换
     document.querySelectorAll('.mode-option').forEach(el => el.classList.remove('active'));
     document.getElementById(`mode-${mode}`).classList.add('active');
 
-    // 2. 上传框逻辑
     const text1 = document.getElementById('text-1');
     const box2 = document.getElementById('upload-box-2');
+    
+    // 高亮对应的模型输入框
+    const groupSingle = document.getElementById('group-model-single');
+    const groupCouple = document.getElementById('group-model-couple');
 
     if (mode === 'male') {
         text1.innerText = "📸 上传男生照片";
         box2.style.display = 'none';
+        groupSingle.classList.add('active-group');
+        groupCouple.classList.remove('active-group');
     } else if (mode === 'female') {
         text1.innerText = "📸 上传女生照片";
         box2.style.display = 'none';
+        groupSingle.classList.add('active-group');
+        groupCouple.classList.remove('active-group');
     } else if (mode === 'couple') {
-        text1.innerText = "📸 上传男生照片"; // 左边男
-        document.getElementById('text-2').innerText = "📸 上传女生照片"; // 右边女
-        box2.style.display = 'flex'; // 显示第二个框
+        text1.innerText = "📸 上传男生照片"; 
+        document.getElementById('text-2').innerText = "📸 上传女生照片"; 
+        box2.style.display = 'flex'; 
+        groupSingle.classList.remove('active-group');
+        groupCouple.classList.add('active-group');
     }
     
     logStatus(`🔄 已切换为：${document.getElementById(`mode-${mode}`).innerText}`);
 };
 
 window.onload = function() {
-    logStatus("✅ 系统就绪：请选择模式并上传照片。");
+    logStatus("✅ 系统就绪：请选择模式并配置模型 ID。");
     
-    // 绑定文件输入 1
     const fileInput1 = document.getElementById('file-input-1');
     if (fileInput1) {
         fileInput1.onchange = (e) => handleFileSelect(e, 1);
     }
 
-    // 绑定文件输入 2
     const fileInput2 = document.getElementById('file-input-2');
     if (fileInput2) {
         fileInput2.onchange = (e) => handleFileSelect(e, 2);
     }
 
-    // 绑定生成按钮
     const generateBtn = document.getElementById('btn-generate');
     if (generateBtn) {
         generateBtn.onclick = generateImage;
     }
     
-    // 初始化 UI
     switchMode('male');
 };
 
@@ -178,11 +183,9 @@ function handleFileSelect(event, index) {
     const reader = new FileReader();
     reader.onloadstart = function() { logStatus(`⏳ 正在读取图片 ${index}...`); };
     reader.onload = function(e) {
-        // 更新预览图
         const img = document.getElementById(`preview-${index}`);
         if (img) { img.src = e.target.result; img.style.display = 'inline-block'; }
         
-        // 存入对应变量
         if (index === 1) base64Data1 = e.target.result;
         if (index === 2) base64Data2 = e.target.result;
 
@@ -193,18 +196,14 @@ function handleFileSelect(event, index) {
 }
 
 // ==========================================
-// 4. 生成逻辑 (适配单图/双图)
+// 4. 生成逻辑 (双模型路由)
 // ==========================================
 async function generateImage() {
     const apiKey = document.getElementById('api-key').value.trim();
-    const modelId = document.getElementById('model-id').value.trim();
     const btn = document.getElementById('btn-generate');
     const isAutoSlice = document.getElementById('auto-slice').checked;
 
-    // 基础校验
     if (!apiKey) { alert("请输入 API Key"); return; }
-    
-    // 图片校验
     if (!base64Data1) { alert("请上传第一张图片"); return; }
     if (currentMode === 'couple' && !base64Data2) { alert("情侣模式请同时上传男女两张照片"); return; }
 
@@ -215,22 +214,30 @@ async function generateImage() {
     if(gridContainer) gridContainer.innerHTML = ""; 
 
     try {
-        logStatus(`🚀 正在请求生成 (${currentMode}模式)，请稍候...`);
+        logStatus(`🚀 正在请求生成 (${currentMode}模式)...`);
         const endpoint = "https://ark.cn-beijing.volces.com/api/v3/images/generations";
         
-        // ★★★ 核心修改：根据模式构造 image 字段 ★★★
+        // ★★★ 核心修改：模型 ID 选择与 Payload 构造 ★★★
+        let targetModelId;
         let imagePayload;
+
         if (currentMode === 'couple') {
-            // 双图模式：传数组
+            // 情侣模式：使用双人模型 ID + 数组图片
+            targetModelId = document.getElementById('model-id-couple').value.trim();
             imagePayload = [base64Data1, base64Data2];
         } else {
-            // 单图模式：传字符串
+            // 单人模式：使用单人模型 ID + 字符串图片
+            targetModelId = document.getElementById('model-id-single').value.trim();
             imagePayload = base64Data1;
         }
 
+        if (!targetModelId) {
+            throw new Error(`请在上方输入${currentMode === 'couple' ? '双人' : '单人'}模式的模型 ID`);
+        }
+
         const payload = {
-            model: modelId,
-            prompt: PROMPTS[currentMode], // 根据模式取 Prompt
+            model: targetModelId,         // 动态模型 ID
+            prompt: PROMPTS[currentMode], // 动态 Prompt
             image: imagePayload,          // 动态图片参数
             sequential_image_generation: "disabled",
             response_format: "url",
@@ -280,7 +287,7 @@ async function generateImage() {
 }
 
 // ==========================================
-// 5. 裁切功能 (保持不变，因为裁切的是结果图)
+// 5. 裁切功能 (保持不变)
 // ==========================================
 async function sliceImageToNine(imageUrl) {
     const container = document.getElementById('slices-grid');
@@ -306,7 +313,6 @@ async function sliceImageToNine(imageUrl) {
             const cellW = w / 3;
             const cellH = h / 3;
 
-            // 非对称裁切参数 (顶部保字，底部去边)
             const CUT_TOP = 0.002;
             const CUT_BOTTOM = 0.04;
             const CUT_X = 0.02;
