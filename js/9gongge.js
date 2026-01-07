@@ -34,7 +34,7 @@ const PROMPT_TEMPLATE = `一张3x3九宫格形式的男生新年祝福肖像摄�
 - 格9：九九同心 2026
 
 【核心限制】
-严禁改变人物身份，九宫格内必须是同一个人，脸型五官、服装材质与颜色、拍摄角度与距离必须保持高度一致。禁止使用复杂背景或节日道具，禁止女性化姿态，禁止夸张表情。禁止出现页头信息`;
+严禁改变人物身份，九宫格内必须是同一个人，脸型五官、服装材质与颜色、拍摄角度与距离必须保持高度一致。禁止出现页头信息。禁止使用复杂背景或节日道具，禁止女性化姿态，禁止夸张表情。`;
 
 // ==========================================
 // 2. 初始化逻辑
@@ -98,7 +98,6 @@ async function generateImage() {
     btn.disabled = true;
     btn.innerText = "⏳ 正在生成中...";
     document.getElementById('result-area').style.display = 'none';
-    // 清空旧的切片
     document.getElementById('slices-grid').innerHTML = ""; 
 
     try {
@@ -132,16 +131,17 @@ async function generateImage() {
         if (data.data && data.data.length > 0) {
             const resultUrl = data.data[0].url;
             
-            // 1. 显示大图
+            // 显示大图
             const resImg = document.getElementById('result-img');
             resImg.src = resultUrl;
             document.getElementById('result-area').style.display = 'block';
             
-            logStatus("🎉 生成成功！正在自动裁切为9张小图...");
+            logStatus("🎉 生成成功！正在准备裁切...");
 
-            // 2. ★★★ 调用裁切函数 ★★★
-            // 这里我们必须等图片在浏览器里“加载”一下，才能进行像素操作
-            sliceImageToNine(resultUrl);
+            // ★★★ 关键修改：延迟一点点再切，防止 DOM 没渲染完
+            setTimeout(() => {
+                sliceImageToNine(resultUrl);
+            }, 500);
 
         } else {
             throw new Error("API 返回空数据");
@@ -157,67 +157,83 @@ async function generateImage() {
 }
 
 // ==========================================
-// 4. ★★★ 新增：九宫格自动裁切功能 ★★★
+// 4. 九宫格自动裁切功能 (增强版)
 // ==========================================
 function sliceImageToNine(imageUrl) {
     const container = document.getElementById('slices-grid');
+    if(!container) return;
+    
+    container.innerHTML = "正在裁切中...";
+    
     const tempImg = new Image();
     
-    // 关键：开启跨域许可，否则 canvas 无法导出数据
-    // 如果图片服务器不支持跨域，这一步会失败。但在大多数AI生成场景下是支持的。
+    // ★★★ 关键修改1：开启跨域许可 ★★★
     tempImg.crossOrigin = "Anonymous"; 
-    tempImg.src = imageUrl;
+    
+    // ★★★ 关键修改2：加时间戳，强制浏览器不使用缓存，重新请求跨域头 ★★★
+    // 检查 url 里是否已经有 ? 了
+    const separator = imageUrl.includes('?') ? '&' : '?';
+    tempImg.src = imageUrl + separator + "t=" + new Date().getTime();
 
     tempImg.onload = function() {
+        container.innerHTML = ""; // 清空文字
+        
         const w = tempImg.width;
         const h = tempImg.height;
-        // 计算每个格子的宽和高 (三分之一)
         const sliceW = Math.floor(w / 3);
         const sliceH = Math.floor(h / 3);
 
-        for (let row = 0; row < 3; row++) {
-            for (let col = 0; col < 3; col++) {
-                // 创建画布
-                const canvas = document.createElement('canvas');
-                canvas.width = sliceW;
-                canvas.height = sliceH;
-                const ctx = canvas.getContext('2d');
+        logStatus("✅ 正在执行切片算法...");
 
-                // 从原图中“抠”出一块
-                // drawImage(source, sx, sy, sw, sh, dx, dy, dw, dh)
-                ctx.drawImage(
-                    tempImg, 
-                    col * sliceW, row * sliceH, sliceW, sliceH, // 源图坐标和宽高
-                    0, 0, sliceW, sliceH // 目标画布坐标和宽高
-                );
+        try {
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = sliceW;
+                    canvas.height = sliceH;
+                    const ctx = canvas.getContext('2d');
 
-                // 转为图片元素
-                try {
+                    // 绘图
+                    ctx.drawImage(tempImg, col * sliceW, row * sliceH, sliceW, sliceH, 0, 0, sliceW, sliceH);
+
+                    // 导出图片
                     const dataUrl = canvas.toDataURL("image/png");
+                    
                     const imgElem = document.createElement('img');
                     imgElem.src = dataUrl;
                     imgElem.className = "slice-item";
+                    imgElem.title = "点击下载这张图";
                     
-                    // 点击可以下载单张（可选体验优化）
-                    imgElem.onclick = function() {
-                        const link = document.createElement('a');
-                        link.href = dataUrl;
-                        link.download = `slice_${row}_${col}.png`;
-                        link.click();
-                    };
+                    // 点击下载功能
+                    (function(r, c, url) {
+                        imgElem.onclick = function() {
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = `马年头像_${r+1}_${c+1}.png`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        };
+                    })(row, col, dataUrl);
 
                     container.appendChild(imgElem);
-                } catch (e) {
-                    console.error("跨域裁切失败", e);
-                    logStatus("⚠️ 自动裁切失败：图片存在跨域限制，请直接保存大图手动裁剪。", true);
-                    return;
                 }
             }
+            logStatus("🎉 全部完成！大图已生成，下方9张小图已切好 (点击小图可下载)");
+        } catch (e) {
+            console.error("切图报错:", e);
+            // 如果报错 SecurityError，说明火山引擎的图片链接不允许跨域
+            if (e.name === "SecurityError") {
+                container.innerHTML = "<p style='color:red; font-size:12px;'>⚠️ 无法自动裁切：API 返回的图片禁止跨域访问。</p>";
+                logStatus("⚠️ 生成成功，但自动裁切失败 (跨域限制)。请手动保存大图裁剪。", true);
+            } else {
+                logStatus("⚠️ 裁切出错: " + e.message, true);
+            }
         }
-        logStatus("✅ 全部完成！大图和小图都已准备好。");
     };
 
     tempImg.onerror = function() {
-        logStatus("⚠️ 裁切功能加载图片失败。", true);
+        container.innerHTML = "图片加载失败";
+        logStatus("⚠️ 裁切失败：无法加载原始图片。", true);
     };
 }
