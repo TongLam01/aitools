@@ -1,10 +1,4 @@
 // ==========================================
-// 调试检查：如果你没看到这个弹窗，说明路径错了！
-// ==========================================
-// alert("JS文件加载成功！如果看到这句话，说明路径是对的。"); 
-// (确认成功后，你可以把上面这行代码删掉或者注释掉)
-
-// ==========================================
 // 1. Prompt 配置
 // ==========================================
 const PROMPT_TEMPLATE = `一张3x3九宫格形式的男生新年祝福肖像摄影，比例1:1。
@@ -43,48 +37,71 @@ const PROMPT_TEMPLATE = `一张3x3九宫格形式的男生新年祝福肖像摄�
 严禁改变人物身份，九宫格内必须是同一个人，脸型五官、服装材质与颜色、拍摄角度与距离必须保持高度一致。禁止使用复杂背景或节日道具，禁止女性化姿态，禁止夸张表情。`;
 
 // ==========================================
-// 2. 初始化与事件绑定
+// 2. 初始化与辅助函数
 // ==========================================
 
 let base64Data = "";
 
+// 辅助函数：更新屏幕上的状态文字
+function logStatus(message, isError = false) {
+    const statusDiv = document.getElementById('status-log');
+    if (statusDiv) {
+        statusDiv.innerText = message;
+        statusDiv.style.color = isError ? 'red' : '#333';
+        statusDiv.style.borderLeftColor = isError ? 'red' : '#007bff';
+    }
+    console.log(message);
+}
+
 // 页面加载完成后执行
 window.onload = function() {
-    console.log("9gongge.js 已成功加载！");
+    logStatus("系统就绪：JS文件加载成功，请上传图片。");
 
     const fileInput = document.getElementById('file-input');
     const generateBtn = document.getElementById('btn-generate');
 
-    // 我们不再需要绑定 click 事件，因为 HTML label 会自动触发 input
-    // 我们只需要监听“文件选好了没” (change)
+    // 监听文件变化
     if (fileInput) {
         fileInput.onchange = function(e) {
-            console.log("检测到文件变化");
+            logStatus("检测到文件选择，开始读取...");
             handleFileSelect(e);
         };
     } else {
-        console.error("严重错误：找不到 ID 为 file-input 的元素");
+        logStatus("严重错误：找不到文件输入框 ID", true);
     }
 
-    // 绑定生成按钮
+    // 监听按钮点击
     if (generateBtn) {
         generateBtn.onclick = generateImage;
+    } else {
+        logStatus("严重错误：找不到生成按钮 ID", true);
     }
 };
 
 // ==========================================
-// 3. 核心功能函数
+// 3. 核心功能
 // ==========================================
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file) {
+        logStatus("未选择文件", true);
+        return;
+    }
 
-    if (file.size > 4 * 1024 * 1024) {
-        alert("图片过大，建议上传 4MB 以内的图片");
+    // 检查文件大小 (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        logStatus("警告：图片过大 (" + (file.size/1024/1024).toFixed(2) + "MB)，建议使用小于 2MB 的图片，否则可能失败。", true);
     }
 
     const reader = new FileReader();
+    
+    // 读取开始
+    reader.onloadstart = function() {
+        logStatus("正在将图片转换为 Base64 格式...");
+    };
+
+    // 读取成功
     reader.onload = function(e) {
         const img = document.getElementById('preview-img');
         if (img) {
@@ -92,32 +109,44 @@ function handleFileSelect(event) {
             img.style.display = 'inline-block';
         }
         base64Data = e.target.result; 
+        logStatus("✅ 图片读取成功！现在请点击“生成新年九宫格”按钮。");
     };
+
+    // 读取出错
+    reader.onerror = function() {
+        logStatus("图片读取失败，请重试。", true);
+    };
+
     reader.readAsDataURL(file);
 }
 
 async function generateImage() {
+    // 1. 获取输入值
     const apiKey = document.getElementById('api-key').value.trim();
     const modelId = document.getElementById('model-id').value.trim();
-    const errorDiv = document.getElementById('error-msg');
     
-    errorDiv.style.display = 'none';
-    errorDiv.innerText = '';
+    // 2. 基础校验
+    if (!apiKey) {
+        logStatus("❌ 错误：请输入 API Key", true);
+        alert("请输入 API Key");
+        return;
+    }
+    if (!base64Data) {
+        logStatus("❌ 错误：图片数据为空，请重新上传图片", true);
+        alert("请先上传图片");
+        return;
+    }
 
-    if (!apiKey) { alert("请输入 API Key"); return; }
-    if (!base64Data) { alert("请先上传一张图片"); return; }
-
+    // 3. 更新 UI 状态
     const btn = document.getElementById('btn-generate');
-    const loading = document.getElementById('loading-text');
-    const resultArea = document.getElementById('result-area');
-    
     btn.disabled = true;
-    loading.style.display = 'block';
-    resultArea.style.display = 'none';
+    btn.innerText = "生成中...";
+    document.getElementById('result-area').style.display = 'none';
 
     try {
-        const endpoint = "https://ark.cn-beijing.volces.com/api/v3/images/generations";
+        logStatus("🚀 正在向火山引擎发送请求，请耐心等待 (约15-30秒)...");
 
+        const endpoint = "https://ark.cn-beijing.volces.com/api/v3/images/generations";
         const payload = {
             model: modelId,
             prompt: PROMPT_TEMPLATE,
@@ -129,6 +158,7 @@ async function generateImage() {
             watermark: true
         };
 
+        // 发起请求
         const response = await fetch(endpoint, {
             method: "POST",
             headers: {
@@ -140,27 +170,31 @@ async function generateImage() {
 
         const data = await response.json();
 
+        // 4. 处理响应
         if (!response.ok) {
-            throw new Error(data.error?.message || "请求失败，请检查 API Key 和 Model ID");
+            throw new Error("API 报错: " + (data.error?.message || JSON.stringify(data)));
         }
 
         if (data.data && data.data.length > 0) {
             const resultUrl = data.data[0].url;
             document.getElementById('result-img').src = resultUrl;
-            resultArea.style.display = 'block';
+            document.getElementById('result-area').style.display = 'block';
+            logStatus("🎉 生成成功！结果已显示在下方。");
         } else {
-            throw new Error("API 返回的数据格式不符合预期");
+            throw new Error("API 返回了空数据");
         }
 
     } catch (error) {
         console.error(error);
-        errorDiv.innerText = "错误: " + error.message;
-        errorDiv.style.display = 'block';
-        if(error.message.includes("Failed to fetch")) {
-            errorDiv.innerText += " (检测到跨域错误，请确认已开启 Allow CORS 插件)";
+        // 将错误信息显示在屏幕上
+        let errorMsg = error.message;
+        if(errorMsg.includes("Failed to fetch")) {
+            errorMsg += " (这通常是跨域问题，请检查浏览器插件 'Allow CORS' 是否已开启)";
         }
+        logStatus("❌ 生成失败: " + errorMsg, true);
     } finally {
+        // 恢复按钮状态
         btn.disabled = false;
-        loading.style.display = 'none';
+        btn.innerText = "✨ 生成新年九宫格 ✨";
     }
 }
