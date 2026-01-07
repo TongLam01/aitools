@@ -34,15 +34,13 @@ const PROMPT_TEMPLATE = `一张3x3九宫格形式的男生新年祝福肖像摄�
 - 格9：九九同心 2026
 
 【核心限制】
-严禁改变人物身份，九宫格内必须是同一个人，脸型五官、服装材质与颜色、拍摄角度与距离必须保持高度一致。禁止使用复杂背景或节日道具，禁止女性化姿态，禁止夸张表情。`;
+严禁改变人物身份，九宫格内必须是同一个人，脸型五官、服装材质与颜色、拍摄角度与距离必须保持高度一致。禁止使用复杂背景或节日道具，禁止女性化姿态，禁止夸张表情。禁止出现页头信息`;
 
 // ==========================================
-// 2. 初始化与辅助函数
+// 2. 初始化逻辑
 // ==========================================
-
 let base64Data = "";
 
-// 辅助函数：更新屏幕上的状态文字
 function logStatus(message, isError = false) {
     const statusDiv = document.getElementById('status-log');
     if (statusDiv) {
@@ -53,100 +51,60 @@ function logStatus(message, isError = false) {
     console.log(message);
 }
 
-// 页面加载完成后执行
 window.onload = function() {
-    logStatus("系统就绪：JS文件加载成功，请上传图片。");
-
+    logStatus("✅ 系统就绪：文件加载成功，请点击上传图片。");
     const fileInput = document.getElementById('file-input');
     const generateBtn = document.getElementById('btn-generate');
 
-    // 监听文件变化
     if (fileInput) {
         fileInput.onchange = function(e) {
-            logStatus("检测到文件选择，开始读取...");
+            logStatus("📷 检测到文件选择，开始读取...");
             handleFileSelect(e);
         };
-    } else {
-        logStatus("严重错误：找不到文件输入框 ID", true);
     }
-
-    // 监听按钮点击
     if (generateBtn) {
         generateBtn.onclick = generateImage;
-    } else {
-        logStatus("严重错误：找不到生成按钮 ID", true);
     }
 };
 
 // ==========================================
-// 3. 核心功能
+// 3. 核心功能函数
 // ==========================================
-
 function handleFileSelect(event) {
     const file = event.target.files[0];
-    if (!file) {
-        logStatus("未选择文件", true);
-        return;
-    }
-
-    // 检查文件大小 (2MB)
-    if (file.size > 2 * 1024 * 1024) {
-        logStatus("警告：图片过大 (" + (file.size/1024/1024).toFixed(2) + "MB)，建议使用小于 2MB 的图片，否则可能失败。", true);
-    }
+    if (!file) { logStatus("未选择文件", true); return; }
+    if (file.size > 4 * 1024 * 1024) { logStatus("⚠️ 图片过大，建议 < 4MB。", true); }
 
     const reader = new FileReader();
-    
-    // 读取开始
-    reader.onloadstart = function() {
-        logStatus("正在将图片转换为 Base64 格式...");
-    };
-
-    // 读取成功
+    reader.onloadstart = function() { logStatus("⏳ 正在读取图片并转换为 Base64..."); };
     reader.onload = function(e) {
         const img = document.getElementById('preview-img');
-        if (img) {
-            img.src = e.target.result;
-            img.style.display = 'inline-block';
-        }
+        if (img) { img.src = e.target.result; img.style.display = 'inline-block'; }
         base64Data = e.target.result; 
-        logStatus("✅ 图片读取成功！现在请点击“生成新年九宫格”按钮。");
+        logStatus("✅ 图片读取成功！请填写 API Key 并点击生成按钮。");
     };
-
-    // 读取出错
-    reader.onerror = function() {
-        logStatus("图片读取失败，请重试。", true);
-    };
-
+    reader.onerror = function() { logStatus("❌ 图片读取失败", true); };
     reader.readAsDataURL(file);
 }
 
 async function generateImage() {
-    // 1. 获取输入值
     const apiKey = document.getElementById('api-key').value.trim();
     const modelId = document.getElementById('model-id').value.trim();
-    
-    // 2. 基础校验
-    if (!apiKey) {
-        logStatus("❌ 错误：请输入 API Key", true);
-        alert("请输入 API Key");
-        return;
-    }
-    if (!base64Data) {
-        logStatus("❌ 错误：图片数据为空，请重新上传图片", true);
-        alert("请先上传图片");
-        return;
-    }
-
-    // 3. 更新 UI 状态
     const btn = document.getElementById('btn-generate');
+    
+    if (!apiKey) { alert("请输入 API Key"); return; }
+    if (!base64Data) { alert("请先上传图片"); return; }
+
     btn.disabled = true;
-    btn.innerText = "生成中...";
+    btn.innerText = "⏳ 正在生成中...";
     document.getElementById('result-area').style.display = 'none';
+    // 清空旧的切片
+    document.getElementById('slices-grid').innerHTML = ""; 
 
     try {
-        logStatus("🚀 正在向火山引擎发送请求，请耐心等待 (约15-30秒)...");
-
+        logStatus("🚀 正在请求生成，请稍候...");
         const endpoint = "https://ark.cn-beijing.volces.com/api/v3/images/generations";
+        
         const payload = {
             model: modelId,
             prompt: PROMPT_TEMPLATE,
@@ -158,7 +116,6 @@ async function generateImage() {
             watermark: true
         };
 
-        // 发起请求
         const response = await fetch(endpoint, {
             method: "POST",
             headers: {
@@ -170,31 +127,97 @@ async function generateImage() {
 
         const data = await response.json();
 
-        // 4. 处理响应
-        if (!response.ok) {
-            throw new Error("API 报错: " + (data.error?.message || JSON.stringify(data)));
-        }
+        if (!response.ok) { throw new Error(data.error?.message || "API请求失败"); }
 
         if (data.data && data.data.length > 0) {
             const resultUrl = data.data[0].url;
-            document.getElementById('result-img').src = resultUrl;
+            
+            // 1. 显示大图
+            const resImg = document.getElementById('result-img');
+            resImg.src = resultUrl;
             document.getElementById('result-area').style.display = 'block';
-            logStatus("🎉 生成成功！结果已显示在下方。");
+            
+            logStatus("🎉 生成成功！正在自动裁切为9张小图...");
+
+            // 2. ★★★ 调用裁切函数 ★★★
+            // 这里我们必须等图片在浏览器里“加载”一下，才能进行像素操作
+            sliceImageToNine(resultUrl);
+
         } else {
-            throw new Error("API 返回了空数据");
+            throw new Error("API 返回空数据");
         }
 
     } catch (error) {
         console.error(error);
-        // 将错误信息显示在屏幕上
-        let errorMsg = error.message;
-        if(errorMsg.includes("Failed to fetch")) {
-            errorMsg += " (这通常是跨域问题，请检查浏览器插件 'Allow CORS' 是否已开启)";
-        }
-        logStatus("❌ 生成失败: " + errorMsg, true);
+        logStatus("❌ 失败: " + error.message, true);
     } finally {
-        // 恢复按钮状态
         btn.disabled = false;
         btn.innerText = "✨ 生成新年九宫格 ✨";
     }
+}
+
+// ==========================================
+// 4. ★★★ 新增：九宫格自动裁切功能 ★★★
+// ==========================================
+function sliceImageToNine(imageUrl) {
+    const container = document.getElementById('slices-grid');
+    const tempImg = new Image();
+    
+    // 关键：开启跨域许可，否则 canvas 无法导出数据
+    // 如果图片服务器不支持跨域，这一步会失败。但在大多数AI生成场景下是支持的。
+    tempImg.crossOrigin = "Anonymous"; 
+    tempImg.src = imageUrl;
+
+    tempImg.onload = function() {
+        const w = tempImg.width;
+        const h = tempImg.height;
+        // 计算每个格子的宽和高 (三分之一)
+        const sliceW = Math.floor(w / 3);
+        const sliceH = Math.floor(h / 3);
+
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                // 创建画布
+                const canvas = document.createElement('canvas');
+                canvas.width = sliceW;
+                canvas.height = sliceH;
+                const ctx = canvas.getContext('2d');
+
+                // 从原图中“抠”出一块
+                // drawImage(source, sx, sy, sw, sh, dx, dy, dw, dh)
+                ctx.drawImage(
+                    tempImg, 
+                    col * sliceW, row * sliceH, sliceW, sliceH, // 源图坐标和宽高
+                    0, 0, sliceW, sliceH // 目标画布坐标和宽高
+                );
+
+                // 转为图片元素
+                try {
+                    const dataUrl = canvas.toDataURL("image/png");
+                    const imgElem = document.createElement('img');
+                    imgElem.src = dataUrl;
+                    imgElem.className = "slice-item";
+                    
+                    // 点击可以下载单张（可选体验优化）
+                    imgElem.onclick = function() {
+                        const link = document.createElement('a');
+                        link.href = dataUrl;
+                        link.download = `slice_${row}_${col}.png`;
+                        link.click();
+                    };
+
+                    container.appendChild(imgElem);
+                } catch (e) {
+                    console.error("跨域裁切失败", e);
+                    logStatus("⚠️ 自动裁切失败：图片存在跨域限制，请直接保存大图手动裁剪。", true);
+                    return;
+                }
+            }
+        }
+        logStatus("✅ 全部完成！大图和小图都已准备好。");
+    };
+
+    tempImg.onerror = function() {
+        logStatus("⚠️ 裁切功能加载图片失败。", true);
+    };
 }
