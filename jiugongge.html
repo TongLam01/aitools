@@ -14,19 +14,8 @@
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
-        .upload-label { 
-            display: block; 
-            border: 2px dashed var(--primary-red); 
-            border-radius: 10px; 
-            padding: 20px; 
-            text-align: center; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            margin-bottom: 20px; 
-            background: #fff0f0; 
-        }
+        .upload-label { display: block; border: 2px dashed var(--primary-red); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 20px; background: #fff0f0; }
         .upload-label:hover { background: #ffe0e0; }
-        
         #preview-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px; display: none; }
         
         button { width: 100%; background-color: var(--primary-red); color: var(--gold); border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.3s; }
@@ -36,22 +25,35 @@
         .result-area { margin-top: 30px; text-align: center; }
         #result-img { width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
-        .status-bar {
-            margin: 15px 0;
-            padding: 10px;
-            background-color: #eef;
-            border-left: 4px solid #007bff;
-            font-size: 14px;
-            color: #333;
-            word-break: break-all;
+        .status-bar { margin: 15px 0; padding: 10px; background-color: #eef; border-left: 4px solid #007bff; font-size: 14px; color: #333; word-break: break-all; }
+
+        /* ★★★ 新增：九宫格切片展示区的样式 ★★★ */
+        .slices-container {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3列 */
+            gap: 5px;
+            background: #eee;
+            padding: 5px;
+            border-radius: 8px;
         }
+        .slice-item {
+            width: 100%;
+            aspect-ratio: 1 / 1; /* 保持正方形 */
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .slice-item:hover { transform: scale(1.05); }
+        .slice-title { margin-top: 20px; font-weight: bold; color: #666; font-size: 14px;}
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>🧧 马年九宫格 (Ark API版)</h1>
-
+        
         <div class="config-section">
             <div class="input-group">
                 <label>API Key (Bearer Token):</label>
@@ -74,9 +76,11 @@
         <button id="btn-generate">✨ 生成新年九宫格 ✨</button>
 
         <div class="result-area" id="result-area" style="display:none;">
-            <h3>生成结果：</h3>
+            <h3>生成结果 (大图)：</h3>
             <img id="result-img" alt="生成结果">
-            <p style="font-size:12px; color:#666; margin-top:10px;">长按或右键保存图片</p>
+            
+            <div class="slice-title">👇 自动拆分结果 (长按保存单张) 👇</div>
+            <div id="slices-grid" class="slices-container"></div>
         </div>
     </div>
 
