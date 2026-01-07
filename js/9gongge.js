@@ -21,7 +21,7 @@ const PROMPT_TEMPLATE = `一张3x3九宫格形式的男生新年祝福肖像摄�
 9. 第九格：双手指向脸部，或克制的比心变体动作。
 
 【文字排版】
-每一格图片的顶部居中位置均有文字覆盖。使用传统中文新年书法字体，主文字颜色为中国红，年份颜色为深蓝色。文字结构为“四字祝福语  2026”。
+每一格图片的顶部居中位置均有文字覆盖。使用传统中文新年书法字体，主文字颜色为中国红，年份颜色为深蓝色。文字结构为“红色四字祝福语  2026”。
 具体对应内容为：
 - 格1：一帆风顺 2026
 - 格2：双喜临门 2026
@@ -34,7 +34,7 @@ const PROMPT_TEMPLATE = `一张3x3九宫格形式的男生新年祝福肖像摄�
 - 格9：九九同心 2026
 
 【核心限制】
-严禁改变人物身份，九宫格内必须是同一个人，脸型五官、服装材质与颜色、拍摄角度与距离必须保持高度一致。禁止出现页头信息。禁止使用复杂背景或节日道具，禁止女性化姿态，禁止夸张表情。`;
+严禁改变人物身份，九宫格内必须是同一个人，脸型五官、服装材质与颜色、拍摄角度与距离必须保持高度一致。禁止出现页头文本信息。禁止使用复杂背景或节日道具，禁止女性化姿态，禁止夸张表情。`;
 
 // ==========================================
 // 2. 初始化逻辑
@@ -158,7 +158,7 @@ async function generateImage() {
 }
 
 // ==========================================
-// 4. 九宫格自动裁切 (Vercel Proxy 版)
+// 4. 九宫格自动裁切 (智能去边框版)
 // ==========================================
 async function sliceImageToNine(imageUrl) {
     const container = document.getElementById('slices-grid');
@@ -167,14 +167,11 @@ async function sliceImageToNine(imageUrl) {
     container.innerHTML = "🔄 正在处理高清切片 (通过中转)...";
     
     try {
-        // ★★★ 核心修改：不再直接 fetch 原图，而是请求我们自己的 /api/proxy ★★★
-        // 这里的 encodeURIComponent 很重要，处理 URL 特殊字符
         const proxyUrl = `/api/proxy?url=${encodeURIComponent(imageUrl)}`;
-        
         const response = await fetch(proxyUrl);
         
         if (!response.ok) {
-            throw new Error(`中转失败: ${response.status} (请检查 api/proxy.js 是否部署成功)`);
+            throw new Error(`中转失败: ${response.status}`);
         }
 
         const blob = await response.blob();
@@ -188,10 +185,24 @@ async function sliceImageToNine(imageUrl) {
             
             const w = tempImg.width;
             const h = tempImg.height;
-            const sliceW = Math.floor(w / 3);
-            const sliceH = Math.floor(h / 3);
 
-            logStatus("✅ 图片已就绪，正在切割...");
+            // ★★★ 核心修改：智能去边框逻辑 ★★★
+            // 经验值：假设图片四周有约 3.5% 的白边需要切除
+            // 这个比例是根据你提供的截图估算出来的
+            const PADDING_RATIO = 0.035; 
+            const padX = Math.floor(w * PADDING_RATIO);
+            const padY = Math.floor(h * PADDING_RATIO);
+
+            // 计算有效内容区域（去掉四周白边后的区域）
+            const contentW = w - 2 * padX;
+            const contentH = h - 2 * padY;
+
+            // 基于有效区域计算每个小格子的大小
+            const sliceW = Math.floor(contentW / 3);
+            const sliceH = Math.floor(contentH / 3);
+            // ----------------------------------
+
+            logStatus("✅ 图片已就绪，正在智能切割...");
 
             for (let row = 0; row < 3; row++) {
                 for (let col = 0; col < 3; col++) {
@@ -200,7 +211,13 @@ async function sliceImageToNine(imageUrl) {
                     canvas.height = sliceH;
                     const ctx = canvas.getContext('2d');
 
-                    ctx.drawImage(tempImg, col * sliceW, row * sliceH, sliceW, sliceH, 0, 0, sliceW, sliceH);
+                    // ★★★ 修改：计算裁切的起始坐标 ★★★
+                    // 起点 = 左/上边框 + 格子索引 * 格子大小
+                    const sourceX = padX + col * sliceW;
+                    const sourceY = padY + row * sliceH;
+                    
+                    // 从源图的 (sourceX, sourceY) 开始裁切
+                    ctx.drawImage(tempImg, sourceX, sourceY, sliceW, sliceH, 0, 0, sliceW, sliceH);
 
                     const dataUrl = canvas.toDataURL("image/png");
                     
@@ -224,7 +241,7 @@ async function sliceImageToNine(imageUrl) {
                 }
             }
             URL.revokeObjectURL(localUrl);
-            logStatus("🎉 完美！9张小图已生成，点击小图即可下载。");
+            logStatus("🎉 完美！9张小图已智能裁切完毕，点击小图即可下载。");
         };
 
         tempImg.onerror = function() {
