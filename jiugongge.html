@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI马年九宫格头像生成器 (全能版)</title>
+    <title>AI马年九宫格头像生成器 (终极全能版)</title>
     <style>
         :root { --primary-red: #D93636; --gold: #F2C780; --bg-color: #FEF8F5; }
         body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: var(--bg-color); color: #333; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { max-width: 600px; width: 100%; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(217, 54, 54, 0.15); border: 2px solid var(--gold); }
         h1 { color: var(--primary-red); text-align: center; margin-bottom: 30px; font-weight: 800; }
         .config-section { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #ccc; }
-        .input-group { margin-bottom: 15px; transition: all 0.3s; opacity: 0.6; } /* 默认半透明 */
-        .input-group.active-group { opacity: 1; transform: scale(1.02); } /* 激活状态高亮 */
-        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #555; }
         
+        /* 输入框样式 */
+        .input-group { margin-bottom: 15px; transition: all 0.3s; opacity: 0.6; }
+        .input-group.active-group { opacity: 1; transform: scale(1.02); }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #555; }
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
         /* 模式选择器 */
@@ -33,18 +34,7 @@
         .upload-text { font-size: 14px; color: #d93636; font-weight: bold; }
         #upload-box-2 { display: none; } /* 默认隐藏第二个框 */
 
-        /* 按钮与结果区 */
-        button { width: 100%; background-color: var(--primary-red); color: var(--gold); border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.3s; }
-        button:hover { background-color: #b82525; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        
-        .status-bar { margin: 15px 0; padding: 10px; background-color: #eef; border-left: 4px solid #007bff; font-size: 14px; color: #333; word-break: break-all; }
-
-        .slices-container { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; background: #eee; padding: 5px; border-radius: 8px; }
-        .slice-item { width: 100%; aspect-ratio: 1 / 1; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s; }
-        .slice-item:hover { transform: scale(1.05); }
-        .slice-title { margin-top: 20px; font-weight: bold; color: #666; font-size: 14px;}
-
+        /* 开关样式 */
         .switch-wrapper { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
         .switch-label { font-size: 16px; font-weight: bold; margin-right: 10px; color: #555; }
         .toggle-checkbox { display: none; }
@@ -52,18 +42,31 @@
         .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background-color: white; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .toggle-checkbox:checked + .toggle-switch { background-color: var(--primary-red); }
         .toggle-checkbox:checked + .toggle-switch::after { transform: translateX(24px); }
+
+        /* 按钮与结果区 */
+        button { width: 100%; background-color: var(--primary-red); color: var(--gold); border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.3s; }
+        button:hover { background-color: #b82525; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
         
+        .status-bar { margin: 15px 0; padding: 10px; background-color: #eef; border-left: 4px solid #007bff; font-size: 14px; color: #333; word-break: break-all; }
         .result-area { margin-top: 30px; text-align: center; }
         #result-img { width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        /* 切片展示区 */
+        .slices-container { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; background: #eee; padding: 5px; border-radius: 8px; }
+        .slice-item { width: 100%; aspect-ratio: 1 / 1; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .slice-item:hover { transform: scale(1.05); }
+        .slice-title { margin-top: 20px; font-weight: bold; color: #666; font-size: 14px;}
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>🧧 马年九宫格 (双模型版)</h1>
+        <h1>🧧 马年九宫格 (全能版)</h1>
         
         <div class="config-section">
-            <div class="input-group active-group" style="opacity: 1;"> <label>API Key (Bearer Token):</label>
+            <div class="input-group active-group" style="opacity: 1;">
+                <label>API Key (Bearer Token):</label>
                 <input type="password" id="api-key" placeholder="输入你的 API Key">
             </div>
             
@@ -74,7 +77,7 @@
 
             <div class="input-group" id="group-model-couple">
                 <label>👫 双人模型 ID (情侣模式):</label>
-                <input type="text" id="model-id-couple" value="doubao-seedream-4-5-251128" placeholder="双人/多参考图 Model ID">
+                <input type="text" id="model-id-couple" value="doubao-seedream-4-5-251128" placeholder="双人/拼接图生图 Model ID">
             </div>
         </div>
 
