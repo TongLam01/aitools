@@ -10,16 +10,18 @@
         .container { max-width: 600px; width: 100%; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(217, 54, 54, 0.15); border: 2px solid var(--gold); }
         h1 { color: var(--primary-red); text-align: center; margin-bottom: 30px; font-weight: 800; }
         .config-section { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #ccc; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        .input-group { margin-bottom: 15px; transition: all 0.3s; opacity: 0.6; } /* 默认半透明 */
+        .input-group.active-group { opacity: 1; transform: scale(1.02); } /* 激活状态高亮 */
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #555; }
+        
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
-        /* 模式选择器样式 */
+        /* 模式选择器 */
         .mode-selector { display: flex; justify-content: space-between; margin-bottom: 20px; background: #eee; padding: 5px; border-radius: 10px; }
         .mode-option { flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 8px; font-weight: bold; color: #666; transition: all 0.3s; }
-        .mode-option.active { background: var(--primary-red); color: white; shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .mode-option.active { background: var(--primary-red); color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
-        /* 上传区域通用样式 */
+        /* 上传区域 */
         .upload-wrapper { display: flex; gap: 10px; margin-bottom: 20px; }
         .upload-label { 
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -29,9 +31,7 @@
         .upload-label:hover { background: #ffe0e0; }
         .preview-img { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 5px; display: none; }
         .upload-text { font-size: 14px; color: #d93636; font-weight: bold; }
-        
-        /* 隐藏第二个上传框的容器 */
-        #upload-box-2 { display: none; }
+        #upload-box-2 { display: none; } /* 默认隐藏第二个框 */
 
         /* 按钮与结果区 */
         button { width: 100%; background-color: var(--primary-red); color: var(--gold); border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.3s; }
@@ -60,16 +60,21 @@
 <body>
 
     <div class="container">
-        <h1>🧧 马年九宫格 (全能版)</h1>
+        <h1>🧧 马年九宫格 (双模型版)</h1>
         
         <div class="config-section">
-            <div class="input-group">
-                <label>API Key (Bearer Token):</label>
+            <div class="input-group active-group" style="opacity: 1;"> <label>API Key (Bearer Token):</label>
                 <input type="password" id="api-key" placeholder="输入你的 API Key">
             </div>
-            <div class="input-group">
-                <label>Model ID (模型名称):</label>
-                <input type="text" id="model-id" value="doubao-seedream-4-5-251128" placeholder="输入模型ID">
+            
+            <div class="input-group" id="group-model-single">
+                <label>🧍 单人模型 ID (男生/女生模式):</label>
+                <input type="text" id="model-id-single" value="doubao-seedream-4-5-251128" placeholder="单人图生图 Model ID">
+            </div>
+
+            <div class="input-group" id="group-model-couple">
+                <label>👫 双人模型 ID (情侣模式):</label>
+                <input type="text" id="model-id-couple" value="doubao-seedream-4-5-251128" placeholder="双人/多参考图 Model ID">
             </div>
         </div>
 
