@@ -1,4 +1,10 @@
 // ==========================================
+// 调试检查：如果你没看到这个弹窗，说明路径错了！
+// ==========================================
+// alert("JS文件加载成功！如果看到这句话，说明路径是对的。"); 
+// (确认成功后，你可以把上面这行代码删掉或者注释掉)
+
+// ==========================================
 // 1. Prompt 配置
 // ==========================================
 const PROMPT_TEMPLATE = `一张3x3九宫格形式的男生新年祝福肖像摄影，比例1:1。
@@ -42,27 +48,22 @@ const PROMPT_TEMPLATE = `一张3x3九宫格形式的男生新年祝福肖像摄�
 
 let base64Data = "";
 
-// 确保在 HTML 加载完毕后再执行
+// 页面加载完成后执行
 window.onload = function() {
-    console.log("9gongge.js 已成功加载！正在绑定事件...");
+    console.log("9gongge.js 已成功加载！");
 
-    const uploadZone = document.getElementById('my-upload-zone');
-    const fileInput = document.getElementById('my-file-input');
+    const fileInput = document.getElementById('file-input');
     const generateBtn = document.getElementById('btn-generate');
 
-    // 绑定上传点击
-    if (uploadZone && fileInput) {
-        uploadZone.onclick = function() {
-            console.log("点击了上传区域");
-            fileInput.click();
-        };
-
+    // 我们不再需要绑定 click 事件，因为 HTML label 会自动触发 input
+    // 我们只需要监听“文件选好了没” (change)
+    if (fileInput) {
         fileInput.onchange = function(e) {
             console.log("检测到文件变化");
             handleFileSelect(e);
         };
     } else {
-        console.error("严重错误：找不到 HTML 中的上传组件 ID (my-upload-zone 或 my-file-input)");
+        console.error("严重错误：找不到 ID 为 file-input 的元素");
     }
 
     // 绑定生成按钮
@@ -79,9 +80,8 @@ function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // 限制大小
-    if (file.size > 2 * 1024 * 1024) {
-        alert("图片过大，建议上传 2MB 以内的图片");
+    if (file.size > 4 * 1024 * 1024) {
+        alert("图片过大，建议上传 4MB 以内的图片");
     }
 
     const reader = new FileReader();
@@ -92,7 +92,6 @@ function handleFileSelect(event) {
             img.style.display = 'inline-block';
         }
         base64Data = e.target.result; 
-        console.log("图片读取完成，Base64已准备好");
     };
     reader.readAsDataURL(file);
 }
@@ -102,7 +101,6 @@ async function generateImage() {
     const modelId = document.getElementById('model-id').value.trim();
     const errorDiv = document.getElementById('error-msg');
     
-    // 重置错误提示
     errorDiv.style.display = 'none';
     errorDiv.innerText = '';
 
@@ -113,13 +111,11 @@ async function generateImage() {
     const loading = document.getElementById('loading-text');
     const resultArea = document.getElementById('result-area');
     
-    // UI 状态切换
     btn.disabled = true;
     loading.style.display = 'block';
     resultArea.style.display = 'none';
 
     try {
-        console.log("开始请求 API...");
         const endpoint = "https://ark.cn-beijing.volces.com/api/v3/images/generations";
 
         const payload = {
@@ -143,7 +139,6 @@ async function generateImage() {
         });
 
         const data = await response.json();
-        console.log("API 返回结果:", data);
 
         if (!response.ok) {
             throw new Error(data.error?.message || "请求失败，请检查 API Key 和 Model ID");
