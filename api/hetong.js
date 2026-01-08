@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
 【输出格式要求】
 必须严格遵守：
-## 1. 核心效力与合规诊断（表格）
+## 1. 核心效力与合规诊断（表格）；同时，一些金额、日期、甲乙方名称这种空出来的地方，通常是由于脱敏要求特意空出来的，无需对此提出效力质疑。
 ## 2. 穿透式实质风险报告（X-Ray Report 表格，揭露“名”与“实”）
 ## 3. 逐条细节清单与修订方案（表格，提供修订后的直接可用文本）
 ## 4. 缺失条款补充建议
@@ -92,4 +92,5 @@ export default async function handler(req, res) {
         res.write(`data: {"error": "${error.message}"}\n\n`);
         res.end();
     }
+
 }
