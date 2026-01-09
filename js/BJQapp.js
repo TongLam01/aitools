@@ -9,7 +9,7 @@ const App = {
         const b = localStorage.getItem('article_bg');
         if (b) {
             const f = Config.bgs.find(x => x.id === b);
-            if (f) this.bg = f;
+            if (f && f.id !== 'none') this.bg = f;
         }
         this.renderColors();
         this.renderBgs();
@@ -72,7 +72,11 @@ const App = {
     setBg(id) {
         const b = Config.bgs.find(x => x.id === id);
         this.bg = b.id === 'none' ? null : b;
-        localStorage.setItem('article_bg', this.bg ? this.bg.id : '');
+        if (this.bg) {
+            localStorage.setItem('article_bg', this.bg.id);
+        } else {
+            localStorage.removeItem('article_bg');
+        }
         this.renderBgs();
         this.updateBg();
     },
@@ -140,11 +144,11 @@ const App = {
     },
     
     _esc(s) {
-        return s.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     },
     
     _unesc(s) {
-        return s.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        return s.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
     },
     
     apply(type, keep = false) {
@@ -225,11 +229,13 @@ const App = {
         const list = document.querySelectorAll('#pv .bw');
         if (!list.length) return alert('没有可复制的内容');
         
+        // 收集所有内容
         let html = [...list].map(w => w.innerHTML).join('');
         
-        // 修复底色：使用简单的包裹方式，不用负边距
+        // 如果有底色，用简单的全宽容器包裹
         if (this.bg?.val) {
-            html = `<section style="background:${this.bg.val};padding:20px 10px;margin:0">${html}</section>`;
+            // 使用 section 包裹，不用负边距，让微信自己处理
+            html = `<section style="background:${this.bg.val};padding:20px 0;box-sizing:border-box">${html}</section>`;
         }
         
         try {
@@ -242,7 +248,18 @@ const App = {
             btn.style.background = '#22c55e';
             setTimeout(() => { btn.innerHTML = t; btn.style.background = ''; }, 1500);
         } catch (e) {
-            alert('复制失败：' + e.message);
+            // 降级方案
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = html;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                alert('已复制HTML代码，请粘贴到公众号编辑器');
+            } catch (e2) {
+                alert('复制失败：' + e.message);
+            }
         }
     }
 };
