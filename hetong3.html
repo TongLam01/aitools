@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V1.3</title>
+    <title>商事合同诊断助手 V1.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -160,6 +160,7 @@
             border-radius: 12px;
             cursor: pointer;
             transition: background 0.3s ease;
+            flex-shrink: 0;
         }
         .toggle-switch.active {
             background: #10b981;
@@ -238,16 +239,6 @@
                         <option value="deepseek-chat">DeepSeek-V3 (极速模式)</option>
                     </select>
                 </div>
-                
-                <div>
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">自动脱敏</label>
-                            <p class="text-xs text-gray-400 mt-0.5">上传文件时自动隐藏敏感信息</p>
-                        </div>
-                        <div id="autoDesensitizeToggle" class="toggle-switch active" onclick="toggleAutoDesensitize()"></div>
-                    </div>
-                </div>
             </div>
             
             <div class="mt-auto pt-6 border-t">
@@ -263,7 +254,7 @@
             <div>
                 <h1 class="text-xl lg:text-2xl font-bold text-gray-900">
                     合同诊断助手
-                    <span class="text-emerald-500 text-xs font-normal ml-1">v1.3</span>
+                    <span class="text-emerald-500 text-xs font-normal ml-1">v1.4</span>
                 </h1>
                 <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 智能脱敏</p>
             </div>
@@ -288,7 +279,13 @@
             <aside class="lg:col-span-2 space-y-4">
                 <!-- Upload Card -->
                 <div class="card p-5">
-                    <label class="block text-sm font-medium text-gray-700 mb-3">打开合同文档</label>
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="block text-sm font-medium text-gray-700">打开合同文档</label>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500">自动脱敏</span>
+                            <div id="autoDesensitizeToggle" class="toggle-switch active" onclick="toggleAutoDesensitize()"></div>
+                        </div>
+                    </div>
                     <div class="upload-zone rounded-xl p-6 text-center relative" id="uploadArea">
                         <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept=".docx,.pdf">
                         <div class="mb-2">
@@ -360,7 +357,7 @@
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                                     </svg>
-                                    账号: <span id="accountStats">0</span>
+                                    其他: <span id="otherStats">0</span>
                                 </span>
                                 <button onclick="showDesensitizeMap()" class="ml-auto text-xs text-emerald-700 hover:underline">
                                     查看映射表
@@ -429,19 +426,105 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         // ==================== 全局状态 ====================
-        let identityMap = new Map();      // 统一映射表 { 原文: 代号 }
-        let reverseMap = new Map();       // 反向映射 { 代号: 原文 }
+        let identityMap = new Map();      // 统一映射表 { 原文: {placeholder, type} }
         let counters = {
             company: 0,
             address: 0,
             person: 0,
-            account: 0,
-            phone: 0,
-            idcard: 0
+            other: 0
         };
         let originalFileName = "手动输入";
         let chatHistory = [];
         let autoDesensitizeEnabled = true;
+
+        // ==================== 地名数据库 ====================
+        
+        // 省级行政区
+        const provinces = [
+            '北京市', '天津市', '上海市', '重庆市',
+            '河北省', '山西省', '辽宁省', '吉林省', '黑龙江省',
+            '江苏省', '浙江省', '安徽省', '福建省', '江西省', '山东省',
+            '河南省', '湖北省', '湖南省', '广东省', '海南省',
+            '四川省', '贵州省', '云南省', '陕西省', '甘肃省', '青海省', '台湾省',
+            '内蒙古自治区', '广西壮族自治区', '西藏自治区', '宁夏回族自治区', '新疆维吾尔自治区',
+            '香港特别行政区', '澳门特别行政区',
+            // 简称
+            '北京', '天津', '上海', '重庆', '河北', '山西', '辽宁', '吉林', '黑龙江',
+            '江苏', '浙江', '安徽', '福建', '江西', '山东', '河南', '湖北', '湖南',
+            '广东', '海南', '四川', '贵州', '云南', '陕西', '甘肃', '青海', '台湾',
+            '内蒙古', '广西', '西藏', '宁夏', '新疆', '香港', '澳门'
+        ];
+        
+        // 主要城市（地级市）
+        const cities = [
+            // 直辖市的区
+            '东城区', '西城区', '朝阳区', '丰台区', '石景山区', '海淀区', '门头沟区', '房山区', '通州区', '顺义区', '昌平区', '大兴区', '怀柔区', '平谷区', '密云区', '延庆区',
+            '和平区', '河东区', '河西区', '南开区', '河北区', '红桥区', '东丽区', '西青区', '津南区', '北辰区', '武清区', '宝坻区', '滨海新区', '宁河区', '静海区', '蓟州区',
+            '黄浦区', '徐汇区', '长宁区', '静安区', '普陀区', '虹口区', '杨浦区', '闵行区', '宝山区', '嘉定区', '浦东新区', '金山区', '松江区', '青浦区', '奉贤区', '崇明区',
+            '万州区', '涪陵区', '渝中区', '大渡口区', '江北区', '沙坪坝区', '九龙坡区', '南岸区', '北碚区', '綦江区', '大足区', '渝北区', '巴南区', '黔江区', '长寿区', '江津区', '合川区', '永川区', '南川区', '璧山区', '铜梁区', '潼南区', '荣昌区', '开州区', '梁平区', '武隆区',
+            // 省会及主要城市
+            '石家庄市', '唐山市', '秦皇岛市', '邯郸市', '邢台市', '保定市', '张家口市', '承德市', '沧州市', '廊坊市', '衡水市',
+            '太原市', '大同市', '阳泉市', '长治市', '晋城市', '朔州市', '晋中市', '运城市', '忻州市', '临汾市', '吕梁市',
+            '沈阳市', '大连市', '鞍山市', '抚顺市', '本溪市', '丹东市', '锦州市', '营口市', '阜新市', '辽阳市', '盘锦市', '铁岭市', '朝阳市', '葫芦岛市',
+            '长春市', '吉林市', '四平市', '辽源市', '通化市', '白山市', '松原市', '白城市',
+            '哈尔滨市', '齐齐哈尔市', '鸡西市', '鹤岗市', '双鸭山市', '大庆市', '伊春市', '佳木斯市', '七台河市', '牡丹江市', '黑河市', '绑化市',
+            '南京市', '无锡市', '徐州市', '常州市', '苏州市', '南通市', '连云港市', '淮安市', '盐城市', '扬州市', '镇江市', '泰州市', '宿迁市',
+            '杭州市', '宁波市', '温州市', '嘉兴市', '湖州市', '绑兴市', '金华市', '衢州市', '舟山市', '台州市', '丽水市',
+            '合肥市', '芜湖市', '蚌埠市', '淮南市', '马鞍山市', '淮北市', '铜陵市', '安庆市', '黄山市', '滁州市', '阜阳市', '宿州市', '六安市', '亳州市', '池州市', '宣城市',
+            '福州市', '厦门市', '莆田市', '三明市', '泉州市', '漳州市', '南平市', '龙岩市', '宁德市',
+            '南昌市', '景德镇市', '萍乡市', '九江市', '新余市', '鹰潭市', '赣州市', '吉安市', '宜春市', '抚州市', '上饶市',
+            '济南市', '青岛市', '淄博市', '枣庄市', '东营市', '烟台市', '潍坊市', '济宁市', '泰安市', '威海市', '日照市', '临沂市', '德州市', '聊城市', '滨州市', '菏泽市',
+            '郑州市', '开封市', '洛阳市', '平顶山市', '安阳市', '鹤壁市', '新乡市', '焦作市', '濮阳市', '许昌市', '漯河市', '三门峡市', '南阳市', '商丘市', '信阳市', '周口市', '驻马店市',
+            '武汉市', '黄石市', '十堰市', '宜昌市', '襄阳市', '鄂州市', '荆门市', '孝感市', '荆州市', '黄冈市', '咸宁市', '随州市',
+            '长沙市', '株洲市', '湘潭市', '衡阳市', '邵阳市', '岳阳市', '常德市', '张家界市', '益阳市', '郴州市', '永州市', '怀化市', '娄底市',
+            '广州市', '韶关市', '深圳市', '珠海市', '汕头市', '佛山市', '江门市', '湛江市', '茂名市', '肇庆市', '惠州市', '梅州市', '汕尾市', '河源市', '阳江市', '清远市', '东莞市', '中山市', '潮州市', '揭阳市', '云浮市',
+            '海口市', '三亚市', '三沙市', '儋州市',
+            '成都市', '自贡市', '攀枝花市', '泸州市', '德阳市', '绑阳市', '广元市', '遂宁市', '内江市', '乐山市', '南充市', '眉山市', '宜宾市', '广安市', '达州市', '雅安市', '巴中市', '资阳市',
+            '贵阳市', '六盘水市', '遵义市', '安顺市', '毕节市', '铜仁市',
+            '昆明市', '曲靖市', '玉溪市', '保山市', '昭通市', '丽江市', '普洱市', '临沧市',
+            '西安市', '铜川市', '宝鸡市', '咸阳市', '渭南市', '延安市', '汉中市', '榆林市', '安康市', '商洛市',
+            '兰州市', '嘉峪关市', '金昌市', '白银市', '天水市', '武威市', '张掖市', '平凉市', '酒泉市', '庆阳市', '定西市', '陇南市',
+            '西宁市', '海东市',
+            '银川市', '石嘴山市', '吴忠市', '固原市', '中卫市',
+            '乌鲁木齐市', '克拉玛依市', '吐鲁番市', '哈密市',
+            '拉萨市', '日喀则市', '昌都市', '林芝市', '山南市', '那曲市',
+            '南宁市', '柳州市', '桂林市', '梧州市', '北海市', '防城港市', '钦州市', '贵港市', '玉林市', '百色市', '贺州市', '河池市', '来宾市', '崇左市',
+            '呼和浩特市', '包头市', '乌海市', '赤峰市', '通辽市', '鄂尔多斯市', '呼伦贝尔市', '巴彦淖尔市', '乌兰察布市',
+            // 不带"市"的版本
+            '石家庄', '唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德', '沧州', '廊坊', '衡水',
+            '太原', '大同', '阳泉', '长治', '晋城', '朔州', '晋中', '运城', '忻州', '临汾', '吕梁',
+            '沈阳', '大连', '鞍山', '抚顺', '本溪', '丹东', '锦州', '营口', '阜新', '辽阳', '盘锦', '铁岭', '葫芦岛',
+            '长春', '吉林', '四平', '辽源', '通化', '白山', '松原', '白城',
+            '哈尔滨', '齐齐哈尔', '鸡西', '鹤岗', '双鸭山', '大庆', '伊春', '佳木斯', '七台河', '牡丹江', '黑河', '绑化',
+            '南京', '无锡', '徐州', '常州', '苏州', '南通', '连云港', '淮安', '盐城', '扬州', '镇江', '泰州', '宿迁',
+            '杭州', '宁波', '温州', '嘉兴', '湖州', '绑兴', '金华', '衢州', '舟山', '台州', '丽水',
+            '合肥', '芜湖', '蚌埠', '淮南', '马鞍山', '淮北', '铜陵', '安庆', '黄山', '滁州', '阜阳', '宿州', '六安', '亳州', '池州', '宣城',
+            '福州', '厦门', '莆田', '三明', '泉州', '漳州', '南平', '龙岩', '宁德',
+            '南昌', '景德镇', '萍乡', '九江', '新余', '鹰潭', '赣州', '吉安', '宜春', '抚州', '上饶',
+            '济南', '青岛', '淄博', '枣庄', '东营', '烟台', '潍坊', '济宁', '泰安', '威海', '日照', '临沂', '德州', '聊城', '滨州', '菏泽',
+            '郑州', '开封', '洛阳', '平顶山', '安阳', '鹤壁', '新乡', '焦作', '濮阳', '许昌', '漯河', '三门峡', '南阳', '商丘', '信阳', '周口', '驻马店',
+            '武汉', '黄石', '十堰', '宜昌', '襄阳', '鄂州', '荆门', '孝感', '荆州', '黄冈', '咸宁', '随州',
+            '长沙', '株洲', '湘潭', '衡阳', '邵阳', '岳阳', '常德', '张家界', '益阳', '郴州', '永州', '怀化', '娄底',
+            '广州', '韶关', '深圳', '珠海', '汕头', '佛山', '江门', '湛江', '茂名', '肇庆', '惠州', '梅州', '汕尾', '河源', '阳江', '清远', '东莞', '中山', '潮州', '揭阳', '云浮',
+            '海口', '三亚', '三沙', '儋州',
+            '成都', '自贡', '攀枝花', '泸州', '德阳', '绑阳', '广元', '遂宁', '内江', '乐山', '南充', '眉山', '宜宾', '广安', '达州', '雅安', '巴中', '资阳',
+            '贵阳', '六盘水', '遵义', '安顺', '毕节', '铜仁',
+            '昆明', '曲靖', '玉溪', '保山', '昭通', '丽江', '普洱', '临沧',
+            '西安', '铜川', '宝鸡', '咸阳', '渭南', '延安', '汉中', '榆林', '安康', '商洛',
+            '兰州', '嘉峪关', '金昌', '白银', '天水', '武威', '张掖', '平凉', '酒泉', '庆阳', '定西', '陇南',
+            '西宁', '海东',
+            '银川', '石嘴山', '吴忠', '固原', '中卫',
+            '乌鲁木齐', '克拉玛依', '吐鲁番', '哈密',
+            '拉萨', '日喀则', '昌都', '林芝', '山南', '那曲',
+            '南宁', '柳州', '桂林', '梧州', '北海', '防城港', '钦州', '贵港', '玉林', '百色', '贺州', '河池', '来宾', '崇左',
+            '呼和浩特', '包头', '乌海', '赤峰', '通辽', '鄂尔多斯', '呼伦贝尔', '巴彦淖尔', '乌兰察布'
+        ];
+        
+        // 常见区县后缀
+        const districtSuffixes = ['区', '县', '市', '旗', '盟'];
+        
+        // 常见姓氏
+        const commonSurnames = '王李张刘陈杨赵黄周吴徐孙胡朱高林何郭马罗梁宋郑谢韩唐冯于董萧程曹袁邓许傅沈曾彭吕苏卢蒋蔡贾丁魏薛叶阎余潘杜戴夏钟汪田任姜范方石姚谭廖邹熊金陆郝孔白崔康毛邱秦江史顾侯邵孟龙万段钱汤尹黎易常武乔贺赖龚文';
 
         // ==================== 设置面板 ====================
         function toggleSettings() {
@@ -464,237 +547,210 @@
             const savedAutoDesensitize = localStorage.getItem('auto_desensitize');
             if (savedAutoDesensitize !== null) {
                 autoDesensitizeEnabled = savedAutoDesensitize === 'true';
-                document.getElementById('autoDesensitizeToggle').classList.toggle('active', autoDesensitizeEnabled);
             }
+            // 默认开启
+            document.getElementById('autoDesensitizeToggle').classList.toggle('active', autoDesensitizeEnabled);
         });
 
-        // ==================== 增强版脱敏算法 ====================
+        // ==================== 精准脱敏算法 ====================
         
-        // 中国省份、直辖市、自治区
-        const provinces = ['北京', '天津', '上海', '重庆', '河北', '山西', '辽宁', '吉林', '黑龙江', 
-            '江苏', '浙江', '安徽', '福建', '江西', '山东', '河南', '湖北', '湖南', '广东', '海南', 
-            '四川', '贵州', '云南', '陕西', '甘肃', '青海', '台湾', '内蒙古', '广西', '西藏', 
-            '宁夏', '新疆', '香港', '澳门'];
-        
-        // 主要城市
-        const majorCities = ['石家庄', '唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德', 
-            '沧州', '廊坊', '衡水', '太原', '大同', '阳泉', '长治', '晋城', '朔州', '晋中', '运城', 
-            '忻州', '临汾', '吕梁', '沈阳', '大连', '鞍山', '抚顺', '本溪', '丹东', '锦州', '营口', 
-            '阜新', '辽阳', '盘锦', '铁岭', '朝阳', '葫芦岛', '长春', '吉林', '四平', '辽源', '通化', 
-            '白山', '松原', '白城', '哈尔滨', '齐齐哈尔', '鸡西', '鹤岗', '双鸭山', '大庆', '伊春', 
-            '佳木斯', '七台河', '牡丹江', '黑河', '绥化', '南京', '无锡', '徐州', '常州', '苏州', 
-            '南通', '连云港', '淮安', '盐城', '扬州', '镇江', '泰州', '宿迁', '杭州', '宁波', '温州', 
-            '嘉兴', '湖州', '绍兴', '金华', '衢州', '舟山', '台州', '丽水', '合肥', '芜湖', '蚌埠', 
-            '淮南', '马鞍山', '淮北', '铜陵', '安庆', '黄山', '滁州', '阜阳', '宿州', '六安', '亳州', 
-            '池州', '宣城', '福州', '厦门', '莆田', '三明', '泉州', '漳州', '南平', '龙岩', '宁德', 
-            '南昌', '景德镇', '萍乡', '九江', '新余', '鹰潭', '赣州', '吉安', '宜春', '抚州', '上饶', 
-            '济南', '青岛', '淄博', '枣庄', '东营', '烟台', '潍坊', '济宁', '泰安', '威海', '日照', 
-            '临沂', '德州', '聊城', '滨州', '菏泽', '郑州', '开封', '洛阳', '平顶山', '安阳', '鹤壁', 
-            '新乡', '焦作', '濮阳', '许昌', '漯河', '三门峡', '南阳', '商丘', '信阳', '周口', '驻马店', 
-            '武汉', '黄石', '十堰', '宜昌', '襄阳', '鄂州', '荆门', '孝感', '荆州', '黄冈', '咸宁', 
-            '随州', '长沙', '株洲', '湘潭', '衡阳', '邵阳', '岳阳', '常德', '张家界', '益阳', '郴州', 
-            '永州', '怀化', '娄底', '广州', '韶关', '深圳', '珠海', '汕头', '佛山', '江门', '湛江', 
-            '茂名', '肇庆', '惠州', '梅州', '汕尾', '河源', '阳江', '清远', '东莞', '中山', '潮州', 
-            '揭阳', '云浮', '海口', '三亚', '三沙', '儋州', '成都', '自贡', '攀枝花', '泸州', '德阳', 
-            '绵阳', '广元', '遂宁', '内江', '乐山', '南充', '眉山', '宜宾', '广安', '达州', '雅安', 
-            '巴中', '资阳', '贵阳', '六盘水', '遵义', '安顺', '毕节', '铜仁', '昆明', '曲靖', '玉溪', 
-            '保山', '昭通', '丽江', '普洱', '临沧', '西安', '铜川', '宝鸡', '咸阳', '渭南', '延安', 
-            '汉中', '榆林', '安康', '商洛', '兰州', '嘉峪关', '金昌', '白银', '天水', '武威', '张掖', 
-            '平凉', '酒泉', '庆阳', '定西', '陇南', '西宁', '海东', '银川', '石嘴山', '吴忠', '固原', 
-            '中卫', '乌鲁木齐', '克拉玛依', '吐鲁番', '哈密', '拉萨', '日喀则', '昌都', '林芝', '山南', 
-            '那曲', '南宁', '柳州', '桂林', '梧州', '北海', '防城港', '钦州', '贵港', '玉林', '百色', 
-            '贺州', '河池', '来宾', '崇左', '呼和浩特', '包头', '乌海', '赤峰', '通辽', '鄂尔多斯', 
-            '呼伦贝尔', '巴彦淖尔', '乌兰察布'];
-
-        // 常见姓氏（用于人名识别）
-        const commonSurnames = ['王', '李', '张', '刘', '陈', '杨', '赵', '黄', '周', '吴', '徐', '孙', 
-            '胡', '朱', '高', '林', '何', '郭', '马', '罗', '梁', '宋', '郑', '谢', '韩', '唐', '冯', 
-            '于', '董', '萧', '程', '曹', '袁', '邓', '许', '傅', '沈', '曾', '彭', '吕', '苏', '卢', 
-            '蒋', '蔡', '贾', '丁', '魏', '薛', '叶', '阎', '余', '潘', '杜', '戴', '夏', '钟', '汪', 
-            '田', '任', '姜', '范', '方', '石', '姚', '谭', '廖', '邹', '熊', '金', '陆', '郝', '孔', 
-            '白', '崔', '康', '毛', '邱', '秦', '江', '史', '顾', '侯', '邵', '孟', '龙', '万', '段', 
-            '漕', '钱', '汤', '尹', '黎', '易', '常', '武', '乔', '贺', '赖', '龚', '文'];
-
         /**
-         * 核心脱敏函数 - 增强版
-         * 确保同一实体始终映射到同一代号
+         * 核心脱敏函数 - 完全重写版
+         * 采用精确匹配策略，避免误判
          */
         function secureDeIdentify(text) {
             if (!text) return "";
+            
             let result = text;
+            let matches = [];
             
-            // 重置计数器（首次调用时）
-            // 注意：不重置 identityMap，保证全局一致性
+            // ========== 1. 精确匹配公司名称 ==========
+            // 必须以"公司"、"集团"、"研究所"等结尾
+            const companyPattern = /([\u4e00-\u9fa5（()）\w]{2,30})(有限公司|股份有限公司|有限责任公司|集团有限公司|集团股份有限公司|集团公司|集团|总公司|分公司|子公司|研究所|研究院|事务所|律师事务所|会计师事务所|设计院|医院|学院|大学|中学|小学|幼儿园|银行|保险公司|证券公司|基金公司)/g;
             
-            // ========== 1. 公司/机构名称 ==========
-            const companyPatterns = [
-                // 标准公司名称
-                /[\u4e00-\u9fa5]{2,20}(?:股份|集团)?(?:有限公司|有限责任公司|股份公司)/g,
-                // 集团/研究所/事务所等
-                /[\u4e00-\u9fa5]{2,15}(?:集团|研究所|研究院|事务所|分公司|子公司|办事处|代表处)/g,
-                // XX科技/XX网络/XX信息等
-                /[\u4e00-\u9fa5]{2,10}(?:科技|网络|信息|电子|软件|数据|智能|云计算|互联网|通信|传媒|文化|教育|医疗|生物|制药|化工|机械|电气|建设|建筑|工程|贸易|商贸|实业|投资|资本|金融|证券|保险|银行|基金|资产|地产|房产|物业|酒店|餐饮|食品|服装|纺织|家居|家电|汽车|物流|运输|航空|能源|矿业|农业|环保)(?:有限公司|有限责任公司|股份有限公司|集团)?/g,
-                // 带地名的公司
-                new RegExp(`(?:${[...provinces, ...majorCities].join('|')})[\\u4e00-\\u9fa5]{2,15}(?:有限公司|有限责任公司|股份公司|集团)`, 'g'),
-            ];
-            
-            // ========== 2. 地址 ==========
-            const addressPatterns = [
-                // 完整地址（省市区街道门牌号）
-                /[\u4e00-\u9fa5]{2,}(?:省|自治区)[\u4e00-\u9fa5]{2,}(?:市|自治州|地区|盟)[\u4e00-\u9fa5]{2,}(?:区|县|市|旗)[\u4e00-\u9fa5\d\-A-Za-z]*(?:路|街|道|巷|弄|里|村|镇|乡)[\u4e00-\u9fa5\d\-A-Za-z]*(?:号|幢|栋|单元|层|室|房)?/g,
-                // 市区街道门牌号
-                /[\u4e00-\u9fa5]{2,}(?:市)[\u4e00-\u9fa5]{2,}(?:区|县)[\u4e00-\u9fa5\d\-A-Za-z]*(?:路|街|道|巷|弄)[\u4e00-\u9fa5\d\-A-Za-z]*(?:号|幢|栋|单元|层|室|房)?/g,
-                // 区街道门牌号
-                /[\u4e00-\u9fa5]{2,}(?:区|县)[\u4e00-\u9fa5\d\-A-Za-z]*(?:路|街|道|巷|弄|大道|大街)[\u4e00-\u9fa5\d\-A-Za-z]*(?:号|幢|栋|单元|层|室|房)?/g,
-                // 路/街+门牌号
-                /[\u4e00-\u9fa5]{2,10}(?:路|街|道|大道|大街|巷|弄)[\d\-A-Za-z]*(?:号|幢|栋)?(?:[\d\-]*(?:单元|层|楼|室|房))?/g,
-            ];
-            
-            // ========== 3. 单独的行政区划名称 ==========
-            const regionPatterns = [
-                // 省份+市
-                new RegExp(`(${provinces.join('|')})(?:省|市|自治区)?`, 'g'),
-                // 主要城市
-                new RegExp(`(${majorCities.join('|')})(?:市)?`, 'g'),
-            ];
-            
-            // ========== 4. 人名（在特定上下文中）==========
-            const personContextPatterns = [
-                // 法定代表人/负责人/联系人等 + 姓名
-                new RegExp(`(?:法定代表人|负责人|联系人|经办人|代理人|授权代表|签字人|委托人|受托人|甲方代表|乙方代表|丙方代表)[：:]*\\s*([${commonSurnames.join('')}][\\u4e00-\\u9fa5]{1,3})`, 'g'),
-                // 签章/签字/盖章后的姓名
-                new RegExp(`(?:签章|签字|盖章|签名)[：:]*\\s*([${commonSurnames.join('')}][\\u4e00-\\u9fa5]{1,3})`, 'g'),
-                // 姓名：XXX 格式
-                new RegExp(`(?:姓名|名称)[：:]\\s*([${commonSurnames.join('')}][\\u4e00-\\u9fa5]{1,3})(?![\\u4e00-\\u9fa5])`, 'g'),
-            ];
-            
-            // ========== 5. 银行账号 ==========
-            const bankAccountPattern = /[1-9]\d{11,18}/g;
-            
-            // ========== 6. 电话号码 ==========
-            const phonePatterns = [
-                /1[3-9]\d{9}/g,  // 手机号
-                /(?:0\d{2,3}[-\s]?)?\d{7,8}/g,  // 座机
-            ];
-            
-            // ========== 7. 身份证号 ==========
-            const idCardPattern = /[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]/g;
-            
-            // ========== 8. 邮箱 ==========
-            const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-
-            // 收集所有匹配项
-            let allMatches = [];
-            
-            // 收集公司名
-            companyPatterns.forEach(pattern => {
-                const matches = text.match(pattern) || [];
-                matches.forEach(m => {
-                    if (m.length >= 4 && !isExcluded(m)) {
-                        allMatches.push({ text: m.trim(), type: 'company' });
-                    }
-                });
-            });
-            
-            // 收集地址
-            addressPatterns.forEach(pattern => {
-                const matches = text.match(pattern) || [];
-                matches.forEach(m => {
-                    if (m.length >= 6) {
-                        allMatches.push({ text: m.trim(), type: 'address' });
-                    }
-                });
-            });
-            
-            // 收集行政区划（上下文相关）
-            // 只在特定上下文中脱敏地名
-            const locationContextPattern = /(?:位于|地址|住所|所在地|注册地|经营地)[：:]*\s*([\u4e00-\u9fa5]+(?:省|市|区|县))/g;
-            let locationMatch;
-            while ((locationMatch = locationContextPattern.exec(text)) !== null) {
-                if (locationMatch[1] && locationMatch[1].length >= 2) {
-                    allMatches.push({ text: locationMatch[1], type: 'address' });
+            let match;
+            while ((match = companyPattern.exec(text)) !== null) {
+                const fullMatch = match[0];
+                // 排除过短或明显不是公司名的
+                if (fullMatch.length >= 4 && !isExcludedCompany(fullMatch)) {
+                    matches.push({ text: fullMatch, type: 'company', index: match.index });
                 }
             }
             
-            // 收集人名
-            personContextPatterns.forEach(pattern => {
-                let match;
+            // ========== 2. 精确匹配地址 ==========
+            // 策略：识别 "XX省/市 + XX市/区/县 + 详细地址" 的模式
+            
+            // 2.1 完整地址模式（省+市+区+街道+门牌）
+            const fullAddressPattern = /([\u4e00-\u9fa5]{2,10}(?:省|自治区|市))?([\u4e00-\u9fa5]{2,10}(?:市|自治州|地区|盟))?([\u4e00-\u9fa5]{2,10}(?:区|县|市|旗))?([\u4e00-\u9fa5]{2,20}(?:街道|镇|乡|路|街|大道|大街|巷|弄|里|村|社区))?([\u4e00-\u9fa5\d\-A-Za-z]{1,30}(?:号|幢|栋|单元|层|楼|室|房|座|期|苑|园|城|府|湾|庭|阁|轩))?/g;
+            
+            while ((match = fullAddressPattern.exec(text)) !== null) {
+                const fullMatch = match[0].trim();
+                // 必须包含地理标识词且长度合适
+                if (fullMatch.length >= 4 && hasGeoKeyword(fullMatch) && !isExcludedAddress(fullMatch)) {
+                    matches.push({ text: fullMatch, type: 'address', index: match.index });
+                }
+            }
+            
+            // 2.2 简单地址模式（市+区）
+            const cityDistrictPatterns = [
+                // XX市XX区/县
+                /([\u4e00-\u9fa5]{2,6}市[\u4e00-\u9fa5]{2,6}(?:区|县))/g,
+                // XX省XX市
+                /([\u4e00-\u9fa5]{2,6}省[\u4e00-\u9fa5]{2,6}市)/g,
+                // 直接匹配数据库中的城市+区
+                new RegExp(`((?:${cities.filter(c => c.length >= 3).join('|')})(?:${districtSuffixes.join('|')})?[\\u4e00-\\u9fa5]{2,6}(?:区|县|街道|路|镇))`, 'g')
+            ];
+            
+            cityDistrictPatterns.forEach(pattern => {
                 while ((match = pattern.exec(text)) !== null) {
-                    if (match[1] && match[1].length >= 2 && match[1].length <= 4) {
-                        allMatches.push({ text: match[1], type: 'person' });
+                    const fullMatch = match[1] || match[0];
+                    if (fullMatch.length >= 4 && !isExcludedAddress(fullMatch)) {
+                        // 检查是否已经被更长的匹配包含
+                        const isDuplicate = matches.some(m => 
+                            m.type === 'address' && 
+                            (m.text.includes(fullMatch) || fullMatch.includes(m.text))
+                        );
+                        if (!isDuplicate) {
+                            matches.push({ text: fullMatch, type: 'address', index: match.index });
+                        }
                     }
                 }
             });
             
-            // 收集银行账号（在特定上下文中）
-            const bankContextPattern = /(?:账号|账户|银行账号|收款账号)[：:]*\s*(\d{12,19})/g;
-            let bankMatch;
-            while ((bankMatch = bankContextPattern.exec(text)) !== null) {
-                allMatches.push({ text: bankMatch[1], type: 'account' });
+            // 2.3 单独的已知城市名（在地址上下文中）
+            const addressContextPattern = /(?:地址|住所|所在地|注册地|经营地址|通讯地址|联系地址)[：:\s]*([\u4e00-\u9fa5\d\-A-Za-z]{4,50})/g;
+            while ((match = addressContextPattern.exec(text)) !== null) {
+                const addressPart = match[1];
+                if (addressPart && addressPart.length >= 4) {
+                    matches.push({ text: addressPart, type: 'address', index: match.index });
+                }
             }
             
-            // 收集电话号码（在特定上下文中）
-            const phoneContextPattern = /(?:电话|手机|联系方式|联系电话|传真)[：:]*\s*(1[3-9]\d{9}|(?:0\d{2,3}[-\s]?)?\d{7,8})/g;
-            let phoneMatch;
-            while ((phoneMatch = phoneContextPattern.exec(text)) !== null) {
-                allMatches.push({ text: phoneMatch[1], type: 'phone' });
-            }
+            // ========== 3. 精确匹配人名 ==========
+            // 只在特定上下文中识别人名
+            const personContextPatterns = [
+                /(?:法定代表人|法人代表|负责人|经办人|联系人|代理人|授权代表|委托人|受托人|代表人|签字人|签章人|经理|总经理|董事长|董事|监事)[：:\s]*([${commonSurnames}][\u4e00-\u9fa5]{1,3})(?=[，。、\s]|$)/g,
+                /(?:甲方代表|乙方代表|丙方代表|甲方|乙方|丙方)[：:\s]*([${commonSurnames}][\u4e00-\u9fa5]{1,3})(?=[，。、\s]|$)/g,
+                /(?:姓名|签名|签字|签章)[：:\s]*([${commonSurnames}][\u4e00-\u9fa5]{1,3})(?=[，。、\s]|$)/g,
+            ];
             
-            // 收集身份证号
-            const idCardMatches = text.match(idCardPattern) || [];
-            idCardMatches.forEach(m => {
-                allMatches.push({ text: m, type: 'idcard' });
-            });
-            
-            // 收集邮箱
-            const emailMatches = text.match(emailPattern) || [];
-            emailMatches.forEach(m => {
-                allMatches.push({ text: m, type: 'email' });
-            });
-
-            // 去重并按长度排序（长的先替换，避免部分替换问题）
-            const uniqueMatches = [];
-            const seen = new Set();
-            allMatches.forEach(item => {
-                if (!seen.has(item.text)) {
-                    seen.add(item.text);
-                    uniqueMatches.push(item);
+            personContextPatterns.forEach(pattern => {
+                const regex = new RegExp(pattern.source.replace('${commonSurnames}', commonSurnames), 'g');
+                while ((match = regex.exec(text)) !== null) {
+                    const name = match[1];
+                    if (name && name.length >= 2 && name.length <= 4) {
+                        matches.push({ text: name, type: 'person', index: match.index });
+                    }
                 }
             });
             
-            // 过滤掉被包含的短字符串
-            const filteredMatches = uniqueMatches.filter((item, index) => {
-                return !uniqueMatches.some((other, otherIndex) => {
-                    return index !== otherIndex && 
-                           other.text.includes(item.text) && 
-                           other.text !== item.text;
-                });
+            // ========== 4. 敏感数字信息 ==========
+            // 身份证号
+            const idCardPattern = /[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]/g;
+            while ((match = idCardPattern.exec(text)) !== null) {
+                matches.push({ text: match[0], type: 'other', index: match.index });
+            }
+            
+            // 银行账号（在上下文中）
+            const bankPattern = /(?:账号|账户|银行账号|收款账号|付款账号)[：:\s]*([1-9]\d{9,20})/g;
+            while ((match = bankPattern.exec(text)) !== null) {
+                if (match[1]) {
+                    matches.push({ text: match[1], type: 'other', index: match.index });
+                }
+            }
+            
+            // 手机号（在上下文中）
+            const phonePattern = /(?:电话|手机|联系方式|联系电话|传真|Tel|TEL|Mobile)[：:\s]*(1[3-9]\d{9})/g;
+            while ((match = phonePattern.exec(text)) !== null) {
+                if (match[1]) {
+                    matches.push({ text: match[1], type: 'other', index: match.index });
+                }
+            }
+            
+            // 邮箱
+            const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+            while ((match = emailPattern.exec(text)) !== null) {
+                matches.push({ text: match[0], type: 'other', index: match.index });
+            }
+            
+            // ========== 5. 去重和过滤 ==========
+            // 按长度降序排序
+            matches.sort((a, b) => b.text.length - a.text.length);
+            
+            // 去重：移除被其他匹配完全包含的项
+            const filteredMatches = [];
+            const usedTexts = new Set();
+            
+            matches.forEach(item => {
+                // 检查是否已存在相同文本
+                if (usedTexts.has(item.text)) return;
+                
+                // 检查是否被更长的匹配包含
+                const isContained = filteredMatches.some(existing => 
+                    existing.text.includes(item.text) && existing.text !== item.text
+                );
+                
+                if (!isContained) {
+                    filteredMatches.push(item);
+                    usedTexts.add(item.text);
+                }
             });
             
-            // 按长度降序排序
-            filteredMatches.sort((a, b) => b.text.length - a.text.length);
-            
-            // 执行替换
+            // ========== 6. 执行替换 ==========
             filteredMatches.forEach(item => {
                 const placeholder = getOrCreatePlaceholder(item.text, item.type);
-                const escaped = item.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const escaped = escapeRegExp(item.text);
                 result = result.replace(new RegExp(escaped, 'g'), placeholder);
             });
             
-            // 更新统计显示
+            // 更新统计
             updateDesensitizeStats();
             
             return result;
         }
-
+        
         /**
-         * 获取或创建占位符
-         * 确保同一原文始终映射到同一占位符
+         * 检查是否包含地理关键词
+         */
+        function hasGeoKeyword(text) {
+            const geoKeywords = ['省', '市', '区', '县', '镇', '乡', '街道', '路', '街', '大道', '巷', '弄', '村', '号', '幢', '栋', '单元', '层', '楼', '室', '座', '苑', '园'];
+            return geoKeywords.some(kw => text.includes(kw));
+        }
+        
+        /**
+         * 排除不是公司名的匹配
+         */
+        function isExcludedCompany(text) {
+            const excludePatterns = [
+                /^(有限|股份|责任|集团)/,  // 以这些开头的不是完整公司名
+                /^[\d\s]/,  // 以数字开头
+                /^(该|本|其|原|新)/,  // 以代词开头
+            ];
+            return excludePatterns.some(p => p.test(text)) || text.length < 4;
+        }
+        
+        /**
+         * 排除不是地址的匹配
+         */
+        function isExcludedAddress(text) {
+            const excludeWords = ['双方', '各方', '甲方', '乙方', '丙方', '本合同', '本协议', '中华人民共和国', '人民法院', '仲裁委员会', '合同', '协议', '条款', '规定', '约定'];
+            return excludeWords.some(w => text === w || text.startsWith(w));
+        }
+        
+        /**
+         * 转义正则特殊字符
+         */
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        
+        /**
+         * 获取或创建占位符（保证同一原文映射到同一占位符）
          */
         function getOrCreatePlaceholder(original, type) {
             // 如果已存在映射，直接返回
             if (identityMap.has(original)) {
-                return identityMap.get(original);
+                return identityMap.get(original).placeholder;
             }
             
             // 创建新的占位符
@@ -702,7 +758,8 @@
             switch (type) {
                 case 'company':
                     counters.company++;
-                    placeholder = `[企业_${String.fromCharCode(64 + counters.company)}]`;
+                    // 使用字母编号：A, B, C...AA, AB...
+                    placeholder = `[企业_${getLetterCode(counters.company)}]`;
                     break;
                 case 'address':
                     counters.address++;
@@ -710,59 +767,60 @@
                     break;
                 case 'person':
                     counters.person++;
-                    placeholder = `[某${counters.person === 1 ? '甲' : counters.person === 2 ? '乙' : counters.person === 3 ? '丙' : counters.person}]`;
-                    break;
-                case 'account':
-                    counters.account++;
-                    placeholder = `[账号_${counters.account}]`;
-                    break;
-                case 'phone':
-                    counters.phone++;
-                    placeholder = `[电话_${counters.phone}]`;
-                    break;
-                case 'idcard':
-                    counters.idcard++;
-                    placeholder = `[身份证_${counters.idcard}]`;
-                    break;
-                case 'email':
-                    placeholder = `[邮箱]`;
+                    const personNames = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛'];
+                    placeholder = `[某${personNames[counters.person - 1] || counters.person}]`;
                     break;
                 default:
-                    placeholder = `[已脱敏]`;
+                    counters.other++;
+                    placeholder = `[脱敏_${counters.other}]`;
             }
             
             // 保存映射
-            identityMap.set(original, placeholder);
-            reverseMap.set(placeholder, original);
+            identityMap.set(original, { placeholder, type });
             
             return placeholder;
         }
-
+        
         /**
-         * 排除词检查
+         * 数字转字母编号 (1->A, 2->B, ..., 27->AA, 28->AB...)
          */
-        function isExcluded(text) {
-            const excludeWords = ['双方', '各方', '社区', '本合同', '本协议', '甲方', '乙方', '丙方', 
-                '合同', '协议', '条款', '约定', '规定', '中华人民共和国', '人民法院', '仲裁委员会'];
-            return excludeWords.some(word => text === word || text.startsWith(word + '应') || text.startsWith(word + '的'));
+        function getLetterCode(num) {
+            let result = '';
+            while (num > 0) {
+                num--;
+                result = String.fromCharCode(65 + (num % 26)) + result;
+                num = Math.floor(num / 26);
+            }
+            return result;
         }
-
+        
         /**
          * 更新脱敏统计
          */
         function updateDesensitizeStats() {
             const statsDiv = document.getElementById('desensitizeStats');
-            if (identityMap.size > 0) {
+            const total = counters.company + counters.address + counters.person + counters.other;
+            
+            if (total > 0) {
                 statsDiv.classList.remove('hidden');
                 document.getElementById('companyStats').textContent = counters.company;
                 document.getElementById('addressStats').textContent = counters.address;
                 document.getElementById('personStats').textContent = counters.person;
-                document.getElementById('accountStats').textContent = counters.account + counters.phone + counters.idcard;
+                document.getElementById('otherStats').textContent = counters.other;
             } else {
                 statsDiv.classList.add('hidden');
             }
         }
-
+        
+        /**
+         * 重置脱敏状态
+         */
+        function resetDesensitize() {
+            identityMap.clear();
+            counters = { company: 0, address: 0, person: 0, other: 0 };
+            document.getElementById('desensitizeStats').classList.add('hidden');
+        }
+        
         /**
          * 手动脱敏按钮
          */
@@ -775,10 +833,11 @@
                 return;
             }
             
+            resetDesensitize();
             const maskedText = secureDeIdentify(text);
             textarea.value = maskedText;
         }
-
+        
         /**
          * 显示脱敏映射表
          */
@@ -789,33 +848,42 @@
             if (identityMap.size === 0) {
                 content.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">暂无脱敏数据</p>';
             } else {
-                let html = '<table class="w-full text-sm"><thead><tr class="border-b"><th class="text-left py-2 text-gray-500">代号</th><th class="text-left py-2 text-gray-500">原文</th></tr></thead><tbody>';
-                identityMap.forEach((placeholder, original) => {
-                    // 原文只显示部分，保护隐私
-                    const displayOriginal = original.length > 10 
-                        ? original.substring(0, 4) + '****' + original.substring(original.length - 3)
-                        : original.substring(0, 2) + '**';
-                    html += `<tr class="border-b border-gray-100"><td class="py-2 text-emerald-600 font-mono">${placeholder}</td><td class="py-2 text-gray-600">${displayOriginal}</td></tr>`;
+                let html = '<table class="w-full text-sm"><thead><tr class="border-b"><th class="text-left py-2 text-gray-500">代号</th><th class="text-left py-2 text-gray-500">类型</th><th class="text-left py-2 text-gray-500">原文预览</th></tr></thead><tbody>';
+                
+                // 按类型分组显示
+                const grouped = { company: [], address: [], person: [], other: [] };
+                identityMap.forEach((value, original) => {
+                    grouped[value.type].push({ original, ...value });
                 });
+                
+                // 依次显示各类型
+                ['company', 'address', 'person', 'other'].forEach(type => {
+                    grouped[type].forEach(item => {
+                        const typeLabel = { company: '企业', address: '地址', person: '人名', other: '其他' }[type];
+                        // 原文预览（部分隐藏）
+                        let preview = item.original;
+                        if (preview.length > 8) {
+                            preview = preview.substring(0, 4) + '***' + preview.substring(preview.length - 2);
+                        } else if (preview.length > 4) {
+                            preview = preview.substring(0, 2) + '***';
+                        }
+                        html += `<tr class="border-b border-gray-100">
+                            <td class="py-2 text-emerald-600 font-mono">${item.placeholder}</td>
+                            <td class="py-2 text-gray-500 text-xs">${typeLabel}</td>
+                            <td class="py-2 text-gray-600">${preview}</td>
+                        </tr>`;
+                    });
+                });
+                
                 html += '</tbody></table>';
                 content.innerHTML = html;
             }
             
             modal.classList.remove('hidden');
         }
-
+        
         function closeMapModal() {
             document.getElementById('mapModal').classList.add('hidden');
-        }
-
-        /**
-         * 重置脱敏状态
-         */
-        function resetDesensitize() {
-            identityMap.clear();
-            reverseMap.clear();
-            counters = { company: 0, address: 0, person: 0, account: 0, phone: 0, idcard: 0 };
-            document.getElementById('desensitizeStats').classList.add('hidden');
         }
 
         // ==================== 文件处理 ====================
@@ -847,7 +915,7 @@
                 
                 // 根据开关决定是否自动脱敏
                 if (autoDesensitizeEnabled) {
-                    resetDesensitize(); // 新文件重置映射表
+                    resetDesensitize();
                     document.getElementById('contractText').value = secureDeIdentify(rawText);
                 } else {
                     document.getElementById('contractText').value = rawText;
@@ -859,12 +927,11 @@
             }
         });
 
-        // ==================== 拖拽上传（修复版）====================
+        // ==================== 拖拽上传 ====================
         
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
 
-        // 阻止页面默认拖拽行为
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             document.body.addEventListener(eventName, (e) => {
                 e.preventDefault();
@@ -872,7 +939,6 @@
             }, false);
         });
 
-        // 上传区域拖拽效果
         ['dragenter', 'dragover'].forEach(eventName => {
             uploadArea.addEventListener(eventName, (e) => {
                 e.preventDefault();
@@ -889,17 +955,14 @@
             }, false);
         });
 
-        // 处理文件拖拽放下
         uploadArea.addEventListener('drop', (e) => {
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 const file = files[0];
                 if (file.name.endsWith('.docx') || file.name.endsWith('.pdf')) {
-                    // 创建新的 DataTransfer 对象来设置 files
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(file);
                     fileInput.files = dataTransfer.files;
-                    // 触发 change 事件
                     fileInput.dispatchEvent(new Event('change', { bubbles: true }));
                 } else {
                     alert('请上传 .docx 或 .pdf 格式的文件');
@@ -938,7 +1001,7 @@
             let hasStartedStream = false;
 
             try {
-                const response = await fetch('/api/hetong', {
+                const response = await fetch('/api/hetong.js', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userKey, messages, model })
@@ -994,7 +1057,7 @@
             }
             if (!currentText || !focus) return alert('请确保合同文本和关注点已填写');
             
-            // 如果开启了自动脱敏但用户是手动粘贴的，这里再做一次脱敏
+            // 如果开启了自动脱敏但还没脱敏过，执行脱敏
             if (autoDesensitizeEnabled && identityMap.size === 0) {
                 currentText = secureDeIdentify(currentText);
                 textarea.value = currentText;
@@ -1015,7 +1078,6 @@
             const q = input.value.trim();
             if (!q) return;
             
-            // 追问也做脱敏处理
             const maskedQ = autoDesensitizeEnabled ? secureDeIdentify(q) : q;
             input.value = "";
             
@@ -1040,7 +1102,6 @@
             if (e.key === 'Enter') sendFollowUp(); 
         });
 
-        // 点击模态框外部关闭
         document.getElementById('mapModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('mapModal')) {
                 closeMapModal();
