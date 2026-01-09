@@ -451,10 +451,35 @@
         });
 
         // Drag and drop
-        const uploadArea = document.getElementById('uploadArea');
-        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
-        uploadArea.addEventListener('dragleave', () => { uploadArea.classList.remove('drag-over'); });
-        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('drag-over'); });
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+
+uploadArea.addEventListener('dragover', (e) => { 
+    e.preventDefault(); 
+    e.stopPropagation();
+    uploadArea.classList.add('drag-over'); 
+});
+
+uploadArea.addEventListener('dragleave', (e) => { 
+    e.preventDefault();
+    e.stopPropagation();
+    uploadArea.classList.remove('drag-over'); 
+});
+
+uploadArea.addEventListener('drop', (e) => { 
+    e.preventDefault(); 
+    e.stopPropagation();
+    uploadArea.classList.remove('drag-over'); 
+    
+    // 获取拖拽的文件
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        // 将拖拽的文件赋值给 file input，触发 change 事件
+        fileInput.files = files;
+        // 手动触发 change 事件来处理文件
+        fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+});
 
         async function startInitialAudit() {
             const role = document.getElementById('role').value;
