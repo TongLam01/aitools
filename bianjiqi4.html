@@ -3,112 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公众号AI排版</title>
+    <title>公众号排版助手</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-            --primary-dark: #4f46e5;
-            --bg-main: #fafafa;
+            --primary: #07c160;
+            --primary-light: #38d976;
+            --primary-dark: #06ae56;
+            --primary-bg: #f0faf4;
+            --bg-main: #f5f5f5;
             --bg-card: #ffffff;
             --text-primary: #1f2937;
             --text-secondary: #6b7280;
             --text-muted: #9ca3af;
-            --border-light: #f3f4f6;
-            --border-default: #e5e7eb;
+            --border-light: #e5e7eb;
+            --border-default: #d1d5db;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: var(--bg-main);
             color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
             height: 100vh;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
 
-        /* 自定义滚动条 */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
+        /* 滚动条 */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
-        /* 编辑器区域 */
-        .editor-container {
-            background: var(--bg-card);
-            border-radius: 16px;
-            border: 1px solid var(--border-light);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            transition: box-shadow 0.2s, border-color 0.2s;
-        }
-        .editor-container:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        /* 预览容器 - 手机框架 */
-        #preview-container {
-            background: var(--bg-card);
-            border-radius: 24px;
-            border: 8px solid #1f2937;
-            max-width: 375px;
+        /* 主布局 */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 56px);
+            max-width: 1400px;
             margin: 0 auto;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
-            position: relative;
+            padding: 16px;
+            gap: 20px;
+        }
+
+        /* 左侧编辑区 */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
             overflow: hidden;
         }
-        #preview-container::before {
-            content: '';
+
+        .editor-textarea {
+            flex: 1;
+            width: 100%;
+            padding: 20px;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            background: transparent;
+        }
+        .editor-textarea::placeholder {
+            color: #c4c4c4;
+        }
+
+        .editor-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-light);
+            background: #fafafa;
+        }
+
+        /* 右侧预览区 */
+        .preview-panel {
+            width: 400px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 手机框架 */
+        .phone-frame {
+            flex: 1;
+            background: #1a1a1a;
+            border-radius: 32px;
+            padding: 8px;
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.1) inset,
+                0 20px 40px rgba(0,0,0,0.15),
+                0 0 0 1px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .phone-header {
+            height: 44px;
+            background: #1a1a1a;
+            border-radius: 24px 24px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            position: relative;
+        }
+
+        .phone-notch {
             position: absolute;
-            top: 0;
             left: 50%;
+            top: 0;
             transform: translateX(-50%);
-            width: 80px;
-            height: 24px;
-            background: #1f2937;
-            border-radius: 0 0 12px 12px;
-            z-index: 10;
+            width: 100px;
+            height: 28px;
+            background: #1a1a1a;
+            border-radius: 0 0 16px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .phone-notch::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #2a2a2a;
+            border-radius: 50%;
+        }
+        .phone-notch::after {
+            content: '';
+            width: 40px;
+            height: 4px;
+            background: #2a2a2a;
+            border-radius: 2px;
+        }
+
+        .phone-header-left {
+            font-size: 11px;
+            color: #888;
+            font-weight: 500;
+            z-index: 1;
+        }
+
+        .phone-header-right {
+            z-index: 1;
+        }
+
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+        .copy-btn:active {
+            transform: scale(0.98);
+        }
+
+        .phone-screen {
+            flex: 1;
+            background: white;
+            border-radius: 4px 4px 24px 24px;
+            overflow: hidden;
         }
 
         #preview-content {
-            background: white;
             height: 100%;
             overflow-y: auto;
-            padding: 36px 12px 20px 12px;
+            padding: 16px 8px;
             outline: none;
             transition: background 0.3s;
+            background: white;
         }
 
-        /* 内容块交互 */
+        /* 内容块 */
         .block-wrapper {
             position: relative;
-            margin-bottom: 0;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             border: 2px solid transparent;
+            border-radius: 6px;
+            margin: 0 -2px;
             padding: 2px;
-            border-radius: 8px;
         }
         .block-wrapper:hover {
-            background-color: rgba(99, 102, 241, 0.04);
+            background-color: rgba(7, 193, 96, 0.04);
         }
         .block-wrapper.selected {
             border-color: var(--primary);
-            background-color: rgba(99, 102, 241, 0.06);
+            background-color: rgba(7, 193, 96, 0.06);
         }
         .block-wrapper.selected::after {
             content: '✓';
@@ -118,12 +217,12 @@
             background: var(--primary);
             color: white;
             font-size: 10px;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 0 8px 0 8px;
+            border-radius: 0 6px 0 6px;
             font-weight: bold;
         }
 
@@ -133,74 +232,121 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(12px);
             border-top: 1px solid var(--border-light);
             z-index: 999;
-            transform: translateY(0);
-            transition: transform 0.3s ease;
-        }
-        .bottom-toolbar.collapsed {
-            transform: translateY(calc(100% - 48px));
+            padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
         }
 
-        .toolbar-toggle {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            border: 1px solid var(--border-default);
-            border-radius: 20px;
-            padding: 4px 16px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            transition: all 0.2s;
+        .toolbar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        .toolbar-toggle:hover {
-            background: var(--bg-main);
+
+        .toolbar-row + .toolbar-row {
+            margin-top: 8px;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border-light);
+        }
+
+        /* 颜色点 */
+        .color-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .color-dot:hover { transform: scale(1.12); }
+        .color-dot.active {
+            border-color: #333;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+        }
+
+        .bg-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid var(--border-default);
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .bg-dot:hover { transform: scale(1.08); }
+        .bg-dot.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(7, 193, 96, 0.2);
+        }
+        .bg-dot.none-bg {
+            background: white;
+            position: relative;
+        }
+        .bg-dot.none-bg::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 14px; height: 2px;
+            background: #ef4444;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            border-radius: 1px;
         }
 
         /* 工具按钮 */
         .tool-btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 4px;
-            padding: 8px 12px;
+            padding: 7px 12px;
             background: white;
             border: 1px solid var(--border-default);
-            border-radius: 8px;
-            font-size: 13px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--text-secondary);
-            white-space: nowrap;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.15s;
+            white-space: nowrap;
         }
         .tool-btn:hover {
-            background: var(--bg-main);
-            border-color: var(--primary-light);
-            color: var(--primary);
-            transform: translateY(-1px);
-        }
-        .tool-btn:active {
-            transform: translateY(0);
-        }
-        .tool-btn.active {
-            background: var(--primary);
-            color: white;
+            background: var(--primary-bg);
             border-color: var(--primary);
+            color: var(--primary-dark);
         }
+        .tool-btn:active { transform: scale(0.96); }
+        
         .tool-btn.danger {
             color: #ef4444;
-            border-color: #fecaca;
+            border-color: #fca5a5;
         }
         .tool-btn.danger:hover {
             background: #fef2f2;
             border-color: #ef4444;
         }
+
         .tool-btn.primary {
             background: var(--primary);
             color: white;
@@ -210,144 +356,31 @@
             background: var(--primary-dark);
         }
 
-        /* 颜色选择器 */
-        .color-picker {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .color-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.15s ease;
-            position: relative;
-        }
-        .color-dot:hover {
-            transform: scale(1.15);
-        }
-        .color-dot.active {
-            border-color: var(--text-primary);
-        }
-        .color-dot.active::after {
-            content: '✓';
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-
-        /* 背景色选择器 */
-        .bg-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 2px solid var(--border-default);
-            transition: all 0.15s ease;
-        }
-        .bg-dot:hover {
-            transform: scale(1.1);
-            border-color: var(--primary-light);
-        }
-        .bg-dot.active {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-        }
-        .bg-dot.none-bg {
-            background: white;
-            position: relative;
-        }
-        .bg-dot.none-bg::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 16px;
-            height: 2px;
-            background: #ef4444;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            border-radius: 1px;
-        }
-
-        /* 分组标签 */
-        .group-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* 分割线 */
-        .divider {
-            width: 1px;
-            height: 24px;
-            background: var(--border-default);
-            margin: 0 8px;
-        }
-
         /* 主按钮 */
         .main-btn {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 14px 24px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            transition: all 0.2s;
         }
         .main-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            background: var(--primary-dark);
         }
-        .main-btn:active {
-            transform: translateY(0);
-        }
+        .main-btn:active { transform: scale(0.98); }
         .main-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
-
-        .copy-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-        }
-        .copy-btn:hover {
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        /* 动画 */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .floating { animation: float 3s ease-in-out infinite; }
-        .pulsing { animation: pulse 2s ease-in-out infinite; }
-        .spinning { animation: spin 1s linear infinite; }
 
         /* 空状态 */
         .empty-state {
@@ -358,27 +391,52 @@
             height: 100%;
             padding: 40px 20px;
             text-align: center;
-        }
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-        .empty-state-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-        .empty-state-desc {
-            font-size: 13px;
             color: var(--text-muted);
         }
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            animation: float 3s ease-in-out infinite;
+        }
+        .empty-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .empty-desc {
+            font-size: 12px;
+        }
 
-        /* 设置面板 */
+        /* 选中计数 */
+        .selection-badge {
+            position: fixed;
+            bottom: 130px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            z-index: 100;
+        }
+        .selection-badge.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* 设置弹窗 */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(4px);
             z-index: 2000;
             display: flex;
@@ -387,7 +445,7 @@
             padding: 20px;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
         .modal-overlay.active {
             opacity: 1;
@@ -395,256 +453,199 @@
         }
         .modal-content {
             background: white;
-            border-radius: 20px;
-            padding: 28px;
+            border-radius: 16px;
+            padding: 24px;
             width: 100%;
-            max-width: 380px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            max-width: 360px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             transform: scale(0.95);
-            transition: transform 0.2s ease;
+            transition: transform 0.2s;
         }
         .modal-overlay.active .modal-content {
             transform: scale(1);
         }
 
-        /* 选中计数器 */
-        .selection-counter {
-            position: fixed;
-            bottom: 180px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
-            z-index: 100;
+        /* 动画 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
         }
-        .selection-counter.visible {
-            opacity: 1;
-            visibility: visible;
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
-
-        /* 工具栏分组容器 */
-        .toolbar-section {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: var(--bg-main);
-            border-radius: 10px;
-        }
+        .spinning { animation: spin 1s linear infinite; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* 响应式 */
-        @media (max-width: 1024px) {
-            .tool-btn {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-            .color-dot, .bg-dot {
-                width: 22px;
-                height: 22px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                overflow-y: auto;
-                height: auto;
-                min-height: 100vh;
-            }
-            .main-grid {
+        @media (max-width: 900px) {
+            body { overflow-y: auto; height: auto; }
+            .main-container {
                 flex-direction: column;
                 height: auto;
+                padding: 12px;
+                gap: 16px;
             }
-            .editor-panel, .preview-panel {
-                width: 100%;
-                height: auto;
-                min-height: 300px;
+            .editor-panel {
+                min-height: 280px;
             }
             .preview-panel {
-                margin-bottom: 200px;
-            }
-            #preview-container {
-                max-width: 100%;
+                width: 100%;
                 height: 500px;
-                border-radius: 16px;
-                border-width: 4px;
+                margin-bottom: 120px;
             }
-            #preview-container::before {
-                height: 20px;
-                width: 60px;
+            .phone-frame {
+                border-radius: 20px;
+                padding: 6px;
             }
-            .bottom-toolbar {
-                padding-bottom: env(safe-area-inset-bottom);
+            .phone-header {
+                height: 36px;
+                border-radius: 14px 14px 0 0;
+            }
+            .phone-notch {
+                width: 80px;
+                height: 22px;
+            }
+            .phone-screen {
+                border-radius: 2px 2px 14px 14px;
+            }
+            .toolbar-row {
+                overflow-x: auto;
+                padding-bottom: 4px;
             }
             .tool-btn {
-                padding: 5px 8px;
+                padding: 6px 10px;
                 font-size: 11px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 头部 -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <span class="text-xl">✨</span>
-                <h1 class="font-semibold text-gray-800">公众号排版</h1>
-                <span class="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full font-medium">v2.8</span>
-            </div>
-            <button onclick="toggleSettings()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-sm text-gray-600">
-                <span>🔑</span>
-                <span class="hidden sm:inline">API 设置</span>
-            </button>
+    <!-- 顶部导航 -->
+    <header style="height: 56px; background: white; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; padding: 0 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 20px;">📝</span>
+            <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">公众号排版助手</span>
+            <span style="font-size: 10px; padding: 2px 8px; background: var(--primary-bg); color: var(--primary); border-radius: 10px; font-weight: 500;">v2.8</span>
         </div>
+        <button onclick="toggleSettings()" style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: #f5f5f5; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-secondary); transition: all 0.2s;">
+            <span>🔑</span>
+            <span>API设置</span>
+        </button>
     </header>
 
     <!-- 设置弹窗 -->
     <div id="settings-panel" class="modal-overlay" onclick="if(event.target === this) toggleSettings()">
         <div class="modal-content">
-            <div class="flex items-center gap-3 mb-6">
-                <span class="text-2xl">🔐</span>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                <span style="font-size: 28px;">🔐</span>
                 <div>
-                    <h3 class="font-semibold text-gray-800">API 密钥设置</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">密钥仅存储在本地浏览器</p>
+                    <h3 style="font-weight: 600; font-size: 16px; color: var(--text-primary);">API 密钥</h3>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">仅存储在本地浏览器</p>
                 </div>
             </div>
             <input type="password" id="api-key" oninput="saveConfig()"
-                class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition mb-4"
-                placeholder="输入你的 DeepSeek API Key">
-            <button onclick="toggleSettings()" class="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-medium text-sm transition">
+                style="width: 100%; padding: 14px; background: #f5f5f5; border: 1px solid var(--border-light); border-radius: 10px; font-size: 14px; outline: none; margin-bottom: 16px; transition: all 0.2s;"
+                onfocus="this.style.borderColor='var(--primary)';this.style.background='white'"
+                onblur="this.style.borderColor='var(--border-light)';this.style.background='#f5f5f5'"
+                placeholder="输入 DeepSeek API Key">
+            <button onclick="toggleSettings()" style="width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">
                 完成
             </button>
-            <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="block text-center text-xs text-gray-400 hover:text-indigo-500 mt-4 transition">
+            <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" style="display: block; text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 16px; text-decoration: none;">
                 如何获取 API Key →
             </a>
         </div>
     </div>
 
     <!-- 主内容区 -->
-    <main class="pt-14 h-screen flex flex-col">
-        <div class="flex-1 overflow-hidden">
-            <div class="max-w-7xl mx-auto h-full p-4 flex gap-6 main-grid">
-                <!-- 左侧编辑区 -->
-                <div class="flex-1 flex flex-col min-w-0 editor-panel">
-                    <div class="editor-container flex-1 flex flex-col overflow-hidden">
-                        <textarea id="user-input"
-                            class="flex-1 w-full p-5 bg-transparent outline-none resize-none text-base leading-relaxed text-gray-700 placeholder:text-gray-300"
-                            placeholder="在此粘贴您的文章内容..."></textarea>
-                        <div class="p-4 border-t border-gray-100">
-                            <button onclick="generateArticle()" id="btn-run" class="main-btn w-full">
-                                <span>🚀</span>
-                                <span>一键智能排版</span>
-                            </button>
-                        </div>
-                    </div>
-                    <!-- 使用提示 -->
-                    <div class="mt-3 p-4 bg-white rounded-xl border border-gray-100 text-xs text-gray-400 space-y-1">
-                        <p>💡 <strong class="text-gray-500">使用提示：</strong></p>
-                        <p>• 点击右侧预览区选中内容块，可多选</p>
-                        <p>• 底部工具栏可切换样式，重复点击切换变体</p>
-                        <p>• 按 Esc 取消选择，Ctrl+A 全选</p>
-                    </div>
-                </div>
+    <div class="main-container">
+        <!-- 左侧编辑区 -->
+        <div class="editor-panel">
+            <textarea id="user-input" class="editor-textarea" placeholder="在此粘贴文章内容...
 
-                <!-- 右侧预览区 -->
-                <div class="w-[420px] flex flex-col items-center preview-panel flex-shrink-0">
-                    <div class="w-full flex justify-between items-center mb-3 px-1">
-                        <span class="text-xs font-medium text-gray-400">📱 手机预览</span>
-                        <button onclick="copyHtml()" id="btn-copy" class="main-btn copy-btn !py-2 !px-4 !text-sm">
-                            <span>复制到公众号</span>
+💡 使用提示：
+1. 粘贴文章后点击「一键智能排版」
+2. 在右侧预览区点击选中内容块（可多选）
+3. 使用底部工具栏切换样式，重复点击可切换变体
+4. 按 Esc 取消选择，Ctrl+A 全选"></textarea>
+            <div class="editor-footer">
+                <button onclick="generateArticle()" id="btn-run" class="main-btn">
+                    <span>✨</span>
+                    <span>一键智能排版</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 右侧预览区 -->
+        <div class="preview-panel">
+            <div class="phone-frame">
+                <div class="phone-header">
+                    <div class="phone-header-left">📱 预览</div>
+                    <div class="phone-notch"></div>
+                    <div class="phone-header-right">
+                        <button onclick="copyHtml()" id="btn-copy" class="copy-btn">
+                            复制到公众号
                         </button>
                     </div>
-                    <div id="preview-container" class="w-full flex-1 min-h-0">
-                        <div id="preview-content" contenteditable="true">
-                            <div class="empty-state">
-                                <div class="empty-state-icon floating">✨</div>
-                                <div class="empty-state-title pulsing">等待内容输入</div>
-                                <div class="empty-state-desc">粘贴文章后点击「一键智能排版」</div>
-                            </div>
+                </div>
+                <div class="phone-screen">
+                    <div id="preview-content" contenteditable="true">
+                        <div class="empty-state">
+                            <div class="empty-icon">✨</div>
+                            <div class="empty-title">等待内容输入</div>
+                            <div class="empty-desc">粘贴文章后点击排版按钮</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- 选中计数器 -->
-        <div id="selection-counter" class="selection-counter">
-            已选中 <span id="selection-count">0</span> 个内容块
-        </div>
+    <!-- 选中计数 -->
+    <div id="selection-badge" class="selection-badge">
+        已选中 <span id="selection-count">0</span> 个内容块
+    </div>
 
-        <!-- 底部工具栏 -->
-        <div class="bottom-toolbar" id="bottom-toolbar">
-            <div class="toolbar-toggle" onclick="toggleToolbar()">
-                <span id="toolbar-toggle-icon">▼</span> 工具栏
+    <!-- 底部工具栏 -->
+    <div class="bottom-toolbar">
+        <div class="toolbar-row">
+            <div class="toolbar-group">
+                <span class="toolbar-label">主题色</span>
+                <div id="color-palette" style="display: flex; gap: 4px;"></div>
             </div>
-            <div class="max-w-7xl mx-auto p-4 space-y-3" style="padding-bottom: calc(16px + env(safe-area-inset-bottom));">
-                <!-- 第一行：颜色设置 -->
-                <div class="flex items-center gap-6 flex-wrap">
-                    <div class="flex items-center gap-3">
-                        <span class="group-label">主题色</span>
-                        <div class="color-picker" id="color-palette"></div>
-                    </div>
-                    <div class="divider"></div>
-                    <div class="flex items-center gap-3">
-                        <span class="group-label">底色</span>
-                        <div class="color-picker" id="article-bg-palette"></div>
-                    </div>
-                </div>
-
-                <!-- 第二行：样式工具 -->
-                <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-                    <button onclick="applyVariant('normal')" class="tool-btn danger">
-                        <span>↺</span> 还原
-                    </button>
-                    <div class="divider"></div>
-                    
-                    <div class="toolbar-section">
-                        <span class="group-label">文字</span>
-                        <button onclick="toggleBold()" class="tool-btn">B</button>
-                        <button onclick="changeFontSize('increase')" class="tool-btn">A+</button>
-                        <button onclick="changeFontSize('decrease')" class="tool-btn">A-</button>
-                    </div>
-
-                    <div class="toolbar-section">
-                        <span class="group-label">标题</span>
-                        <button onclick="applyVariant('big_title')" class="tool-btn">大标题</button>
-                        <button onclick="applyVariant('sub_title')" class="tool-btn">小标题</button>
-                        <button onclick="applyVariant('num_title')" class="tool-btn">序号</button>
-                        <button onclick="applyVariant('grad_title')" class="tool-btn">渐变</button>
-                    </div>
-
-                    <div class="toolbar-section">
-                        <span class="group-label">卡片</span>
-                        <button onclick="applyVariant('key_point')" class="tool-btn">重点</button>
-                        <button onclick="applyVariant('quote')" class="tool-btn">引用</button>
-                        <button onclick="applyVariant('bg_card')" class="tool-btn">底色</button>
-                        <button onclick="applyVariant('code_block')" class="tool-btn">代码</button>
-                    </div>
-
-                    <div class="divider"></div>
-                    <button onclick="mergeSelected()" class="tool-btn primary">
-                        <span>⊕</span> 合并
-                    </button>
-                </div>
+            <div class="toolbar-divider"></div>
+            <div class="toolbar-group">
+                <span class="toolbar-label">底色</span>
+                <div id="article-bg-palette" style="display: flex; gap: 4px;"></div>
             </div>
         </div>
-    </main>
+        <div class="toolbar-row no-scrollbar" style="overflow-x: auto;">
+            <button onclick="applyVariant('normal')" class="tool-btn danger">↺ 还原</button>
+            <div class="toolbar-divider"></div>
+            <button onclick="toggleBold()" class="tool-btn">B</button>
+            <button onclick="changeFontSize('increase')" class="tool-btn">A+</button>
+            <button onclick="changeFontSize('decrease')" class="tool-btn">A-</button>
+            <div class="toolbar-divider"></div>
+            <button onclick="applyVariant('big_title')" class="tool-btn">大标题</button>
+            <button onclick="applyVariant('sub_title')" class="tool-btn">小标题</button>
+            <button onclick="applyVariant('num_title')" class="tool-btn">序号</button>
+            <button onclick="applyVariant('grad_title')" class="tool-btn">渐变</button>
+            <div class="toolbar-divider"></div>
+            <button onclick="applyVariant('key_point')" class="tool-btn">重点</button>
+            <button onclick="applyVariant('quote')" class="tool-btn">引用</button>
+            <button onclick="applyVariant('bg_card')" class="tool-btn">底卡</button>
+            <button onclick="applyVariant('code_block')" class="tool-btn">代码</button>
+            <div class="toolbar-divider"></div>
+            <button onclick="mergeSelected()" class="tool-btn primary">合并</button>
+        </div>
+    </div>
 
     <script>
-        let currentColor = '#6366f1';
-        let recentColors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'];
-        let toolbarCollapsed = false;
+        let currentColor = '#07c160';
+        let recentColors = ['#07c160', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'];
         
         let currentArticleBg = null;
         const articleBgColors = [
@@ -654,8 +655,8 @@
             { id: 'green', value: '#f6fef9', preview: '#f6fef9', name: '淡青绿' },
             { id: 'blue', value: '#f0f7ff', preview: '#f0f7ff', name: '淡天蓝' },
             { id: 'purple', value: '#faf5ff', preview: '#faf5ff', name: '淡紫色' },
-            { id: 'grad1', value: 'linear-gradient(180deg, #fdf6f0 0%, #fef9f5 50%, #fffdfb 100%)', preview: 'linear-gradient(180deg, #fdf6f0, #fffdfb)', name: '暖阳渐变' },
-            { id: 'grad2', value: 'linear-gradient(180deg, #f0f5ff 0%, #f8faff 50%, #fffeff 100%)', preview: 'linear-gradient(180deg, #f0f5ff, #fffeff)', name: '天空渐变' }
+            { id: 'grad1', value: 'linear-gradient(180deg, #fdf6f0 0%, #fffdfb 100%)', preview: 'linear-gradient(180deg, #fdf6f0, #fffdfb)', name: '暖阳渐变' },
+            { id: 'grad2', value: 'linear-gradient(180deg, #f0f5ff 0%, #fffeff 100%)', preview: 'linear-gradient(180deg, #f0f5ff, #fffeff)', name: '天空渐变' }
         ];
         
         function hexToRgba(hex, alpha) {
@@ -678,130 +679,90 @@
             return { num: '', text: text };
         }
 
+        // 样式模板 - 调整padding为8px
         const VARIANTS = {
             big_title: [
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 8px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 10px 24px; border-radius: 6px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 15px 20px; background-color: ${hexToRgba(c, 0.1)}; border-left: 12px solid ${c}; color: ${c}; font-size: 18px; font-weight: bold; width: 100%; box-sizing: border-box;">${t}</section>`,
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: ${c}; border: 2px solid ${c}; padding: 8px 24px; border-radius: 50px; display: inline-block;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px;"><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to right, transparent, ${c});"></span><strong style="font-size: 19px; color: #1f2937;">${t}</strong><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to left, transparent, ${c});"></span></section>`,
-                (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: linear-gradient(135deg, ${c}, ${hexToRgba(c, 0.7)}); padding: 12px 28px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 12px ${hexToRgba(c, 0.3)};">${t}</strong></section>`
+                (t, c) => `<section style="margin: 0 0 20px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 8px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0 0 20px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 10px 24px; border-radius: 6px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0 0 20px 0; padding: 12px 16px; background-color: ${hexToRgba(c, 0.1)}; border-left: 8px solid ${c}; color: ${c}; font-size: 18px; font-weight: bold;">${t}</section>`,
+                (t, c) => `<section style="margin: 0 0 20px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: ${c}; border: 2px solid ${c}; padding: 8px 24px; border-radius: 50px; display: inline-block;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 0 0 20px 0; padding: 0 8px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px;"><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to right, transparent, ${c});"></span><strong style="font-size: 19px; color: #1f2937;">${t}</strong><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to left, transparent, ${c});"></span></section>`,
+                (t, c) => `<section style="margin: 0 0 20px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: linear-gradient(135deg, ${c}, ${hexToRgba(c, 0.7)}); padding: 12px 28px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 12px ${hexToRgba(c, 0.3)};">${t}</strong></section>`
             ],
             sub_title: [
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 20px; background: ${c}; margin-right: 10px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
-                (t, c) => `<section style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0 20px 0;"><div style="height: 1px; width: 60px; background: linear-gradient(to right, transparent, #e0e0e0);"></div><div style="color: ${c}; font-weight: bold; font-size: 17px; display: flex; align-items: center; gap: 8px;"><span style="color: #2c3e50; font-size: 14px;">✦</span>${t}<span style="color: #2c3e50; font-size: 14px;">✦</span></div><div style="height: 1px; width: 60px; background: linear-gradient(to left, transparent, #e0e0e0);"></div></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: inline-block;"><strong style="font-size: 17px; color: #1f2937; border-bottom: 2px solid ${c}; padding-bottom: 4px;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-block; width: 8px; height: 8px; background: ${c}; margin-right: 10px; border-radius: 50%;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><strong style="font-size: 16px; color: ${c}; background: ${hexToRgba(c, 0.1)}; padding: 6px 14px; border-radius: 4px; display: inline-block;">${t}</strong></section>`
+                (t, c) => `<section style="margin: 8px 0 16px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 18px; background: ${c}; margin-right: 10px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
+                (t, c) => `<section style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 16px 0;"><div style="height: 1px; width: 50px; background: linear-gradient(to right, transparent, #e0e0e0);"></div><div style="color: ${c}; font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 6px;"><span style="font-size: 12px;">✦</span>${t}<span style="font-size: 12px;">✦</span></div><div style="height: 1px; width: 50px; background: linear-gradient(to left, transparent, #e0e0e0);"></div></section>`,
+                (t, c) => `<section style="margin: 8px 0 16px 0; padding: 0 8px; display: inline-block;"><strong style="font-size: 17px; color: #1f2937; border-bottom: 2px solid ${c}; padding-bottom: 4px;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 8px 0 16px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-block; width: 8px; height: 8px; background: ${c}; margin-right: 10px; border-radius: 50%;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 8px 0 16px 0; padding: 0 8px;"><strong style="font-size: 16px; color: ${c}; background: ${hexToRgba(c, 0.1)}; padding: 6px 14px; border-radius: 4px; display: inline-block;">${t}</strong></section>`
             ],
             num_title: [
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
+                    return `<section style="margin: 8px 0 16px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
                     const displayNum = n.length === 1 ? '0' + n : n;
-                    return `<section style="margin: 15px 0 20px 0; padding-bottom: 5px; border-bottom: 2px solid ${c}; box-sizing: border-box;">
-                        <section style="display: table; width: 100%;">
-                            <section style="display: table-cell; vertical-align: bottom; width: 1px; white-space: nowrap;">
-                                <span style="display: inline-block; background-color: ${hexToRgba(c, 0.15)}; border-left: 4px solid ${c}; color: #666; font-size: 20px; font-weight: bold; padding: 5px 15px; line-height: 1;">${displayNum}</span>
-                            </section>
-                            <section style="display: table-cell; vertical-align: bottom; padding-left: 10px; padding-bottom: 3px;">
-                                <span style="font-size: 17px; color: #555;">${text}</span>
-                            </section>
-                        </section>
-                    </section>`;
+                    return `<section style="margin: 12px 0 16px 0; padding: 0 8px 8px 8px; border-bottom: 2px solid ${c};"><section style="display: flex; align-items: flex-end; gap: 10px;"><span style="display: inline-block; background-color: ${hexToRgba(c, 0.15)}; border-left: 4px solid ${c}; color: #666; font-size: 18px; font-weight: bold; padding: 4px 12px; line-height: 1;">${displayNum}</span><span style="font-size: 16px; color: #555; padding-bottom: 2px;">${text}</span></section></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 20px 0px; box-sizing: border-box;">
-                                <section style="display: block; width: 100%; background-color: ${hexToRgba(c, 0.1)}; padding: 8px; box-sizing: border-box;">
-                                    <section style="display: block; width: 100%; background-color: #fff; border: 1px solid ${hexToRgba(c, 0.4)}; position: relative; min-height: 45px; box-sizing: border-box;">
-                                        <section style="position: absolute; top: 0; left: 0; background-color: ${hexToRgba(c, 0.4)}; color: #fff; width: 40px; height: 28px; line-height: 28px; text-align: center; font-weight: bold; font-size: 14px; box-sizing: border-box;">${n}</section>
-                                        <section style="padding: 10px 15px 12px 20px; color: #333; font-size: 16px; line-height: 1.75; letter-spacing: 1px; text-align: justify; box-sizing: border-box;">
-                                            <p style="margin: 0; padding: 0;">${text}</p>
-                                        </section>
-                                    </section>
-                                </section>
-                            </section>`;
+                    return `<section style="margin: 16px 8px;"><section style="background-color: ${hexToRgba(c, 0.1)}; padding: 8px;"><section style="background-color: #fff; border: 1px solid ${hexToRgba(c, 0.4)}; position: relative; min-height: 40px;"><section style="position: absolute; top: 0; left: 0; background-color: ${hexToRgba(c, 0.5)}; color: #fff; width: 36px; height: 26px; line-height: 26px; text-align: center; font-weight: bold; font-size: 13px;">${n}</section><section style="padding: 8px 12px 10px 48px; color: #333; font-size: 15px; line-height: 1.7;">${text}</section></section></section></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 2px solid ${c}; color: ${c}; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
+                    return `<section style="margin: 8px 0 16px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 2px solid ${c}; color: ${c}; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
                     const displayNum = n.length === 1 ? '0' + n : n;
-                    return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="font-size: 28px; font-weight: 900; color: ${hexToRgba(c, 0.25)}; margin-right: 8px; font-family: Arial; line-height: 1;">${displayNum}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
+                    return `<section style="margin: 8px 0 16px 0; padding: 0 8px; display: flex; align-items: center;"><span style="font-size: 26px; font-weight: 900; color: ${hexToRgba(c, 0.25)}; margin-right: 8px; font-family: Arial; line-height: 1;">${displayNum}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 4px; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
+                    return `<section style="margin: 8px 0 16px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 4px; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 }
             ],
             grad_title: [
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 6px 16px; font-size: 15px; font-weight: bold; border-radius: 4px;">${t}</span></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 8px 14px; color: #1f2937; font-weight: bold; font-size: 16px; border-radius: 0 6px 6px 0;">${t}</span></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><strong style="font-size: 17px; color: #1f2937; background: linear-gradient(to top, ${hexToRgba(c, 0.4)} 0%, ${hexToRgba(c, 0.4)} 35%, transparent 35.1%, transparent 100%); padding: 0 4px;">${t}</strong></section>`,
-                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: ${c}; color: #fff; padding: 5px 12px 5px 10px; font-size: 15px; font-weight: bold; border-radius: 4px 20px 20px 4px;">${t}</span></section>`
+                (t, c) => `<section style="margin: 8px 0 16px 0; padding: 0 8px;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 6px 14px; font-size: 15px; font-weight: bold; border-radius: 4px;">${t}</span></section>`,
+                (t, c) => `<section style="margin: 8px 0 16px 0; padding: 0 8px;"><span style="display: inline-block; background: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 8px 14px; color: #1f2937; font-weight: bold; font-size: 16px; border-radius: 0 6px 6px 0;">${t}</span></section>`,
+                (t, c) => `<section style="margin: 8px 0 16px 0; padding: 0 8px;"><strong style="font-size: 17px; color: #1f2937; background: linear-gradient(to top, ${hexToRgba(c, 0.4)} 0%, ${hexToRgba(c, 0.4)} 35%, transparent 35.1%, transparent 100%); padding: 0 4px;">${t}</strong></section>`,
+                (t, c) => `<section style="margin: 8px 0 16px 0; padding: 0 8px;"><span style="display: inline-block; background: ${c}; color: #fff; padding: 5px 12px 5px 10px; font-size: 15px; font-weight: bold; border-radius: 4px 20px 20px 4px;">${t}</span></section>`
             ],
             key_point: [
-                (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.2)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; border: 1px solid ${c}; border-radius: 4px; padding: 30px 25px; background-color: ${hexToRgba(c, 0.06)}; 
-                            background-image: 
-                                radial-gradient(circle, ${c} 4px, transparent 5px), 
-                                radial-gradient(circle, ${c} 4px, transparent 5px), 
-                                linear-gradient(135deg, transparent 50%, ${c} 50%);
-                            background-position: 
-                                left 15px top 15px, 
-                                right 15px top 15px, 
-                                right bottom;
-                            background-size: 
-                                10px 10px, 
-                                10px 10px, 
-                                30px 30px;
-                            background-repeat: no-repeat;">
-                            <section style="font-size: 16px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section>
-                        </section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; border-radius: 0 8px 8px 0;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid ${c}; border-radius: 0 0 8px 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px 16px 50px; background: ${hexToRgba(c, 0.08)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; position: relative;"><span style="position: absolute; left: 16px; top: 16px; font-size: 20px;">💡</span>${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; background-color: ${hexToRgba(c, 0.06)}; border-radius: 8px; overflow: hidden;">
-                            <section style="padding: 25px 20px 20px 20px; font-size: 16px; color: #3e3e3e; line-height: 1.75; text-align: justify;">${format(t)}</section>
-                            <section style="display: block; margin: 0; padding: 0; line-height: 0; font-size: 0;">
-                                <svg viewBox="0 0 600 50" style="display: block; width: 100%;" preserveAspectRatio="none">
-                                    <polygon points="600,0 600,50 0,50" fill="${hexToRgba(c, 0.4)}"/>
-                                    <polygon points="0,15 300,50 0,50" fill="${c}"/>
-                                </svg>
-                            </section>
-                        </section>`
+                (t, c) => `<section style="margin: 20px 8px; padding: 14px 16px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.2)}; border-radius: 8px; font-size: 15px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; border: 1px solid ${c}; border-radius: 4px; padding: 24px 20px; background-color: ${hexToRgba(c, 0.06)}; background-image: radial-gradient(circle, ${c} 3px, transparent 4px), radial-gradient(circle, ${c} 3px, transparent 4px), linear-gradient(135deg, transparent 50%, ${c} 50%); background-position: left 12px top 12px, right 12px top 12px, right bottom; background-size: 8px 8px, 8px 8px, 24px 24px; background-repeat: no-repeat;"><section style="font-size: 15px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section></section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 14px 16px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 15px; color: #334155; line-height: 1.8; text-align: justify; border-radius: 0 8px 8px 0;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 14px 16px; background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid ${c}; border-radius: 0 0 8px 8px; font-size: 15px; color: #334155; line-height: 1.8; text-align: justify; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 14px 16px 14px 44px; background: ${hexToRgba(c, 0.08)}; border-radius: 8px; font-size: 15px; color: #334155; line-height: 1.8; text-align: justify; position: relative;"><span style="position: absolute; left: 14px; top: 14px; font-size: 18px;">💡</span>${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; background-color: ${hexToRgba(c, 0.06)}; border-radius: 8px; overflow: hidden;"><section style="padding: 20px 16px 16px 16px; font-size: 15px; color: #3e3e3e; line-height: 1.75; text-align: justify;">${format(t)}</section><section style="display: block; margin: 0; padding: 0; line-height: 0; font-size: 0;"><svg viewBox="0 0 600 40" style="display: block; width: 100%;" preserveAspectRatio="none"><polygon points="600,0 600,40 0,40" fill="${hexToRgba(c, 0.4)}"/><polygon points="0,12 280,40 0,40" fill="${c}"/></svg></section></section>`
             ],
             quote: [
-                (t, c) => `<section style="margin: 25px 8px; padding: 14px 18px; background: #f8fafc; color: #64748b; border-radius: 6px; font-size: 16px; line-height: 1.8; border-left: 3px solid #cbd5e1;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 20px 18px 14px 18px; background: #f8fafc; color: #64748b; border-radius: 8px; font-size: 16px; line-height: 1.8; position: relative;"><span style="position: absolute; top: 8px; left: 14px; font-size: 28px; color: #cbd5e1; font-family: Georgia; line-height: 1;">"</span><span style="display: block; padding-left: 20px;">${format(t)}</span></section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 16px 20px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); color: #64748b; border-radius: 8px; font-size: 16px; line-height: 1.8; font-style: italic; border: 1px solid #e2e8f0;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 14px 18px; background: ${hexToRgba(c, 0.06)}; color: #475569; border-radius: 6px; font-size: 16px; line-height: 1.8; border-left: 3px solid ${c};">${format(t)}</section>`
+                (t, c) => `<section style="margin: 20px 8px; padding: 12px 16px; background: #f8fafc; color: #64748b; border-radius: 6px; font-size: 15px; line-height: 1.8; border-left: 3px solid #cbd5e1;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 18px 16px 12px 16px; background: #f8fafc; color: #64748b; border-radius: 8px; font-size: 15px; line-height: 1.8; position: relative;"><span style="position: absolute; top: 6px; left: 12px; font-size: 24px; color: #cbd5e1; font-family: Georgia; line-height: 1;">"</span><span style="display: block; padding-left: 18px;">${format(t)}</span></section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 14px 18px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); color: #64748b; border-radius: 8px; font-size: 15px; line-height: 1.8; font-style: italic; border: 1px solid #e2e8f0;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 12px 16px; background: ${hexToRgba(c, 0.06)}; color: #475569; border-radius: 6px; font-size: 15px; line-height: 1.8; border-left: 3px solid ${c};">${format(t)}</section>`
             ],
             bg_card: [
-                (t, c) => `<section style="margin: 25px 8px; padding: 18px; background: ${c}; border-radius: 8px; color: #fff; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 18px; background: ${hexToRgba(c, 0.12)}; border-radius: 8px; color: #334155; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 18px; background: linear-gradient(135deg, ${c}, ${hexToRgba(c, 0.8)}); border-radius: 8px; color: #fff; font-size: 16px; line-height: 1.8; text-align: justify; box-shadow: 0 4px 12px ${hexToRgba(c, 0.25)};">${format(t)}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 18px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.25)}; border-radius: 8px; color: #334155; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 20px 8px; padding: 16px; background: ${c}; border-radius: 8px; color: #fff; font-size: 15px; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 16px; background: ${hexToRgba(c, 0.12)}; border-radius: 8px; color: #334155; font-size: 15px; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 16px; background: linear-gradient(135deg, ${c}, ${hexToRgba(c, 0.8)}); border-radius: 8px; color: #fff; font-size: 15px; line-height: 1.8; text-align: justify; box-shadow: 0 4px 10px ${hexToRgba(c, 0.25)};">${format(t)}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 16px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.25)}; border-radius: 8px; color: #334155; font-size: 15px; line-height: 1.8; text-align: justify;">${format(t)}</section>`
             ],
             code_block: [
-                (t, c) => `<section style="margin: 25px 8px; padding: 14px 16px; background: #1e293b; color: #e2e8f0; font-family: Menlo, Monaco, Consolas, monospace; font-size: 13px; border-radius: 8px; overflow-x: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; padding: 14px 16px; background: #f8fafc; color: #334155; font-family: Menlo, Monaco, Consolas, monospace; font-size: 13px; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</section>`,
-                (t, c) => `<section style="margin: 25px 8px; border-radius: 8px; overflow: hidden; border: 1px solid #334155;"><table style="width: 100%; border-collapse: collapse;"><tr><td style="background: #334155; padding: 8px 14px;"><span style="display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; margin-right: 6px;"></span><span style="display: inline-block; width: 10px; height: 10px; background: #f59e0b; border-radius: 50%; margin-right: 6px;"></span><span style="display: inline-block; width: 10px; height: 10px; background: #22c55e; border-radius: 50%;"></span></td></tr><tr><td style="padding: 14px 16px; background: #1e293b; color: #e2e8f0; font-family: Menlo, Monaco, Consolas, monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</td></tr></table></section>`
+                (t, c) => `<section style="margin: 20px 8px; padding: 12px 14px; background: #1e293b; color: #e2e8f0; font-family: Menlo, Monaco, Consolas, monospace; font-size: 12px; border-radius: 8px; overflow-x: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; padding: 12px 14px; background: #f8fafc; color: #334155; font-family: Menlo, Monaco, Consolas, monospace; font-size: 12px; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</section>`,
+                (t, c) => `<section style="margin: 20px 8px; border-radius: 8px; overflow: hidden; border: 1px solid #334155;"><section style="background: #334155; padding: 6px 12px;"><span style="display: inline-block; width: 9px; height: 9px; background: #ef4444; border-radius: 50%; margin-right: 5px;"></span><span style="display: inline-block; width: 9px; height: 9px; background: #f59e0b; border-radius: 50%; margin-right: 5px;"></span><span style="display: inline-block; width: 9px; height: 9px; background: #22c55e; border-radius: 50%;"></span></section><section style="padding: 12px 14px; background: #1e293b; color: #e2e8f0; font-family: Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">${t}</section></section>`
             ],
             normal: [
-                (t, c) => `<section style="margin: 0 0 15px 0; padding: 0 8px; line-height: 1.8; font-size: 16px; color: #334155; text-align: justify;">${format(t)}</section>`
+                (t, c) => `<section style="margin: 0 0 12px 0; padding: 0 8px; line-height: 1.8; font-size: 15px; color: #334155; text-align: justify;">${format(t)}</section>`
             ]
         };
 
@@ -819,19 +780,10 @@
             renderColors();
             renderArticleBgPalette();
             updatePreviewBg();
-            updateSelectionCounter();
         };
 
         function toggleSettings() {
             document.getElementById('settings-panel').classList.toggle('active');
-        }
-
-        function toggleToolbar() {
-            toolbarCollapsed = !toolbarCollapsed;
-            const toolbar = document.getElementById('bottom-toolbar');
-            const icon = document.getElementById('toolbar-toggle-icon');
-            toolbar.classList.toggle('collapsed', toolbarCollapsed);
-            icon.textContent = toolbarCollapsed ? '▲' : '▼';
         }
 
         function saveConfig() {
@@ -857,9 +809,7 @@
                 const dot = document.createElement('div');
                 const isActive = (currentArticleBg && currentArticleBg.id === bg.id) || (!currentArticleBg && bg.id === 'none');
                 dot.className = 'bg-dot' + (isActive ? ' active' : '') + (bg.id === 'none' ? ' none-bg' : '');
-                if(bg.preview) {
-                    dot.style.background = bg.preview;
-                }
+                if(bg.preview) dot.style.background = bg.preview;
                 dot.title = bg.name;
                 dot.onclick = () => setArticleBg(bg);
                 el.appendChild(dot);
@@ -894,10 +844,9 @@
 
         function updateSelectionCounter() {
             const count = document.querySelectorAll('.block-wrapper.selected').length;
-            const counter = document.getElementById('selection-counter');
-            const countEl = document.getElementById('selection-count');
-            countEl.textContent = count;
-            counter.classList.toggle('visible', count > 0);
+            const badge = document.getElementById('selection-badge');
+            document.getElementById('selection-count').textContent = count;
+            badge.classList.toggle('visible', count > 0);
         }
 
         function renderArticle(blocks) {
@@ -924,9 +873,9 @@
             const container = document.getElementById('preview-content');
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-state-icon spinning" style="font-size: 32px;">⚙️</div>
-                    <div class="empty-state-title pulsing" style="margin-top: 16px;">AI 正在智能排版</div>
-                    <div class="empty-state-desc">正在分析文章结构，请稍候...</div>
+                    <div class="empty-icon spinning" style="animation: spin 1.5s linear infinite;">⚙️</div>
+                    <div class="empty-title">AI 正在分析排版</div>
+                    <div class="empty-desc">请稍候...</div>
                 </div>
             `;
             container.style.background = '#fff';
@@ -935,9 +884,9 @@
         function showWaiting() {
             document.getElementById('preview-content').innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-state-icon floating">✨</div>
-                    <div class="empty-state-title pulsing">等待内容输入</div>
-                    <div class="empty-state-desc">粘贴文章后点击「一键智能排版」</div>
+                    <div class="empty-icon">✨</div>
+                    <div class="empty-title">等待内容输入</div>
+                    <div class="empty-desc">粘贴文章后点击排版按钮</div>
                 </div>
             `;
             document.getElementById('preview-content').style.background = '#fff';
@@ -950,11 +899,11 @@
                 toggleSettings();
                 return alert('请先设置 API Key');
             }
-            if(!text) return alert('请先在左侧输入文章内容');
+            if(!text) return alert('请先输入文章内容');
             
             const btn = document.getElementById('btn-run');
             btn.disabled = true; 
-            btn.innerHTML = '<span class="spinning">⚙️</span> 排版中...';
+            btn.innerHTML = '<span class="spinning">⚙️</span><span>排版中...</span>';
             
             showLoading();
 
@@ -988,7 +937,7 @@
             }
             finally { 
                 btn.disabled = false; 
-                btn.innerHTML = '<span>🚀</span><span>一键智能排版</span>';
+                btn.innerHTML = '<span>✨</span><span>一键智能排版</span>';
             }
         }
 
@@ -1002,7 +951,7 @@
 
         function applyVariant(type, keepVariant = false) {
             const selected = document.querySelectorAll('.block-wrapper.selected');
-            if(selected.length === 0 && !keepVariant) return alert("请先点击预览区选中内容块");
+            if(selected.length === 0 && !keepVariant) return alert("请先选中内容块");
             
             selected.forEach(el => {
                 const raw = el.dataset.raw;
@@ -1032,7 +981,7 @@
 
         function toggleBold() {
             const selected = document.querySelectorAll('.block-wrapper.selected');
-            if(selected.length === 0) return alert("请先点击预览区选中内容块");
+            if(selected.length === 0) return alert("请先选中内容块");
             
             selected.forEach(el => {
                 const currentBold = el.dataset.isBold === 'true';
@@ -1046,7 +995,7 @@
 
         function changeFontSize(direction) {
             const selected = document.querySelectorAll('.block-wrapper.selected');
-            if(selected.length === 0) return alert("请先点击预览区选中内容块");
+            if(selected.length === 0) return alert("请先选中内容块");
             
             selected.forEach(el => {
                 let fontSizeOffset = parseInt(el.dataset.fontSizeOffset) || 0;
@@ -1090,7 +1039,7 @@
         function mergeSelected() {
             const selected = Array.from(document.querySelectorAll('.block-wrapper.selected'))
                 .sort((a,b) => a.offsetTop - b.offsetTop);
-            if(selected.length < 2) return alert("请至少选中两个内容块进行合并");
+            if(selected.length < 2) return alert("请至少选中两个内容块");
             
             const mergedText = selected.map(el => el.dataset.raw).join('\n');
             const wrapper = document.createElement('div');
@@ -1111,9 +1060,7 @@
             const container = document.getElementById('preview-content');
             const wrappers = container.querySelectorAll('.block-wrapper');
             
-            if(wrappers.length === 0) {
-                return alert("没有可复制的内容，请先进行排版");
-            }
+            if(wrappers.length === 0) return alert("没有可复制的内容");
             
             let htmlParts = [];
             wrappers.forEach(wrapper => {
@@ -1122,9 +1069,10 @@
             
             let innerHtml = htmlParts.join('');
             
+            // 底色处理：使用更大的负边距和padding确保铺满
             let html;
             if(currentArticleBg && currentArticleBg.value) {
-                html = `<section style="background: ${currentArticleBg.value}; padding: 20px 10px; margin-left: -10px; margin-right: -10px;">${innerHtml}</section>`;
+                html = `<section style="background: ${currentArticleBg.value}; padding: 20px 16px; margin: 0 -16px;">${innerHtml}</section>`;
             } else {
                 html = innerHtml;
             }
@@ -1136,9 +1084,11 @@
                 const btn = document.getElementById('btn-copy');
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '✅ 已复制';
+                btn.style.background = '#22c55e';
                 setTimeout(() => {
                     btn.innerHTML = originalText;
-                }, 2000);
+                    btn.style.background = '';
+                }, 1500);
             } catch(e) {
                 alert("复制失败：" + e.message);
             }
