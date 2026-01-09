@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公众号AI排版 v2.6</title>
+    <title>公众号AI排版 v2.8 </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -181,7 +181,7 @@
     <div class="max-w-7xl mx-auto w-full py-4 px-4 flex-shrink-0">
         <header class="flex justify-between items-center mb-4">
             <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.6</span>
+                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.8</span>
             </h1>
             <div class="flex items-center gap-3">
                 <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="text-[12px] text-slate-400 hidden sm:block">如何获得API Key</a>
@@ -312,13 +312,13 @@
         }
 
         // ==========================================
-        // 核心模板库 v2.6 (兼容性增强版)
+        // 核心模板库 v2.8 (全兼容终极版)
         // ==========================================
         const VARIANTS = {
             big_title: [
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 8px; display: inline-block;">${t}</strong></section>`,
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 10px 24px; border-radius: 6px; display: inline-block;">${t}</strong></section>`,
-                // 样式：左侧深色竖条的标题 (用c代替深绿)
+                // 样式：左侧深色竖条的标题
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 15px 20px; background-color: ${hexToRgba(c, 0.1)}; border-left: 12px solid ${c}; color: ${c}; font-size: 18px; font-weight: bold; width: 100%; box-sizing: border-box;">${t}</section>`,
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: ${c}; border: 2px solid ${c}; padding: 8px 24px; border-radius: 50px; display: inline-block;">${t}</strong></section>`,
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px;"><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to right, transparent, ${c});"></span><strong style="font-size: 19px; color: #1f2937;">${t}</strong><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to left, transparent, ${c});"></span></section>`,
@@ -338,7 +338,7 @@
                     const n = num || '1';
                     return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
-                // 样式 2：带下划线的序号 (修复：使用Table布局代替Flex解决底部对齐问题)
+                // 样式：带下划线的序号 (Table布局)
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
@@ -354,11 +354,10 @@
                         </section>
                     </section>`;
                 },
-                // ★★★ 终极修复样式 3 (序号正文1 - 定制间距版) ★★★
+                // 样式：序号正文1 (定制Padding)
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    // 优化点：使用 padding: 10px 15px 12px 20px 解决错位
                     return `<section style="margin: 20px 0px; box-sizing: border-box;">
                                 <section style="display: block; width: 100%; background-color: ${hexToRgba(c, 0.1)}; padding: 8px; box-sizing: border-box;">
                                     <section style="display: block; width: 100%; background-color: #fff; border: 1px solid ${hexToRgba(c, 0.4)}; position: relative; min-height: 45px; box-sizing: border-box;">
@@ -390,15 +389,13 @@
             grad_title: [
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 6px 16px; font-size: 15px; font-weight: bold; border-radius: 4px;">${t}</span></section>`,
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 8px 14px; color: #1f2937; font-weight: bold; font-size: 16px; border-radius: 0 6px 6px 0;">${t}</span></section>`,
-                // 修复后的样式：使用 background-gradient 代替 absolute 定位，公众号完美兼容
+                // 样式：渐变高亮标 (背景渐变方案)
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><strong style="font-size: 17px; color: #1f2937; background: linear-gradient(to top, ${hexToRgba(c, 0.4)} 0%, ${hexToRgba(c, 0.4)} 35%, transparent 35.1%, transparent 100%); padding: 0 4px;">${t}</strong></section>`,
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: ${c}; color: #fff; padding: 5px 12px 5px 10px; font-size: 15px; font-weight: bold; border-radius: 4px 20px 20px 4px;">${t}</span></section>`
             ],
             key_point: [
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.2)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
-
-               // ★★★ 修复后的样式：重点卡片（背景图重构版） ★★★
-                // 修复原理：放弃 absolute 定位，改用 CSS 多重背景绘制，彻底解决微信编辑器中元素错位问题
+                // 样式：重点卡片（圆点+折角）- 背景图方案（最稳定）
                 (t, c) => `<section style="margin: 25px 8px; border: 1px solid ${c}; border-radius: 4px; padding: 30px 25px; background-color: ${hexToRgba(c, 0.06)}; 
                             background-image: 
                                 radial-gradient(circle, ${c} 4px, transparent 5px), 
@@ -415,21 +412,19 @@
                             background-repeat: no-repeat;">
                             <section style="font-size: 16px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section>
                         </section>`,
-
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; border-radius: 0 8px 8px 0;">${format(t)}</section>`,
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid ${c}; border-radius: 0 0 8px 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">${format(t)}</section>`,
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px 16px 50px; background: ${hexToRgba(c, 0.08)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; position: relative;"><span style="position: absolute; left: 16px; top: 16px; font-size: 20px;">💡</span>${format(t)}</section>`,
-                
-                // ★★★ 新增样式：几何山峰底部风格 (渐变背景版 - 最稳定) ★★★
-               (t, c) => `<section style="margin: 25px 8px; background-color: ${hexToRgba(c, 0.06)}; border-radius: 8px; overflow: hidden;">
-    <section style="padding: 25px 20px 20px 20px; font-size: 16px; color: #3e3e3e; line-height: 1.75; text-align: justify;">${format(t)}</section>
-    <section style="display: block; margin: 0; padding: 0; line-height: 0; font-size: 0;">
-        <svg viewBox="0 0 600 50" style="display: block; width: 100%;" preserveAspectRatio="none">
-            <polygon points="600,0 600,50 0,50" fill="${hexToRgba(c, 0.4)}"/>
-            <polygon points="0,15 300,50 0,50" fill="${c}"/>
-        </svg>
-    </section>
-</section>`
+                // 样式：几何山峰底部风格 (SVG 完美方案)
+                (t, c) => `<section style="margin: 25px 8px; background-color: ${hexToRgba(c, 0.06)}; border-radius: 8px; overflow: hidden;">
+                            <section style="padding: 25px 20px 20px 20px; font-size: 16px; color: #3e3e3e; line-height: 1.75; text-align: justify;">${format(t)}</section>
+                            <section style="display: block; margin: 0; padding: 0; line-height: 0; font-size: 0;">
+                                <svg viewBox="0 0 600 50" style="display: block; width: 100%;" preserveAspectRatio="none">
+                                    <polygon points="600,0 600,50 0,50" fill="${hexToRgba(c, 0.4)}"/>
+                                    <polygon points="0,15 300,50 0,50" fill="${c}"/>
+                                </svg>
+                            </section>
+                        </section>`
             ],
             quote: [
                 (t, c) => `<section style="margin: 25px 8px; padding: 14px 18px; background: #f8fafc; color: #64748b; border-radius: 6px; font-size: 16px; line-height: 1.8; border-left: 3px solid #cbd5e1;">${format(t)}</section>`,
