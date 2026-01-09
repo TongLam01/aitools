@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V1.5</title>
+    <title>商事合同诊断助手 V1.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -11,7 +11,6 @@
     <style>
         * { box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        
         .prose table { border-collapse: collapse; width: 100%; margin: 1.5em 0; }
         .prose th, .prose td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
         .prose th { background-color: #f8fafc; font-weight: 600; }
@@ -19,145 +18,54 @@
         .prose p { margin-bottom: 1.25em; }
         .prose li { margin-bottom: 0.5em; }
         .prose h1, .prose h2, .prose h3 { color: #111827; margin-top: 1.5em; margin-bottom: 0.75em; }
-        
-        .upload-zone { 
-            border: 2px dashed #d1d5db; 
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-        }
-        .upload-zone:hover, .upload-zone.drag-over { 
-            border-color: #10b981; 
-            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-            transition: all 0.3s ease;
-        }
+        .upload-zone { border: 2px dashed #d1d5db; transition: all 0.3s ease; background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%); }
+        .upload-zone:hover, .upload-zone.drag-over { border-color: #10b981; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
+        .btn-primary { background: linear-gradient(135deg, #111827 0%, #1f2937 100%); transition: all 0.3s ease; }
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .btn-primary:active { transform: translateY(0); }
-        
         .btn-export-waiting { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
-        .btn-export-active { 
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-            color: white; cursor: pointer;
-            animation: pulse-glow 2s infinite;
-        }
-        @keyframes pulse-glow { 
-            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 
-            50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); } 
-        }
-        
+        .btn-export-active { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; cursor: pointer; animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); } }
         .thinking-indicator { animation: thinking 1.5s infinite; }
         @keyframes thinking { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        
-        .card { 
-            background: white; 
-            border-radius: 16px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .settings-panel {
-            position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 360px;
-            background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.1);
-            transform: translateX(100%); transition: transform 0.3s ease; z-index: 100;
-        }
+        .card { background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1); }
+        .settings-panel { position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 360px; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.1); transform: translateX(100%); transition: transform 0.3s ease; z-index: 100; }
         .settings-panel.open { transform: translateX(0); }
-        .settings-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.3);
-            opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 99;
-        }
+        .settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 99; }
         .settings-overlay.open { opacity: 1; visibility: visible; }
-        
-        .input-field {
-            width: 100%; padding: 12px 16px; border: 1px solid #e5e7eb;
-            border-radius: 12px; font-size: 14px; transition: all 0.2s ease; background: #fafafa;
-        }
+        .input-field { width: 100%; padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; transition: all 0.2s ease; background: #fafafa; }
         .input-field:focus { outline: none; border-color: #10b981; background: white; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-        
-        .select-field {
-            width: 100%; padding: 12px 16px; border: 1px solid #e5e7eb;
-            border-radius: 12px; font-size: 14px; background: #fafafa; cursor: pointer;
-        }
+        .select-field { width: 100%; padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; background: #fafafa; cursor: pointer; }
         .select-field:focus { outline: none; border-color: #10b981; }
-        
         .chat-container { height: calc(100vh - 280px); min-height: 400px; }
         @media (max-width: 1024px) { .chat-container { height: 50vh; min-height: 300px; } }
-        
-        .follow-up-input {
-            flex: 1; padding: 14px 18px; border: 1px solid #e5e7eb;
-            border-radius: 24px; font-size: 14px; background: #fafafa;
-        }
+        .follow-up-input { flex: 1; padding: 14px 18px; border: 1px solid #e5e7eb; border-radius: 24px; font-size: 14px; background: #fafafa; }
         .follow-up-input:focus { outline: none; border-color: #10b981; background: white; }
-        
-        .icon-btn {
-            width: 40px; height: 40px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s ease; cursor: pointer;
-        }
+        .icon-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; cursor: pointer; }
         .icon-btn:hover { background: #f3f4f6; }
-        
-        .toggle-switch {
-            position: relative; width: 44px; height: 24px; background: #d1d5db;
-            border-radius: 12px; cursor: pointer; transition: background 0.3s ease; flex-shrink: 0;
-        }
+        .toggle-switch { position: relative; width: 44px; height: 24px; background: #d1d5db; border-radius: 12px; cursor: pointer; transition: background 0.3s ease; flex-shrink: 0; }
         .toggle-switch.active { background: #10b981; }
-        .toggle-switch::after {
-            content: ''; position: absolute; top: 2px; left: 2px;
-            width: 20px; height: 20px; background: white; border-radius: 50%;
-            transition: transform 0.3s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
+        .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.3s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .toggle-switch.active::after { transform: translateX(20px); }
-        
-        .desensitize-stats {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            border: 1px solid #bbf7d0; border-radius: 12px; padding: 12px 16px; margin-top: 12px;
-        }
+        .desensitize-stats { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0; border-radius: 12px; padding: 12px 16px; margin-top: 12px; }
         .stats-item { display: inline-flex; align-items: center; margin-right: 16px; font-size: 12px; color: #166534; }
         .stats-item svg { width: 14px; height: 14px; margin-right: 4px; }
-        
-        .loading-overlay {
-            position: fixed; inset: 0; background: rgba(255,255,255,0.9);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s;
-        }
-        .loading-overlay.show { opacity: 1; visibility: visible; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="text-center">
-            <svg class="w-12 h-12 mx-auto text-emerald-500 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <p class="mt-4 text-gray-600 font-medium">正在处理文档...</p>
-        </div>
-    </div>
-
-    <!-- Settings Overlay -->
     <div class="settings-overlay" id="settingsOverlay" onclick="toggleSettings()"></div>
-    
-    <!-- Settings Panel -->
     <div class="settings-panel" id="settingsPanel">
         <div class="p-6 h-full flex flex-col">
             <div class="flex items-center justify-between mb-8">
                 <h2 class="text-lg font-semibold text-gray-900">设置</h2>
-                <button onclick="toggleSettings()" class="icon-btn">
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+                <button onclick="toggleSettings()" class="icon-btn"><svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
             <div class="space-y-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
                     <input type="password" id="apiKey" class="input-field" placeholder="输入 DeepSeek API Key">
                     <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="inline-flex items-center mt-3 text-sm text-emerald-600 hover:text-emerald-700">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                        </svg>
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                         去获取 API Key
                     </a>
                 </div>
@@ -169,31 +77,20 @@
                     </select>
                 </div>
             </div>
-            <div class="mt-auto pt-6 border-t">
-                <p class="text-xs text-gray-400 text-center">设置会自动保存到本地</p>
-            </div>
+            <div class="mt-auto pt-6 border-t"><p class="text-xs text-gray-400 text-center">设置会自动保存到本地</p></div>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">
-                    合同诊断助手
-                    <span class="text-emerald-500 text-xs font-normal ml-1">v1.5</span>
-                </h1>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v1.6</span></h1>
                 <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 智能脱敏</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
-                <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">
-                    导出报告
-                </button>
+                <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
                 <button onclick="toggleSettings()" class="icon-btn bg-white shadow-sm border border-gray-100">
-                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </button>
             </div>
         </header>
@@ -210,11 +107,7 @@
                     </div>
                     <div class="upload-zone rounded-xl p-6 text-center relative" id="uploadArea">
                         <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept=".docx,.pdf">
-                        <div class="mb-2">
-                            <svg class="w-8 h-8 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                        </div>
+                        <div class="mb-2"><svg class="w-8 h-8 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg></div>
                         <p class="text-sm text-gray-500" id="fileStatus">点击或拖拽打开</p>
                         <p class="text-xs text-gray-400 mt-1">支持 .docx / .pdf</p>
                     </div>
@@ -223,58 +116,32 @@
                 <div class="card p-5 space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">你的身份</label>
-                        <select id="role" class="select-field">
-                            <option value="甲方">甲方</option>
-                            <option value="乙方">乙方</option>
-                        </select>
+                        <select id="role" class="select-field"><option value="甲方">甲方</option><option value="乙方">乙方</option></select>
                     </div>
-                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <span class="text-emerald-600">★</span> 特别关注点
-                            <span class="text-xs text-gray-400 font-normal ml-1">(必填)</span>
-                        </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><span class="text-emerald-600">★</span> 特别关注点<span class="text-xs text-gray-400 font-normal ml-1">(必填)</span></label>
                         <input type="text" id="focus" class="input-field" placeholder="如：合规性、违约金公平性、付款条款">
                     </div>
-                    
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-sm font-medium text-gray-700">合同文本/脱敏预览</label>
                             <button onclick="manualDesensitize()" class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center space-x-1 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                                </svg>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
                                 <span>手动脱敏</span>
                             </button>
                         </div>
                         <textarea id="contractText" rows="6" class="input-field resize-none text-xs font-mono leading-relaxed" placeholder="打开文档后自动脱敏，或直接粘贴合同文本后点击「手动脱敏」"></textarea>
-                        
                         <div id="desensitizeStats" class="desensitize-stats hidden">
                             <div class="flex flex-wrap items-center">
-                                <span class="stats-item">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                    企业: <span id="companyStats">0</span>
-                                </span>
-                                <span class="stats-item">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                    地址: <span id="addressStats">0</span>
-                                </span>
-                                <span class="stats-item">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                    人名: <span id="personStats">0</span>
-                                </span>
-                                <span class="stats-item">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                                    其他: <span id="otherStats">0</span>
-                                </span>
+                                <span class="stats-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>企业: <span id="companyStats">0</span></span>
+                                <span class="stats-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>地址: <span id="addressStats">0</span></span>
+                                <span class="stats-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>人名: <span id="personStats">0</span></span>
+                                <span class="stats-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>其他: <span id="otherStats">0</span></span>
                                 <button onclick="showDesensitizeMap()" class="ml-auto text-xs text-emerald-700 hover:underline">查看映射</button>
                             </div>
                         </div>
                     </div>
-                    
-                    <button onclick="startInitialAudit()" id="submitBtn" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium text-sm">
-                        开始诊断
-                    </button>
+                    <button onclick="startInitialAudit()" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium text-sm">开始诊断</button>
                 </div>
             </aside>
 
@@ -283,21 +150,16 @@
                     <div id="chatScrollZone" class="chat-container flex-1 overflow-y-auto p-5 lg:p-8">
                         <div id="reportOutput" class="prose prose-slate max-w-none">
                             <div class="flex flex-col items-center justify-center h-full text-center py-16">
-                                <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
+                                <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 <p class="text-gray-300 text-sm">打开合同文档开始诊断</p>
                             </div>
                         </div>
                     </div>
-                    
                     <div id="followUpZone" class="hidden border-t border-gray-100 p-4">
                         <div class="flex items-center space-x-3">
                             <input type="text" id="followUpInput" class="follow-up-input" placeholder="继续追问...">
                             <button onclick="sendFollowUp()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-3 rounded-full font-medium text-sm transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                                </svg>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                             </button>
                         </div>
                     </div>
@@ -306,20 +168,13 @@
         </div>
     </div>
 
-    <!-- 脱敏映射表弹窗 -->
     <div id="mapModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeMapModal()">
         <div class="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-hidden">
             <div class="flex items-center justify-between p-4 border-b">
                 <h3 class="font-semibold text-gray-900">脱敏映射表</h3>
-                <button onclick="closeMapModal()" class="icon-btn">
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+                <button onclick="closeMapModal()" class="icon-btn"><svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
-            <div id="mapContent" class="p-4 overflow-y-auto max-h-[60vh]">
-                <p class="text-gray-400 text-sm text-center">暂无脱敏数据</p>
-            </div>
+            <div id="mapContent" class="p-4 overflow-y-auto max-h-[60vh]"><p class="text-gray-400 text-sm text-center">暂无脱敏数据</p></div>
         </div>
     </div>
 
@@ -327,320 +182,194 @@
         const pdfjsLib = window['pdfjs-dist/build/pdf'];
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // ==================== 全局状态 ====================
         let identityMap = new Map();
         let counters = { company: 0, address: 0, person: 0, other: 0 };
         let originalFileName = "手动输入";
         let chatHistory = [];
         let autoDesensitizeEnabled = true;
 
-        // ==================== 工具函数 ====================
-        function showLoading() { document.getElementById('loadingOverlay').classList.add('show'); }
-        function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
         function toggleSettings() {
             document.getElementById('settingsPanel').classList.toggle('open');
             document.getElementById('settingsOverlay').classList.toggle('open');
         }
+        
         function toggleAutoDesensitize() {
             autoDesensitizeEnabled = !autoDesensitizeEnabled;
             document.getElementById('autoDesensitizeToggle').classList.toggle('active', autoDesensitizeEnabled);
             localStorage.setItem('auto_desensitize', String(autoDesensitizeEnabled));
         }
 
-        // 加载设置
         document.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem('ds_api_key');
-            if (savedKey) document.getElementById('apiKey').value = savedKey;
-            const savedAuto = localStorage.getItem('auto_desensitize');
-            if (savedAuto !== null) autoDesensitizeEnabled = savedAuto === 'true';
+            const k = localStorage.getItem('ds_api_key');
+            if (k) document.getElementById('apiKey').value = k;
+            const a = localStorage.getItem('auto_desensitize');
+            if (a !== null) autoDesensitizeEnabled = a === 'true';
             document.getElementById('autoDesensitizeToggle').classList.toggle('active', autoDesensitizeEnabled);
         });
 
-        // ==================== 高性能脱敏算法 ====================
-        
-        /**
-         * 简单高效的脱敏函数
-         * 策略：使用简单正则 + 后验证，避免复杂正则导致的性能问题
-         */
+        // ==================== 高效脱敏算法 ====================
         function secureDeIdentify(text) {
             if (!text) return "";
             
-            const matches = [];
+            identityMap.clear();
+            counters = { company: 0, address: 0, person: 0, other: 0 };
             
-            // 1. 公司名称 - 必须以特定后缀结尾
-            const companySuffixes = ['有限公司', '股份有限公司', '有限责任公司', '集团有限公司', '集团公司', '集团', '总公司', '分公司', '子公司', '研究所', '研究院', '事务所', '设计院', '医院', '银行'];
-            companySuffixes.forEach(suffix => {
-                let idx = 0;
-                while ((idx = text.indexOf(suffix, idx)) !== -1) {
-                    // 向前查找公司名开头（最多30个字符）
-                    let start = Math.max(0, idx - 30);
-                    let prefix = text.substring(start, idx);
-                    
-                    // 找到最后一个明显的分隔符后的位置
-                    const separators = ['，', '。', '；', '、', '\n', '\r', '：', ':', '（', '）', '(', ')', '"', '"', '「', '」', '【', '】', ' '];
-                    let lastSep = -1;
-                    separators.forEach(sep => {
-                        const pos = prefix.lastIndexOf(sep);
-                        if (pos > lastSep) lastSep = pos;
-                    });
-                    
-                    if (lastSep !== -1) {
-                        start = start + lastSep + 1;
-                    }
-                    
-                    const companyName = text.substring(start, idx + suffix.length).trim();
-                    
-                    // 验证：至少4个字符，以中文开头
-                    if (companyName.length >= 4 && /^[\u4e00-\u9fa5]/.test(companyName)) {
-                        // 排除明显不是公司名的
-                        const excludeStarts = ['根据', '依据', '按照', '依照', '关于', '对于', '由于', '鉴于', '基于', '通过', '经过', '作为', '成为'];
-                        const isExcluded = excludeStarts.some(e => companyName.startsWith(e));
-                        if (!isExcluded) {
-                            matches.push({ text: companyName, type: 'company', index: start });
-                        }
-                    }
-                    idx += suffix.length;
+            // 一次性正则匹配所有模式
+            const patterns = {
+                // 公司：前面是中文，后面是公司后缀
+                company: /[\u4e00-\u9fa5()（）]{2,25}(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|集团|研究所|研究院|事务所|设计院|银行)/g,
+                // 地址：市+区 或 省+市 或 详细地址
+                address: /[\u4e00-\u9fa5]{2,4}(?:省|自治区)[\u4e00-\u9fa5]{2,6}(?:市|自治州)|[\u4e00-\u9fa5]{2,6}市[\u4e00-\u9fa5]{2,6}(?:区|县|市)|[\u4e00-\u9fa5]{2,10}(?:路|街|道|大道|巷|弄)[\d\-]*号?[\u4e00-\u9fa5\d]*(?:栋|幢|单元|层|楼|室|座)?/g,
+                // 身份证
+                idcard: /[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]/g,
+                // 手机号（独立出现或在特定上下文）
+                phone: /(?:电话|手机|联系|Tel|Mobile)[：:\s]*1[3-9]\d{9}|(?<![.\d])1[3-9]\d{9}(?![.\d])/gi,
+                // 邮箱
+                email: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+                // 银行账号
+                bank: /(?:账号|账户)[：:\s]*\d{12,19}/g,
+            };
+            
+            // 收集所有匹配
+            let allMatches = [];
+            
+            // 公司
+            let m;
+            while ((m = patterns.company.exec(text)) !== null) {
+                const t = m[0];
+                // 过滤：不以"根据/依据/按照"等开头
+                if (!/^(根据|依据|按照|依照|关于|对于|由于|鉴于|基于|通过|经过|作为|成为|并由|若|如果)/.test(t) && t.length >= 4) {
+                    allMatches.push({ text: t, type: 'company', idx: m.index });
                 }
-            });
-            
-            // 2. 地址 - 查找"XX市XX区"或"XX省XX市"等模式
-            const addressPatterns = [
-                // 市+区/县
-                /[\u4e00-\u9fa5]{2,8}市[\u4e00-\u9fa5]{2,8}(?:区|县)/g,
-                // 省+市
-                /[\u4e00-\u9fa5]{2,8}省[\u4e00-\u9fa5]{2,8}市/g,
-                // 完整地址（包含路/街/号等）
-                /[\u4e00-\u9fa5]{2,6}(?:省|市|区|县)[\u4e00-\u9fa5]{2,20}(?:路|街|道|巷|弄|号|栋|幢|单元|室|楼|层)/g,
-                // 带门牌号的地址
-                /[\u4e00-\u9fa5]{2,15}(?:路|街|道|大道|大街)[\d\-A-Za-z]*号/g,
-            ];
-            
-            addressPatterns.forEach(pattern => {
-                let match;
-                while ((match = pattern.exec(text)) !== null) {
-                    const addr = match[0];
-                    // 排除过短或包含排除词的
-                    if (addr.length >= 4) {
-                        const excludeWords = ['甲方', '乙方', '丙方', '双方', '各方', '合同', '协议'];
-                        const isExcluded = excludeWords.some(w => addr.includes(w));
-                        if (!isExcluded) {
-                            matches.push({ text: addr, type: 'address', index: match.index });
-                        }
-                    }
-                }
-            });
-            
-            // 3. 扩展地址 - 从已识别的地址向后扩展
-            const extendedAddresses = [];
-            matches.filter(m => m.type === 'address').forEach(m => {
-                const startIdx = m.index + m.text.length;
-                const remaining = text.substring(startIdx, startIdx + 50);
-                
-                // 尝试匹配后续的详细地址
-                const extMatch = remaining.match(/^[\u4e00-\u9fa5\d\-A-Za-z]{1,30}(?:号|栋|幢|单元|室|楼|层|座|期|苑|园|城|府|湾)/);
-                if (extMatch) {
-                    const fullAddr = m.text + extMatch[0];
-                    extendedAddresses.push({ text: fullAddr, type: 'address', index: m.index, replace: m.text });
-                }
-            });
-            
-            // 用扩展地址替换原地址
-            extendedAddresses.forEach(ext => {
-                const idx = matches.findIndex(m => m.text === ext.replace && m.index === ext.index);
-                if (idx !== -1) {
-                    matches[idx] = { text: ext.text, type: 'address', index: ext.index };
-                }
-            });
-            
-            // 4. 人名（在特定上下文中）
-            const personContexts = ['法定代表人', '法人代表', '负责人', '经办人', '联系人', '代理人', '授权代表', '委托人', '受托人', '签字', '签章', '代表人', '经理', '总经理', '董事长'];
-            const commonSurnames = '王李张刘陈杨赵黄周吴徐孙胡朱高林何郭马罗梁宋郑谢韩唐冯于董萧程曹袁邓许傅沈曾彭吕苏卢蒋蔡贾丁魏薛叶阎余潘杜戴夏钟汪田任姜范方石姚谭廖邹熊金陆郝孔白崔康毛邱秦江史顾侯邵孟龙万段钱汤尹黎易常武乔贺赖龚文';
-            
-            personContexts.forEach(ctx => {
-                let idx = 0;
-                while ((idx = text.indexOf(ctx, idx)) !== -1) {
-                    // 查找上下文后面的人名
-                    const afterCtx = text.substring(idx + ctx.length, idx + ctx.length + 10);
-                    const nameMatch = afterCtx.match(/^[：:\s]*([${commonSurnames}][\u4e00-\u9fa5]{1,3})/.replace('${commonSurnames}', commonSurnames));
-                    if (nameMatch && nameMatch[1]) {
-                        const name = nameMatch[1];
-                        if (name.length >= 2 && name.length <= 4 && commonSurnames.includes(name[0])) {
-                            matches.push({ text: name, type: 'person', index: idx + ctx.length + (nameMatch[0].length - nameMatch[1].length) });
-                        }
-                    }
-                    idx += ctx.length;
-                }
-            });
-            
-            // 5. 敏感数字
-            // 身份证
-            const idCardRegex = /[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]/g;
-            let idMatch;
-            while ((idMatch = idCardRegex.exec(text)) !== null) {
-                matches.push({ text: idMatch[0], type: 'other', index: idMatch.index });
             }
             
-            // 银行账号（在上下文中）
-            const bankContexts = ['账号', '账户', '银行账号', '收款账号', '付款账号'];
-            bankContexts.forEach(ctx => {
-                let idx = 0;
-                while ((idx = text.indexOf(ctx, idx)) !== -1) {
-                    const after = text.substring(idx + ctx.length, idx + ctx.length + 30);
-                    const numMatch = after.match(/^[：:\s]*(\d{10,20})/);
-                    if (numMatch && numMatch[1]) {
-                        matches.push({ text: numMatch[1], type: 'other', index: idx + ctx.length + (numMatch[0].length - numMatch[1].length) });
-                    }
-                    idx += ctx.length;
+            // 地址
+            while ((m = patterns.address.exec(text)) !== null) {
+                const t = m[0];
+                if (!/^(甲方|乙方|丙方|双方|各方|合同|协议)/.test(t) && t.length >= 4) {
+                    allMatches.push({ text: t, type: 'address', idx: m.index });
                 }
-            });
+            }
             
-            // 手机号（在上下文中）
-            const phoneContexts = ['电话', '手机', '联系方式', '联系电话', '传真', 'Tel', 'TEL'];
-            phoneContexts.forEach(ctx => {
-                let idx = 0;
-                while ((idx = text.indexOf(ctx, idx)) !== -1) {
-                    const after = text.substring(idx + ctx.length, idx + ctx.length + 20);
-                    const phoneMatch = after.match(/^[：:\s]*(1[3-9]\d{9})/);
-                    if (phoneMatch && phoneMatch[1]) {
-                        matches.push({ text: phoneMatch[1], type: 'other', index: idx + ctx.length + (phoneMatch[0].length - phoneMatch[1].length) });
-                    }
-                    idx += ctx.length;
-                }
-            });
+            // 身份证
+            while ((m = patterns.idcard.exec(text)) !== null) {
+                allMatches.push({ text: m[0], type: 'other', idx: m.index });
+            }
+            
+            // 手机
+            while ((m = patterns.phone.exec(text)) !== null) {
+                // 提取纯手机号
+                const phone = m[0].match(/1[3-9]\d{9}/);
+                if (phone) allMatches.push({ text: phone[0], type: 'other', idx: m.index });
+            }
             
             // 邮箱
-            const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-            let emailMatch;
-            while ((emailMatch = emailRegex.exec(text)) !== null) {
-                matches.push({ text: emailMatch[0], type: 'other', index: emailMatch.index });
+            while ((m = patterns.email.exec(text)) !== null) {
+                allMatches.push({ text: m[0], type: 'other', idx: m.index });
             }
             
-            // 6. 去重和排序
-            // 按长度降序，确保长的先被替换
-            matches.sort((a, b) => b.text.length - a.text.length);
+            // 银行账号
+            while ((m = patterns.bank.exec(text)) !== null) {
+                const num = m[0].match(/\d{12,19}/);
+                if (num) allMatches.push({ text: num[0], type: 'other', idx: m.index });
+            }
             
-            // 去重：相同文本只保留一个，且移除被包含的短文本
-            const uniqueMatches = [];
-            const seenTexts = new Set();
-            
-            matches.forEach(item => {
-                if (seenTexts.has(item.text)) return;
-                
-                // 检查是否被更长的文本包含
-                const isContained = uniqueMatches.some(existing => 
-                    existing.text.includes(item.text) && existing.text !== item.text
-                );
-                
-                if (!isContained) {
-                    uniqueMatches.push(item);
-                    seenTexts.add(item.text);
+            // 人名（在上下文中）
+            const personRe = /(?:法定代表人|法人|负责人|联系人|经办人|代理人|授权代表|委托人|受托人|签字|签章|代表)[：:\s]*([王李张刘陈杨赵黄周吴徐孙胡朱高林何郭马罗梁宋郑谢韩唐冯于董萧程曹袁邓许傅沈曾彭吕苏卢蒋蔡贾丁魏薛叶阎余潘杜戴夏钟汪田任姜范方石姚谭廖邹熊金陆郝孔白崔康毛邱秦江史顾侯邵孟龙万段钱汤尹黎易常武乔贺赖龚文][\u4e00-\u9fa5]{1,3})/g;
+            while ((m = personRe.exec(text)) !== null) {
+                if (m[1] && m[1].length >= 2 && m[1].length <= 4) {
+                    allMatches.push({ text: m[1], type: 'person', idx: m.index });
                 }
-            });
+            }
             
-            // 7. 执行替换
+            // 去重 + 按长度排序
+            const seen = new Set();
+            const unique = [];
+            allMatches.sort((a, b) => b.text.length - a.text.length);
+            
+            for (const item of allMatches) {
+                if (seen.has(item.text)) continue;
+                // 检查是否被更长的包含
+                let contained = false;
+                for (const u of unique) {
+                    if (u.text.includes(item.text) && u.text !== item.text) {
+                        contained = true;
+                        break;
+                    }
+                }
+                if (!contained) {
+                    unique.push(item);
+                    seen.add(item.text);
+                }
+            }
+            
+            // 生成映射并替换
             let result = text;
-            uniqueMatches.forEach(item => {
-                const placeholder = getOrCreatePlaceholder(item.text, item.type);
-                // 使用 split + join 代替正则，更安全
-                result = result.split(item.text).join(placeholder);
-            });
+            for (const item of unique) {
+                let ph;
+                if (identityMap.has(item.text)) {
+                    ph = identityMap.get(item.text);
+                } else {
+                    if (item.type === 'company') {
+                        counters.company++;
+                        ph = `[企业${String.fromCharCode(64 + ((counters.company - 1) % 26 + 1))}${counters.company > 26 ? Math.floor((counters.company - 1) / 26) : ''}]`;
+                    } else if (item.type === 'address') {
+                        counters.address++;
+                        ph = `[地址${counters.address}]`;
+                    } else if (item.type === 'person') {
+                        counters.person++;
+                        const n = ['甲','乙','丙','丁','戊','己','庚','辛'];
+                        ph = `[${n[counters.person - 1] || '某' + counters.person}]`;
+                    } else {
+                        counters.other++;
+                        ph = `[隐藏${counters.other}]`;
+                    }
+                    identityMap.set(item.text, ph);
+                }
+                result = result.split(item.text).join(ph);
+            }
             
-            updateDesensitizeStats();
+            updateStats();
             return result;
         }
         
-        function getOrCreatePlaceholder(original, type) {
-            if (identityMap.has(original)) {
-                return identityMap.get(original).placeholder;
-            }
-            
-            let placeholder;
-            switch (type) {
-                case 'company':
-                    counters.company++;
-                    placeholder = `[企业_${getLetterCode(counters.company)}]`;
-                    break;
-                case 'address':
-                    counters.address++;
-                    placeholder = `[地址_${counters.address}]`;
-                    break;
-                case 'person':
-                    counters.person++;
-                    const names = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛'];
-                    placeholder = `[某${names[counters.person - 1] || counters.person}]`;
-                    break;
-                default:
-                    counters.other++;
-                    placeholder = `[脱敏_${counters.other}]`;
-            }
-            
-            identityMap.set(original, { placeholder, type });
-            return placeholder;
-        }
-        
-        function getLetterCode(num) {
-            let result = '';
-            while (num > 0) {
-                num--;
-                result = String.fromCharCode(65 + (num % 26)) + result;
-                num = Math.floor(num / 26);
-            }
-            return result;
-        }
-        
-        function updateDesensitizeStats() {
-            const total = counters.company + counters.address + counters.person + counters.other;
-            const statsDiv = document.getElementById('desensitizeStats');
-            if (total > 0) {
-                statsDiv.classList.remove('hidden');
+        function updateStats() {
+            const t = counters.company + counters.address + counters.person + counters.other;
+            const s = document.getElementById('desensitizeStats');
+            if (t > 0) {
+                s.classList.remove('hidden');
                 document.getElementById('companyStats').textContent = counters.company;
                 document.getElementById('addressStats').textContent = counters.address;
                 document.getElementById('personStats').textContent = counters.person;
                 document.getElementById('otherStats').textContent = counters.other;
             } else {
-                statsDiv.classList.add('hidden');
+                s.classList.add('hidden');
             }
         }
         
-        function resetDesensitize() {
-            identityMap.clear();
-            counters = { company: 0, address: 0, person: 0, other: 0 };
-            document.getElementById('desensitizeStats').classList.add('hidden');
-        }
-        
         function manualDesensitize() {
-            const textarea = document.getElementById('contractText');
-            const text = textarea.value.trim();
-            if (!text) return alert('请先粘贴合同文本');
-            
-            showLoading();
-            setTimeout(() => {
-                resetDesensitize();
-                textarea.value = secureDeIdentify(text);
-                hideLoading();
-            }, 50);
+            const ta = document.getElementById('contractText');
+            if (!ta.value.trim()) return alert('请先粘贴合同文本');
+            ta.value = secureDeIdentify(ta.value);
         }
         
         function showDesensitizeMap() {
-            const content = document.getElementById('mapContent');
+            const c = document.getElementById('mapContent');
             if (identityMap.size === 0) {
-                content.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">暂无脱敏数据</p>';
+                c.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">暂无脱敏数据</p>';
             } else {
-                let html = '<table class="w-full text-sm"><thead><tr class="border-b"><th class="text-left py-2 text-gray-500">代号</th><th class="text-left py-2 text-gray-500">类型</th><th class="text-left py-2 text-gray-500">原文预览</th></tr></thead><tbody>';
-                const typeLabels = { company: '企业', address: '地址', person: '人名', other: '其他' };
-                identityMap.forEach((value, original) => {
-                    let preview = original.length > 10 ? original.substring(0, 5) + '...' + original.slice(-3) : original.substring(0, 3) + '...';
-                    html += `<tr class="border-b border-gray-100"><td class="py-2 text-emerald-600 font-mono">${value.placeholder}</td><td class="py-2 text-gray-500 text-xs">${typeLabels[value.type]}</td><td class="py-2 text-gray-600">${preview}</td></tr>`;
+                let h = '<div class="space-y-2">';
+                identityMap.forEach((ph, orig) => {
+                    const preview = orig.length > 12 ? orig.slice(0, 6) + '...' + orig.slice(-4) : orig;
+                    h += `<div class="flex justify-between py-1 border-b border-gray-100"><span class="text-emerald-600 font-mono">${ph}</span><span class="text-gray-500 text-sm">${preview}</span></div>`;
                 });
-                html += '</tbody></table>';
-                content.innerHTML = html;
+                h += '</div>';
+                c.innerHTML = h;
             }
             document.getElementById('mapModal').classList.remove('hidden');
         }
         
-        function closeMapModal() {
-            document.getElementById('mapModal').classList.add('hidden');
-        }
+        function closeMapModal() { document.getElementById('mapModal').classList.add('hidden'); }
 
         // ==================== 文件处理 ====================
         document.getElementById('fileInput').addEventListener('change', async (e) => {
@@ -648,187 +377,140 @@
             if (!file) return;
             
             originalFileName = file.name.replace(/\.[^/.]+$/, "");
-            document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600 font-medium">${file.name}</span>`;
-            
-            showLoading();
+            document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600">${file.name}</span>`;
             
             try {
-                let rawText = "";
-                
+                let raw = "";
                 if (file.name.endsWith('.docx')) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const result = await mammoth.extractRawText({ arrayBuffer });
-                    rawText = result.value;
+                    const ab = await file.arrayBuffer();
+                    raw = (await mammoth.extractRawText({ arrayBuffer: ab })).value;
                 } else if (file.name.endsWith('.pdf')) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    const ab = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
                     for (let i = 1; i <= pdf.numPages; i++) {
                         const page = await pdf.getPage(i);
-                        const content = await page.getTextContent();
-                        rawText += content.items.map(item => item.str).join(" ") + "\n";
+                        const tc = await page.getTextContent();
+                        raw += tc.items.map(x => x.str).join(' ') + '\n';
                     }
                 }
                 
-                // 异步执行脱敏，避免阻塞
-                setTimeout(() => {
-                    if (autoDesensitizeEnabled) {
-                        resetDesensitize();
-                        document.getElementById('contractText').value = secureDeIdentify(rawText);
-                    } else {
-                        document.getElementById('contractText').value = rawText;
-                    }
-                    hideLoading();
-                }, 50);
-                
+                document.getElementById('contractText').value = autoDesensitizeEnabled ? secureDeIdentify(raw) : raw;
             } catch (err) {
-                hideLoading();
-                console.error(err);
-                alert("文档载入失败: " + err.message);
+                alert('文档载入失败: ' + err.message);
             }
         });
 
-        // ==================== 拖拽上传 ====================
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
-            document.body.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); }, false);
-        });
-        
-        ['dragenter', 'dragover'].forEach(evt => {
-            uploadArea.addEventListener(evt, () => uploadArea.classList.add('drag-over'), false);
-        });
-        
-        ['dragleave', 'drop'].forEach(evt => {
-            uploadArea.addEventListener(evt, () => uploadArea.classList.remove('drag-over'), false);
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.name.endsWith('.docx') || file.name.endsWith('.pdf')) {
-                    const dt = new DataTransfer();
-                    dt.items.add(file);
-                    fileInput.files = dt.files;
-                    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-                } else {
-                    alert('请上传 .docx 或 .pdf 格式的文件');
-                }
+        // 拖拽
+        const ua = document.getElementById('uploadArea');
+        ['dragenter','dragover','dragleave','drop'].forEach(e => document.body.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }, false));
+        ['dragenter','dragover'].forEach(e => ua.addEventListener(e, () => ua.classList.add('drag-over'), false));
+        ['dragleave','drop'].forEach(e => ua.addEventListener(e, () => ua.classList.remove('drag-over'), false));
+        ua.addEventListener('drop', e => {
+            const f = e.dataTransfer.files[0];
+            if (f && (f.name.endsWith('.docx') || f.name.endsWith('.pdf'))) {
+                const dt = new DataTransfer(); dt.items.add(f);
+                document.getElementById('fileInput').files = dt.files;
+                document.getElementById('fileInput').dispatchEvent(new Event('change', { bubbles: true }));
+            } else if (f) {
+                alert('请上传 .docx 或 .pdf 格式');
             }
         }, false);
 
-        // ==================== AI 调用 ====================
-        async function callAI(messages) {
-            const userKey = document.getElementById('apiKey').value || localStorage.getItem('ds_api_key');
+        // ==================== AI ====================
+        async function callAI(msgs) {
+            const key = document.getElementById('apiKey').value || localStorage.getItem('ds_api_key');
             const model = document.getElementById('model').value;
-            const output = document.getElementById('reportOutput');
-            const exportBtn = document.getElementById('exportBtn');
-
-            exportBtn.disabled = true;
-            exportBtn.className = "btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
-
-            const msgDiv = document.createElement('div');
-            msgDiv.className = "mb-8";
-            msgDiv.innerHTML = `<div class="flex items-center space-x-3 text-emerald-600 py-6 thinking-indicator">
-                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span class="font-medium">AI 正在深度分析...</span>
-            </div>`;
-            output.appendChild(msgDiv);
-            document.getElementById('chatScrollZone').scrollTop = document.getElementById('chatScrollZone').scrollHeight;
-
-            let fullContent = "";
-
+            const out = document.getElementById('reportOutput');
+            const btn = document.getElementById('exportBtn');
+            
+            btn.disabled = true;
+            btn.className = "btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
+            
+            const div = document.createElement('div');
+            div.className = 'mb-8';
+            div.innerHTML = `<div class="flex items-center space-x-3 text-emerald-600 py-6 thinking-indicator"><svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="font-medium">AI 正在深度分析...</span></div>`;
+            out.appendChild(div);
+            document.getElementById('chatScrollZone').scrollTop = 1e9;
+            
+            let full = '', started = false;
             try {
-                const response = await fetch('/api/hetong.js', {
+                const res = await fetch('/api/hetong.js', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userKey, messages, model })
+                    body: JSON.stringify({ userKey: key, messages: msgs, model })
                 });
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let started = false;
-
+                const reader = res.body.getReader();
+                const dec = new TextDecoder();
+                
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    
-                    const lines = decoder.decode(value).split('\n');
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const dataStr = line.slice(6);
-                            if (dataStr === '[DONE]') break;
+                    for (const line of dec.decode(value).split('\n')) {
+                        if (line.startsWith('data: ') && line.slice(6) !== '[DONE]') {
                             try {
-                                const data = JSON.parse(dataStr);
-                                const delta = data.choices?.[0]?.delta?.content || "";
-                                if (delta) {
-                                    if (!started) { msgDiv.innerHTML = ''; started = true; }
-                                    fullContent += delta;
-                                    msgDiv.innerHTML = marked.parse(fullContent);
-                                    document.getElementById('chatScrollZone').scrollTop = document.getElementById('chatScrollZone').scrollHeight;
+                                const d = JSON.parse(line.slice(6)).choices?.[0]?.delta?.content || '';
+                                if (d) {
+                                    if (!started) { div.innerHTML = ''; started = true; }
+                                    full += d;
+                                    div.innerHTML = marked.parse(full);
+                                    document.getElementById('chatScrollZone').scrollTop = 1e9;
                                 }
-                            } catch (e) {}
+                            } catch {}
                         }
                     }
                 }
-                
-                chatHistory.push({ role: "assistant", content: fullContent });
-                exportBtn.disabled = false;
-                exportBtn.className = "btn-export-active px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
+                chatHistory.push({ role: 'assistant', content: full });
+                btn.disabled = false;
+                btn.className = "btn-export-active px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
             } catch (e) {
-                msgDiv.innerHTML = `<p class="text-red-500">连接异常: ${e.message}</p>`;
+                div.innerHTML = `<p class="text-red-500">连接异常: ${e.message}</p>`;
             }
         }
 
         async function startInitialAudit() {
             const role = document.getElementById('role').value;
             const focus = document.getElementById('focus').value;
-            const textarea = document.getElementById('contractText');
-            const apiKey = document.getElementById('apiKey').value;
-            let text = textarea.value.trim();
+            const ta = document.getElementById('contractText');
+            const key = document.getElementById('apiKey').value;
+            let txt = ta.value.trim();
             
-            if (!apiKey) { toggleSettings(); return alert('请先设置 API Key'); }
-            if (!text || !focus) return alert('请确保合同文本和关注点已填写');
+            if (!key) { toggleSettings(); return alert('请先设置 API Key'); }
+            if (!txt || !focus) return alert('请确保合同文本和关注点已填写');
             
             if (autoDesensitizeEnabled && identityMap.size === 0) {
-                text = secureDeIdentify(text);
-                textarea.value = text;
+                txt = secureDeIdentify(txt);
+                ta.value = txt;
             }
             
-            localStorage.setItem('ds_api_key', apiKey);
-            document.getElementById('reportOutput').innerHTML = "";
+            localStorage.setItem('ds_api_key', key);
+            document.getElementById('reportOutput').innerHTML = '';
             document.getElementById('followUpZone').classList.remove('hidden');
             
-            chatHistory = [{ role: "user", content: `【身份】：${role}\n【特别关注】：${focus}\n\n【合同文本】：\n${text}` }];
+            chatHistory = [{ role: 'user', content: `【身份】：${role}\n【特别关注】：${focus}\n\n【合同文本】：\n${txt}` }];
             await callAI(chatHistory);
         }
 
         async function sendFollowUp() {
-            const input = document.getElementById('followUpInput');
-            const q = input.value.trim();
+            const inp = document.getElementById('followUpInput');
+            const q = inp.value.trim();
             if (!q) return;
             
-            const maskedQ = autoDesensitizeEnabled ? secureDeIdentify(q) : q;
-            input.value = "";
+            const mq = autoDesensitizeEnabled ? secureDeIdentify(q) : q;
+            inp.value = '';
             
-            const qUi = document.createElement('div');
-            qUi.className = "bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-400";
-            qUi.innerHTML = `<span class="text-emerald-700 font-medium">追问：</span> ${maskedQ}`;
-            document.getElementById('reportOutput').appendChild(qUi);
+            const qDiv = document.createElement('div');
+            qDiv.className = 'bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-400';
+            qDiv.innerHTML = `<span class="text-emerald-700 font-medium">追问：</span> ${mq}`;
+            document.getElementById('reportOutput').appendChild(qDiv);
             
-            chatHistory.push({ role: "user", content: maskedQ });
+            chatHistory.push({ role: 'user', content: mq });
             await callAI(chatHistory);
         }
 
         function exportToWord() {
-            const content = document.getElementById('reportOutput').innerHTML;
-            const html = `<html><head><meta charset='utf-8'><style>body{font-family:'SimSun',serif;font-size:10.5pt}table{width:100%;border-collapse:collapse;margin:1em 0}th,td{border:1pt solid black;padding:6pt}h1{text-align:center}h2{color:#059669}</style></head><body><h1>合同审核报告</h1><p style='text-align:right'>关联：${originalFileName}</p><hr>${content}</body></html>`;
-            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-            saveAs(blob, `${originalFileName}_诊断报告.doc`);
+            const c = document.getElementById('reportOutput').innerHTML;
+            const h = `<html><head><meta charset='utf-8'><style>body{font-family:'SimSun',serif;font-size:10.5pt}table{width:100%;border-collapse:collapse;margin:1em 0}th,td{border:1pt solid black;padding:6pt}h1{text-align:center}h2{color:#059669}</style></head><body><h1>合同审核报告</h1><p style='text-align:right'>关联：${originalFileName}</p><hr>${c}</body></html>`;
+            saveAs(new Blob(['\ufeff', h], { type: 'application/msword' }), `${originalFileName}_诊断报告.doc`);
         }
 
         document.getElementById('followUpInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendFollowUp(); });
