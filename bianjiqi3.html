@@ -346,10 +346,13 @@
                     return `<section style="display: flex; align-items: flex-end; border-bottom: 2px solid ${c}; width: 100%; padding-bottom: 5px; margin: 15px 0 20px 0;"><div style="background-color: ${hexToRgba(c, 0.15)}; border-left: 4px solid ${c}; color: #666; font-size: 20px; font-weight: bold; padding: 5px 15px; margin-right: 15px; line-height: 1; white-space: nowrap;">${displayNum}</div><div style="color: #555; font-size: 17px; padding-bottom: 3px;">${text}</div></section>`;
                 },
                 // 新增样式5：序号正文（嵌套盒子）
+                // ★★★ 修复后的样式 3 (序号正文1) ★★★
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    return `<section style="background-color: ${hexToRgba(c, 0.06)}; padding: 15px; width: 100%; box-sizing: border-box; margin: 20px 0;"><div style="background-color: #fff; border: 1px solid ${hexToRgba(c, 0.3)}; min-height: 70px; position: relative; display: flex; align-items: center; padding: 20px 20px 20px 60px;"><div style="position: absolute; top: 0; left: 0; background-color: ${hexToRgba(c, 0.3)}; color: #fff; width: 40px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${n}</div><div style="color: #333; font-size: 16px; line-height: 1.6;">${text}</div></div></section>`;
+                    // 修复点：移除width:100%，增加z-index，加深颜色，使用padding布局代替flex防止兼容性问题
+                    return `<section style="margin: 20px 0; text-align: justify;"><section style="background-color: ${hexToRgba(c, 0.1)}; padding: 15px; box-sizing: border-box;"><div style="background-color: #fff; border: 1px solid ${hexToRgba(c, 0.4)}; position: relative; padding: 25px 20px 25px 60px; min-height: 40px;"><span style="position: absolute; top: 0; left: 0; background-color: ${hexToRgba(c, 0.4)}; color: #fff; width: 40px; height: 32px; line-height: 32px; text-align: center; font-weight: bold; font-size: 16px; z-index: 1;">${n}</span><div style="color: #333; font-size: 16px; line-height: 1.75; letter-spacing: 0.5px;">${text}</div></div></section></section>`;
+                },
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
