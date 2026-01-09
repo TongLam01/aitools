@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公众号AI排版 v2.6</title>
+    <title>公众号AI排版 v2.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -181,7 +181,7 @@
     <div class="max-w-7xl mx-auto w-full py-4 px-4 flex-shrink-0">
         <header class="flex justify-between items-center mb-4">
             <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.6</span>
+                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.7</span>
             </h1>
             <div class="flex items-center gap-3">
                 <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="text-[12px] text-slate-400 hidden sm:block">如何获得API Key</a>
@@ -312,7 +312,7 @@
         }
 
         // ==========================================
-        // 核心模板库 v2.6 (兼容性增强版)
+        // 核心模板库 v2.7 (SVG 修复版)
         // ==========================================
         const VARIANTS = {
             big_title: [
@@ -396,14 +396,23 @@
             ],
             key_point: [
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.2)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
-                // 样式：重点卡片（圆点+折角）
-                (t, c) => `<section style="border: 1px solid ${c}; background-color: ${hexToRgba(c, 0.06)}; padding: 30px; position: relative; width: 100%; box-sizing: border-box; margin: 25px 0;"><span style="position: absolute; top: 15px; left: 15px; width: 8px; height: 8px; background-color: ${c}; border-radius: 50%;"></span><span style="position: absolute; top: 15px; right: 15px; width: 8px; height: 8px; background-color: ${c}; border-radius: 50%;"></span><div style="color: #444; font-size: 16px; line-height: 1.8;">${format(t)}</div><div style="position: absolute; bottom: -1px; right: -1px; width: 0; height: 0; border-bottom: 25px solid ${c}; border-left: 25px solid transparent;"></div></section>`,
+                // ★★★ 修复后的样式 2：重点卡片（圆点+SVG折角） ★★★
+                (t, c) => `<section style="margin: 25px 8px; border: 1px solid ${c}; background-color: ${hexToRgba(c, 0.06)}; position: relative; border-radius: 4px; overflow: hidden;">
+                            <section style="position: absolute; top: 12px; left: 12px; width: 8px; height: 8px; background-color: ${c}; border-radius: 50%;"></section>
+                            <section style="position: absolute; top: 12px; right: 12px; width: 8px; height: 8px; background-color: ${c}; border-radius: 50%;"></section>
+                            <section style="padding: 25px 20px; color: #334155; font-size: 16px; line-height: 1.8; text-align: justify;">${format(t)}</section>
+                            <section style="position: absolute; bottom: -1px; right: -1px; width: 30px; height: 30px; line-height: 0;">
+                                <svg viewBox="0 0 30 30" style="display: block; width: 100%; height: 100%;">
+                                    <polygon points="0,30 30,30 30,0" fill="${c}"/>
+                                </svg>
+                            </section>
+                        </section>`,
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; border-radius: 0 8px 8px 0;">${format(t)}</section>`,
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid ${c}; border-radius: 0 0 8px 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">${format(t)}</section>`,
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px 16px 50px; background: ${hexToRgba(c, 0.08)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; position: relative;"><span style="position: absolute; left: 16px; top: 16px; font-size: 20px;">💡</span>${format(t)}</section>`,
                 
-                // ★★★ 新增样式：几何山峰底部风格 (渐变背景版 - 最稳定) ★★★
-               (t, c) => `<section style="margin: 25px 8px; background-color: ${hexToRgba(c, 0.06)}; border-radius: 8px; overflow: hidden;">
+                // ★★★ 新增样式：几何山峰底部风格 (SVG 完美修复版) ★★★
+                (t, c) => `<section style="margin: 25px 8px; background-color: ${hexToRgba(c, 0.06)}; border-radius: 8px; overflow: hidden;">
     <section style="padding: 25px 20px 20px 20px; font-size: 16px; color: #3e3e3e; line-height: 1.75; text-align: justify;">${format(t)}</section>
     <section style="display: block; margin: 0; padding: 0; line-height: 0; font-size: 0;">
         <svg viewBox="0 0 600 50" style="display: block; width: 100%;" preserveAspectRatio="none">
