@@ -11,7 +11,7 @@
             --primary-light: #38d976;
             --primary-dark: #06ae56;
             --primary-bg: #f0faf4;
-            --bg-main: #f5f5f5;
+            --bg-main: #ededed;
             --bg-card: #ffffff;
             --text-primary: #1f2937;
             --text-secondary: #6b7280;
@@ -39,11 +39,11 @@
         /* 主布局 */
         .main-container {
             display: flex;
-            height: calc(100vh - 56px);
+            height: calc(100vh - 52px);
             max-width: 1400px;
             margin: 0 auto;
-            padding: 16px;
-            gap: 20px;
+            padding: 12px 16px;
+            gap: 16px;
         }
 
         /* 左侧编辑区 */
@@ -53,15 +53,15 @@
             flex-direction: column;
             min-width: 0;
             background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid var(--border-light);
+            border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
         .editor-textarea {
             flex: 1;
             width: 100%;
-            padding: 20px;
+            padding: 16px;
             border: none;
             outline: none;
             resize: none;
@@ -71,18 +71,18 @@
             background: transparent;
         }
         .editor-textarea::placeholder {
-            color: #c4c4c4;
+            color: #bbb;
         }
 
         .editor-footer {
-            padding: 16px;
+            padding: 12px 16px;
             border-top: 1px solid var(--border-light);
             background: #fafafa;
         }
 
         /* 右侧预览区 */
         .preview-panel {
-            width: 400px;
+            width: 390px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
@@ -91,26 +91,25 @@
         /* 手机框架 */
         .phone-frame {
             flex: 1;
-            background: #1a1a1a;
-            border-radius: 32px;
-            padding: 8px;
+            background: #000;
+            border-radius: 28px;
+            padding: 6px;
             box-shadow: 
                 0 0 0 1px rgba(255,255,255,0.1) inset,
-                0 20px 40px rgba(0,0,0,0.15),
-                0 0 0 1px rgba(0,0,0,0.05);
+                0 16px 32px rgba(0,0,0,0.12);
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
         .phone-header {
-            height: 44px;
-            background: #1a1a1a;
-            border-radius: 24px 24px 0 0;
+            height: 40px;
+            background: #000;
+            border-radius: 22px 22px 0 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
+            padding: 0 14px;
             position: relative;
         }
 
@@ -119,33 +118,33 @@
             left: 50%;
             top: 0;
             transform: translateX(-50%);
-            width: 100px;
-            height: 28px;
-            background: #1a1a1a;
-            border-radius: 0 0 16px 16px;
+            width: 90px;
+            height: 24px;
+            background: #000;
+            border-radius: 0 0 14px 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
         .phone-notch::before {
             content: '';
-            width: 8px;
-            height: 8px;
-            background: #2a2a2a;
+            width: 6px;
+            height: 6px;
+            background: #1a1a1a;
             border-radius: 50%;
         }
         .phone-notch::after {
             content: '';
-            width: 40px;
-            height: 4px;
-            background: #2a2a2a;
+            width: 36px;
+            height: 3px;
+            background: #1a1a1a;
             border-radius: 2px;
         }
 
         .phone-header-left {
-            font-size: 11px;
-            color: #888;
+            font-size: 10px;
+            color: #666;
             font-weight: 500;
             z-index: 1;
         }
@@ -158,35 +157,34 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 6px 12px;
+            padding: 5px 10px;
             background: var(--primary);
             color: white;
             border: none;
-            border-radius: 14px;
-            font-size: 11px;
+            border-radius: 12px;
+            font-size: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
         .copy-btn:hover {
             background: var(--primary-dark);
-            transform: scale(1.02);
         }
         .copy-btn:active {
-            transform: scale(0.98);
+            transform: scale(0.96);
         }
 
         .phone-screen {
             flex: 1;
             background: white;
-            border-radius: 4px 4px 24px 24px;
+            border-radius: 2px 2px 22px 22px;
             overflow: hidden;
         }
 
         #preview-content {
             height: 100%;
             overflow-y: auto;
-            padding: 16px 8px;
+            padding: 12px 8px;
             outline: none;
             transition: background 0.3s;
             background: white;
@@ -198,7 +196,7 @@
             cursor: pointer;
             transition: all 0.15s ease;
             border: 2px solid transparent;
-            border-radius: 6px;
+            border-radius: 4px;
             margin: 0 -2px;
             padding: 2px;
         }
@@ -216,13 +214,13 @@
             right: -1px;
             background: var(--primary);
             color: white;
-            font-size: 10px;
-            width: 18px;
-            height: 18px;
+            font-size: 9px;
+            width: 16px;
+            height: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 0 6px 0 6px;
+            border-radius: 0 4px 0 4px;
             font-weight: bold;
         }
 
@@ -236,29 +234,29 @@
             backdrop-filter: blur(12px);
             border-top: 1px solid var(--border-light);
             z-index: 999;
-            padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+            padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
         }
 
         .toolbar-row {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
         .toolbar-row + .toolbar-row {
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .toolbar-group {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .toolbar-label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--text-muted);
             white-space: nowrap;
@@ -266,29 +264,29 @@
 
         .toolbar-divider {
             width: 1px;
-            height: 20px;
+            height: 18px;
             background: var(--border-light);
         }
 
         /* 颜色点 */
         .color-dot {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.15s;
             flex-shrink: 0;
         }
-        .color-dot:hover { transform: scale(1.12); }
+        .color-dot:hover { transform: scale(1.1); }
         .color-dot.active {
             border-color: #333;
-            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.08);
         }
 
         .bg-dot {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             border-radius: 4px;
             cursor: pointer;
             border: 2px solid var(--border-default);
@@ -308,7 +306,7 @@
             content: '';
             position: absolute;
             top: 50%; left: 50%;
-            width: 14px; height: 2px;
+            width: 12px; height: 2px;
             background: #ef4444;
             transform: translate(-50%, -50%) rotate(-45deg);
             border-radius: 1px;
@@ -319,8 +317,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            padding: 7px 12px;
+            gap: 3px;
+            padding: 6px 10px;
             background: white;
             border: 1px solid var(--border-default);
             border-radius: 6px;
@@ -363,7 +361,7 @@
             justify-content: center;
             gap: 8px;
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: var(--primary);
             color: white;
             border: none;
@@ -389,36 +387,36 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            padding: 40px 20px;
+            padding: 30px 16px;
             text-align: center;
             color: var(--text-muted);
         }
         .empty-icon {
-            font-size: 40px;
-            margin-bottom: 12px;
+            font-size: 36px;
+            margin-bottom: 10px;
             animation: float 3s ease-in-out infinite;
         }
         .empty-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: var(--text-secondary);
             margin-bottom: 4px;
         }
         .empty-desc {
-            font-size: 12px;
+            font-size: 11px;
         }
 
         /* 选中计数 */
         .selection-badge {
             position: fixed;
-            bottom: 130px;
+            bottom: 110px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             background: var(--primary);
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 11px;
             font-weight: 500;
             box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
             opacity: 0;
@@ -453,10 +451,10 @@
         }
         .modal-content {
             background: white;
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 12px;
+            padding: 20px;
             width: 100%;
-            max-width: 360px;
+            max-width: 340px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             transform: scale(0.95);
             transition: transform 0.2s;
@@ -468,7 +466,7 @@
         /* 动画 */
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
+            50% { transform: translateY(-5px); }
         }
         @keyframes spin {
             from { transform: rotate(0deg); }
@@ -485,52 +483,55 @@
             .main-container {
                 flex-direction: column;
                 height: auto;
-                padding: 12px;
-                gap: 16px;
+                padding: 10px 12px;
+                gap: 12px;
             }
             .editor-panel {
-                min-height: 280px;
+                min-height: 260px;
             }
             .preview-panel {
                 width: 100%;
-                height: 500px;
-                margin-bottom: 120px;
+                height: 480px;
+                margin-bottom: 100px;
             }
             .phone-frame {
                 border-radius: 20px;
-                padding: 6px;
+                padding: 5px;
             }
             .phone-header {
-                height: 36px;
-                border-radius: 14px 14px 0 0;
+                height: 34px;
+                border-radius: 15px 15px 0 0;
             }
             .phone-notch {
-                width: 80px;
-                height: 22px;
+                width: 70px;
+                height: 20px;
             }
             .phone-screen {
-                border-radius: 2px 2px 14px 14px;
+                border-radius: 2px 2px 15px 15px;
             }
             .toolbar-row {
                 overflow-x: auto;
-                padding-bottom: 4px;
             }
             .tool-btn {
-                padding: 6px 10px;
+                padding: 5px 8px;
                 font-size: 11px;
+            }
+            .color-dot, .bg-dot {
+                width: 18px;
+                height: 18px;
             }
         }
     </style>
 </head>
 <body>
     <!-- 顶部导航 -->
-    <header style="height: 56px; background: white; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; padding: 0 20px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 20px;">📝</span>
-            <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">公众号排版助手</span>
-            <span style="font-size: 10px; padding: 2px 8px; background: var(--primary-bg); color: var(--primary); border-radius: 10px; font-weight: 500;">v2.8</span>
+    <header style="height: 52px; background: white; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 18px;">📝</span>
+            <span style="font-weight: 600; font-size: 15px; color: var(--text-primary);">公众号排版助手</span>
+            <span style="font-size: 9px; padding: 2px 6px; background: var(--primary-bg); color: var(--primary); border-radius: 8px; font-weight: 500;">v2.8</span>
         </div>
-        <button onclick="toggleSettings()" style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: #f5f5f5; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-secondary); transition: all 0.2s;">
+        <button onclick="toggleSettings()" style="display: flex; align-items: center; gap: 5px; padding: 6px 12px; background: #f5f5f5; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--text-secondary); transition: all 0.2s;">
             <span>🔑</span>
             <span>API设置</span>
         </button>
@@ -539,22 +540,22 @@
     <!-- 设置弹窗 -->
     <div id="settings-panel" class="modal-overlay" onclick="if(event.target === this) toggleSettings()">
         <div class="modal-content">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                <span style="font-size: 28px;">🔐</span>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <span style="font-size: 24px;">🔐</span>
                 <div>
-                    <h3 style="font-weight: 600; font-size: 16px; color: var(--text-primary);">API 密钥</h3>
-                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">仅存储在本地浏览器</p>
+                    <h3 style="font-weight: 600; font-size: 15px; color: var(--text-primary);">API 密钥</h3>
+                    <p style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">仅存储在本地浏览器</p>
                 </div>
             </div>
             <input type="password" id="api-key" oninput="saveConfig()"
-                style="width: 100%; padding: 14px; background: #f5f5f5; border: 1px solid var(--border-light); border-radius: 10px; font-size: 14px; outline: none; margin-bottom: 16px; transition: all 0.2s;"
+                style="width: 100%; padding: 12px; background: #f5f5f5; border: 1px solid var(--border-light); border-radius: 8px; font-size: 13px; outline: none; margin-bottom: 12px; transition: all 0.2s;"
                 onfocus="this.style.borderColor='var(--primary)';this.style.background='white'"
                 onblur="this.style.borderColor='var(--border-light)';this.style.background='#f5f5f5'"
                 placeholder="输入 DeepSeek API Key">
-            <button onclick="toggleSettings()" style="width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">
+            <button onclick="toggleSettings()" style="width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
                 完成
             </button>
-            <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" style="display: block; text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 16px; text-decoration: none;">
+            <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" style="display: block; text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 12px; text-decoration: none;">
                 如何获取 API Key →
             </a>
         </div>
@@ -569,8 +570,8 @@
 💡 使用提示：
 1. 粘贴文章后点击「一键智能排版」
 2. 在右侧预览区点击选中内容块（可多选）
-3. 使用底部工具栏切换样式，重复点击可切换变体
-4. 按 Esc 取消选择，Ctrl+A 全选"></textarea>
+3. 使用底部工具栏切换样式
+4. 按 Esc 取消选择"></textarea>
             <div class="editor-footer">
                 <button onclick="generateArticle()" id="btn-run" class="main-btn">
                     <span>✨</span>
@@ -679,7 +680,7 @@
             return { num: '', text: text };
         }
 
-        // 样式模板 - 调整padding为8px
+        // 样式模板
         const VARIANTS = {
             big_title: [
                 (t, c) => `<section style="margin: 0 0 20px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 8px; display: inline-block;">${t}</strong></section>`,
@@ -1069,7 +1070,7 @@
             
             let innerHtml = htmlParts.join('');
             
-            // 底色处理：使用更大的负边距和padding确保铺满
+            // 底色处理
             let html;
             if(currentArticleBg && currentArticleBg.value) {
                 html = `<section style="background: ${currentArticleBg.value}; padding: 20px 16px; margin: 0 -16px;">${innerHtml}</section>`;
