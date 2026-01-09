@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V1.2</title>
+    <title>商事合同诊断助手 V1.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -150,6 +150,56 @@
             cursor: pointer;
         }
         .icon-btn:hover { background: #f3f4f6; }
+        
+        /* 开关样式 */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #d1d5db;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .toggle-switch.active {
+            background: #10b981;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+        
+        /* 脱敏统计面板 */
+        .desensitize-stats {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-top: 12px;
+        }
+        .stats-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 16px;
+            font-size: 12px;
+            color: #166534;
+        }
+        .stats-item svg {
+            width: 14px;
+            height: 14px;
+            margin-right: 4px;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -188,6 +238,16 @@
                         <option value="deepseek-chat">DeepSeek-V3 (极速模式)</option>
                     </select>
                 </div>
+                
+                <div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">自动脱敏</label>
+                            <p class="text-xs text-gray-400 mt-0.5">上传文件时自动隐藏敏感信息</p>
+                        </div>
+                        <div id="autoDesensitizeToggle" class="toggle-switch active" onclick="toggleAutoDesensitize()"></div>
+                    </div>
+                </div>
             </div>
             
             <div class="mt-auto pt-6 border-t">
@@ -203,9 +263,9 @@
             <div>
                 <h1 class="text-xl lg:text-2xl font-bold text-gray-900">
                     合同诊断助手
-                    <span class="text-emerald-500 text-xs font-normal ml-1">v1.2</span>
+                    <span class="text-emerald-500 text-xs font-normal ml-1">v1.3</span>
                 </h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 自动脱敏</p>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 智能脱敏</p>
             </div>
             
             <div class="flex items-center space-x-2 lg:space-x-3">
@@ -260,10 +320,53 @@
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">合同文本/脱敏预览</label>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-sm font-medium text-gray-700">合同文本/脱敏预览</label>
+                            <button onclick="manualDesensitize()" 
+                                    class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center space-x-1 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                </svg>
+                                <span>手动脱敏</span>
+                            </button>
+                        </div>
                         <textarea id="contractText" rows="6" 
                                   class="input-field resize-none text-xs font-mono leading-relaxed" 
-                                  placeholder="打开文档后自动脱敏内容，或直接在此粘贴合同文本"></textarea>
+                                  placeholder="打开文档后自动脱敏内容，或直接在此粘贴合同文本后点击「手动脱敏」"></textarea>
+                        
+                        <!-- 脱敏统计 -->
+                        <div id="desensitizeStats" class="desensitize-stats hidden">
+                            <div class="flex flex-wrap items-center">
+                                <span class="stats-item">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
+                                    企业: <span id="companyStats">0</span>
+                                </span>
+                                <span class="stats-item">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    地址: <span id="addressStats">0</span>
+                                </span>
+                                <span class="stats-item">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    人名: <span id="personStats">0</span>
+                                </span>
+                                <span class="stats-item">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                    账号: <span id="accountStats">0</span>
+                                </span>
+                                <button onclick="showDesensitizeMap()" class="ml-auto text-xs text-emerald-700 hover:underline">
+                                    查看映射表
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     
                     <button onclick="startInitialAudit()" id="submitBtn" 
@@ -304,57 +407,508 @@
         </div>
     </div>
 
+    <!-- 脱敏映射表弹窗 -->
+    <div id="mapModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-hidden">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h3 class="font-semibold text-gray-900">脱敏映射表</h3>
+                <button onclick="closeMapModal()" class="icon-btn">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="mapContent" class="p-4 overflow-y-auto max-h-[60vh]">
+                <p class="text-gray-400 text-sm text-center">暂无脱敏数据</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         const pdfjsLib = window['pdfjs-dist/build/pdf'];
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        let identityMap = new Map();
-        let companyCount = 0;
-        let addressCount = 0;
+        // ==================== 全局状态 ====================
+        let identityMap = new Map();      // 统一映射表 { 原文: 代号 }
+        let reverseMap = new Map();       // 反向映射 { 代号: 原文 }
+        let counters = {
+            company: 0,
+            address: 0,
+            person: 0,
+            account: 0,
+            phone: 0,
+            idcard: 0
+        };
         let originalFileName = "手动输入";
         let chatHistory = [];
+        let autoDesensitizeEnabled = true;
 
-        // Settings Panel Toggle
+        // ==================== 设置面板 ====================
         function toggleSettings() {
             document.getElementById('settingsPanel').classList.toggle('open');
             document.getElementById('settingsOverlay').classList.toggle('open');
         }
 
-        // Load saved API key
+        function toggleAutoDesensitize() {
+            autoDesensitizeEnabled = !autoDesensitizeEnabled;
+            const toggle = document.getElementById('autoDesensitizeToggle');
+            toggle.classList.toggle('active', autoDesensitizeEnabled);
+            localStorage.setItem('auto_desensitize', autoDesensitizeEnabled);
+        }
+
+        // 加载保存的设置
         document.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('ds_api_key');
             if (savedKey) document.getElementById('apiKey').value = savedKey;
+            
+            const savedAutoDesensitize = localStorage.getItem('auto_desensitize');
+            if (savedAutoDesensitize !== null) {
+                autoDesensitizeEnabled = savedAutoDesensitize === 'true';
+                document.getElementById('autoDesensitizeToggle').classList.toggle('active', autoDesensitizeEnabled);
+            }
         });
 
-        // --- 核心脱敏算法保持不变 ---
+        // ==================== 增强版脱敏算法 ====================
+        
+        // 中国省份、直辖市、自治区
+        const provinces = ['北京', '天津', '上海', '重庆', '河北', '山西', '辽宁', '吉林', '黑龙江', 
+            '江苏', '浙江', '安徽', '福建', '江西', '山东', '河南', '湖北', '湖南', '广东', '海南', 
+            '四川', '贵州', '云南', '陕西', '甘肃', '青海', '台湾', '内蒙古', '广西', '西藏', 
+            '宁夏', '新疆', '香港', '澳门'];
+        
+        // 主要城市
+        const majorCities = ['石家庄', '唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德', 
+            '沧州', '廊坊', '衡水', '太原', '大同', '阳泉', '长治', '晋城', '朔州', '晋中', '运城', 
+            '忻州', '临汾', '吕梁', '沈阳', '大连', '鞍山', '抚顺', '本溪', '丹东', '锦州', '营口', 
+            '阜新', '辽阳', '盘锦', '铁岭', '朝阳', '葫芦岛', '长春', '吉林', '四平', '辽源', '通化', 
+            '白山', '松原', '白城', '哈尔滨', '齐齐哈尔', '鸡西', '鹤岗', '双鸭山', '大庆', '伊春', 
+            '佳木斯', '七台河', '牡丹江', '黑河', '绥化', '南京', '无锡', '徐州', '常州', '苏州', 
+            '南通', '连云港', '淮安', '盐城', '扬州', '镇江', '泰州', '宿迁', '杭州', '宁波', '温州', 
+            '嘉兴', '湖州', '绍兴', '金华', '衢州', '舟山', '台州', '丽水', '合肥', '芜湖', '蚌埠', 
+            '淮南', '马鞍山', '淮北', '铜陵', '安庆', '黄山', '滁州', '阜阳', '宿州', '六安', '亳州', 
+            '池州', '宣城', '福州', '厦门', '莆田', '三明', '泉州', '漳州', '南平', '龙岩', '宁德', 
+            '南昌', '景德镇', '萍乡', '九江', '新余', '鹰潭', '赣州', '吉安', '宜春', '抚州', '上饶', 
+            '济南', '青岛', '淄博', '枣庄', '东营', '烟台', '潍坊', '济宁', '泰安', '威海', '日照', 
+            '临沂', '德州', '聊城', '滨州', '菏泽', '郑州', '开封', '洛阳', '平顶山', '安阳', '鹤壁', 
+            '新乡', '焦作', '濮阳', '许昌', '漯河', '三门峡', '南阳', '商丘', '信阳', '周口', '驻马店', 
+            '武汉', '黄石', '十堰', '宜昌', '襄阳', '鄂州', '荆门', '孝感', '荆州', '黄冈', '咸宁', 
+            '随州', '长沙', '株洲', '湘潭', '衡阳', '邵阳', '岳阳', '常德', '张家界', '益阳', '郴州', 
+            '永州', '怀化', '娄底', '广州', '韶关', '深圳', '珠海', '汕头', '佛山', '江门', '湛江', 
+            '茂名', '肇庆', '惠州', '梅州', '汕尾', '河源', '阳江', '清远', '东莞', '中山', '潮州', 
+            '揭阳', '云浮', '海口', '三亚', '三沙', '儋州', '成都', '自贡', '攀枝花', '泸州', '德阳', 
+            '绵阳', '广元', '遂宁', '内江', '乐山', '南充', '眉山', '宜宾', '广安', '达州', '雅安', 
+            '巴中', '资阳', '贵阳', '六盘水', '遵义', '安顺', '毕节', '铜仁', '昆明', '曲靖', '玉溪', 
+            '保山', '昭通', '丽江', '普洱', '临沧', '西安', '铜川', '宝鸡', '咸阳', '渭南', '延安', 
+            '汉中', '榆林', '安康', '商洛', '兰州', '嘉峪关', '金昌', '白银', '天水', '武威', '张掖', 
+            '平凉', '酒泉', '庆阳', '定西', '陇南', '西宁', '海东', '银川', '石嘴山', '吴忠', '固原', 
+            '中卫', '乌鲁木齐', '克拉玛依', '吐鲁番', '哈密', '拉萨', '日喀则', '昌都', '林芝', '山南', 
+            '那曲', '南宁', '柳州', '桂林', '梧州', '北海', '防城港', '钦州', '贵港', '玉林', '百色', 
+            '贺州', '河池', '来宾', '崇左', '呼和浩特', '包头', '乌海', '赤峰', '通辽', '鄂尔多斯', 
+            '呼伦贝尔', '巴彦淖尔', '乌兰察布'];
+
+        // 常见姓氏（用于人名识别）
+        const commonSurnames = ['王', '李', '张', '刘', '陈', '杨', '赵', '黄', '周', '吴', '徐', '孙', 
+            '胡', '朱', '高', '林', '何', '郭', '马', '罗', '梁', '宋', '郑', '谢', '韩', '唐', '冯', 
+            '于', '董', '萧', '程', '曹', '袁', '邓', '许', '傅', '沈', '曾', '彭', '吕', '苏', '卢', 
+            '蒋', '蔡', '贾', '丁', '魏', '薛', '叶', '阎', '余', '潘', '杜', '戴', '夏', '钟', '汪', 
+            '田', '任', '姜', '范', '方', '石', '姚', '谭', '廖', '邹', '熊', '金', '陆', '郝', '孔', 
+            '白', '崔', '康', '毛', '邱', '秦', '江', '史', '顾', '侯', '邵', '孟', '龙', '万', '段', 
+            '漕', '钱', '汤', '尹', '黎', '易', '常', '武', '乔', '贺', '赖', '龚', '文'];
+
+        /**
+         * 核心脱敏函数 - 增强版
+         * 确保同一实体始终映射到同一代号
+         */
         function secureDeIdentify(text) {
             if (!text) return "";
             let result = text;
-            const companyRegex = /(?:[\u4e00-\u9fa5]{2,30})(?:有限公司|有限责任公司|集团|研究所|事务所|分公司|代表处)|(?!(?:社区|双方))(?:[\u4e00-\u9fa5]{2,10}(?:省|市|区(?!域)|县))[\u4e00-\u9fa5]{0,20}(?:中心|工厂|学校|协会|商会)/g;
-            const addressRegex = /(?!(?:社区|双方))(?:[\u4e00-\u9fa5]{2,}(?:省|自治区|市|区(?!域)|县|镇|街道|路|街|弄))+(?:[\u4e00-\u9fa5\d\-A-Za-z]+(?:号|幢|栋|单元|层|室|房|弄))/g;
+            
+            // 重置计数器（首次调用时）
+            // 注意：不重置 identityMap，保证全局一致性
+            
+            // ========== 1. 公司/机构名称 ==========
+            const companyPatterns = [
+                // 标准公司名称
+                /[\u4e00-\u9fa5]{2,20}(?:股份|集团)?(?:有限公司|有限责任公司|股份公司)/g,
+                // 集团/研究所/事务所等
+                /[\u4e00-\u9fa5]{2,15}(?:集团|研究所|研究院|事务所|分公司|子公司|办事处|代表处)/g,
+                // XX科技/XX网络/XX信息等
+                /[\u4e00-\u9fa5]{2,10}(?:科技|网络|信息|电子|软件|数据|智能|云计算|互联网|通信|传媒|文化|教育|医疗|生物|制药|化工|机械|电气|建设|建筑|工程|贸易|商贸|实业|投资|资本|金融|证券|保险|银行|基金|资产|地产|房产|物业|酒店|餐饮|食品|服装|纺织|家居|家电|汽车|物流|运输|航空|能源|矿业|农业|环保)(?:有限公司|有限责任公司|股份有限公司|集团)?/g,
+                // 带地名的公司
+                new RegExp(`(?:${[...provinces, ...majorCities].join('|')})[\\u4e00-\\u9fa5]{2,15}(?:有限公司|有限责任公司|股份公司|集团)`, 'g'),
+            ];
+            
+            // ========== 2. 地址 ==========
+            const addressPatterns = [
+                // 完整地址（省市区街道门牌号）
+                /[\u4e00-\u9fa5]{2,}(?:省|自治区)[\u4e00-\u9fa5]{2,}(?:市|自治州|地区|盟)[\u4e00-\u9fa5]{2,}(?:区|县|市|旗)[\u4e00-\u9fa5\d\-A-Za-z]*(?:路|街|道|巷|弄|里|村|镇|乡)[\u4e00-\u9fa5\d\-A-Za-z]*(?:号|幢|栋|单元|层|室|房)?/g,
+                // 市区街道门牌号
+                /[\u4e00-\u9fa5]{2,}(?:市)[\u4e00-\u9fa5]{2,}(?:区|县)[\u4e00-\u9fa5\d\-A-Za-z]*(?:路|街|道|巷|弄)[\u4e00-\u9fa5\d\-A-Za-z]*(?:号|幢|栋|单元|层|室|房)?/g,
+                // 区街道门牌号
+                /[\u4e00-\u9fa5]{2,}(?:区|县)[\u4e00-\u9fa5\d\-A-Za-z]*(?:路|街|道|巷|弄|大道|大街)[\u4e00-\u9fa5\d\-A-Za-z]*(?:号|幢|栋|单元|层|室|房)?/g,
+                // 路/街+门牌号
+                /[\u4e00-\u9fa5]{2,10}(?:路|街|道|大道|大街|巷|弄)[\d\-A-Za-z]*(?:号|幢|栋)?(?:[\d\-]*(?:单元|层|楼|室|房))?/g,
+            ];
+            
+            // ========== 3. 单独的行政区划名称 ==========
+            const regionPatterns = [
+                // 省份+市
+                new RegExp(`(${provinces.join('|')})(?:省|市|自治区)?`, 'g'),
+                // 主要城市
+                new RegExp(`(${majorCities.join('|')})(?:市)?`, 'g'),
+            ];
+            
+            // ========== 4. 人名（在特定上下文中）==========
+            const personContextPatterns = [
+                // 法定代表人/负责人/联系人等 + 姓名
+                new RegExp(`(?:法定代表人|负责人|联系人|经办人|代理人|授权代表|签字人|委托人|受托人|甲方代表|乙方代表|丙方代表)[：:]*\\s*([${commonSurnames.join('')}][\\u4e00-\\u9fa5]{1,3})`, 'g'),
+                // 签章/签字/盖章后的姓名
+                new RegExp(`(?:签章|签字|盖章|签名)[：:]*\\s*([${commonSurnames.join('')}][\\u4e00-\\u9fa5]{1,3})`, 'g'),
+                // 姓名：XXX 格式
+                new RegExp(`(?:姓名|名称)[：:]\\s*([${commonSurnames.join('')}][\\u4e00-\\u9fa5]{1,3})(?![\\u4e00-\\u9fa5])`, 'g'),
+            ];
+            
+            // ========== 5. 银行账号 ==========
+            const bankAccountPattern = /[1-9]\d{11,18}/g;
+            
+            // ========== 6. 电话号码 ==========
+            const phonePatterns = [
+                /1[3-9]\d{9}/g,  // 手机号
+                /(?:0\d{2,3}[-\s]?)?\d{7,8}/g,  // 座机
+            ];
+            
+            // ========== 7. 身份证号 ==========
+            const idCardPattern = /[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]/g;
+            
+            // ========== 8. 邮箱 ==========
+            const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 
-            let rawMatches = Array.from(new Set([...(text.match(companyRegex) || []), ...(text.match(addressRegex) || [])]));
-            let filteredMatches = rawMatches.filter((item, index) => !rawMatches.some((other, otherIndex) => index !== otherIndex && other.includes(item)));
-            filteredMatches.sort((a, b) => b.length - a.length);
-
-            filteredMatches.forEach(trimmedStr => {
-                if (!identityMap.has(trimmedStr)) {
-                    if (addressRegex.test(trimmedStr)) {
-                        addressCount++;
-                        identityMap.set(trimmedStr, `[地址_${addressCount}]`);
-                    } else {
-                        companyCount++;
-                        identityMap.set(trimmedStr, `[企业_${String.fromCharCode(64 + companyCount)}]`);
+            // 收集所有匹配项
+            let allMatches = [];
+            
+            // 收集公司名
+            companyPatterns.forEach(pattern => {
+                const matches = text.match(pattern) || [];
+                matches.forEach(m => {
+                    if (m.length >= 4 && !isExcluded(m)) {
+                        allMatches.push({ text: m.trim(), type: 'company' });
                     }
-                    addressRegex.lastIndex = 0;
-                }
-                const escaped = trimmedStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                result = result.replace(new RegExp(escaped, 'g'), identityMap.get(trimmedStr));
+                });
             });
+            
+            // 收集地址
+            addressPatterns.forEach(pattern => {
+                const matches = text.match(pattern) || [];
+                matches.forEach(m => {
+                    if (m.length >= 6) {
+                        allMatches.push({ text: m.trim(), type: 'address' });
+                    }
+                });
+            });
+            
+            // 收集行政区划（上下文相关）
+            // 只在特定上下文中脱敏地名
+            const locationContextPattern = /(?:位于|地址|住所|所在地|注册地|经营地)[：:]*\s*([\u4e00-\u9fa5]+(?:省|市|区|县))/g;
+            let locationMatch;
+            while ((locationMatch = locationContextPattern.exec(text)) !== null) {
+                if (locationMatch[1] && locationMatch[1].length >= 2) {
+                    allMatches.push({ text: locationMatch[1], type: 'address' });
+                }
+            }
+            
+            // 收集人名
+            personContextPatterns.forEach(pattern => {
+                let match;
+                while ((match = pattern.exec(text)) !== null) {
+                    if (match[1] && match[1].length >= 2 && match[1].length <= 4) {
+                        allMatches.push({ text: match[1], type: 'person' });
+                    }
+                }
+            });
+            
+            // 收集银行账号（在特定上下文中）
+            const bankContextPattern = /(?:账号|账户|银行账号|收款账号)[：:]*\s*(\d{12,19})/g;
+            let bankMatch;
+            while ((bankMatch = bankContextPattern.exec(text)) !== null) {
+                allMatches.push({ text: bankMatch[1], type: 'account' });
+            }
+            
+            // 收集电话号码（在特定上下文中）
+            const phoneContextPattern = /(?:电话|手机|联系方式|联系电话|传真)[：:]*\s*(1[3-9]\d{9}|(?:0\d{2,3}[-\s]?)?\d{7,8})/g;
+            let phoneMatch;
+            while ((phoneMatch = phoneContextPattern.exec(text)) !== null) {
+                allMatches.push({ text: phoneMatch[1], type: 'phone' });
+            }
+            
+            // 收集身份证号
+            const idCardMatches = text.match(idCardPattern) || [];
+            idCardMatches.forEach(m => {
+                allMatches.push({ text: m, type: 'idcard' });
+            });
+            
+            // 收集邮箱
+            const emailMatches = text.match(emailPattern) || [];
+            emailMatches.forEach(m => {
+                allMatches.push({ text: m, type: 'email' });
+            });
+
+            // 去重并按长度排序（长的先替换，避免部分替换问题）
+            const uniqueMatches = [];
+            const seen = new Set();
+            allMatches.forEach(item => {
+                if (!seen.has(item.text)) {
+                    seen.add(item.text);
+                    uniqueMatches.push(item);
+                }
+            });
+            
+            // 过滤掉被包含的短字符串
+            const filteredMatches = uniqueMatches.filter((item, index) => {
+                return !uniqueMatches.some((other, otherIndex) => {
+                    return index !== otherIndex && 
+                           other.text.includes(item.text) && 
+                           other.text !== item.text;
+                });
+            });
+            
+            // 按长度降序排序
+            filteredMatches.sort((a, b) => b.text.length - a.text.length);
+            
+            // 执行替换
+            filteredMatches.forEach(item => {
+                const placeholder = getOrCreatePlaceholder(item.text, item.type);
+                const escaped = item.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                result = result.replace(new RegExp(escaped, 'g'), placeholder);
+            });
+            
+            // 更新统计显示
+            updateDesensitizeStats();
+            
             return result;
         }
 
-        // --- 核心流式引擎 (连接后端 /api/hetong) ---
+        /**
+         * 获取或创建占位符
+         * 确保同一原文始终映射到同一占位符
+         */
+        function getOrCreatePlaceholder(original, type) {
+            // 如果已存在映射，直接返回
+            if (identityMap.has(original)) {
+                return identityMap.get(original);
+            }
+            
+            // 创建新的占位符
+            let placeholder;
+            switch (type) {
+                case 'company':
+                    counters.company++;
+                    placeholder = `[企业_${String.fromCharCode(64 + counters.company)}]`;
+                    break;
+                case 'address':
+                    counters.address++;
+                    placeholder = `[地址_${counters.address}]`;
+                    break;
+                case 'person':
+                    counters.person++;
+                    placeholder = `[某${counters.person === 1 ? '甲' : counters.person === 2 ? '乙' : counters.person === 3 ? '丙' : counters.person}]`;
+                    break;
+                case 'account':
+                    counters.account++;
+                    placeholder = `[账号_${counters.account}]`;
+                    break;
+                case 'phone':
+                    counters.phone++;
+                    placeholder = `[电话_${counters.phone}]`;
+                    break;
+                case 'idcard':
+                    counters.idcard++;
+                    placeholder = `[身份证_${counters.idcard}]`;
+                    break;
+                case 'email':
+                    placeholder = `[邮箱]`;
+                    break;
+                default:
+                    placeholder = `[已脱敏]`;
+            }
+            
+            // 保存映射
+            identityMap.set(original, placeholder);
+            reverseMap.set(placeholder, original);
+            
+            return placeholder;
+        }
+
+        /**
+         * 排除词检查
+         */
+        function isExcluded(text) {
+            const excludeWords = ['双方', '各方', '社区', '本合同', '本协议', '甲方', '乙方', '丙方', 
+                '合同', '协议', '条款', '约定', '规定', '中华人民共和国', '人民法院', '仲裁委员会'];
+            return excludeWords.some(word => text === word || text.startsWith(word + '应') || text.startsWith(word + '的'));
+        }
+
+        /**
+         * 更新脱敏统计
+         */
+        function updateDesensitizeStats() {
+            const statsDiv = document.getElementById('desensitizeStats');
+            if (identityMap.size > 0) {
+                statsDiv.classList.remove('hidden');
+                document.getElementById('companyStats').textContent = counters.company;
+                document.getElementById('addressStats').textContent = counters.address;
+                document.getElementById('personStats').textContent = counters.person;
+                document.getElementById('accountStats').textContent = counters.account + counters.phone + counters.idcard;
+            } else {
+                statsDiv.classList.add('hidden');
+            }
+        }
+
+        /**
+         * 手动脱敏按钮
+         */
+        function manualDesensitize() {
+            const textarea = document.getElementById('contractText');
+            const text = textarea.value.trim();
+            
+            if (!text) {
+                alert('请先粘贴合同文本');
+                return;
+            }
+            
+            const maskedText = secureDeIdentify(text);
+            textarea.value = maskedText;
+        }
+
+        /**
+         * 显示脱敏映射表
+         */
+        function showDesensitizeMap() {
+            const modal = document.getElementById('mapModal');
+            const content = document.getElementById('mapContent');
+            
+            if (identityMap.size === 0) {
+                content.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">暂无脱敏数据</p>';
+            } else {
+                let html = '<table class="w-full text-sm"><thead><tr class="border-b"><th class="text-left py-2 text-gray-500">代号</th><th class="text-left py-2 text-gray-500">原文</th></tr></thead><tbody>';
+                identityMap.forEach((placeholder, original) => {
+                    // 原文只显示部分，保护隐私
+                    const displayOriginal = original.length > 10 
+                        ? original.substring(0, 4) + '****' + original.substring(original.length - 3)
+                        : original.substring(0, 2) + '**';
+                    html += `<tr class="border-b border-gray-100"><td class="py-2 text-emerald-600 font-mono">${placeholder}</td><td class="py-2 text-gray-600">${displayOriginal}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                content.innerHTML = html;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeMapModal() {
+            document.getElementById('mapModal').classList.add('hidden');
+        }
+
+        /**
+         * 重置脱敏状态
+         */
+        function resetDesensitize() {
+            identityMap.clear();
+            reverseMap.clear();
+            counters = { company: 0, address: 0, person: 0, account: 0, phone: 0, idcard: 0 };
+            document.getElementById('desensitizeStats').classList.add('hidden');
+        }
+
+        // ==================== 文件处理 ====================
+        
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            originalFileName = file.name.replace(/\.[^/.]+$/, "");
+            document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600 font-medium">${file.name}</span>`;
+            
+            try {
+                let rawText = "";
+                
+                if (file.name.endsWith('.docx')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer });
+                    rawText = result.value;
+                } else if (file.name.endsWith('.pdf')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                    const pdf = await loadingTask.promise;
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        rawText += content.items.map(item => item.str).join(" ") + "\n";
+                    }
+                }
+                
+                // 根据开关决定是否自动脱敏
+                if (autoDesensitizeEnabled) {
+                    resetDesensitize(); // 新文件重置映射表
+                    document.getElementById('contractText').value = secureDeIdentify(rawText);
+                } else {
+                    document.getElementById('contractText').value = rawText;
+                }
+                
+            } catch (err) {
+                console.error(err);
+                alert("文档载入失败: " + err.message);
+            }
+        });
+
+        // ==================== 拖拽上传（修复版）====================
+        
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        // 阻止页面默认拖拽行为
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.body.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        // 上传区域拖拽效果
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.add('drag-over');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.remove('drag-over');
+            }, false);
+        });
+
+        // 处理文件拖拽放下
+        uploadArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.endsWith('.docx') || file.name.endsWith('.pdf')) {
+                    // 创建新的 DataTransfer 对象来设置 files
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                    // 触发 change 事件
+                    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                } else {
+                    alert('请上传 .docx 或 .pdf 格式的文件');
+                }
+            }
+        }, false);
+
+        // ==================== AI 调用 ====================
+        
         async function callAI(messages) {
             const userKey = document.getElementById('apiKey').value || localStorage.getItem('ds_api_key');
             const model = document.getElementById('model').value;
@@ -406,7 +960,10 @@
                                 const data = JSON.parse(dataStr);
                                 const delta = data.choices[0].delta.content || "";
                                 if (delta) {
-                                    if (!hasStartedStream) { thinkingDiv.remove(); hasStartedStream = true; }
+                                    if (!hasStartedStream) { 
+                                        thinkingDiv.remove(); 
+                                        hasStartedStream = true; 
+                                    }
                                     fullContent += delta;
                                     msgDiv.innerHTML = marked.parse(fullContent);
                                     document.getElementById('chatScrollZone').scrollTop = document.getElementById('chatScrollZone').scrollHeight;
@@ -424,63 +981,6 @@
             }
         }
 
-        // 文件载入保持原逻辑
-        document.getElementById('fileInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            originalFileName = file.name.replace(/\.[^/.]+$/, "");
-            document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600 font-medium">${file.name}</span>`;
-            try {
-                let rawText = "";
-                if (file.name.endsWith('.docx')) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const result = await mammoth.extractRawText({arrayBuffer});
-                    rawText = result.value;
-                } else if (file.name.endsWith('.pdf')) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const loadingTask = pdfjsLib.getDocument({data: arrayBuffer});
-                    const pdf = await loadingTask.promise;
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const content = await page.getTextContent();
-                        rawText += content.items.map(item => item.str).join(" ") + "\n";
-                    }
-                }
-                document.getElementById('contractText').value = secureDeIdentify(rawText);
-            } catch (err) { alert("文档载入失败"); }
-        });
-
-        // Drag and drop
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
-
-uploadArea.addEventListener('dragover', (e) => { 
-    e.preventDefault(); 
-    e.stopPropagation();
-    uploadArea.classList.add('drag-over'); 
-});
-
-uploadArea.addEventListener('dragleave', (e) => { 
-    e.preventDefault();
-    e.stopPropagation();
-    uploadArea.classList.remove('drag-over'); 
-});
-
-uploadArea.addEventListener('drop', (e) => { 
-    e.preventDefault(); 
-    e.stopPropagation();
-    uploadArea.classList.remove('drag-over'); 
-    
-    // 获取拖拽的文件
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        // 将拖拽的文件赋值给 file input，触发 change 事件
-        fileInput.files = files;
-        // 手动触发 change 事件来处理文件
-        fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-});
-
         async function startInitialAudit() {
             const role = document.getElementById('role').value;
             const focus = document.getElementById('focus').value;
@@ -494,14 +994,18 @@ uploadArea.addEventListener('drop', (e) => {
             }
             if (!currentText || !focus) return alert('请确保合同文本和关注点已填写');
             
-            const maskedText = secureDeIdentify(currentText);
-            textarea.value = maskedText; 
+            // 如果开启了自动脱敏但用户是手动粘贴的，这里再做一次脱敏
+            if (autoDesensitizeEnabled && identityMap.size === 0) {
+                currentText = secureDeIdentify(currentText);
+                textarea.value = currentText;
+            }
+            
             localStorage.setItem('ds_api_key', apiKey);
             document.getElementById('reportOutput').innerHTML = "";
             document.getElementById('followUpZone').classList.remove('hidden');
             
             chatHistory = [
-                { role: "user", content: `【身份】：${role}\n【特别关注】：${focus}\n\n【文本】：\n${maskedText}` }
+                { role: "user", content: `【身份】：${role}\n【特别关注】：${focus}\n\n【合同文本】：\n${currentText}` }
             ];
             await callAI(chatHistory);
         }
@@ -510,12 +1014,16 @@ uploadArea.addEventListener('drop', (e) => {
             const input = document.getElementById('followUpInput');
             const q = input.value.trim();
             if (!q) return;
-            const maskedQ = secureDeIdentify(q);
+            
+            // 追问也做脱敏处理
+            const maskedQ = autoDesensitizeEnabled ? secureDeIdentify(q) : q;
             input.value = "";
+            
             const qUi = document.createElement('div');
             qUi.className = "bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-400";
             qUi.innerHTML = `<span class="text-emerald-700 font-medium">追问：</span> ${maskedQ}`;
             document.getElementById('reportOutput').appendChild(qUi);
+            
             chatHistory.push({ role: "user", content: maskedQ });
             await callAI(chatHistory);
         }
@@ -528,9 +1036,17 @@ uploadArea.addEventListener('drop', (e) => {
             saveAs(blob, `${originalFileName}_诊断报告.doc`);
         }
 
-        document.getElementById('followUpInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendFollowUp(); });
+        document.getElementById('followUpInput').addEventListener('keydown', (e) => { 
+            if (e.key === 'Enter') sendFollowUp(); 
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('mapModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('mapModal')) {
+                closeMapModal();
+            }
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-    <script src="common.js"></script>
 </body>
 </html>
