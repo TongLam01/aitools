@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公众号AI排版 v2.4</title>
+    <title>公众号AI排版 v2.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -181,7 +181,7 @@
     <div class="max-w-7xl mx-auto w-full py-4 px-4 flex-shrink-0">
         <header class="flex justify-between items-center mb-4">
             <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.4</span>
+                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.5</span>
             </h1>
             <div class="flex items-center gap-3">
                 <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="text-[12px] text-slate-400 hidden sm:block">如何获得API Key</a>
@@ -312,13 +312,13 @@
         }
 
         // ==========================================
-        // 核心模板库 v2.4 (包含新增样式)
+        // 核心模板库 v2.5 (包含所有修复)
         // ==========================================
         const VARIANTS = {
             big_title: [
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 20px; color: #1f2937; border-bottom: 3px solid ${c}; padding: 0 10px 8px; display: inline-block;">${t}</strong></section>`,
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: #fff; background: ${c}; padding: 10px 24px; border-radius: 6px; display: inline-block;">${t}</strong></section>`,
-                // 新增样式2：左侧深色竖条的标题 (用c代替深绿)
+                // 样式：左侧深色竖条的标题 (用c代替深绿)
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 15px 20px; background-color: ${hexToRgba(c, 0.1)}; border-left: 12px solid ${c}; color: ${c}; font-size: 18px; font-weight: bold; width: 100%; box-sizing: border-box;">${t}</section>`,
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center;"><strong style="font-size: 18px; color: ${c}; border: 2px solid ${c}; padding: 8px 24px; border-radius: 50px; display: inline-block;">${t}</strong></section>`,
                 (t, c) => `<section style="margin: 0 0 25px 0; padding: 0 8px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px;"><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to right, transparent, ${c});"></span><strong style="font-size: 19px; color: #1f2937;">${t}</strong><span style="flex: 1; max-width: 50px; height: 2px; background: linear-gradient(to left, transparent, ${c});"></span></section>`,
@@ -326,7 +326,7 @@
             ],
             sub_title: [
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-block; width: 4px; height: 20px; background: ${c}; margin-right: 10px; border-radius: 2px;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
-                // 新增样式1：中间带装饰的小标题
+                // 样式：中间带装饰的小标题
                 (t, c) => `<section style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0 20px 0;"><div style="height: 1px; width: 60px; background: linear-gradient(to right, transparent, #e0e0e0);"></div><div style="color: ${c}; font-weight: bold; font-size: 17px; display: flex; align-items: center; gap: 8px;"><span style="color: #2c3e50; font-size: 14px;">✦</span>${t}<span style="color: #2c3e50; font-size: 14px;">✦</span></div><div style="height: 1px; width: 60px; background: linear-gradient(to left, transparent, #e0e0e0);"></div></section>`,
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: inline-block;"><strong style="font-size: 17px; color: #1f2937; border-bottom: 2px solid ${c}; padding-bottom: 4px;">${t}</strong></section>`,
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-block; width: 8px; height: 8px; background: ${c}; margin-right: 10px; border-radius: 50%;"></span><strong style="font-size: 17px; color: #1f2937;">${t}</strong></section>`,
@@ -338,21 +338,19 @@
                     const n = num || '1';
                     return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
-                // 新增样式3：序号标题（带下划线）
+                // 样式 2：带下划线的序号
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
                     const displayNum = n.length === 1 ? '0' + n : n;
                     return `<section style="display: flex; align-items: flex-end; border-bottom: 2px solid ${c}; width: 100%; padding-bottom: 5px; margin: 15px 0 20px 0;"><div style="background-color: ${hexToRgba(c, 0.15)}; border-left: 4px solid ${c}; color: #666; font-size: 20px; font-weight: bold; padding: 5px 15px; margin-right: 15px; line-height: 1; white-space: nowrap;">${displayNum}</div><div style="color: #555; font-size: 17px; padding-bottom: 3px;">${text}</div></section>`;
                 },
-                // 新增样式5：序号正文（嵌套盒子）
                 // ★★★ 修复后的样式 3 (序号正文1) ★★★
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
                     // 修复点：移除width:100%，增加z-index，加深颜色，使用padding布局代替flex防止兼容性问题
                     return `<section style="margin: 20px 0; text-align: justify;"><section style="background-color: ${hexToRgba(c, 0.1)}; padding: 15px; box-sizing: border-box;"><div style="background-color: #fff; border: 1px solid ${hexToRgba(c, 0.4)}; position: relative; padding: 25px 20px 25px 60px; min-height: 40px;"><span style="position: absolute; top: 0; left: 0; background-color: ${hexToRgba(c, 0.4)}; color: #fff; width: 40px; height: 32px; line-height: 32px; text-align: center; font-weight: bold; font-size: 16px; z-index: 1;">${n}</span><div style="color: #333; font-size: 16px; line-height: 1.75; letter-spacing: 0.5px;">${text}</div></div></section></section>`;
-                },
                 },
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
@@ -379,7 +377,7 @@
             ],
             key_point: [
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: ${hexToRgba(c, 0.08)}; border: 1px solid ${hexToRgba(c, 0.2)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify;">${format(t)}</section>`,
-                // 新增样式4：重点卡片（圆点+折角）
+                // 样式：重点卡片（圆点+折角）
                 (t, c) => `<section style="border: 1px solid ${c}; background-color: ${hexToRgba(c, 0.06)}; padding: 30px; position: relative; width: 100%; box-sizing: border-box; margin: 25px 0;"><span style="position: absolute; top: 15px; left: 15px; width: 8px; height: 8px; background-color: ${c}; border-radius: 50%;"></span><span style="position: absolute; top: 15px; right: 15px; width: 8px; height: 8px; background-color: ${c}; border-radius: 50%;"></span><div style="color: #444; font-size: 16px; line-height: 1.8;">${format(t)}</div><div style="position: absolute; bottom: -1px; right: -1px; width: 0; height: 0; border-bottom: 25px solid ${c}; border-left: 25px solid transparent;"></div></section>`,
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; border-left: 4px solid ${c}; background: #f8fafc; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; border-radius: 0 8px 8px 0;">${format(t)}</section>`,
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid ${c}; border-radius: 0 0 8px 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">${format(t)}</section>`,
