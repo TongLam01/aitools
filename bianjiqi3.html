@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公众号AI排版 v2.5</title>
+    <title>公众号AI排版 v2.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #3b82f6; }
@@ -181,7 +181,7 @@
     <div class="max-w-7xl mx-auto w-full py-4 px-4 flex-shrink-0">
         <header class="flex justify-between items-center mb-4">
             <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.5</span>
+                <span>🎨</span> 公众号AI排版 <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded border border-blue-200">v2.6</span>
             </h1>
             <div class="flex items-center gap-3">
                 <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="text-[12px] text-slate-400 hidden sm:block">如何获得API Key</a>
@@ -312,7 +312,7 @@
         }
 
         // ==========================================
-        // 核心模板库 v2.5 (包含所有修复)
+        // 核心模板库 v2.6 (兼容性增强版)
         // ==========================================
         const VARIANTS = {
             big_title: [
@@ -338,29 +338,27 @@
                     const n = num || '1';
                     return `<section style="margin: 10px 0 18px 0; padding: 0 8px; display: flex; align-items: center;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: ${c}; color: #fff; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 10px; flex-shrink: 0;">${n}</span><strong style="font-size: 17px; color: #1f2937;">${text}</strong></section>`;
                 },
-                // 样式 2：带下划线的序号
-                // 修复后的样式 2：改用 table 布局，完美支持公众号底部对齐
+                // 样式 2：带下划线的序号 (修复：使用Table布局代替Flex解决底部对齐问题)
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '01';
                     const displayNum = n.length === 1 ? '0' + n : n;
-                    return `<section style="margin: 20px 0 15px 0; border-bottom: 2px solid ${c}; padding-bottom: 8px; box-sizing: border-box;">
-                        <section style="display: table; width: 100%; box-sizing: border-box;">
-                            <section style="display: table-cell; vertical-align: bottom; width: 1%; white-space: nowrap;">
-                                <span style="display: inline-block; background-color: ${hexToRgba(c, 0.15)}; border-left: 4px solid ${c}; color: #555; font-size: 20px; font-weight: bold; padding: 4px 12px; line-height: 1;">${displayNum}</span>
+                    return `<section style="margin: 15px 0 20px 0; padding-bottom: 5px; border-bottom: 2px solid ${c}; box-sizing: border-box;">
+                        <section style="display: table; width: 100%;">
+                            <section style="display: table-cell; vertical-align: bottom; width: 1px; white-space: nowrap;">
+                                <span style="display: inline-block; background-color: ${hexToRgba(c, 0.15)}; border-left: 4px solid ${c}; color: #666; font-size: 20px; font-weight: bold; padding: 5px 15px; line-height: 1;">${displayNum}</span>
                             </section>
-                            <section style="display: table-cell; vertical-align: bottom; padding-left: 10px;">
-                                <span style="font-size: 17px; color: #333; font-weight: bold;">${text}</span>
+                            <section style="display: table-cell; vertical-align: bottom; padding-left: 10px; padding-bottom: 3px;">
+                                <span style="font-size: 17px; color: #555;">${text}</span>
                             </section>
                         </section>
                     </section>`;
                 },
-                },
-               // ★★★ 终极修复样式 3 (序号正文1 - 紧凑美化版) ★★★
+                // ★★★ 终极修复样式 3 (序号正文1 - 定制间距版) ★★★
                 (t, c) => {
                     const { num, text } = parseNumTitle(t);
                     const n = num || '1';
-                    // 优化点：padding视觉更紧凑
+                    // 优化点：使用 padding: 10px 15px 12px 20px 解决错位
                     return `<section style="margin: 20px 0px; box-sizing: border-box;">
                                 <section style="display: block; width: 100%; background-color: ${hexToRgba(c, 0.1)}; padding: 8px; box-sizing: border-box;">
                                     <section style="display: block; width: 100%; background-color: #fff; border: 1px solid ${hexToRgba(c, 0.4)}; position: relative; min-height: 45px; box-sizing: border-box;">
@@ -392,8 +390,8 @@
             grad_title: [
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: linear-gradient(90deg, ${c}, ${hexToRgba(c, 0.6)}); color: #fff; padding: 6px 16px; font-size: 15px; font-weight: bold; border-radius: 4px;">${t}</span></section>`,
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: ${hexToRgba(c, 0.1)}; border-left: 4px solid ${c}; padding: 8px 14px; color: #1f2937; font-weight: bold; font-size: 16px; border-radius: 0 6px 6px 0;">${t}</span></section>`,
-               // 修复后的样式：使用 background-gradient 代替 absolute 定位，公众号完美兼容
-                (t, c) => `<section style="margin: 15px 0 20px 0; padding: 0 5px;"><span style="display: inline-block; background: linear-gradient(to top, ${hexToRgba(c, 0.3)} 0%, ${hexToRgba(c, 0.3)} 45%, transparent 45.1%, transparent 100%); padding: 0 5px 2px 5px; border-radius: 2px;"><strong style="font-size: 18px; color: #1f2937;">${t}</strong></span></section>`,
+                // 修复后的样式：使用 background-gradient 代替 absolute 定位，公众号完美兼容
+                (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><strong style="font-size: 17px; color: #1f2937; background: linear-gradient(to top, ${hexToRgba(c, 0.4)} 0%, ${hexToRgba(c, 0.4)} 35%, transparent 35.1%, transparent 100%); padding: 0 4px;">${t}</strong></section>`,
                 (t, c) => `<section style="margin: 10px 0 18px 0; padding: 0 8px;"><span style="display: inline-block; background: ${c}; color: #fff; padding: 5px 12px 5px 10px; font-size: 15px; font-weight: bold; border-radius: 4px 20px 20px 4px;">${t}</span></section>`
             ],
             key_point: [
