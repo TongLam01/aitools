@@ -403,14 +403,15 @@
                 (t, c) => `<section style="margin: 25px 8px; padding: 16px 18px 16px 50px; background: ${hexToRgba(c, 0.08)}; border-radius: 8px; font-size: 16px; color: #334155; line-height: 1.8; text-align: justify; position: relative;"><span style="position: absolute; left: 16px; top: 16px; font-size: 20px;">💡</span>${format(t)}</section>`,
                 
                 // ★★★ 新增样式：几何山峰底部风格 (渐变背景版 - 最稳定) ★★★
-                (t, c) => `<section style="margin: 25px 8px; background-color: ${hexToRgba(c, 0.06)}; border-radius: 8px; overflow: hidden;">
-                            <section style="padding: 25px 20px 5px 20px; font-size: 16px; color: #3e3e3e; line-height: 1.75; text-align: justify;">${format(t)}</section>
-                            
-                            <section style="position: relative; height: 45px; width: 100%;">
-                                <section style="position: absolute; bottom: 0; right: 0; width: 90%; height: 100%; background: linear-gradient(to top left, ${hexToRgba(c, 0.4)} 49%, transparent 50%);"></section>
-                                <section style="position: absolute; bottom: 0; left: 0; width: 50%; height: 80%; background: linear-gradient(to top right, ${c} 49%, transparent 50%);"></section>
-                            </section>
-                        </section>`
+               (t, c) => `<section style="margin: 25px 8px; background-color: ${hexToRgba(c, 0.06)}; border-radius: 8px; overflow: hidden;">
+    <section style="padding: 25px 20px 20px 20px; font-size: 16px; color: #3e3e3e; line-height: 1.75; text-align: justify;">${format(t)}</section>
+    <section style="display: block; margin: 0; padding: 0; line-height: 0; font-size: 0;">
+        <svg viewBox="0 0 600 50" style="display: block; width: 100%;" preserveAspectRatio="none">
+            <polygon points="600,0 600,50 0,50" fill="${hexToRgba(c, 0.4)}"/>
+            <polygon points="0,15 300,50 0,50" fill="${c}"/>
+        </svg>
+    </section>
+</section>`
             ],
             quote: [
                 (t, c) => `<section style="margin: 25px 8px; padding: 14px 18px; background: #f8fafc; color: #64748b; border-radius: 6px; font-size: 16px; line-height: 1.8; border-left: 3px solid #cbd5e1;">${format(t)}</section>`,
