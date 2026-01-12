@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V1.7 (增强脱敏版)</title>
+    <title>商事合同诊断助手 V1.7 </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -182,22 +182,23 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         // --- 全局脱敏状态 ---
-        // identityMap 用于存储原文到代号的映射
         let globalIdentityMap = new Map();
-        // fingerprintMap 用于存储"清洗后的指纹"到原文的映射（解决公司名微小差异导致代号不一的问题）
         let fingerprintMap = new Map();
-        
         let globalCounters = { company: 0, address: 0, person: 0, other: 0 };
         let originalFileName = "手动输入";
         let chatHistory = [];
         let autoDesensitizeEnabled = true;
 
-        // --- 常见非地址干扰词黑名单 (解决截图中的误判) ---
+        // --- 【干扰词黑名单库】(V3.0版) ---
         const IGNORE_TERMS = new Set([
-            '市场', '上市', '股市', '超市', '菜市', '夜市', '早市', '楼市', '车市', 
+            '市场', '上市', '股市', '超市', '菜市', '夜市', '早市', '楼市', '车市', '收市', '开市',
             '城市', '城乡', '省心', '省力', '省钱', '省级', '市级', '区级', '县级',
             '规划', '建设', '规范', '健全', '提升', '管理', '水平', '综合', '肉菜',
-            '阳台', '方面', '方式', '方向', '证明', '合同', '甲方', '乙方', '双方'
+            '阳台', '方面', '方式', '方向', '证明', '合同', '甲方', '乙方', '双方', '门店',
+            '线路', '电路', '网路', '水路', '思路', '门路', '大路', '道路', '马路', '走路',
+            '通道', '过道', '廊道', '渠道', '报道', '知道', '味道', '公道', '霸道', '厚道', 
+            '下水道', '跑道', '索道', '盲道', '人行道', '占道', '让道', '借道',
+            '大街', '前线', '底线', '热线', '光线', '无线', '有线'
         ]);
 
         function toggleSettings() {
@@ -226,170 +227,116 @@
             updateStats();
         }
 
-        // --- 文本预处理 ---
         function normalizeText(text) {
             if (!text) return "";
-            return text
-                // 替换所有隐形字符、零宽空格、不间断空格
-                .replace(/[\u00A0\u1680\u180e\u2000-\u200b\u202f\u205f\u3000\ufeff\u200d\u200c]/g, ' ')
-                // 合并多余空格
-                .replace(/\s+/g, ' ');
+            return text.replace(/[\u00A0\u1680\u180e\u2000-\u200b\u202f\u205f\u3000\ufeff\u200d\u200c]/g, ' ').replace(/\s+/g, ' ');
         }
 
-        // --- 生成指纹 (用于判断两个公司名是否其实是同一个) ---
         function getFingerprint(text) {
-            // 去除所有括号、空格、特殊符号，只保留汉字和数字
             return text.replace(/[（）() \t\n\r_\-]/g, "");
         }
 
-        // ==================== 核心修复：智能脱敏算法 V2.0 ====================
+        // ==================== 智能脱敏算法 V3.0 (保留优化) ====================
         function secureDeIdentify(text) {
             if (!text) return "";
-            
             let processedText = normalizeText(text);
             
-            // 1. 公司名正则 (加强版)
-            // 必须以特定后缀结尾，且前缀不能包含"根据/按照"等动词
-            // 允许中间有空格(Word断行问题)
-            const companyPattern = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{2,30}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会)(?![名称|章程|法])/g;
+            // 1. 公司名 (V3.0: 放宽长度到60，允许中间空格)
+            const companyPattern = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
             
-            // 2. 地址正则 (严格分层版 - 彻底解决"肉菜市"问题)
-            // 策略：不再匹配任意"XX市XX"，而是严格要求 [省/市/区] + [下一级行政区] OR [路/街] + [号]
-            
-            // Type A: 完整行政区划 (必须包含至少两级，或者以省/市开头且包含区/县)
+            // 2. 地址 (V3.0: 分级策略)
+            const addressWithNum = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道|条)(?:\s*)(?:[\d\-A-Za-z]+号)(?:[\u4e00-\u9fa5\d]*(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室))?/g;
             const addressAdmin = /(?:北京|天津|上海|重庆|[\u4e00-\u9fa5]{2,5}(?:省|自治区))(?:\s*)[\u4e00-\u9fa5]{2,10}(?:市|区|县|自治州|盟)/g;
-            
-            // Type B: 详细街道地址 (必须以路/街/道/巷结尾，后面跟号/弄/楼)
-            const addressStreet = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道)(?:\s*)(?:[\d\-]+号)?(?:[\u4e00-\u9fa5\d]+(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室))?/g;
-            
-            // Type C: 单独的行政区 (风险较高，需要极其严格的过滤)
-            // 仅匹配 "广州市" 这种纯粹的词，且前后不能是"肉菜"、"规划"等
-            const addressSingle = /(?<![肉菜超股上车楼早夜])([\u4e00-\u9fa5]{2,6})(?:市|区|县)(?![场管规建级])/g;
+            const addressWeak = /(?<![线管通跑下铁水])([\u4e00-\u9fa5]{2,8}(?:路|街|道|巷|胡同|大道))/g;
 
             // 3. 其他正则
             const idcardPattern = /(?<!\d)[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx](?!\d)/g;
             const phonePattern = /(?<!\d)1[3-9]\d{9}(?!\d)/g;
             const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-            const bankPattern = /(?:账号|账户)[：:\s]*\d{12,19}/g;
+            const bankPattern = /(?:账号|账户|卡号)[：:\s]*\d{12,19}/g;
 
             let allMatches = [];
 
-            // 通用收集器
             function collect(regex, type, groupIndex = 0) {
                 let m;
                 regex.lastIndex = 0;
                 while ((m = regex.exec(processedText)) !== null) {
-                    let cleanT = m[groupIndex]; // 获取对应捕获组
+                    let cleanT = groupIndex === 0 ? m[0] : m[groupIndex];
                     if (!cleanT) continue;
                     cleanT = cleanT.trim();
                     
-                    // --- 关键过滤逻辑 ---
-                    
-                    // 1. 黑名单过滤 (直接剔除 "市场", "城市" 等)
                     let hitBlacklist = false;
-                    for (let badWord of IGNORE_TERMS) {
-                        if (cleanT.includes(badWord)) {
-                            hitBlacklist = true;
-                            break;
+                    if (type === 'address') {
+                        for (let badWord of IGNORE_TERMS) {
+                            if (cleanT.endsWith(badWord) || cleanT === badWord || cleanT.includes(badWord)) {
+                                hitBlacklist = true; break;
+                            }
                         }
-                    }
+                    } else if (IGNORE_TERMS.has(cleanT)) hitBlacklist = true;
                     if (hitBlacklist) continue;
 
-                    // 2. 长度与上下文过滤
                     if (cleanT.length < 2) continue;
-                    
-                    // 3. 公司名特殊过滤：不能以介词开头
                     if (type === 'company') {
-                        if (/^(根据|依据|按照|依照|关于|由于|鉴于|若|如|由)/.test(cleanT)) continue;
+                        if (/^(根据|依据|按照|依照|关于|由于|鉴于|若|如|由|为)/.test(cleanT)) continue;
+                        if (!/[\u4e00-\u9fa5]{2,}/.test(cleanT)) continue;
                     }
-
-                    // 4. 地址特殊过滤：防止匹配到"本次"、"格式"等
-                    if (type === 'address') {
-                         if (/^(本次|格式|方式|相关|所有|任何)/.test(cleanT)) continue;
-                    }
+                    if (type === 'address' && /^(本次|格式|方式|相关|所有|任何|以及|或者)/.test(cleanT)) continue;
 
                     allMatches.push({ text: cleanT, type: type, index: m.index });
                 }
             }
 
             collect(companyPattern, 'company');
+            collect(addressWithNum, 'address');
             collect(addressAdmin, 'address');
-            collect(addressStreet, 'address');
-            // collect(addressSingle, 'address', 0); // 暂时屏蔽 Type C，因为截图显示单字误判极其严重，宁缺毋滥
-            
+            collect(addressWeak, 'address', 1);
             collect(idcardPattern, 'other');
             collect(phonePattern, 'other');
             collect(emailPattern, 'other');
             collect(bankPattern, 'other');
 
-            // 人名 (保守策略)
             const personRe = /(?:法定代表人|法人|负责人|联系人|授权代表|委托人|受托人|签字|签章|代表)[：:\s]*([王李张刘陈杨赵黄周吴徐孙胡朱高林何郭马罗梁宋郑谢韩唐冯于董萧程曹袁邓许傅沈曾彭吕苏卢蒋蔡贾丁魏薛叶阎余潘杜戴夏钟汪田任姜范方石姚谭廖邹熊金陆郝孔白崔康毛邱秦江史顾侯邵孟龙万段钱汤尹黎易常武乔贺赖龚文][\u4e00-\u9fa5]{1,3})/g;
             let pm;
             while ((pm = personRe.exec(processedText)) !== null) {
                 if (pm[1]) allMatches.push({ text: pm[1], type: 'person', index: pm.index });
             }
 
-            // --- 排序与替换 ---
-            
-            // 按长度倒序排序（优先替换长词，避免"腾讯科技"先把"腾讯科技(深圳)"的一部分替换了）
             allMatches.sort((a, b) => b.text.length - a.text.length);
             
-            // 去重
             const uniqueItems = [];
             const seen = new Set();
             allMatches.forEach(item => {
-                if (!seen.has(item.text)) {
-                    seen.add(item.text);
-                    uniqueItems.push(item);
-                }
+                if (!seen.has(item.text)) { seen.add(item.text); uniqueItems.push(item); }
             });
 
             let result = processedText;
-
             for (const item of uniqueItems) {
+                if (!result.includes(item.text)) continue;
                 let ph;
                 let fingerprint = getFingerprint(item.text);
                 
-                // --- 智能一致性判断 ---
-                // 1. 检查原文是否完全匹配
                 if (globalIdentityMap.has(item.text)) {
                     ph = globalIdentityMap.get(item.text);
-                } 
-                // 2. 检查指纹是否匹配 (解决 "ABC公司" 和 "ABC 公司" 被视为不同的问题)
-                else if (item.type === 'company' && fingerprintMap.has(fingerprint)) {
-                    const existingOriginal = fingerprintMap.get(fingerprint);
-                    ph = globalIdentityMap.get(existingOriginal);
-                    // 将当前变体也存入 Map，方便后续快速查找
+                } else if (item.type === 'company' && fingerprintMap.has(fingerprint)) {
+                    ph = globalIdentityMap.get(fingerprintMap.get(fingerprint));
                     globalIdentityMap.set(item.text, ph);
-                } 
-                // 3. 生成新代号
-                else {
+                } else {
                     if (item.type === 'company') {
                         globalCounters.company++;
                         ph = `[企业${String.fromCharCode(64 + ((globalCounters.company - 1) % 26 + 1))}${globalCounters.company > 26 ? Math.floor((globalCounters.company - 1) / 26) : ''}]`;
-                        // 记录指纹
                         fingerprintMap.set(fingerprint, item.text);
                     } else if (item.type === 'address') {
-                        globalCounters.address++;
-                        ph = `[地址${globalCounters.address}]`;
+                        globalCounters.address++; ph = `[地址${globalCounters.address}]`;
                     } else if (item.type === 'person') {
-                        globalCounters.person++;
-                        const n = ['甲','乙','丙','丁','戊','己','庚','辛'];
-                        ph = `[${n[globalCounters.person - 1] || '某' + globalCounters.person}]`;
+                        globalCounters.person++; const n = ['甲','乙','丙','丁','戊','己','庚','辛']; ph = `[${n[globalCounters.person - 1] || '某' + globalCounters.person}]`;
                     } else {
-                        globalCounters.other++;
-                        ph = `[隐藏${globalCounters.other}]`;
+                        globalCounters.other++; ph = `[隐藏${globalCounters.other}]`;
                     }
                     globalIdentityMap.set(item.text, ph);
                 }
-
-                // 执行替换 (Global Replace)
-                if (result.includes(item.text)) {
-                    const safeText = item.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    result = result.replace(new RegExp(safeText, 'g'), ph);
-                }
+                const safeText = item.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                result = result.replace(new RegExp(safeText, 'g'), ph);
             }
-
             updateStats();
             return result;
         }
@@ -420,7 +367,6 @@
                 c.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">暂无脱敏数据</p>';
             } else {
                 let h = '<div class="space-y-2">';
-                // 转换 Map 为数组并按代号类型排序，方便查看
                 Array.from(globalIdentityMap.entries()).forEach(([orig, ph]) => {
                     const preview = orig.length > 12 ? orig.slice(0, 6) + '...' + orig.slice(-4) : orig;
                     h += `<div class="flex justify-between py-1 border-b border-gray-100"><span class="text-emerald-600 font-mono">${ph}</span><span class="text-gray-500 text-sm">${preview}</span></div>`;
@@ -437,12 +383,9 @@
         document.getElementById('fileInput').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            
             resetDesensitizationState();
-            
             originalFileName = file.name.replace(/\.[^/.]+$/, "");
             document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600">${file.name}</span>`;
-            
             try {
                 let raw = "";
                 if (file.name.endsWith('.docx')) {
@@ -457,10 +400,8 @@
                         raw += tc.items.map(x => x.str).join(' ') + '\n';
                     }
                 }
-                
                 const processed = autoDesensitizeEnabled ? secureDeIdentify(raw) : normalizeText(raw);
                 document.getElementById('contractText').value = processed;
-                
             } catch (err) {
                 alert('文档载入失败: ' + err.message);
                 console.error(err);
@@ -482,7 +423,7 @@
             }
         }, false);
 
-        // ==================== AI ====================
+        // ==================== 恢复后端调用逻辑 ====================
         async function callAI(msgs) {
             const key = document.getElementById('apiKey').value || localStorage.getItem('ds_api_key');
             const model = document.getElementById('model').value;
@@ -500,21 +441,13 @@
             
             let full = '', started = false;
             try {
-                const res = await fetch('https://api.deepseek.com/chat/completions', {
+                // 恢复调用 /api/hetong.js
+                const res = await fetch('/api/hetong.js', {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${key}`
-                    },
-                    body: JSON.stringify({ 
-                        model: model, 
-                        messages: msgs,
-                        stream: true 
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userKey: key, messages: msgs, model })
                 });
                 
-                if (!res.ok) throw new Error(`API Error: ${res.status}`);
-
                 const reader = res.body.getReader();
                 const dec = new TextDecoder();
                 
@@ -522,10 +455,9 @@
                     const { done, value } = await reader.read();
                     if (done) break;
                     for (const line of dec.decode(value).split('\n')) {
-                        const trimmed = line.trim();
-                        if (trimmed.startsWith('data: ') && trimmed.slice(6) !== '[DONE]') {
+                        if (line.startsWith('data: ') && line.slice(6) !== '[DONE]') {
                             try {
-                                const d = JSON.parse(trimmed.slice(6)).choices?.[0]?.delta?.content || '';
+                                const d = JSON.parse(line.slice(6)).choices?.[0]?.delta?.content || '';
                                 if (d) {
                                     if (!started) { div.innerHTML = ''; started = true; }
                                     full += d;
@@ -540,7 +472,7 @@
                 btn.disabled = false;
                 btn.className = "btn-export-active px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
             } catch (e) {
-                div.innerHTML = `<p class="text-red-500">连接异常: ${e.message}</p><p class="text-xs text-gray-400">请检查 API Key 或网络连接</p>`;
+                div.innerHTML = `<p class="text-red-500">连接异常: ${e.message}</p>`;
                 btn.disabled = false;
             }
         }
@@ -564,22 +496,9 @@
             document.getElementById('reportOutput').innerHTML = '';
             document.getElementById('followUpZone').classList.remove('hidden');
             
-            const sysPrompt = `你是一位资深的商业合同风控专家。请审阅以下合同文本。
-用户的身份是：${role}。
-用户特别关注点：${focus}。
-
-请输出一份专业的合同审核报告，包含：
-1. 【整体风险评级】(高/中/低)
-2. 【关键条款审查】(针对关注点及通用高风险点)
-3. 【修改建议】(引用原文并给出修改后的条款建议)
-4. 【缺失条款提醒】
-
-注意：文中已进行脱敏处理（如[企业A]、[地址1]），请在回答时保持使用这些代号，不要试图还原。`;
-
-            chatHistory = [
-                { role: 'system', content: sysPrompt },
-                { role: 'user', content: txt }
-            ];
+            // 恢复：前端不再发送 System Prompt，只发送用户内容
+            // System Prompt 由 hetong.js 在后端处理
+            chatHistory = [{ role: 'user', content: `【身份】：${role}\n【特别关注】：${focus}\n\n【合同文本】：\n${txt}` }];
             await callAI(chatHistory);
         }
 
