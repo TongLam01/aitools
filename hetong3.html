@@ -79,7 +79,7 @@
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
                 <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v2.0</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 智能语义净化</p>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 保护隐私</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -94,7 +94,7 @@
                 <div class="card p-5">
                     <div class="flex items-center justify-between mb-3">
                         <label class="block text-sm font-medium text-gray-700">打开合同文档</label>
-                        <span class="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded">自动脱敏已开启</span>
+                        <span class="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded">文档打开即脱敏</span>
                     </div>
                     <div class="upload-zone rounded-xl p-6 text-center relative" id="uploadArea">
                         <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept=".doc,.docx">
@@ -463,7 +463,7 @@
                     document.getElementById('fileInput').files = dt.files;
                     document.getElementById('fileInput').dispatchEvent(new Event('change', { bubbles: true }));
                 } else {
-                    alert('不支持的文件格式。请上传 .doc / .docx 文件。');
+                    alert('不支持的文件格式。请打开 .doc / .docx 文件。');
                 }
             }
         }, false);
@@ -557,5 +557,6 @@
         document.getElementById('followUpInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendFollowUp(); });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="common.js"></script>
 </body>
 </html>
