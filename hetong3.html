@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V1.7 </title>
+    <title>商事合同诊断助手 V1.7 (增强脱敏版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -189,21 +189,16 @@
         let chatHistory = [];
         let autoDesensitizeEnabled = true;
 
-        // --- 【干扰词黑名单 V7.0】(针对截图精准扩充) ---
+        // --- 干扰词黑名单 (维持 V7.0 的强力过滤) ---
         const IGNORE_TERMS = new Set([
-            // 商业/通用
             '市场', '上市', '股市', '超市', '菜市', '夜市', '早市', '楼市', '车市', '收市', '开市',
             '城市', '城乡', '省心', '省力', '省钱', '省级', '市级', '区级', '县级',
             '规划', '建设', '规范', '健全', '提升', '管理', '水平', '综合', '肉菜',
             '阳台', '方面', '方式', '方向', '证明', '合同', '甲方', '乙方', '双方', '门店',
-            
-            // "道/路/线" 类干扰 (包含截图中的误判)
             '线路', '电路', '网路', '水路', '思路', '门路', '大路', '道路', '马路', '走路',
             '通道', '过道', '廊道', '渠道', '报道', '知道', '味道', '公道', '霸道', '厚道', 
             '下水道', '跑道', '索道', '盲道', '人行道', '占道', '让道', '借道', '栈道',
-            '管道', '楼道', '烟道', '风道', '社会', '道德', '道理', '或者', '以及', // V7.0 新增
-            
-            // 法律常用词 (防止"违反法律法规"被识别)
+            '管道', '楼道', '烟道', '风道', '社会', '道德', '道理', '或者', '以及',
             '法律', '法规', '规定', '条款', '条文', '办法'
         ]);
 
@@ -243,13 +238,33 @@
         }
 
         function getCoreAddress(text) {
-            // 清洗地址前缀，提取核心用于比对
             let clean = text.replace(/^(位于|坐落于|地处|地址|与|在|及|对于)/, "");
             clean = clean.replace(/[，。、,.\s]/g, "");
             return clean;
         }
 
-        // ==================== 智能脱敏算法 V7.0 ====================
+        // --- 【关键函数】智能前缀剥离 ---
+        // 彻底解决 "甲方同意将位于..." 被识别为地址的问题
+        function stripSemanticPrefixes(text, type) {
+            let cleaned = text;
+            
+            // 定义需要剥离的词库
+            // 使用 (?:...)+ 表示匹配一个或多个连续的这些词
+            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|就|涉及|关于|依照|按照|根据|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从)+(?:\s*)/;
+            
+            // 公司名也有类似的"与、由"问题
+            const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本)+(?:\s*)/;
+
+            if (type === 'address') {
+                cleaned = cleaned.replace(commonPrefixes, "");
+            } else if (type === 'company') {
+                cleaned = cleaned.replace(companyPrefixes, "");
+            }
+            
+            return cleaned;
+        }
+
+        // ==================== 智能脱敏算法 V8.0 ====================
         function secureDeIdentify(text) {
             if (!text) return "";
             let processedText = normalizeText(text);
@@ -257,22 +272,22 @@
             // 1. 公司名
             const companyPattern = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
             
-            // 2. 地址 - 建筑群/地标层
-            const addressNonStandard = /[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)(?:[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|中心|村))(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]+(?:区|栋|座|层|室|号))?/g;
+            // 2. 地址 - 建筑群/非标层 (V8.0: 头部正则收紧，防止匹配太多动词)
+            // 原: [\u4e00-\u9fa5]{2,10} -> 现: 排除"将/把/对/就"等动词
+            const addressNonStandard = /(?<![将把对就由向])[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)(?:[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|中心|村))(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]+(?:区|栋|座|层|室|号))?/g;
 
             // 3. 地址 - 标准带门牌
             const addressWithNum = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道|条)(?:\s*)(?:[\d\-A-Za-z]+号)(?:[\u4e00-\u9fa5\d]*(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室))?/g;
             
-            // 4. 地址 - 省市区级 (强制捕获 "XX市XX区")
+            // 4. 地址 - 省市区级
             const addressCityDistrict = /[\u4e00-\u9fa5]{2,10}市(?:\s*)[\u4e00-\u9fa5]{2,10}(?:区|县|镇|市)(?![级])/g;
             
             // 5. 地址 - 省级开头
             const addressProv = /(?:北京|天津|上海|重庆|[\u4e00-\u9fa5]{2,5}(?:省|自治区))(?:\s*)[\u4e00-\u9fa5]{2,10}(?:市|区|县|自治州|盟)/g;
             
-            // 6. 地址 - 弱地址 (兜底)
+            // 6. 地址 - 弱地址
             const addressWeak = /(?<![线管通跑下铁水])([\u4e00-\u9fa5]{2,8}(?:路|街|道|巷|胡同|大道))/g;
 
-            // 其他正则
             const idcardPattern = /(?<!\d)[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx](?!\d)/g;
             const phonePattern = /(?<!\d)1[3-9]\d{9}(?!\d)/g;
             const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -288,17 +303,21 @@
                     if (!cleanT) continue;
                     cleanT = cleanT.trim();
                     
-                    // --- 1. 黑名单强校验 ---
+                    // --- V8.0 关键步骤：语义剥离 ---
+                    // 在黑名单检测前，先把"甲方同意将"这种前缀剥掉
+                    // 这样剩下的才是真正的地址，再去判断是不是黑名单
+                    cleanT = stripSemanticPrefixes(cleanT, type);
+                    
+                    // 剥离后如果变空了，或者是单个字，直接扔掉
+                    if (cleanT.length < 2) continue;
+
+                    // --- 黑名单检测 ---
                     let hitBlacklist = false;
-                    // 如果是地址，进行更严格的包含检测
                     if (type === 'address') {
-                        // 针对 "法律法规" 这种包含 "法" 的情况，不仅查结尾，还要查是否包含
                         const strictBan = ['法律', '法规', '规定', '条款', '或者', '以及'];
                         for (let ban of strictBan) {
                             if (cleanT.includes(ban)) { hitBlacklist = true; break; }
                         }
-                        
-                        // 针对结尾词检测 (如 "管道")
                         if (!hitBlacklist) {
                             for (let badWord of IGNORE_TERMS) {
                                 if (cleanT.endsWith(badWord) || cleanT === badWord) {
@@ -307,31 +326,13 @@
                             }
                         }
                     } else if (IGNORE_TERMS.has(cleanT)) hitBlacklist = true;
-                    
                     if (hitBlacklist) continue;
 
-                    if (cleanT.length < 2) continue;
-                    
-                    // --- 2. 公司名特殊处理 (V7.0 修复前缀粘连) ---
-                    if (type === 'company') {
-                        // V7.0 新增：前缀清洗。如果匹配到了 "乙方与XXX"，切掉前面的
-                        const prefixRegex = /^(甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和)(?:\s*)/;
-                        cleanT = cleanT.replace(prefixRegex, "");
-                        
-                        // 再次检查清洗后的长度
-                        if (cleanT.length < 4) continue;
-                        
-                        // 再次检查开头，防止"根据XXX"
-                        if (/^(根据|依据|按照|依照|关于|由于|鉴于|若|如)/.test(cleanT)) continue;
-                    }
+                    // --- 再次校验 ---
+                    if (type === 'company' && !/[\u4e00-\u9fa5]{2,}/.test(cleanT)) continue;
+                    if (type === 'address' && /^(本次|格式|方式|相关|所有|任何|以及|或者)/.test(cleanT)) continue;
 
-                    // --- 3. 地址特殊处理 ---
-                    if (type === 'address') {
-                        // 防止 "本次"、"格式"
-                        if (/^(本次|格式|方式|相关|所有|任何|以及|或者)/.test(cleanT)) continue;
-                    }
-
-                    // 记录匹配项 (使用清洗后的文本)
+                    // 记录的是剥离后的 cleanT，而不是原始的 m[0]
                     allMatches.push({ text: cleanT, type: type });
                 }
             }
@@ -354,7 +355,6 @@
                 if (pm[1]) allMatches.push({ text: pm[1], type: 'person' });
             }
 
-            // 按长度倒序排序
             allMatches.sort((a, b) => b.text.length - a.text.length);
             
             const uniqueItems = [];
@@ -365,7 +365,6 @@
 
             let result = processedText;
             for (const item of uniqueItems) {
-                // 双重检查：确保文本依然存在 (防止已被长词替换)
                 if (!result.includes(item.text)) continue;
 
                 let ph;
@@ -383,7 +382,6 @@
                     for (const [storedKey, storedID] of globalIdentityMap) {
                         if (!storedID.startsWith('[地址')) continue;
                         let coreStored = getCoreAddress(storedKey);
-                        // 包含关系检测
                         if (coreStored.includes(coreCurrent) || coreCurrent.includes(coreStored)) {
                             ph = storedID;
                             globalIdentityMap.set(item.text, ph);
@@ -466,7 +464,6 @@
         
         function closeMapModal() { document.getElementById('mapModal').classList.add('hidden'); }
 
-        // ==================== 文件处理 ====================
         document.getElementById('fileInput').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -510,22 +507,18 @@
             }
         }, false);
 
-        // ==================== API 调用 (保持原状) ====================
         async function callAI(msgs) {
             const key = document.getElementById('apiKey').value || localStorage.getItem('ds_api_key');
             const model = document.getElementById('model').value;
             const out = document.getElementById('reportOutput');
             const btn = document.getElementById('exportBtn');
-            
             btn.disabled = true;
             btn.className = "btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
-            
             const div = document.createElement('div');
             div.className = 'mb-8';
             div.innerHTML = `<div class="flex items-center space-x-3 text-emerald-600 py-6 thinking-indicator"><svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="font-medium">AI 正在深度分析...</span></div>`;
             out.appendChild(div);
             document.getElementById('chatScrollZone').scrollTop = 1e9;
-            
             let full = '', started = false;
             try {
                 const res = await fetch('/api/hetong.js', {
@@ -533,10 +526,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userKey: key, messages: msgs, model })
                 });
-                
                 const reader = res.body.getReader();
                 const dec = new TextDecoder();
-                
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
@@ -569,19 +560,15 @@
             const ta = document.getElementById('contractText');
             const key = document.getElementById('apiKey').value;
             let txt = ta.value.trim();
-            
             if (!key) { toggleSettings(); return alert('请先设置 API Key'); }
             if (!txt || !focus) return alert('请确保合同文本和关注点已填写');
-            
             if (autoDesensitizeEnabled && !txt.includes('[企业')) {
                 txt = secureDeIdentify(txt);
                 ta.value = txt;
             }
-            
             localStorage.setItem('ds_api_key', key);
             document.getElementById('reportOutput').innerHTML = '';
             document.getElementById('followUpZone').classList.remove('hidden');
-            
             chatHistory = [{ role: 'user', content: `【身份】：${role}\n【特别关注】：${focus}\n\n【合同文本】：\n${txt}` }];
             await callAI(chatHistory);
         }
@@ -590,15 +577,12 @@
             const inp = document.getElementById('followUpInput');
             const q = inp.value.trim();
             if (!q) return;
-            
             const mq = autoDesensitizeEnabled ? secureDeIdentify(q) : q;
             inp.value = '';
-            
             const qDiv = document.createElement('div');
             qDiv.className = 'bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-400';
             qDiv.innerHTML = `<span class="text-emerald-700 font-medium">追问：</span> ${mq}`;
             document.getElementById('reportOutput').appendChild(qDiv);
-            
             chatHistory.push({ role: 'user', content: mq });
             await callAI(chatHistory);
         }
