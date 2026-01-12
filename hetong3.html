@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V1.7 (增强脱敏版)</title>
+    <title>商事合同诊断助手 V1.9 (自动脱敏版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -42,10 +41,6 @@
         .follow-up-input:focus { outline: none; border-color: #10b981; background: white; }
         .icon-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; cursor: pointer; }
         .icon-btn:hover { background: #f3f4f6; }
-        .toggle-switch { position: relative; width: 44px; height: 24px; background: #d1d5db; border-radius: 12px; cursor: pointer; transition: background 0.3s ease; flex-shrink: 0; }
-        .toggle-switch.active { background: #10b981; }
-        .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.3s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-        .toggle-switch.active::after { transform: translateX(20px); }
         .desensitize-stats { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0; border-radius: 12px; padding: 12px 16px; margin-top: 12px; }
         .stats-item { display: inline-flex; align-items: center; margin-right: 16px; font-size: 12px; color: #166534; }
         .stats-item svg { width: 14px; height: 14px; margin-right: 4px; }
@@ -83,8 +78,8 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v1.7 增强版</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 智能一致性脱敏</p>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v1.9</span></h1>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 智能自动脱敏 · Word专用</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -99,16 +94,13 @@
                 <div class="card p-5">
                     <div class="flex items-center justify-between mb-3">
                         <label class="block text-sm font-medium text-gray-700">打开合同文档</label>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500">自动脱敏</span>
-                            <div id="autoDesensitizeToggle" class="toggle-switch active" onclick="toggleAutoDesensitize()"></div>
-                        </div>
+                        <span class="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded">自动脱敏已开启</span>
                     </div>
                     <div class="upload-zone rounded-xl p-6 text-center relative" id="uploadArea">
-                        <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept=".docx,.pdf">
+                        <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept=".doc,.docx">
                         <div class="mb-2"><svg class="w-8 h-8 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg></div>
                         <p class="text-sm text-gray-500" id="fileStatus">点击或拖拽打开</p>
-                        <p class="text-xs text-gray-400 mt-1">支持 .docx / .pdf</p>
+                        <p class="text-xs text-gray-400 mt-1">仅支持 .doc / .docx</p>
                     </div>
                 </div>
                 
@@ -124,12 +116,12 @@
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-sm font-medium text-gray-700">合同文本/脱敏预览</label>
-                            <button onclick="manualDesensitize()" class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center space-x-1 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors">
+                            <button onclick="triggerAutoDesensitize()" class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center space-x-1 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
-                                <span>手动脱敏</span>
+                                <span>自动脱敏</span>
                             </button>
                         </div>
-                        <textarea id="contractText" rows="6" class="input-field resize-none text-xs font-mono leading-relaxed" placeholder="打开文档后自动脱敏，或直接粘贴合同文本后点击「手动脱敏」"></textarea>
+                        <textarea id="contractText" rows="6" class="input-field resize-none text-xs font-mono leading-relaxed" placeholder="打开文档后自动执行脱敏..."></textarea>
                         <div id="desensitizeStats" class="desensitize-stats hidden">
                             <div class="flex flex-wrap items-center">
                                 <span class="stats-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>企业: <span id="companyStats">0</span></span>
@@ -177,18 +169,14 @@
         </div>
     </div>
 
-<script>
-        const pdfjsLib = window['pdfjs-dist/build/pdf'];
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
+    <script>
         // --- 全局脱敏状态 ---
         let globalIdentityMap = new Map();
         let fingerprintMap = new Map();
         let globalCounters = { company: 0, address: 0, person: 0, other: 0 };
         let originalFileName = "手动输入";
         let chatHistory = [];
-        let autoDesensitizeEnabled = true;
-
+        
         // --- 干扰词黑名单 (维持 V7.0 的强力过滤) ---
         const IGNORE_TERMS = new Set([
             '市场', '上市', '股市', '超市', '菜市', '夜市', '早市', '楼市', '车市', '收市', '开市',
@@ -207,18 +195,9 @@
             document.getElementById('settingsOverlay').classList.toggle('open');
         }
         
-        function toggleAutoDesensitize() {
-            autoDesensitizeEnabled = !autoDesensitizeEnabled;
-            document.getElementById('autoDesensitizeToggle').classList.toggle('active', autoDesensitizeEnabled);
-            localStorage.setItem('auto_desensitize', String(autoDesensitizeEnabled));
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const k = localStorage.getItem('ds_api_key');
             if (k) document.getElementById('apiKey').value = k;
-            const a = localStorage.getItem('auto_desensitize');
-            if (a !== null) autoDesensitizeEnabled = a === 'true';
-            document.getElementById('autoDesensitizeToggle').classList.toggle('active', autoDesensitizeEnabled);
         });
 
         function resetDesensitizationState() {
@@ -244,15 +223,9 @@
         }
 
         // --- 【关键函数】智能前缀剥离 ---
-        // 彻底解决 "甲方同意将位于..." 被识别为地址的问题
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
-            
-            // 定义需要剥离的词库
-            // 使用 (?:...)+ 表示匹配一个或多个连续的这些词
             const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|就|涉及|关于|依照|按照|根据|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从)+(?:\s*)/;
-            
-            // 公司名也有类似的"与、由"问题
             const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本)+(?:\s*)/;
 
             if (type === 'address') {
@@ -260,7 +233,6 @@
             } else if (type === 'company') {
                 cleaned = cleaned.replace(companyPrefixes, "");
             }
-            
             return cleaned;
         }
 
@@ -272,8 +244,7 @@
             // 1. 公司名
             const companyPattern = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
             
-            // 2. 地址 - 建筑群/非标层 (V8.0: 头部正则收紧，防止匹配太多动词)
-            // 原: [\u4e00-\u9fa5]{2,10} -> 现: 排除"将/把/对/就"等动词
+            // 2. 地址 - 建筑群/非标层
             const addressNonStandard = /(?<![将把对就由向])[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)(?:[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|中心|村))(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]+(?:区|栋|座|层|室|号))?/g;
 
             // 3. 地址 - 标准带门牌
@@ -303,15 +274,9 @@
                     if (!cleanT) continue;
                     cleanT = cleanT.trim();
                     
-                    // --- V8.0 关键步骤：语义剥离 ---
-                    // 在黑名单检测前，先把"甲方同意将"这种前缀剥掉
-                    // 这样剩下的才是真正的地址，再去判断是不是黑名单
                     cleanT = stripSemanticPrefixes(cleanT, type);
-                    
-                    // 剥离后如果变空了，或者是单个字，直接扔掉
                     if (cleanT.length < 2) continue;
 
-                    // --- 黑名单检测 ---
                     let hitBlacklist = false;
                     if (type === 'address') {
                         const strictBan = ['法律', '法规', '规定', '条款', '或者', '以及'];
@@ -328,11 +293,9 @@
                     } else if (IGNORE_TERMS.has(cleanT)) hitBlacklist = true;
                     if (hitBlacklist) continue;
 
-                    // --- 再次校验 ---
                     if (type === 'company' && !/[\u4e00-\u9fa5]{2,}/.test(cleanT)) continue;
                     if (type === 'address' && /^(本次|格式|方式|相关|所有|任何|以及|或者)/.test(cleanT)) continue;
 
-                    // 记录的是剥离后的 cleanT，而不是原始的 m[0]
                     allMatches.push({ text: cleanT, type: type });
                 }
             }
@@ -370,13 +333,11 @@
                 let ph;
                 let foundExisting = false;
                 
-                // 1. 精确匹配
                 if (globalIdentityMap.has(item.text)) {
                     ph = globalIdentityMap.get(item.text);
                     foundExisting = true;
                 }
                 
-                // 2. 地址包含匹配
                 if (!foundExisting && item.type === 'address') {
                     let coreCurrent = getCoreAddress(item.text);
                     for (const [storedKey, storedID] of globalIdentityMap) {
@@ -391,7 +352,6 @@
                     }
                 }
                 
-                // 3. 公司模糊匹配
                 if (!foundExisting && item.type === 'company') {
                     let fingerprint = getFingerprint(item.text);
                     if (fingerprintMap.has(fingerprint)) {
@@ -403,7 +363,6 @@
                     }
                 }
 
-                // 4. 新生成
                 if (!foundExisting) {
                     if (item.type === 'company') {
                         globalCounters.company++;
@@ -439,7 +398,7 @@
             }
         }
         
-        function manualDesensitize() {
+        function triggerAutoDesensitize() {
             const ta = document.getElementById('contractText');
             if (!ta.value.trim()) return alert('请先粘贴合同文本');
             ta.value = secureDeIdentify(ta.value);
@@ -467,27 +426,24 @@
         document.getElementById('fileInput').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
+            
+            if (!file.name.match(/\.(docx?)$/i)) {
+                alert('不支持的文件格式。仅支持 .doc / .docx 文件。');
+                e.target.value = '';
+                return;
+            }
+
             resetDesensitizationState();
             originalFileName = file.name.replace(/\.[^/.]+$/, "");
             document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600">${file.name}</span>`;
+            
             try {
-                let raw = "";
-                if (file.name.endsWith('.docx')) {
-                    const ab = await file.arrayBuffer();
-                    raw = (await mammoth.extractRawText({ arrayBuffer: ab })).value;
-                } else if (file.name.endsWith('.pdf')) {
-                    const ab = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const tc = await page.getTextContent();
-                        raw += tc.items.map(x => x.str).join(' ') + '\n';
-                    }
-                }
-                const processed = autoDesensitizeEnabled ? secureDeIdentify(raw) : normalizeText(raw);
-                document.getElementById('contractText').value = processed;
+                const ab = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer: ab });
+                // 默认执行自动脱敏
+                document.getElementById('contractText').value = secureDeIdentify(result.value);
             } catch (err) {
-                alert('文档载入失败: ' + err.message);
+                alert('文档解析失败: ' + err.message);
                 console.error(err);
             }
         });
@@ -498,12 +454,14 @@
         ['dragleave','drop'].forEach(e => ua.addEventListener(e, () => ua.classList.remove('drag-over'), false));
         ua.addEventListener('drop', e => {
             const f = e.dataTransfer.files[0];
-            if (f && (f.name.endsWith('.docx') || f.name.endsWith('.pdf'))) {
-                const dt = new DataTransfer(); dt.items.add(f);
-                document.getElementById('fileInput').files = dt.files;
-                document.getElementById('fileInput').dispatchEvent(new Event('change', { bubbles: true }));
-            } else if (f) {
-                alert('请上传 .docx 或 .pdf 格式');
+            if (f) {
+                if (f.name.match(/\.(docx?)$/i)) {
+                    const dt = new DataTransfer(); dt.items.add(f);
+                    document.getElementById('fileInput').files = dt.files;
+                    document.getElementById('fileInput').dispatchEvent(new Event('change', { bubbles: true }));
+                } else {
+                    alert('不支持的文件格式。请上传 .doc / .docx 文件。');
+                }
             }
         }, false);
 
@@ -562,10 +520,13 @@
             let txt = ta.value.trim();
             if (!key) { toggleSettings(); return alert('请先设置 API Key'); }
             if (!txt || !focus) return alert('请确保合同文本和关注点已填写');
-            if (autoDesensitizeEnabled && !txt.includes('[企业')) {
+            
+            // 再次强制检查脱敏 (双重保险)
+            if (!txt.includes('[企业')) {
                 txt = secureDeIdentify(txt);
                 ta.value = txt;
             }
+            
             localStorage.setItem('ds_api_key', key);
             document.getElementById('reportOutput').innerHTML = '';
             document.getElementById('followUpZone').classList.remove('hidden');
@@ -577,7 +538,8 @@
             const inp = document.getElementById('followUpInput');
             const q = inp.value.trim();
             if (!q) return;
-            const mq = autoDesensitizeEnabled ? secureDeIdentify(q) : q;
+            // 追问也强制脱敏
+            const mq = secureDeIdentify(q);
             inp.value = '';
             const qDiv = document.createElement('div');
             qDiv.className = 'bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-400';
