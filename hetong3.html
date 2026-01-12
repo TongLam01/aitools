@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V1.9 (自动脱敏版)</title>
+    <title>商事合同诊断助手 V1.9 </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -225,7 +225,7 @@
         // --- 【关键函数】智能前缀剥离 ---
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
-            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|就|涉及|关于|依照|按照|根据|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从)+(?:\s*)/;
+            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方||方就|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|就|涉及|关于|依照|按照|根据|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从)+(?:\s*)/;
             const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本)+(?:\s*)/;
 
             if (type === 'address') {
