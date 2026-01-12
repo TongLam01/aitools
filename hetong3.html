@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V1.7 (增强脱敏版)</title>
+    <title>商事合同诊断助手 V1.7 </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -189,16 +189,22 @@
         let chatHistory = [];
         let autoDesensitizeEnabled = true;
 
-        // --- 干扰词黑名单 ---
+        // --- 【干扰词黑名单 V7.0】(针对截图精准扩充) ---
         const IGNORE_TERMS = new Set([
+            // 商业/通用
             '市场', '上市', '股市', '超市', '菜市', '夜市', '早市', '楼市', '车市', '收市', '开市',
             '城市', '城乡', '省心', '省力', '省钱', '省级', '市级', '区级', '县级',
             '规划', '建设', '规范', '健全', '提升', '管理', '水平', '综合', '肉菜',
             '阳台', '方面', '方式', '方向', '证明', '合同', '甲方', '乙方', '双方', '门店',
+            
+            // "道/路/线" 类干扰 (包含截图中的误判)
             '线路', '电路', '网路', '水路', '思路', '门路', '大路', '道路', '马路', '走路',
             '通道', '过道', '廊道', '渠道', '报道', '知道', '味道', '公道', '霸道', '厚道', 
-            '下水道', '跑道', '索道', '盲道', '人行道', '占道', '让道', '借道',
-            '大街', '前线', '底线', '热线', '光线', '无线', '有线'
+            '下水道', '跑道', '索道', '盲道', '人行道', '占道', '让道', '借道', '栈道',
+            '管道', '楼道', '烟道', '风道', '社会', '道德', '道理', '或者', '以及', // V7.0 新增
+            
+            // 法律常用词 (防止"违反法律法规"被识别)
+            '法律', '法规', '规定', '条款', '条文', '办法'
         ]);
 
         function toggleSettings() {
@@ -237,12 +243,13 @@
         }
 
         function getCoreAddress(text) {
+            // 清洗地址前缀，提取核心用于比对
             let clean = text.replace(/^(位于|坐落于|地处|地址|与|在|及|对于)/, "");
             clean = clean.replace(/[，。、,.\s]/g, "");
             return clean;
         }
 
-        // ==================== 智能脱敏算法 V6.0 (保底增强版) ====================
+        // ==================== 智能脱敏算法 V7.0 ====================
         function secureDeIdentify(text) {
             if (!text) return "";
             let processedText = normalizeText(text);
@@ -250,24 +257,19 @@
             // 1. 公司名
             const companyPattern = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
             
-            // --- 地址正则群 V6.0 ---
-            
-            // [A] 复杂非标地址 (针对 "小新塘回迁房D1区" 这种混合体)
-            // 逻辑：必须以(市/区/镇/街)开头 + 包含(回迁房/安置房/自建房/基地/村) + 允许后面跟(D1区/A栋)等乱码
+            // 2. 地址 - 建筑群/地标层
             const addressNonStandard = /[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)(?:[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|中心|村))(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]+(?:区|栋|座|层|室|号))?/g;
 
-            // [B] 标准带门牌地址
+            // 3. 地址 - 标准带门牌
             const addressWithNum = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道|条)(?:\s*)(?:[\d\-A-Za-z]+号)(?:[\u4e00-\u9fa5\d]*(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室))?/g;
             
-            // [C] 省市区级 (修复了必须以省开头的BUG)
-            // 现在支持：[任意中文]市 + [任意中文]区/县
-            // 也就是 "广州市天河区" 现在会被这个正则强制捕获
+            // 4. 地址 - 省市区级 (强制捕获 "XX市XX区")
             const addressCityDistrict = /[\u4e00-\u9fa5]{2,10}市(?:\s*)[\u4e00-\u9fa5]{2,10}(?:区|县|镇|市)(?![级])/g;
             
-            // [D] 省级开头 (旧逻辑保留，兼容 "广东省广州市")
+            // 5. 地址 - 省级开头
             const addressProv = /(?:北京|天津|上海|重庆|[\u4e00-\u9fa5]{2,5}(?:省|自治区))(?:\s*)[\u4e00-\u9fa5]{2,10}(?:市|区|县|自治州|盟)/g;
             
-            // [E] 弱地址 (兜底)
+            // 6. 地址 - 弱地址 (兜底)
             const addressWeak = /(?<![线管通跑下铁水])([\u4e00-\u9fa5]{2,8}(?:路|街|道|巷|胡同|大道))/g;
 
             // 其他正则
@@ -286,33 +288,60 @@
                     if (!cleanT) continue;
                     cleanT = cleanT.trim();
                     
+                    // --- 1. 黑名单强校验 ---
                     let hitBlacklist = false;
+                    // 如果是地址，进行更严格的包含检测
                     if (type === 'address') {
-                        for (let badWord of IGNORE_TERMS) {
-                            if (cleanT.endsWith(badWord) || cleanT === badWord || cleanT.includes(badWord)) {
-                                hitBlacklist = true; break;
+                        // 针对 "法律法规" 这种包含 "法" 的情况，不仅查结尾，还要查是否包含
+                        const strictBan = ['法律', '法规', '规定', '条款', '或者', '以及'];
+                        for (let ban of strictBan) {
+                            if (cleanT.includes(ban)) { hitBlacklist = true; break; }
+                        }
+                        
+                        // 针对结尾词检测 (如 "管道")
+                        if (!hitBlacklist) {
+                            for (let badWord of IGNORE_TERMS) {
+                                if (cleanT.endsWith(badWord) || cleanT === badWord) {
+                                    hitBlacklist = true; break;
+                                }
                             }
                         }
                     } else if (IGNORE_TERMS.has(cleanT)) hitBlacklist = true;
+                    
                     if (hitBlacklist) continue;
 
                     if (cleanT.length < 2) continue;
+                    
+                    // --- 2. 公司名特殊处理 (V7.0 修复前缀粘连) ---
                     if (type === 'company') {
-                        if (/^(根据|依据|按照|依照|关于|由于|鉴于|若|如|由|为)/.test(cleanT)) continue;
-                        if (!/[\u4e00-\u9fa5]{2,}/.test(cleanT)) continue;
+                        // V7.0 新增：前缀清洗。如果匹配到了 "乙方与XXX"，切掉前面的
+                        const prefixRegex = /^(甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和)(?:\s*)/;
+                        cleanT = cleanT.replace(prefixRegex, "");
+                        
+                        // 再次检查清洗后的长度
+                        if (cleanT.length < 4) continue;
+                        
+                        // 再次检查开头，防止"根据XXX"
+                        if (/^(根据|依据|按照|依照|关于|由于|鉴于|若|如)/.test(cleanT)) continue;
                     }
-                    if (type === 'address' && /^(本次|格式|方式|相关|所有|任何|以及|或者)/.test(cleanT)) continue;
 
+                    // --- 3. 地址特殊处理 ---
+                    if (type === 'address') {
+                        // 防止 "本次"、"格式"
+                        if (/^(本次|格式|方式|相关|所有|任何|以及|或者)/.test(cleanT)) continue;
+                    }
+
+                    // 记录匹配项 (使用清洗后的文本)
                     allMatches.push({ text: cleanT, type: type });
                 }
             }
 
             collect(companyPattern, 'company');
-            collect(addressNonStandard, 'address'); // 优先：非标复杂地址
-            collect(addressWithNum, 'address');     // 标准：路名+号
-            collect(addressCityDistrict, 'address');// 保底：市+区 (修复点)
-            collect(addressProv, 'address');        // 传统：省+市
-            collect(addressWeak, 'address', 1);     // 弱：单独路名
+            collect(addressNonStandard, 'address');
+            collect(addressWithNum, 'address');
+            collect(addressCityDistrict, 'address');
+            collect(addressProv, 'address');
+            collect(addressWeak, 'address', 1);
             
             collect(idcardPattern, 'other');
             collect(phonePattern, 'other');
@@ -336,6 +365,7 @@
 
             let result = processedText;
             for (const item of uniqueItems) {
+                // 双重检查：确保文本依然存在 (防止已被长词替换)
                 if (!result.includes(item.text)) continue;
 
                 let ph;
@@ -347,12 +377,13 @@
                     foundExisting = true;
                 }
                 
-                // 2. 地址包含匹配 (核心)
+                // 2. 地址包含匹配
                 if (!foundExisting && item.type === 'address') {
                     let coreCurrent = getCoreAddress(item.text);
                     for (const [storedKey, storedID] of globalIdentityMap) {
                         if (!storedID.startsWith('[地址')) continue;
                         let coreStored = getCoreAddress(storedKey);
+                        // 包含关系检测
                         if (coreStored.includes(coreCurrent) || coreCurrent.includes(coreStored)) {
                             ph = storedID;
                             globalIdentityMap.set(item.text, ph);
