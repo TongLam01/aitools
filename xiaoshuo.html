@@ -11,12 +11,15 @@
             --text: #1d1d1f;
             --text-sub: #86868b;
             --accent: #0071e3;
+            --accent-light: #e8f4fd;
             --danger: #ff3b30;
             --success: #34c759;
+            --warning: #ff9500;
             --border: #d2d2d7;
             --wiki-bg: #f2faff;
             --fact-bg: #fffcf0;
             --header-height: 56px;
+            --sidebar-width: 320px;
         }
 
         * {
@@ -63,10 +66,39 @@
             font-size: 18px;
             font-weight: 700;
             color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .header-logo span {
             color: var(--accent);
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .immersive-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .immersive-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
         .header-right {
@@ -75,37 +107,106 @@
             gap: 12px;
         }
 
-        .api-key-wrapper {
+        /* API Key 按钮和弹窗 */
+        .api-key-btn {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
         }
 
-        .api-key-wrapper input {
-            width: 200px;
-            height: 36px;
+        .api-key-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .api-key-btn.configured {
+            background: #e8f8ef;
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .api-key-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+        }
+
+        .api-key-btn.configured .api-key-status {
+            background: var(--success);
+        }
+
+        /* API Key 弹窗 */
+        .api-popup {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 320px;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            padding: 20px;
+            display: none;
+            z-index: 1002;
+        }
+
+        .api-popup.show {
+            display: block;
+            animation: popupIn 0.2s ease;
+        }
+
+        @keyframes popupIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .api-popup h4 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .api-popup input {
+            width: 100%;
+            padding: 12px;
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 0 12px;
-            font-size: 13px;
-            background: var(--bg);
-            transition: all 0.2s;
+            font-size: 14px;
+            margin-bottom: 12px;
         }
 
-        .api-key-wrapper input:focus {
-            border-color: var(--accent);
+        .api-popup input:focus {
             outline: none;
-            background: var(--card);
+            border-color: var(--accent);
+        }
+
+        .api-popup-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .api-popup-actions .btn {
+            flex: 1;
         }
 
         .api-help-link {
             font-size: 12px;
             color: var(--accent);
             text-decoration: none;
-            white-space: nowrap;
             display: flex;
             align-items: center;
             gap: 4px;
+            margin-top: 12px;
         }
 
         .api-help-link:hover {
@@ -155,13 +256,13 @@
         }
 
         #static-sidebar {
-            width: 300px;
+            width: var(--sidebar-width);
             background: #fbfbfd;
             border-right: 1px solid var(--border);
         }
 
         #dynamic-sidebar {
-            width: 340px;
+            width: var(--sidebar-width);
             background: #fbfbfd;
             border-left: 1px solid var(--border);
         }
@@ -177,12 +278,12 @@
 
         /* ========== 编辑器区域 ========== */
         #editor-wrapper {
-            height: 16%;
-            min-height: 150px;
+            height: 18%;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             border-bottom: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             z-index: 10;
             flex-shrink: 0;
         }
@@ -194,14 +295,37 @@
             color: var(--text-sub);
             display: flex;
             justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .expand-btn {
+            padding: 4px 10px;
+            background: var(--accent-light);
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .expand-btn:hover {
+            background: var(--accent);
+            color: white;
         }
 
         #novel-content {
             flex: 1;
             padding: 12px 20px 20px;
             border: none;
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: 15px;
+            line-height: 1.8;
             outline: none;
             resize: none;
             background: transparent;
@@ -214,7 +338,29 @@
             overflow-y: auto;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
-            background: #f5f5f7;
+            background: linear-gradient(180deg, #f8f8fa 0%, #f0f0f5 100%);
+        }
+
+        #history-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sub);
+        }
+
+        #history-empty .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        #history-empty h3 {
+            font-size: 16px;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        #history-empty p {
+            font-size: 13px;
+            line-height: 1.6;
         }
 
         /* ========== 控制栏 ========== */
@@ -230,6 +376,38 @@
 
         #control-bar input {
             flex: 1;
+            height: 44px;
+            padding: 0 16px;
+            font-size: 15px;
+        }
+
+        /* ========== 输出统计 ========== */
+        .generating-stats {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .generating-stats.show {
+            display: flex;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .generating-stats .count {
+            font-family: "SF Mono", Monaco, monospace;
+            font-size: 15px;
+            min-width: 50px;
         }
 
         /* ========== 通用样式 ========== */
@@ -245,7 +423,9 @@
         }
 
         label {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             font-size: 13px;
             font-weight: 600;
             margin: 15px 0 5px 0;
@@ -256,15 +436,6 @@
             margin-top: 0;
         }
 
-        .badge {
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: white;
-            margin-left: 5px;
-            background: #999;
-        }
-
         .tips {
             font-size: 10px;
             color: var(--text-sub);
@@ -272,8 +443,14 @@
             line-height: 1.4;
         }
 
+        /* 输入框容器 */
+        .input-wrapper {
+            position: relative;
+        }
+
         textarea,
-        input,
+        input[type="text"],
+        input[type="password"],
         select {
             width: 100%;
             border: 1px solid var(--border);
@@ -281,7 +458,7 @@
             padding: 10px;
             font-size: 14px;
             background: var(--card);
-            transition: border 0.2s;
+            transition: all 0.2s;
             font-family: inherit;
         }
 
@@ -290,17 +467,12 @@
         select:focus {
             border-color: var(--accent);
             outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
         }
 
         textarea::placeholder,
         input::placeholder {
             color: #b0b0b5;
-            transition: color 0.2s;
-        }
-
-        textarea:focus::placeholder,
-        input:focus::placeholder {
-            color: transparent;
         }
 
         .input-wiki {
@@ -313,11 +485,37 @@
 
         .input-fact {
             background-color: var(--fact-bg) !important;
+            border-color: #ffe4a0;
         }
 
         .input-must {
             background-color: #fff1f0 !important;
             border-color: #ffbaba;
+        }
+
+        /* 展开按钮 - 输入框内 */
+        .input-expand-btn {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            z-index: 5;
+        }
+
+        .input-expand-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
         }
 
         /* ========== 按钮样式 ========== */
@@ -341,29 +539,38 @@
         }
 
         .btn:active {
-            opacity: 0.7;
             transform: scale(0.98);
         }
 
         .btn-primary {
-            background: var(--accent);
+            background: linear-gradient(135deg, #0071e3, #00c7be);
             color: white;
+            box-shadow: 0 4px 15px rgba(0, 113, 227, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(0, 113, 227, 0.4);
         }
 
         .btn-update {
-            background: linear-gradient(135deg, #0071e3, #00c7be) !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             color: white !important;
             width: 100%;
             margin-bottom: 15px;
-            padding: 12px;
+            padding: 14px;
             height: auto;
-            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .btn-outline {
             background: var(--card);
             border: 1px solid var(--border);
             color: var(--text);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .btn-sm {
@@ -373,7 +580,7 @@
         }
 
         .btn-stop {
-            background: var(--danger);
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
             color: white;
         }
 
@@ -385,69 +592,115 @@
         /* ========== 历史卡片样式 ========== */
         .history-card {
             background: var(--card);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 16px;
+            padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
             border: 1px solid rgba(0, 0, 0, 0.05);
-            transition: box-shadow 0.2s;
+            transition: all 0.3s;
         }
 
         .history-card:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .history-card.generating {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 20px rgba(0, 113, 227, 0.2);
         }
 
         .history-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
             border-bottom: 1px dashed #eee;
-            padding-bottom: 8px;
+        }
+
+        .history-header-left {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
         }
 
         .history-body {
             font-size: 16px;
-            line-height: 1.8;
+            line-height: 2;
             white-space: pre-wrap;
             transition: max-height 0.3s ease;
             overflow: hidden;
-            color: #333;
+            color: #2c2c2e;
+            padding: 10px 0;
         }
 
         .collapsed .history-body {
-            max-height: 80px;
-            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            max-height: 100px;
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
         }
 
+        /* 章节序号 - 更大更醒目 */
         .serial-number {
             color: var(--danger);
-            font-size: 24px;
-            font-weight: 800;
-            display: inline-block;
-            margin-right: 8px;
+            font-size: 36px;
+            font-weight: 900;
+            font-family: "SF Pro Display", -apple-system, sans-serif;
+            line-height: 1;
+            text-shadow: 2px 2px 4px rgba(255, 59, 48, 0.2);
+        }
+
+        .history-meta {
+            font-size: 11px;
+            color: var(--text-sub);
         }
 
         .history-actions {
-            margin-top: 10px;
+            margin-top: 15px;
             display: flex;
-            gap: 5px;
+            gap: 8px;
+            padding-top: 15px;
             border-top: 1px dashed #eee;
-            padding-top: 10px;
+        }
+
+        .word-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg);
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--text-sub);
         }
 
         /* ========== 统计栏 ========== */
         .stats-bar {
             margin-top: 15px;
-            padding: 12px;
-            background: #fff;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
             border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 12px;
-            color: #666;
+            border-radius: 12px;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: "SF Mono", Monaco, monospace;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-top: 4px;
         }
 
         /* ========== 分割线 ========== */
@@ -461,19 +714,194 @@
         /* ========== 加载状态 ========== */
         .loading-indicator {
             display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid #fff;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            border-top-color: transparent;
+            border-top-color: #fff;
             animation: spin 0.8s linear infinite;
-            margin-right: 6px;
+            margin-right: 8px;
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== 文本抽屉 ========== */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .drawer-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .drawer-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 85vh;
+            background: var(--card);
+            border-radius: 20px 20px 0 0;
+            z-index: 2001;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer-overlay.show .drawer-panel {
+            transform: translateY(0);
+        }
+
+        .drawer-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .drawer-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--text);
+            text-transform: none;
+        }
+
+        .drawer-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-sub);
+        }
+
+        .drawer-body {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .drawer-body textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            font-size: 16px;
+            line-height: 1.8;
+            resize: none;
+            outline: none;
+            background: transparent;
+        }
+
+        .drawer-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            background: var(--bg);
+        }
+
+        .drawer-footer .char-count {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        /* ========== 沉浸模式 ========== */
+        body.immersive-mode #top-header,
+        body.immersive-mode #mobile-tabs,
+        body.immersive-mode #static-sidebar,
+        body.immersive-mode #dynamic-sidebar {
+            display: none !important;
+        }
+
+        body.immersive-mode #main-container {
+            background: #1a1a2e;
+        }
+
+        body.immersive-mode #editor-wrapper {
+            background: #1a1a2e;
+            border-color: #2d2d44;
+        }
+
+        body.immersive-mode #novel-content {
+            color: #e0e0e0;
+        }
+
+        body.immersive-mode #history-wrapper {
+            background: linear-gradient(180deg, #16162a 0%, #1a1a2e 100%);
+        }
+
+        body.immersive-mode .history-card {
+            background: #252540;
+            border-color: #3d3d5c;
+        }
+
+        body.immersive-mode .history-body {
+            color: #d0d0d0;
+        }
+
+        body.immersive-mode .editor-header {
+            color: #888;
+        }
+
+        body.immersive-mode #control-bar {
+            background: #1a1a2e;
+            border-color: #2d2d44;
+        }
+
+        body.immersive-mode #control-bar input {
+            background: #252540;
+            border-color: #3d3d5c;
+            color: #e0e0e0;
+        }
+
+        /* 沉浸模式退出按钮 */
+        #exit-immersive {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        body.immersive-mode #exit-immersive {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #exit-immersive:hover {
+            background: rgba(255,255,255,0.2);
         }
 
         /* ========== 域名限制提示 ========== */
@@ -484,7 +912,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -493,7 +921,7 @@
         .domain-error-content {
             background: white;
             padding: 40px;
-            border-radius: 16px;
+            border-radius: 20px;
             text-align: center;
             max-width: 400px;
         }
@@ -508,7 +936,31 @@
             line-height: 1.6;
         }
 
+        /* ========== 连贯性检查指示 ========== */
+        .coherence-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--accent-light);
+            border-radius: 8px;
+            font-size: 11px;
+            color: var(--accent);
+            margin-top: 10px;
+        }
+
+        .coherence-indicator.warning {
+            background: #fff3e0;
+            color: var(--warning);
+        }
+
         /* ========== 响应式设计 ========== */
+        @media (max-width: 900px) {
+            :root {
+                --sidebar-width: 280px;
+            }
+        }
+
         @media (max-width: 768px) {
             #top-header {
                 padding: 0 12px;
@@ -518,12 +970,7 @@
                 font-size: 16px;
             }
 
-            .api-key-wrapper input {
-                width: 120px;
-                font-size: 12px;
-            }
-
-            .api-help-link span {
+            .header-center {
                 display: none;
             }
 
@@ -555,23 +1002,18 @@
             #editor-wrapper {
                 height: 120px;
                 min-height: 120px;
-                margin: 0;
-                flex-shrink: 0;
             }
 
             #history-wrapper {
                 padding: 15px;
-                background: #f2f2f7;
             }
 
             #control-bar {
                 padding: 10px 15px 25px 15px;
             }
-        }
 
-        @media (max-width: 480px) {
-            .api-key-wrapper input {
-                width: 100px;
+            .drawer-panel {
+                height: 90vh;
             }
         }
     </style>
@@ -586,24 +1028,70 @@
         </div>
     </div>
 
+    <!-- 沉浸模式退出按钮 -->
+    <button id="exit-immersive" onclick="NovelTool.toggleImmersive()">
+        <span>☀️</span> 退出沉浸
+    </button>
+
+    <!-- 文本编辑抽屉 -->
+    <div class="drawer-overlay" id="drawer-overlay" onclick="NovelTool.closeDrawer()">
+        <div class="drawer-panel" onclick="event.stopPropagation()">
+            <div class="drawer-header">
+                <h3 id="drawer-title">编辑内容</h3>
+                <button class="drawer-close" onclick="NovelTool.closeDrawer()">✕</button>
+            </div>
+            <div class="drawer-body">
+                <textarea id="drawer-textarea" placeholder="在此输入内容..."></textarea>
+            </div>
+            <div class="drawer-footer">
+                <span class="char-count"><span id="drawer-char-count">0</span> 字</span>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn btn-outline" onclick="NovelTool.closeDrawer()">取消</button>
+                    <button class="btn btn-primary" onclick="NovelTool.saveDrawer()">确认保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 顶部导航栏 -->
     <header id="top-header">
         <div class="header-left">
             <div class="header-logo">📚 <span>DeepSeek</span> 小说创作</div>
         </div>
+        <div class="header-center">
+            <button class="immersive-btn" onclick="NovelTool.toggleImmersive()">
+                🌙 沉浸写作
+            </button>
+        </div>
         <div class="header-right">
-            <div class="api-key-wrapper">
-                <input type="password" id="apiKey" placeholder="输入 API Key">
-                <a href="https://platform.deepseek.com/api_keys" target="_blank" class="api-help-link" title="获取API Key">
-                    🔑 <span>获取Key</span>
-                </a>
+            <div class="generating-stats" id="generating-stats">
+                <span>✍️ 正在创作</span>
+                <span class="count" id="live-word-count">0</span>
+                <span>字</span>
+            </div>
+            <div style="position:relative;">
+                <button class="api-key-btn" id="api-key-btn" onclick="NovelTool.toggleApiPopup()">
+                    <span class="api-key-status"></span>
+                    <span>API Key</span>
+                </button>
+                <div class="api-popup" id="api-popup">
+                    <h4>🔑 配置 DeepSeek API Key</h4>
+                    <input type="password" id="apiKey" placeholder="sk-xxxxxxxxxxxxxxxx">
+                    <div class="api-popup-actions">
+                        <button class="btn btn-primary btn-sm" onclick="NovelTool.saveApiKey()">保存</button>
+                        <button class="btn btn-outline btn-sm" onclick="NovelTool.toggleApiPopup()">取消</button>
+                    </div>
+                    <a href="https://platform.deepseek.com/api_keys" target="_blank" class="api-help-link">
+                        🔗 如何获取 API Key？→ DeepSeek 官网申请
+                    </a>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- 移动端Tab栏 -->
     <div id="mobile-tabs">
-        <div class="tab-item" onclick="NovelTool.switchTab('static-sidebar', this)">基础设定</div>
+        <div class="tab-item" onclick="NovelTool.switchTab('static-sidebar', this)">设定</div>
         <div class="tab-item active" onclick="NovelTool.switchTab('main-container', this)">创作</div>
         <div class="tab-item" onclick="NovelTool.switchTab('dynamic-sidebar', this)">导演</div>
     </div>
@@ -611,44 +1099,79 @@
     <div id="layout-wrapper">
         <!-- 左侧面板：静态设定 -->
         <div class="panel" id="static-sidebar">
-            <label>📖 小说名字</label>
+            <label>
+                📖 小说名字
+            </label>
             <input type="text" id="novel-title" placeholder="请输入小说名">
 
             <hr class="divider">
 
-            <label>📘 智能知识库 (Auto-Wiki)</label>
-            <div class="tips">* AI 自动提取新的人/物/伏笔，保持连贯性。</div>
-            <textarea id="entityMemory" rows="8" class="input-wiki" placeholder="[物品] 武器：金箍棒..."></textarea>
+            <label>
+                📘 智能知识库
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('entityMemory', '智能知识库 (Auto-Wiki)')">⤢</button>
+            </label>
+            <div class="tips">AI 自动提取人物/物品/伏笔，保持连贯性</div>
+            <div class="input-wrapper">
+                <textarea id="entityMemory" rows="6" class="input-wiki" placeholder="[人物] 张三：性格沉稳...&#10;[物品] 金箍棒：重一万三千五百斤...&#10;[伏笔] 神秘信件：内容未知..."></textarea>
+            </div>
 
-            <label>🌍 世界观 (Worldview)</label>
-            <textarea id="worldView" rows="4" placeholder="规则、环境、体系..."></textarea>
+            <label>
+                🌍 世界观
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('worldView', '世界观设定')">⤢</button>
+            </label>
+            <div class="input-wrapper">
+                <textarea id="worldView" rows="3" placeholder="时代背景、社会规则、力量体系..."></textarea>
+            </div>
 
-            <label>👤 核心角色档案 (Bible)</label>
-            <textarea id="characterBible" rows="5" placeholder="姓名、性格、人设、关系..."></textarea>
+            <label>
+                👤 角色档案
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('characterBible', '核心角色档案')">⤢</button>
+            </label>
+            <div class="input-wrapper">
+                <textarea id="characterBible" rows="4" placeholder="主角：姓名、性格、背景、目标...&#10;配角：关系、特点..."></textarea>
+            </div>
 
-            <label>🎨 文学风格 (Style)</label>
-            <textarea id="styleRef" rows="2" placeholder="例如：权谋，冷峻，节奏紧凑。"></textarea>
+            <label>
+                🎨 文风
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('styleRef', '文学风格参考')">⤢</button>
+            </label>
+            <div class="input-wrapper">
+                <textarea id="styleRef" rows="2" placeholder="权谋、悬疑、轻松幽默、节奏紧凑..."></textarea>
+            </div>
 
-            <label>🚫 避坑指令 (Negative)</label>
-            <textarea id="negativePrompt" rows="2" placeholder="例如：少写"眼神一冷"；拒绝流水账。"></textarea>
+            <label>
+                🚫 禁止事项
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('negativePrompt', '写作禁忌')">⤢</button>
+            </label>
+            <div class="input-wrapper">
+                <textarea id="negativePrompt" rows="2" placeholder="禁用词汇、避免的情节套路..."></textarea>
+            </div>
         </div>
 
         <!-- 中间主区域 -->
         <div id="main-container" class="active-panel">
             <div id="editor-wrapper">
                 <div class="editor-header">
-                    <span>📝 上一章内容接力</span>
+                    <div class="editor-header-left">
+                        <span>📝 上文接力（建议200-500字）</span>
+                        <button class="expand-btn" onclick="NovelTool.openDrawer('novel-content', '上一章内容接力')">展开编辑</button>
+                    </div>
                     <span id="editor-count">0 字</span>
                 </div>
-                <textarea id="novel-content" placeholder="在此粘贴上一章的结尾约200-500字..."></textarea>
+                <textarea id="novel-content" placeholder="粘贴上一章的结尾内容，AI将基于此续写..."></textarea>
             </div>
 
             <div id="history-wrapper">
                 <div id="history-list"></div>
+                <div id="history-empty">
+                    <div class="empty-icon">📝</div>
+                    <h3>开始你的创作之旅</h3>
+                    <p>在上方粘贴上一章内容，<br>在下方输入指令后点击"开搞"</p>
+                </div>
             </div>
 
             <div id="control-bar">
-                <input type="text" id="prompt-input" placeholder="输入你的要求，例如"续写"、字数等...">
+                <input type="text" id="prompt-input" placeholder="输入创作指令：续写、扩写某段、加入某情节...">
                 <button id="btn-gen" class="btn btn-primary" onclick="NovelTool.generate()">🎬 开搞</button>
                 <button id="btn-stop" class="btn btn-stop" style="display:none;" onclick="NovelTool.stop()">⏹ 停止</button>
             </div>
@@ -657,55 +1180,94 @@
         <!-- 右侧面板：动态控制 -->
         <div class="panel" id="dynamic-sidebar">
             <button class="btn btn-update" onclick="NovelTool.smartUpdateMemory()">
-                <span id="update-btn-text">🔄 更新AI记忆+知识库</span>
+                <span id="update-btn-text">🧠 同步AI记忆 + 更新知识库</span>
             </button>
 
-            <label>① 事实档案 (Facts)</label>
-            <div class="tips">* 记录不可逆的改变或重大转折（如角色死亡、城池陷落）。</div>
-            <textarea id="statusTracker" rows="4" class="input-fact" placeholder="已发生的事实..."></textarea>
+            <label>
+                📋 事实档案
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('statusTracker', '事实档案')">⤢</button>
+            </label>
+            <div class="tips">记录不可逆改变：死亡、毁灭、重大决定...</div>
+            <div class="input-wrapper">
+                <textarea id="statusTracker" rows="3" class="input-fact" placeholder="[第X章] XXX死亡&#10;[第X章] 主角获得神器"></textarea>
+            </div>
 
-            <label>② 前情提要 (Summary)</label>
-            <textarea id="contextSummary" rows="4" placeholder="AI生成上一章剧情浓缩快照..."></textarea>
+            <label>
+                📜 前情摘要
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('contextSummary', '前情摘要')">⤢</button>
+            </label>
+            <div class="input-wrapper">
+                <textarea id="contextSummary" rows="3" placeholder="AI自动生成的剧情概要..."></textarea>
+            </div>
+
+            <div id="coherence-check" class="coherence-indicator" style="display:none;">
+                <span>⚠️</span>
+                <span id="coherence-text">知识库已更新，建议同步</span>
+            </div>
 
             <hr class="divider">
 
-            <label style="color: var(--accent);">③ 本段目标 (Goal)</label>
-            <textarea id="sceneGoal" rows="2" placeholder="这一场戏的核心冲突是什么？"></textarea>
+            <label style="color: var(--accent);">
+                🎯 本段目标
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('sceneGoal', '本段目标')">⤢</button>
+            </label>
+            <div class="input-wrapper">
+                <textarea id="sceneGoal" rows="2" placeholder="这一场的核心冲突/要推进的剧情点..."></textarea>
+            </div>
 
-            <label style="color: var(--danger);">④ 必须提及 (Must Include)</label>
-            <textarea id="mustInclude" rows="2" class="input-must" placeholder="关键道具、伏笔..."></textarea>
+            <label style="color: var(--danger);">
+                ⚡ 必须包含
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('mustInclude', '必须包含的元素')">⤢</button>
+            </label>
+            <div class="input-wrapper">
+                <textarea id="mustInclude" rows="2" class="input-must" placeholder="关键道具、必须出现的角色、要埋的伏笔..."></textarea>
+            </div>
 
             <div style="display:flex; gap:10px;">
                 <div style="flex:1">
-                    <label>⑤ 节奏</label>
+                    <label>⏱️ 节奏</label>
                     <select id="rhythmControl">
                         <option value="正常">正常推进</option>
-                        <option value="慢：环境/心理">慢：环境/心理</option>
-                        <option value="快：动作/对话">快：动作/对话</option>
+                        <option value="慢节奏：侧重环境描写和心理刻画">慢：环境/心理</option>
+                        <option value="快节奏：侧重动作场面和对话推进">快：动作/对话</option>
                     </select>
                 </div>
                 <div style="flex:1">
-                    <label>篇幅</label>
+                    <label>📏 篇幅</label>
                     <select id="lengthMode">
-                        <option value="standard">标准</option>
-                        <option value="long">沉浸扩写</option>
-                        <option value="short">短小过渡</option>
+                        <option value="standard">标准(800-1200)</option>
+                        <option value="long">长篇(1500+)</option>
+                        <option value="short">短篇(~500)</option>
                     </select>
                 </div>
             </div>
 
-            <label>⑥ 叙事视角 (POV)</label>
+            <label>👁️ 视角</label>
             <select id="pov">
-                <option value="第三人称视角">第三人称</option>
-                <option value="第一人称">第一人称</option>
-                <option value="上帝视角">上帝视角</option>
+                <option value="第三人称限知视角（跟随主角）">第三人称跟随</option>
+                <option value="第一人称视角">第一人称</option>
+                <option value="全知视角（上帝视角）">全知视角</option>
+                <option value="多视角切换">多视角切换</option>
             </select>
 
             <div class="stats-bar">
-                <span>总字数: <b id="total-words">0</b></span>
-                <span>场次: <b id="ver-count">0</b></span>
+                <div class="stat-item">
+                    <div class="stat-value" id="total-words">0</div>
+                    <div class="stat-label">总字数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="ver-count">0</div>
+                    <div class="stat-label">场次</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avg-words">0</div>
+                    <div class="stat-label">平均字数</div>
+                </div>
             </div>
-            <button class="btn btn-outline" style="width:100%; margin-top:10px; font-size:12px;" onclick="NovelTool.downloadFullDraft()">📥 导出全本</button>
+            
+            <button class="btn btn-outline" style="width:100%; margin-top:15px;" onclick="NovelTool.downloadFullDraft()">
+                📥 导出全本小说
+            </button>
         </div>
     </div>
 
