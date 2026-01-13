@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V2.0 (修复版)</title>
+    <title>商事合同诊断助手 V3.2 (稳定修复版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -78,8 +78,8 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v2.0 修复版</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 智能脱敏 · 格式保留</p>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v3.2</span></h1>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语境感知 · 智能脱敏</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -118,7 +118,7 @@
                             <label class="block text-sm font-medium text-gray-700">合同文本/脱敏预览</label>
                             <button onclick="triggerAutoDesensitize()" class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center space-x-1 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
-                                <span>点击脱敏</span>
+                                <span>自动脱敏</span>
                             </button>
                         </div>
                         <textarea id="contractText" rows="6" class="input-field resize-none text-xs font-mono leading-relaxed" placeholder="打开文档后自动执行脱敏..."></textarea>
@@ -170,16 +170,7 @@
     </div>
 
     <script>
-        const pdfjsLib = window['pdfjs-dist/build/pdf'];
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-        let globalIdentityMap = new Map();
-        let fingerprintMap = new Map();
-        let globalCounters = { company: 0, address: 0, person: 0, other: 0 };
-        let originalFileName = "手动输入";
-        let chatHistory = [];
-        let autoDesensitizeEnabled = true;
-
+        // ==================== 1. 常量定义 (必须置顶) ====================
         const IGNORE_TERMS = new Set([
             '市场', '上市', '股市', '超市', '菜市', '夜市', '早市', '楼市', '车市', '收市', '开市',
             '城市', '城乡', '省心', '省力', '省钱', '省级', '市级', '区级', '县级',
@@ -196,15 +187,19 @@
         const ABSTRACT_NOUNS = /^(跑路|违约|拖欠|解除|终止|履行|支付|赔偿|损失|转让|协商|沟通|死路|末路|活路|出路|短路|断路|开路|挡路|拦路|带路|引路|迷路|顺路|同路)/;
         const CONTRACT_CONTEXT_KEYWORDS = /甲方|乙方|丙方|丁方|双方|各方|授权|代表|签字|盖章|账户|账号|开户|委托|受托|承包|发包|租赁|出租|承租|供应商|服务商|合作|协议|合同/;
 
+        // ==================== 2. 全局状态 ====================
+        let globalIdentityMap = new Map();
+        let fingerprintMap = new Map();
+        let globalCounters = { company: 0, address: 0, person: 0, other: 0 };
+        let originalFileName = "手动输入";
+        let chatHistory = [];
+        let autoDesensitizeEnabled = true;
+
+        // ==================== 3. 辅助函数 ====================
         function toggleSettings() {
             document.getElementById('settingsPanel').classList.toggle('open');
             document.getElementById('settingsOverlay').classList.toggle('open');
         }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const k = localStorage.getItem('ds_api_key');
-            if (k) document.getElementById('apiKey').value = k;
-        });
 
         function resetDesensitizationState() {
             globalIdentityMap.clear();
@@ -260,6 +255,40 @@
             return false;
         }
 
+        function updateStats() {
+            const t = globalCounters.company + globalCounters.address + globalCounters.person + globalCounters.other;
+            const s = document.getElementById('desensitizeStats');
+            if (t > 0) {
+                s.classList.remove('hidden');
+                document.getElementById('companyStats').textContent = globalCounters.company;
+                document.getElementById('addressStats').textContent = globalCounters.address;
+                document.getElementById('personStats').textContent = globalCounters.person;
+                document.getElementById('otherStats').textContent = globalCounters.other;
+            } else {
+                s.classList.add('hidden');
+            }
+        }
+
+        function closeMapModal() { document.getElementById('mapModal').classList.add('hidden'); }
+
+        function showDesensitizeMap() {
+            const c = document.getElementById('mapContent');
+            if (globalIdentityMap.size === 0) {
+                c.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">暂无脱敏数据</p>';
+            } else {
+                let h = '<div class="space-y-2">';
+                const sortedEntries = Array.from(globalIdentityMap.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+                sortedEntries.forEach(([orig, ph]) => {
+                    const preview = orig.length > 12 ? orig.slice(0, 6) + '...' + orig.slice(-4) : orig;
+                    h += `<div class="flex justify-between py-1 border-b border-gray-100"><span class="text-emerald-600 font-mono">${ph}</span><span class="text-gray-500 text-sm">${preview}</span></div>`;
+                });
+                h += '</div>';
+                c.innerHTML = h;
+            }
+            document.getElementById('mapModal').classList.remove('hidden');
+        }
+
+        // ==================== 4. 核心脱敏算法 ====================
         function secureDeIdentify(text) {
             if (!text) return "";
             let processedText = normalizeText(text);
@@ -400,87 +429,101 @@
             return result;
         }
 
-        function updateStats() {
-            const t = globalCounters.company + globalCounters.address + globalCounters.person + globalCounters.other;
-            const s = document.getElementById('desensitizeStats');
-            if (t > 0) {
-                s.classList.remove('hidden');
-                document.getElementById('companyStats').textContent = globalCounters.company;
-                document.getElementById('addressStats').textContent = globalCounters.address;
-                document.getElementById('personStats').textContent = globalCounters.person;
-                document.getElementById('otherStats').textContent = globalCounters.other;
-            } else {
-                s.classList.add('hidden');
-            }
-        }
-        
         function triggerAutoDesensitize() {
             const ta = document.getElementById('contractText');
             if (!ta.value.trim()) return alert('请先粘贴合同文本');
             try {
                 ta.value = secureDeIdentify(ta.value);
             } catch (e) {
-                alert('脱敏执行出错: ' + e.message);
                 console.error(e);
+                alert('脱敏执行出错: ' + e.message);
             }
         }
-        
-        function showDesensitizeMap() {
-            const c = document.getElementById('mapContent');
-            if (globalIdentityMap.size === 0) {
-                c.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">暂无脱敏数据</p>';
-            } else {
-                let h = '<div class="space-y-2">';
-                const sortedEntries = Array.from(globalIdentityMap.entries()).sort((a, b) => a[1].localeCompare(b[1]));
-                sortedEntries.forEach(([orig, ph]) => {
-                    const preview = orig.length > 12 ? orig.slice(0, 6) + '...' + orig.slice(-4) : orig;
-                    h += `<div class="flex justify-between py-1 border-b border-gray-100"><span class="text-emerald-600 font-mono">${ph}</span><span class="text-gray-500 text-sm">${preview}</span></div>`;
-                });
-                h += '</div>';
-                c.innerHTML = h;
-            }
-            document.getElementById('mapModal').classList.remove('hidden');
-        }
-        
-        function closeMapModal() { document.getElementById('mapModal').classList.add('hidden'); }
 
-        document.getElementById('fileInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            if (!file.name.match(/\.(docx?)$/i)) {
-                alert('不支持的文件格式。仅支持 .doc / .docx 文件。');
-                e.target.value = '';
-                return;
-            }
-            resetDesensitizationState();
-            originalFileName = file.name.replace(/\.[^/.]+$/, "");
-            document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600">${file.name}</span>`;
-            try {
-                const ab = await file.arrayBuffer();
-                const result = await mammoth.extractRawText({ arrayBuffer: ab });
-                document.getElementById('contractText').value = secureDeIdentify(result.value);
-            } catch (err) {
-                alert('文档解析失败: ' + err.message);
-                console.error(err);
-            }
+        // ==================== 5. 事件监听 (放入 DOMContentLoaded) ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            const k = localStorage.getItem('ds_api_key');
+            if (k) document.getElementById('apiKey').value = k;
+
+            // 监听文件选择
+            document.getElementById('fileInput').addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.name.match(/\.(docx?)$/i)) {
+                    alert('不支持的文件格式。仅支持 .doc / .docx 文件。');
+                    e.target.value = '';
+                    return;
+                }
+                resetDesensitizationState();
+                originalFileName = file.name.replace(/\.[^/.]+$/, "");
+                document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600">${file.name}</span>`;
+                try {
+                    const ab = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer: ab });
+                    document.getElementById('contractText').value = secureDeIdentify(result.value);
+                } catch (err) {
+                    alert('文档解析失败: ' + err.message);
+                    console.error(err);
+                }
+            });
+
+            // 监听拖拽
+            const ua = document.getElementById('uploadArea');
+            ['dragenter','dragover','dragleave','drop'].forEach(e => document.body.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }, false));
+            ['dragenter','dragover'].forEach(e => ua.addEventListener(e, () => ua.classList.add('drag-over'), false));
+            ['dragleave','drop'].forEach(e => ua.addEventListener(e, () => ua.classList.remove('drag-over'), false));
+            ua.addEventListener('drop', e => {
+                const f = e.dataTransfer.files[0];
+                if (f) {
+                    if (f.name.match(/\.(docx?)$/i)) {
+                        const dt = new DataTransfer(); dt.items.add(f);
+                        document.getElementById('fileInput').files = dt.files;
+                        document.getElementById('fileInput').dispatchEvent(new Event('change', { bubbles: true }));
+                    } else {
+                        alert('不支持的文件格式。请上传 .doc / .docx 文件。');
+                    }
+                }
+            }, false);
+
+            document.getElementById('followUpInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendFollowUp(); });
         });
 
-        const ua = document.getElementById('uploadArea');
-        ['dragenter','dragover','dragleave','drop'].forEach(e => document.body.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }, false));
-        ['dragenter','dragover'].forEach(e => ua.addEventListener(e, () => ua.classList.add('drag-over'), false));
-        ['dragleave','drop'].forEach(e => ua.addEventListener(e, () => ua.classList.remove('drag-over'), false));
-        ua.addEventListener('drop', e => {
-            const f = e.dataTransfer.files[0];
-            if (f) {
-                if (f.name.match(/\.(docx?)$/i)) {
-                    const dt = new DataTransfer(); dt.items.add(f);
-                    document.getElementById('fileInput').files = dt.files;
-                    document.getElementById('fileInput').dispatchEvent(new Event('change', { bubbles: true }));
-                } else {
-                    alert('不支持的文件格式。请上传 .doc / .docx 文件。');
-                }
+        async function startInitialAudit() {
+            const role = document.getElementById('role').value;
+            const focus = document.getElementById('focus').value;
+            const ta = document.getElementById('contractText');
+            const key = document.getElementById('apiKey').value;
+            let txt = ta.value.trim();
+            if (!key) { toggleSettings(); return alert('请先设置 API Key'); }
+            if (!txt || !focus) return alert('请确保合同文本和关注点已填写');
+            
+            if (autoDesensitizeEnabled && !txt.includes('[企业')) {
+                try {
+                    txt = secureDeIdentify(txt);
+                    ta.value = txt;
+                } catch(e) { console.error(e); }
             }
-        }, false);
+            
+            localStorage.setItem('ds_api_key', key);
+            document.getElementById('reportOutput').innerHTML = '';
+            document.getElementById('followUpZone').classList.remove('hidden');
+            chatHistory = [{ role: 'user', content: `【身份】：${role}\n【特别关注】：${focus}\n\n【合同文本】：\n${txt}` }];
+            await callAI(chatHistory);
+        }
+
+        async function sendFollowUp() {
+            const inp = document.getElementById('followUpInput');
+            const q = inp.value.trim();
+            if (!q) return;
+            const mq = secureDeIdentify(q);
+            inp.value = '';
+            const qDiv = document.createElement('div');
+            qDiv.className = 'bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-400';
+            qDiv.innerHTML = `<span class="text-emerald-700 font-medium">追问：</span> ${mq}`;
+            document.getElementById('reportOutput').appendChild(qDiv);
+            chatHistory.push({ role: 'user', content: mq });
+            await callAI(chatHistory);
+        }
 
         async function callAI(msgs) {
             const key = document.getElementById('apiKey').value || localStorage.getItem('ds_api_key');
@@ -529,50 +572,11 @@
             }
         }
 
-        async function startInitialAudit() {
-            const role = document.getElementById('role').value;
-            const focus = document.getElementById('focus').value;
-            const ta = document.getElementById('contractText');
-            const key = document.getElementById('apiKey').value;
-            let txt = ta.value.trim();
-            if (!key) { toggleSettings(); return alert('请先设置 API Key'); }
-            if (!txt || !focus) return alert('请确保合同文本和关注点已填写');
-            if (autoDesensitizeEnabled && !txt.includes('[企业')) {
-                try {
-                    txt = secureDeIdentify(txt);
-                    ta.value = txt;
-                } catch(e) {
-                    console.error("Auto desensitize failed:", e);
-                }
-            }
-            localStorage.setItem('ds_api_key', key);
-            document.getElementById('reportOutput').innerHTML = '';
-            document.getElementById('followUpZone').classList.remove('hidden');
-            chatHistory = [{ role: 'user', content: `【身份】：${role}\n【特别关注】：${focus}\n\n【合同文本】：\n${txt}` }];
-            await callAI(chatHistory);
-        }
-
-        async function sendFollowUp() {
-            const inp = document.getElementById('followUpInput');
-            const q = inp.value.trim();
-            if (!q) return;
-            const mq = secureDeIdentify(q);
-            inp.value = '';
-            const qDiv = document.createElement('div');
-            qDiv.className = 'bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-400';
-            qDiv.innerHTML = `<span class="text-emerald-700 font-medium">追问：</span> ${mq}`;
-            document.getElementById('reportOutput').appendChild(qDiv);
-            chatHistory.push({ role: 'user', content: mq });
-            await callAI(chatHistory);
-        }
-
         function exportToWord() {
             const c = document.getElementById('reportOutput').innerHTML;
             const h = `<html><head><meta charset='utf-8'><style>body{font-family:'SimSun',serif;font-size:10.5pt}table{width:100%;border-collapse:collapse;margin:1em 0}th,td{border:1pt solid black;padding:6pt}h1{text-align:center}h2{color:#059669}</style></head><body><h1>合同审核报告</h1><p style='text-align:right'>关联：${originalFileName}</p><hr>${c}</body></html>`;
             saveAs(new Blob(['\ufeff', h], { type: 'application/msword' }), `${originalFileName}_诊断报告.doc`);
         }
-
-        document.getElementById('followUpInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendFollowUp(); });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 </body>
