@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V3.2 (稳定修复版)</title>
+    <title>商事合同诊断助手 V3.3 (精准阻断版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -78,8 +78,8 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v3.2</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语境感知 · 智能脱敏</p>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v3.3</span></h1>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义阻断 · 精准脱敏</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -118,7 +118,7 @@
                             <label class="block text-sm font-medium text-gray-700">合同文本/脱敏预览</label>
                             <button onclick="triggerAutoDesensitize()" class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center space-x-1 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
-                                <span>自动脱敏</span>
+                                <span>点击脱敏</span>
                             </button>
                         </div>
                         <textarea id="contractText" rows="6" class="input-field resize-none text-xs font-mono leading-relaxed" placeholder="打开文档后自动执行脱敏..."></textarea>
@@ -171,6 +171,8 @@
 
     <script>
         // ==================== 1. 常量定义 (必须置顶) ====================
+        
+        // 【天网名单】针对截图中的误伤词，进行精准打击
         const IGNORE_TERMS = new Set([
             '市场', '上市', '股市', '超市', '菜市', '夜市', '早市', '楼市', '车市', '收市', '开市',
             '城市', '城乡', '省心', '省力', '省钱', '省级', '市级', '区级', '县级',
@@ -179,8 +181,10 @@
             '线路', '电路', '网路', '水路', '思路', '门路', '大路', '道路', '马路', '走路',
             '通道', '过道', '廊道', '渠道', '报道', '知道', '味道', '公道', '霸道', '厚道', 
             '下水道', '跑道', '索道', '盲道', '人行道', '占道', '让道', '借道', '栈道',
-            '管道', '楼道', '烟道', '风道', '社会', '道德', '道理', '或者', '以及',
-            '法律', '法规', '规定', '条款', '条文', '办法', '死路', '活路', '末路', '跑路'
+            '管道', '楼道', '烟道', '风道', 
+            // 针对截图补充的黑名单：
+            '社会', '道德', '道理', '或者', '以及', '法律', '法规', '规定', '条款', '条文', '办法', '死路', '活路', '末路', '跑路',
+            '全部', '内部', '外部', '系统', '阶段', '目标', '函件', '情况', '运行', '进行', '执行', '实行', '完成'
         ]);
 
         const ACTION_VERBS = /^(出现|发生|导致|造成|存在|构成|属于|涉嫌|已经|可能|将会|引起|引发|产生|带来|面临|避免|防止|禁止|严禁)/;
@@ -227,10 +231,11 @@
             return clean;
         }
 
+        // 强力剥离函数：针对 "对拟签订..." 和 "要将..."
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
-            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之)+(?:\s*)/;
-            const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本)+(?:\s*)/;
+            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之)+(?:\s*)/;
+            const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要)+(?:\s*)/;
 
             if (type === 'address') {
                 cleaned = cleaned.replace(commonPrefixes, "");
@@ -294,12 +299,18 @@
             let processedText = normalizeText(text);
             
             const companyStrict = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
-            const companyLoose = /(?<![为由对])[\u4e00-\u9fa5a-zA-Z0-9]{2,10}(?:公司|中心|厂|社|部|行|网|科技|实业|置业|工作室)(?![名称|性质|类|型|等级|规模])/g;
+            
+            // 修复：移除单字后缀（行、部、社），避免误伤“运行”、“全部”
+            // 仅保留双字以上后缀，或非常明确的单字后缀(此处为了安全，暂时移除单字)
+            const companyLoose = /(?<![为由对])[\u4e00-\u9fa5a-zA-Z0-9]{2,10}(?:公司|中心|工作室|商行|商贸|科技|实业|置业|经营部)(?![名称|性质|类|型|等级|规模])/g;
+            
+            // 地址正则：增加 (?<![...]) 负向回看，阻止常用动词开头
             const addressNonStandard = /(?<![将把对就由向])[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)(?:[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|中心|村))(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]+(?:区|栋|座|层|室|号))?/g;
             const addressWithNum = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道|条)(?:\s*)(?:[\d\-A-Za-z]+号)(?:[\u4e00-\u9fa5\d]*(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室))?/g;
             const addressCityDistrict = /[\u4e00-\u9fa5]{2,10}市(?:\s*)[\u4e00-\u9fa5]{2,10}(?:区|县|镇|市)(?![级])/g;
             const addressProv = /(?:北京|天津|上海|重庆|[\u4e00-\u9fa5]{2,5}(?:省|自治区))(?:\s*)[\u4e00-\u9fa5]{2,10}(?:市|区|县|自治州|盟)/g;
             const addressWeak = /(?<![线管通跑下铁水])([\u4e00-\u9fa5]{2,8}(?:路|街|道|巷|胡同|大道))/g;
+            
             const idcardPattern = /(?<!\d)[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx](?!\d)/g;
             const phonePattern = /(?<!\d)1[3-9]\d{9}(?!\d)/g;
             const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -315,11 +326,14 @@
                     if (!rawMatch) continue;
                     let cleanT = rawMatch.trim();
                     
+                    // 1. 剥离
                     cleanT = stripSemanticPrefixes(cleanT, type);
                     if (cleanT.length < 2) continue;
 
+                    // 2. 语义否定
                     if (isSemanticFalsePositive(processedText, m.index, cleanT)) continue;
 
+                    // 3. 黑名单强校验
                     let hitBlacklist = false;
                     if (type === 'address') {
                         const strictBan = ['法律', '法规', '规定', '条款', '或者', '以及'];
@@ -332,6 +346,7 @@
                     } else if (IGNORE_TERMS.has(cleanT)) hitBlacklist = true;
                     if (hitBlacklist) continue;
 
+                    // 4. 语境验证
                     if (strategy === 'loose_company') {
                         if (!hasContractContext(processedText, m.index, cleanT)) {
                             continue;
@@ -445,7 +460,6 @@
             const k = localStorage.getItem('ds_api_key');
             if (k) document.getElementById('apiKey').value = k;
 
-            // 监听文件选择
             document.getElementById('fileInput').addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -467,7 +481,6 @@
                 }
             });
 
-            // 监听拖拽
             const ua = document.getElementById('uploadArea');
             ['dragenter','dragover','dragleave','drop'].forEach(e => document.body.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }, false));
             ['dragenter','dragover'].forEach(e => ua.addEventListener(e, () => ua.classList.add('drag-over'), false));
