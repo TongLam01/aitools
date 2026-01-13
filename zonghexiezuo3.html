@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公文写作扩展工具 V2.0 </title>
+    <title>公文写作扩展工具 V2.1 </title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -286,7 +286,7 @@
                 <h1 class="text-base lg:text-lg font-black tracking-tight" :class="isDark ? 'text-white' : 'text-slate-800'">
                     公文写作扩展工具
                 </h1>
-                <p class="text-[10px] text-slate-400 hidden sm:block">Writer Swiss Knife V2.0</p>
+                <p class="text-[10px] text-slate-400 hidden sm:block">Writer Swiss Knife V2.1</p>
             </div>
         </div>
         
@@ -632,7 +632,7 @@ createApp({
             { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-diagram-project', desc: '生成可视化思维导图大纲（需200字以上）' }
         ];
 
-        // 核心脱敏逻辑 (修复短名识别 V2.0)
+        // 核心脱敏逻辑 (修复短名识别 V2.1)
         const GENERIC_COMPANY_TERMS = new Set([
             '物业公司', '管理公司', '项目公司', '担保公司', '中介公司', '租赁公司', '关联公司', '服务公司', '合作公司', '目标公司',
             '保险公司', '装修公司', '施工公司', '设计公司', '监理公司', '运营公司', '投资公司', '贸易公司', '广告公司', '咨询公司',
@@ -654,6 +654,9 @@ createApp({
             '运行', '进行', '执行', '实行', '完成', '我司', '贵司', '两司',
             '一道', '称道', '成道', '一道走'
         ]);
+        // 修复2：单字前缀黑名单，防止"新公司"被识别，但允许"鑫鑫公司"
+        const GENERIC_PREFIX_BLACKLIST = new Set(['本', '该', '此', '某', '原', '新', '老', '大', '小', '总', '分']);
+
         const ACTION_VERBS = /^(出现|发生|导致|造成|存在|构成|属于|涉嫌|已经|可能|将会|引起|引发|产生|带来|面临|避免|防止|禁止|严禁)/;
         const ABSTRACT_NOUNS = /^(跑路|违约|拖欠|解除|终止|履行|支付|赔偿|损失|转让|协商|沟通|死路|末路|活路|出路|短路|断路|开路|挡路|拦路|带路|引路|迷路|顺路|同路)/;
         const CONTRACT_CONTEXT_KEYWORDS = /甲方|乙方|丙方|丁方|双方|各方|授权|代表|签字|盖章|账户|账号|开户|委托|受托|承包|发包|租赁|出租|承租|供应商|服务商|合作|协议|合同/;
@@ -720,8 +723,7 @@ createApp({
             let processedText = normalizeText(text);
 
             const companyStrict = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
-            // 优化1：移除负向预查 (?<![为由对])，改为宽泛匹配，由 stripSemanticPrefixes 负责清洗
-            // 优化2：将最小长度改为 2, 并且移除 lookahead 以增强兼容性
+            // 优化1：宽泛匹配模式，允许 2 个字符的前缀
             const companyLoose = /[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:公司|中心|工作室|商行|商贸|科技|实业|置业|经营部|厂)/g;
             const addressNonStandard = /(?<![将把对就由向])[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)(?:[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|中心|村))(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]+(?:区|栋|座|层|室|号))?/g;
             const addressWithNum = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道|条)(?:\s*)(?:[\d\-A-Za-z]+号)(?:[\u4e00-\u9fa5\d]*(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室))?/g;
@@ -749,7 +751,17 @@ createApp({
                         if (isGenericCompanyReference(processedText, m.index, cleanT)) continue;
                         if (!isValidCompanyName(cleanT)) continue;
                         for (let term of GENERIC_COMPANY_TERMS) {
-                            if (cleanT.endsWith(term) && cleanT.length < term.length + 3) continue;
+                            // 修复的核心：将阈值从+3改为+2，允许“鑫鑫公司”(4字)通过，但过滤“新公司”(3字)
+                            if (cleanT.endsWith(term)) {
+                                if (cleanT.length < term.length + 2) {
+                                    continue;
+                                }
+                                // 额外防御：如果刚好是3个字（如“新公司”），检查前缀是否在单字黑名单中
+                                if (cleanT.length === term.length + 1) {
+                                    const prefix = cleanT.substring(0, 1);
+                                    if (GENERIC_PREFIX_BLACKLIST.has(prefix)) continue;
+                                }
+                            }
                         }
                     }
                     let hitBlacklist = false;
