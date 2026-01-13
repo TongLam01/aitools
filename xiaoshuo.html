@@ -6,24 +6,21 @@
     <title>DeepSeek小说创作工具</title>
     <style>
         :root {
-            --bg: #f5f5f7;
+            --bg: #f0f4f8;
             --card: #ffffff;
-            --text: #1d1d1f;
-            --text-sub: #86868b;
-            --accent: #0071e3;
-            --accent-light: #e8f4fd;
-            --danger: #ff3b30;
-            --success: #34c759;
-            --warning: #ff9500;
-            --border: #d2d2d7;
-            --wiki-bg: #f2faff;
-            --wiki-core: #fff5f5;
-            --wiki-active: #f0fff4;
-            --wiki-archive: #f8f8f8;
-            --fact-bg: #fffcf0;
+            --text: #1a202c;
+            --text-sub: #718096;
+            --primary: #3182ce;
+            --primary-light: #ebf8ff;
+            --primary-dark: #2c5282;
+            --danger: #e53e3e;
+            --success: #38a169;
+            --warning: #dd6b20;
+            --border: #e2e8f0;
+            --sidebar-left: #f7fafc;
+            --sidebar-right: #fafbfc;
             --header-height: 56px;
             --sidebar-width: 340px;
-            --ai-badge: #9333ea;
         }
 
         * {
@@ -38,71 +35,58 @@
             background: var(--bg);
             color: var(--text);
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* ========== 顶部导航栏 ========== */
+        /* ========== 顶部导航 ========== */
         #top-header {
             height: var(--header-height);
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, #2c5282 0%, #3182ce 100%);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 20px;
             flex-shrink: 0;
             z-index: 1001;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .header-logo {
             font-size: 18px;
             font-weight: 700;
-            color: var(--text);
+            color: white;
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .header-logo span {
-            color: var(--accent);
         }
 
         .header-center {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .immersive-btn {
+        .header-btn {
             display: flex;
             align-items: center;
             gap: 6px;
             padding: 8px 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
             color: white;
-            border: none;
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 20px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
-        .immersive-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        .header-btn:hover {
+            background: rgba(255,255,255,0.25);
         }
 
         .header-right {
@@ -111,31 +95,30 @@
             gap: 12px;
         }
 
-        /* API Key 按钮和弹窗 */
+        /* API Key */
         .api-key-btn {
             display: flex;
             align-items: center;
             gap: 6px;
             padding: 8px 16px;
-            background: var(--bg);
-            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.9);
+            border: none;
             border-radius: 20px;
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
+            color: var(--primary-dark);
             transition: all 0.2s;
-            color: var(--text);
         }
 
         .api-key-btn:hover {
-            border-color: var(--accent);
-            background: var(--accent-light);
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .api-key-btn.configured {
-            background: #e8f8ef;
-            border-color: var(--success);
-            color: var(--success);
+            background: #c6f6d5;
+            color: #276749;
         }
 
         .api-key-status {
@@ -189,7 +172,7 @@
 
         .api-popup input:focus {
             outline: none;
-            border-color: var(--accent);
+            border-color: var(--primary);
         }
 
         .api-popup-actions {
@@ -197,31 +180,25 @@
             gap: 8px;
         }
 
-        .api-popup-actions .btn {
-            flex: 1;
-        }
+        .api-popup-actions .btn { flex: 1; }
 
         .api-help-link {
             font-size: 12px;
-            color: var(--accent);
+            color: var(--primary);
             text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            display: block;
             margin-top: 12px;
         }
 
-        .api-help-link:hover {
-            text-decoration: underline;
-        }
+        .api-help-link:hover { text-decoration: underline; }
 
-        /* ========== AI自动标识 ========== */
+        /* AI标识 */
         .ai-badge {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             padding: 2px 8px;
-            background: linear-gradient(135deg, #9333ea, #7c3aed);
+            background: linear-gradient(135deg, var(--primary), #4299e1);
             color: white;
             font-size: 10px;
             font-weight: 600;
@@ -229,30 +206,28 @@
             margin-left: 6px;
         }
 
-        .ai-badge::before {
-            content: "🤖";
-            font-size: 10px;
-        }
-
-        .manual-badge {
-            display: inline-flex;
+        /* 实时字数 */
+        .generating-stats {
+            display: none;
             align-items: center;
-            gap: 4px;
-            padding: 2px 8px;
-            background: var(--text-sub);
-            color: white;
-            font-size: 10px;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            border-radius: 20px;
+            font-size: 13px;
             font-weight: 600;
-            border-radius: 10px;
-            margin-left: 6px;
+            color: white;
+            animation: pulse 1s ease-in-out infinite;
         }
 
-        .manual-badge::before {
-            content: "✏️";
-            font-size: 10px;
+        .generating-stats.show { display: flex; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
-        /* ========== 移动端Tab栏 ========== */
+        /* ========== 移动端Tab ========== */
         #mobile-tabs {
             display: none;
             background: var(--card);
@@ -260,7 +235,6 @@
             justify-content: space-around;
             padding: 8px 0;
             flex-shrink: 0;
-            z-index: 1000;
         }
 
         .tab-item {
@@ -269,13 +243,13 @@
             color: var(--text-sub);
             padding: 6px 16px;
             border-radius: 20px;
-            transition: 0.2s;
             cursor: pointer;
+            transition: 0.2s;
         }
 
         .tab-item.active {
-            color: #fff;
-            background: var(--accent);
+            color: white;
+            background: var(--primary);
         }
 
         /* ========== 主布局 ========== */
@@ -283,56 +257,101 @@
             display: flex;
             flex: 1;
             overflow: hidden;
-            height: 100%;
         }
 
         .panel {
             display: flex;
             flex-direction: column;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         #static-sidebar {
             width: var(--sidebar-width);
-            background: #fbfbfd;
+            background: var(--sidebar-left);
             border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
         }
 
         #dynamic-sidebar {
             width: var(--sidebar-width);
-            background: #fbfbfd;
+            background: var(--sidebar-right);
             border-left: 1px solid var(--border);
+            position: relative;
         }
 
         #main-container {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #fff;
+            background: var(--card);
             overflow: hidden;
-            position: relative;
         }
 
-        /* ========== 编辑器区域 ========== */
+        /* ========== 右侧悬浮同步按钮 ========== */
+        .sync-float {
+            position: sticky;
+            top: 0;
+            background: var(--sidebar-right);
+            padding-bottom: 12px;
+            margin: -16px -16px 0 -16px;
+            padding: 16px 16px 12px 16px;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .btn-sync {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), #4299e1);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-sync:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(49, 130, 206, 0.4);
+        }
+
+        .btn-sync:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .sync-tip {
+            font-size: 11px;
+            color: var(--text-sub);
+            text-align: center;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* ========== 编辑器 ========== */
         #editor-wrapper {
-            height: 18%;
-            min-height: 140px;
+            height: 16%;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             border-bottom: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.98);
-            z-index: 10;
+            background: #fafbfc;
             flex-shrink: 0;
         }
 
         .editor-header {
             padding: 10px 20px 0;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--text-sub);
             display: flex;
             justify-content: space-between;
@@ -347,23 +366,23 @@
 
         .expand-btn {
             padding: 4px 10px;
-            background: var(--accent-light);
-            border: 1px solid var(--accent);
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
             border-radius: 6px;
             font-size: 11px;
-            color: var(--accent);
+            color: var(--primary);
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .expand-btn:hover {
-            background: var(--accent);
+            background: var(--primary);
             color: white;
         }
 
         #novel-content {
             flex: 1;
-            padding: 12px 20px 20px;
+            padding: 12px 20px 16px;
             border: none;
             font-size: 15px;
             line-height: 1.8;
@@ -372,14 +391,12 @@
             background: transparent;
         }
 
-        /* ========== 历史记录区域 ========== */
+        /* ========== 历史区 ========== */
         #history-wrapper {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            background: linear-gradient(180deg, #f8f8fa 0%, #f0f0f5 100%);
+            background: var(--bg);
         }
 
         #history-empty {
@@ -388,26 +405,13 @@
             color: var(--text-sub);
         }
 
-        #history-empty .empty-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
-        #history-empty h3 {
-            font-size: 16px;
-            color: var(--text);
-            margin-bottom: 8px;
-            text-transform: none;
-        }
-
-        #history-empty p {
-            font-size: 13px;
-            line-height: 1.6;
-        }
+        #history-empty .empty-icon { font-size: 48px; margin-bottom: 16px; }
+        #history-empty h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; text-transform: none; }
+        #history-empty p { font-size: 13px; line-height: 1.6; }
 
         /* ========== 控制栏 ========== */
         #control-bar {
-            padding: 12px 15px;
+            padding: 12px 16px;
             display: flex;
             gap: 10px;
             align-items: center;
@@ -421,69 +425,18 @@
             height: 44px;
             padding: 0 16px;
             font-size: 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
         }
 
-        /* ========== 输出统计 ========== */
-        .generating-stats {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #ff6b6b, #ffa500);
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            color: white;
-            animation: pulse 1s ease-in-out infinite;
+        #control-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
         }
 
-        .generating-stats.show {
-            display: flex;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .generating-stats .count {
-            font-family: "SF Mono", Monaco, monospace;
-            font-size: 15px;
-            min-width: 50px;
-        }
-
-        /* ========== 通用样式 ========== */
-        h3 {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-sub);
-            margin: 0 0 10px 0;
-            text-transform: uppercase;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tips {
-            font-size: 10px;
-            color: var(--text-sub);
-            margin-bottom: 4px;
-            line-height: 1.4;
-        }
-
-        .sidebar-top {
-            flex-shrink: 0;
-        }
-
-        .sidebar-flex {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-            overflow-y: auto;
-        }
-
-        /* ========== 分层知识库样式 ========== */
+        /* ========== 知识库 ========== */
         .wiki-container {
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -492,45 +445,37 @@
             margin-bottom: 12px;
         }
 
-        .wiki-section {
-            border-bottom: 1px solid var(--border);
-        }
-
-        .wiki-section:last-child {
-            border-bottom: none;
-        }
+        .wiki-section { border-bottom: 1px solid var(--border); }
+        .wiki-section:last-child { border-bottom: none; }
 
         .wiki-section-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 14px;
+            padding: 12px 14px;
             cursor: pointer;
-            user-select: none;
             transition: background 0.2s;
         }
 
-        .wiki-section-header:hover {
-            background: rgba(0, 0, 0, 0.02);
-        }
+        .wiki-section-header:hover { background: rgba(49, 130, 206, 0.05); }
 
         .wiki-section-header-left {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
         }
 
-        .wiki-section-header-left .dot {
+        .wiki-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
         }
 
-        .wiki-core .dot { background: var(--danger); }
-        .wiki-active .dot { background: var(--success); }
-        .wiki-archive .dot { background: var(--text-sub); }
+        .wiki-core .wiki-dot { background: var(--primary-dark); }
+        .wiki-active .wiki-dot { background: var(--success); }
+        .wiki-archive .wiki-dot { background: var(--text-sub); }
 
         .wiki-section-header-right {
             display: flex;
@@ -538,7 +483,7 @@
             gap: 6px;
         }
 
-        .wiki-char-count {
+        .wiki-count {
             font-size: 10px;
             color: var(--text-sub);
             background: var(--bg);
@@ -546,50 +491,42 @@
             border-radius: 4px;
         }
 
+        .wiki-count.over { background: #fed7d7; color: var(--danger); }
+
         .wiki-toggle {
             font-size: 10px;
             color: var(--text-sub);
             transition: transform 0.2s;
         }
 
-        .wiki-section.collapsed .wiki-toggle {
-            transform: rotate(-90deg);
-        }
-
-        .wiki-section-body {
-            display: block;
-        }
-
-        .wiki-section.collapsed .wiki-section-body {
-            display: none;
-        }
+        .wiki-section.collapsed .wiki-toggle { transform: rotate(-90deg); }
+        .wiki-section.collapsed .wiki-section-body { display: none; }
 
         .wiki-section-body textarea {
             width: 100%;
             border: none;
-            border-radius: 0;
             padding: 12px 14px;
             font-size: 13px;
             line-height: 1.6;
             resize: none;
             outline: none;
-            font-family: "Menlo", "Monaco", monospace;
+            font-family: inherit;
         }
 
         .wiki-core .wiki-section-body textarea {
-            background: var(--wiki-core);
-            min-height: 80px;
-        }
-
-        .wiki-active .wiki-section-body textarea {
-            background: var(--wiki-active);
+            background: #f0f5ff;
             min-height: 100px;
         }
 
+        .wiki-active .wiki-section-body textarea {
+            background: #f0fff4;
+            min-height: 80px;
+        }
+
         .wiki-archive .wiki-section-body textarea {
-            background: var(--wiki-archive);
+            background: #f7fafc;
             min-height: 60px;
-            color: #666;
+            color: #718096;
         }
 
         .wiki-actions {
@@ -600,15 +537,11 @@
             border-top: 1px solid var(--border);
         }
 
-        .wiki-actions .btn {
-            flex: 1;
-            height: 32px;
-            font-size: 11px;
-        }
+        .wiki-actions .btn { flex: 1; }
 
         .wiki-stats {
             display: flex;
-            gap: 12px;
+            justify-content: space-between;
             padding: 8px 14px;
             background: var(--bg);
             border-top: 1px solid var(--border);
@@ -616,57 +549,40 @@
             color: var(--text-sub);
         }
 
-        .wiki-stats span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
         /* ========== 可折叠输入组 ========== */
         .input-group {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             border: 1px solid var(--border);
             border-radius: 10px;
             overflow: hidden;
             background: var(--card);
-            transition: all 0.3s ease;
         }
 
-        .input-group.collapsed {
-            background: var(--bg);
-        }
+        .input-group.collapsed { background: var(--bg); }
 
         .input-group-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 14px;
+            padding: 10px 12px;
             cursor: pointer;
-            user-select: none;
             transition: background 0.2s;
         }
 
-        .input-group-header:hover {
-            background: rgba(0, 113, 227, 0.05);
-        }
+        .input-group-header:hover { background: rgba(49, 130, 206, 0.05); }
 
         .input-group-header-left {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-size: 13px;
             font-weight: 600;
-            color: var(--text);
-        }
-
-        .input-group-header-left .icon {
-            font-size: 16px;
         }
 
         .input-group-header-right {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .input-group-preview {
@@ -679,130 +595,70 @@
         }
 
         .input-group-toggle {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: var(--bg);
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 10px;
             color: var(--text-sub);
-            transition: all 0.2s;
+            transition: transform 0.2s;
         }
 
-        .input-group.collapsed .input-group-toggle {
-            transform: rotate(-90deg);
-        }
+        .input-group.collapsed .input-group-toggle { transform: rotate(-90deg); }
+        .input-group.collapsed .input-group-body { display: none; }
 
         .input-group-body {
-            padding: 0 14px 14px;
-            display: block;
+            padding: 0 12px 12px;
         }
 
-        .input-group.collapsed .input-group-body {
-            display: none;
-        }
-
-        .input-group-body textarea {
-            margin: 0;
-        }
-
-        /* 输入框容器 */
-        .input-wrapper {
-            position: relative;
-        }
-
-        textarea,
-        input[type="text"],
-        input[type="password"],
-        input[type="number"],
-        select {
+        /* ========== 通用输入 ========== */
+        textarea, input[type="text"], input[type="password"], input[type="number"], select {
             width: 100%;
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 10px;
             font-size: 14px;
             background: var(--card);
-            transition: all 0.2s;
             font-family: inherit;
-        }
-
-        textarea:focus,
-        input:focus,
-        select:focus {
-            border-color: var(--accent);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
-        }
-
-        textarea::placeholder,
-        input::placeholder {
-            color: #b0b0b5;
-        }
-
-        .input-fact {
-            background-color: var(--fact-bg) !important;
-            border-color: #ffe4a0;
-        }
-
-        .input-must {
-            background-color: #fff1f0 !important;
-            border-color: #ffbaba;
-        }
-
-        /* AI自动生成字段样式 */
-        .input-ai-auto {
-            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%) !important;
-            border-color: #d8b4fe;
-        }
-
-        .input-ai-auto::placeholder {
-            color: #a78bfa;
-        }
-
-        /* 展开按钮 */
-        .input-expand-btn {
-            padding: 4px 8px;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
-            color: var(--text-sub);
             transition: all 0.2s;
         }
 
-        .input-expand-btn:hover {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: white;
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
         }
 
-        /* ========== 标签样式 ========== */
+        .input-ai-auto {
+            background: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%) !important;
+            border-color: #90cdf4;
+        }
+
         label {
             display: flex;
             align-items: center;
             font-size: 13px;
             font-weight: 600;
-            margin: 12px 0 5px 0;
-            color: #333;
-            flex-wrap: wrap;
+            margin: 10px 0 5px;
+            color: var(--text);
             gap: 4px;
         }
 
-        label:first-child {
-            margin-top: 0;
+        .label-right { margin-left: auto; }
+
+        .tips {
+            font-size: 10px;
+            color: var(--text-sub);
+            margin-bottom: 4px;
         }
 
-        .label-right {
-            margin-left: auto;
-        }
-
-        /* ========== 按钮样式 ========== */
+        /* ========== 按钮 ========== */
         .btn {
-            padding: 0 16px;
-            height: 42px;
+            padding: 0 14px;
+            height: 40px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -811,37 +667,18 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            white-space: nowrap;
             transition: all 0.2s;
         }
 
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
+        .btn:active { transform: scale(0.98); }
 
         .btn-primary {
-            background: linear-gradient(135deg, #0071e3, #00c7be);
+            background: linear-gradient(135deg, var(--primary), #4299e1);
             color: white;
-            box-shadow: 0 4px 15px rgba(0, 113, 227, 0.3);
+            box-shadow: 0 2px 8px rgba(49, 130, 206, 0.3);
         }
 
-        .btn-primary:hover {
-            box-shadow: 0 6px 20px rgba(0, 113, 227, 0.4);
-        }
-
-        .btn-update {
-            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important;
-            color: white !important;
-            width: 100%;
-            margin-bottom: 15px;
-            padding: 14px;
-            height: auto;
-            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
-        }
+        .btn-primary:hover { box-shadow: 0 4px 12px rgba(49, 130, 206, 0.4); }
 
         .btn-outline {
             background: var(--card);
@@ -850,60 +687,64 @@
         }
 
         .btn-outline:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
-        .btn-sm {
-            height: 32px;
-            font-size: 12px;
-            padding: 0 10px;
-        }
-
-        .btn-xs {
-            height: 26px;
-            font-size: 10px;
-            padding: 0 8px;
-        }
+        .btn-sm { height: 32px; font-size: 12px; padding: 0 10px; }
+        .btn-xs { height: 28px; font-size: 11px; padding: 0 8px; }
 
         .btn-stop {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            background: linear-gradient(135deg, #e53e3e, #c53030);
             color: white;
         }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-expand {
+            padding: 3px 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--text-sub);
+            cursor: pointer;
         }
 
-        /* ========== 历史卡片样式 ========== */
+        .btn-expand:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* ========== 历史卡片 ========== */
         .history-card {
             background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
         }
 
         .history-card:hover {
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
             transform: translateY(-2px);
         }
 
         .history-card.generating {
-            border: 2px solid var(--accent);
-            box-shadow: 0 0 20px rgba(0, 113, 227, 0.2);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(49, 130, 206, 0.2);
         }
 
         .history-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
-            border-bottom: 1px dashed #eee;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border);
         }
 
         .history-header-left {
@@ -912,20 +753,27 @@
             gap: 10px;
         }
 
-        .history-time {
-            font-size: 13px;
+        .chapter-badge {
+            padding: 4px 10px;
+            background: linear-gradient(135deg, var(--primary), #4299e1);
+            color: white;
+            font-size: 12px;
             font-weight: 600;
-            color: var(--text);
+            border-radius: 6px;
+        }
+
+        .history-time {
+            font-size: 12px;
+            color: var(--text-sub);
         }
 
         .history-body {
             font-size: 16px;
             line-height: 2;
             white-space: pre-wrap;
-            transition: max-height 0.3s ease;
             overflow: hidden;
-            color: #2c2c2e;
-            padding: 10px 0;
+            color: #2d3748;
+            padding: 8px 0;
         }
 
         .collapsed .history-body {
@@ -936,21 +784,19 @@
 
         .serial-number {
             display: block;
-            color: var(--danger);
-            font-size: 42px;
+            color: var(--primary);
+            font-size: 38px;
             font-weight: 900;
-            font-family: "SF Pro Display", -apple-system, sans-serif;
             line-height: 1;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(255, 59, 48, 0.2);
+            margin-bottom: 12px;
         }
 
         .history-actions {
-            margin-top: 15px;
+            margin-top: 12px;
             display: flex;
-            gap: 8px;
-            padding-top: 15px;
-            border-top: 1px dashed #eee;
+            gap: 6px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border);
         }
 
         .word-count-badge {
@@ -959,71 +805,63 @@
             gap: 4px;
             padding: 4px 10px;
             background: var(--bg);
-            border-radius: 12px;
+            border-radius: 10px;
             font-size: 12px;
             color: var(--text-sub);
         }
 
         /* ========== 统计栏 ========== */
         .stats-bar {
-            margin-top: 15px;
-            padding: 15px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
-            border: 1px solid #ddd;
-            border-radius: 12px;
+            margin-top: 12px;
+            padding: 14px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
             display: flex;
             justify-content: space-around;
         }
 
-        .stat-item {
-            text-align: center;
-        }
+        .stat-item { text-align: center; }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            color: var(--accent);
-            font-family: "SF Mono", Monaco, monospace;
+            color: var(--primary);
+            font-family: "SF Mono", monospace;
         }
 
         .stat-label {
             font-size: 11px;
             color: var(--text-sub);
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         /* ========== 分割线 ========== */
         .divider {
-            width: 100%;
             border: 0;
-            border-top: 1px solid #e5e5e5;
-            margin: 15px 0;
+            border-top: 1px solid var(--border);
+            margin: 12px 0;
         }
 
-        /* ========== 加载状态 ========== */
-        .loading-indicator {
+        /* ========== 加载动画 ========== */
+        .loading {
             display: inline-block;
             width: 14px;
             height: 14px;
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            border-top-color: #fff;
+            border-top-color: white;
             animation: spin 0.8s linear infinite;
             margin-right: 8px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ========== 文本抽屉 ========== */
+        /* ========== 抽屉 ========== */
         .drawer-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
             z-index: 2000;
             opacity: 0;
             visibility: hidden;
@@ -1037,9 +875,7 @@
 
         .drawer-panel {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             height: 85vh;
             background: var(--card);
             border-radius: 20px 20px 0 0;
@@ -1050,9 +886,7 @@
             flex-direction: column;
         }
 
-        .drawer-overlay.show .drawer-panel {
-            transform: translateY(0);
-        }
+        .drawer-overlay.show .drawer-panel { transform: translateY(0); }
 
         .drawer-header {
             padding: 20px;
@@ -1066,7 +900,6 @@
         .drawer-header h3 {
             margin: 0;
             font-size: 18px;
-            color: var(--text);
             text-transform: none;
         }
 
@@ -1082,13 +915,9 @@
             font-size: 18px;
             cursor: pointer;
             color: var(--text-sub);
-            transition: all 0.2s;
         }
 
-        .drawer-close:hover {
-            background: var(--danger);
-            color: white;
-        }
+        .drawer-close:hover { background: var(--danger); color: white; }
 
         .drawer-body {
             flex: 1;
@@ -1117,59 +946,20 @@
             background: var(--bg);
         }
 
-        .drawer-footer .char-count {
-            font-size: 13px;
-            color: var(--text-sub);
-        }
-
         /* ========== 沉浸模式 ========== */
         body.immersive-mode #top-header,
         body.immersive-mode #mobile-tabs,
         body.immersive-mode #static-sidebar,
-        body.immersive-mode #dynamic-sidebar {
-            display: none !important;
-        }
+        body.immersive-mode #dynamic-sidebar { display: none !important; }
 
-        body.immersive-mode #main-container {
-            background: #1a1a2e;
-        }
-
-        body.immersive-mode #editor-wrapper {
-            background: #1a1a2e;
-            border-color: #2d2d44;
-        }
-
-        body.immersive-mode #novel-content {
-            color: #e0e0e0;
-        }
-
-        body.immersive-mode #history-wrapper {
-            background: linear-gradient(180deg, #16162a 0%, #1a1a2e 100%);
-        }
-
-        body.immersive-mode .history-card {
-            background: #252540;
-            border-color: #3d3d5c;
-        }
-
-        body.immersive-mode .history-body {
-            color: #d0d0d0;
-        }
-
-        body.immersive-mode .editor-header {
-            color: #888;
-        }
-
-        body.immersive-mode #control-bar {
-            background: #1a1a2e;
-            border-color: #2d2d44;
-        }
-
-        body.immersive-mode #control-bar input {
-            background: #252540;
-            border-color: #3d3d5c;
-            color: #e0e0e0;
-        }
+        body.immersive-mode #main-container { background: #1a202c; }
+        body.immersive-mode #editor-wrapper { background: #1a202c; border-color: #2d3748; }
+        body.immersive-mode #novel-content { color: #e2e8f0; }
+        body.immersive-mode #history-wrapper { background: #171923; }
+        body.immersive-mode .history-card { background: #2d3748; border-color: #4a5568; }
+        body.immersive-mode .history-body { color: #e2e8f0; }
+        body.immersive-mode #control-bar { background: #1a202c; border-color: #2d3748; }
+        body.immersive-mode #control-bar input { background: #2d3748; border-color: #4a5568; color: #e2e8f0; }
 
         #exit-immersive {
             position: fixed;
@@ -1182,31 +972,20 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 20px;
-            color: #fff;
+            color: white;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        body.immersive-mode #exit-immersive {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        body.immersive-mode #exit-immersive { display: flex; align-items: center; gap: 6px; }
+        #exit-immersive:hover { background: rgba(255,255,255,0.2); }
 
-        #exit-immersive:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        /* ========== 域名限制提示 ========== */
+        /* ========== 域名限制 ========== */
         #domain-error {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -1220,158 +999,80 @@
             max-width: 400px;
         }
 
-        .domain-error-content h2 {
-            color: var(--danger);
-            margin-bottom: 16px;
-        }
+        .domain-error-content h2 { color: var(--danger); margin-bottom: 16px; }
+        .domain-error-content p { color: var(--text-sub); line-height: 1.6; }
 
-        .domain-error-content p {
-            color: var(--text-sub);
-            line-height: 1.6;
-        }
-
-        /* ========== 连贯性检查指示 ========== */
-        .coherence-indicator {
-            display: flex;
+        /* ========== 同步提醒 ========== */
+        .sync-reminder {
+            display: none;
             align-items: center;
             gap: 6px;
             padding: 8px 12px;
-            background: var(--accent-light);
+            background: #fef3c7;
             border-radius: 8px;
             font-size: 11px;
-            color: var(--accent);
-            margin-top: 10px;
+            color: #92400e;
+            margin-top: 8px;
         }
 
-        .coherence-indicator.warning {
-            background: #fff3e0;
-            color: var(--warning);
-        }
+        .sync-reminder.show { display: flex; }
 
-        /* ========== 章节标签 ========== */
-        .chapter-tag {
-            display: inline-block;
-            padding: 2px 8px;
-            background: var(--accent-light);
-            color: var(--accent);
-            font-size: 11px;
-            font-weight: 600;
-            border-radius: 4px;
-        }
-
-        /* ========== 响应式设计 ========== */
+        /* ========== 响应式 ========== */
         @media (max-width: 900px) {
-            :root {
-                --sidebar-width: 300px;
-            }
+            :root { --sidebar-width: 300px; }
         }
 
         @media (max-width: 768px) {
-            #top-header {
-                padding: 0 12px;
-            }
-
-            .header-logo {
-                font-size: 16px;
-            }
-
-            .header-center {
-                display: none;
-            }
-
-            #mobile-tabs {
-                display: flex;
-            }
-
-            #layout-wrapper {
-                flex-direction: column;
-            }
-
-            .panel,
-            #main-container {
-                display: none;
-                width: 100% !important;
-                height: 100%;
-            }
-
-            .active-panel {
-                display: flex !important;
-            }
-
-            textarea,
-            input,
-            select {
-                font-size: 16px;
-            }
-
-            #editor-wrapper {
-                height: 120px;
-                min-height: 120px;
-            }
-
-            #history-wrapper {
-                padding: 15px;
-            }
-
-            #control-bar {
-                padding: 10px 15px 25px 15px;
-            }
-
-            .drawer-panel {
-                height: 90vh;
-            }
+            .header-center { display: none; }
+            #mobile-tabs { display: flex; }
+            #layout-wrapper { flex-direction: column; }
+            .panel, #main-container { display: none; width: 100% !important; height: 100%; }
+            .active-panel { display: flex !important; }
+            textarea, input, select { font-size: 16px; }
+            #editor-wrapper { height: 100px; min-height: 100px; }
+            #control-bar { padding: 10px 12px 25px; }
+            .drawer-panel { height: 90vh; }
         }
     </style>
 </head>
 <body>
-    <!-- 域名限制错误提示 -->
     <div id="domain-error">
         <div class="domain-error-content">
             <h2>⚠️ 访问受限</h2>
             <p>此工具仅限在 <strong>aibox6.com</strong> 域名下使用。</p>
-            <p>请访问正确的网址以使用本工具。</p>
         </div>
     </div>
 
-    <!-- 沉浸模式退出按钮 -->
-    <button id="exit-immersive">
-        <span>☀️</span> 退出沉浸
-    </button>
+    <button id="exit-immersive">☀️ 退出沉浸</button>
 
-    <!-- 文本编辑抽屉 -->
     <div class="drawer-overlay" id="drawer-overlay">
         <div class="drawer-panel" onclick="event.stopPropagation()">
             <div class="drawer-header">
-                <h3 id="drawer-title">编辑内容</h3>
+                <h3 id="drawer-title">编辑</h3>
                 <button class="drawer-close" id="drawer-close-btn">✕</button>
             </div>
             <div class="drawer-body">
-                <textarea id="drawer-textarea" placeholder="在此输入内容..."></textarea>
+                <textarea id="drawer-textarea" placeholder="输入内容..."></textarea>
             </div>
             <div class="drawer-footer">
-                <span class="char-count"><span id="drawer-char-count">0</span> 字</span>
+                <span><span id="drawer-char-count">0</span> 字</span>
                 <div style="display:flex;gap:10px;">
                     <button class="btn btn-outline" id="drawer-cancel-btn">取消</button>
-                    <button class="btn btn-primary" id="drawer-save-btn">确认保存</button>
+                    <button class="btn btn-primary" id="drawer-save-btn">保存</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 顶部导航栏 -->
     <header id="top-header">
-        <div class="header-left">
-            <div class="header-logo">📚 <span>DeepSeek</span> 小说创作</div>
-        </div>
+        <div class="header-logo">📚 DeepSeek 小说创作</div>
         <div class="header-center">
-            <button class="immersive-btn" id="immersive-btn">
-                🌙 沉浸写作
-            </button>
+            <button class="header-btn" id="immersive-btn">🌙 沉浸写作</button>
         </div>
         <div class="header-right">
             <div class="generating-stats" id="generating-stats">
-                <span>✍️ 正在创作</span>
-                <span class="count" id="live-word-count">0</span>
+                <span>✍️</span>
+                <span id="live-word-count">0</span>
                 <span>字</span>
             </div>
             <div style="position:relative;">
@@ -1381,294 +1082,245 @@
                 </button>
                 <div class="api-popup" id="api-popup">
                     <h4>🔑 配置 DeepSeek API Key</h4>
-                    <input type="password" id="apiKey" placeholder="sk-xxxxxxxxxxxxxxxx">
+                    <input type="password" id="apiKey" placeholder="sk-xxx...">
                     <div class="api-popup-actions">
                         <button class="btn btn-primary btn-sm" id="save-api-btn">保存</button>
                         <button class="btn btn-outline btn-sm" id="cancel-api-btn">取消</button>
                     </div>
                     <a href="https://platform.deepseek.com/api_keys" target="_blank" class="api-help-link">
-                        🔗 如何获取 API Key？→ DeepSeek 官网申请
+                        🔗 获取 API Key → DeepSeek 官网
                     </a>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- 移动端Tab栏 -->
     <div id="mobile-tabs">
         <div class="tab-item" data-panel="static-sidebar">设定</div>
         <div class="tab-item active" data-panel="main-container">创作</div>
-        <div class="tab-item" data-panel="dynamic-sidebar">导演</div>
+        <div class="tab-item" data-panel="dynamic-sidebar">控制</div>
     </div>
 
     <div id="layout-wrapper">
-        <!-- 左侧面板：静态设定 -->
+        <!-- 左侧 -->
         <div class="panel" id="static-sidebar">
-            <div class="sidebar-top">
-                <label>📖 小说名字 <span class="manual-badge">手动</span></label>
-                <input type="text" id="novel-title" placeholder="请输入小说名">
-                <hr class="divider">
+            <label>📖 小说名</label>
+            <input type="text" id="novel-title" placeholder="输入小说名">
+            <hr class="divider">
+
+            <!-- 知识库 -->
+            <div class="wiki-container">
+                <div class="wiki-section wiki-core" id="wiki-core-section">
+                    <div class="wiki-section-header" data-section="wiki-core-section">
+                        <div class="wiki-section-header-left">
+                            <span class="wiki-dot"></span>
+                            <span>🏛️ 世界观与核心设定</span>
+                        </div>
+                        <div class="wiki-section-header-right">
+                            <span class="wiki-count" id="wiki-core-count">0</span>
+                            <span class="wiki-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="wiki-section-body">
+                        <textarea id="wikiCore" placeholder="世界观、时代背景、力量体系、主角设定、核心冲突...&#10;&#10;💡 建议≤800字，始终保留"></textarea>
+                    </div>
+                </div>
+
+                <div class="wiki-section wiki-active" id="wiki-active-section">
+                    <div class="wiki-section-header" data-section="wiki-active-section">
+                        <div class="wiki-section-header-left">
+                            <span class="wiki-dot"></span>
+                            <span>🧠 活跃记忆</span>
+                            <span class="ai-badge">🤖 AI</span>
+                        </div>
+                        <div class="wiki-section-header-right">
+                            <span class="wiki-count" id="wiki-active-count">0</span>
+                            <span class="wiki-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="wiki-section-body">
+                        <textarea id="wikiActive" class="input-ai-auto" placeholder="点击「智能同步」后AI自动填充：&#10;&#10;═══ 第N章 ═══&#10;┄┄ 人物 ┄┄&#10;• 角色：特征&#10;┄┄ 地点 ┄┄&#10;• 地名：描述&#10;&#10;💡 单章≤250字，总计≤1000字"></textarea>
+                    </div>
+                </div>
+
+                <div class="wiki-section wiki-archive collapsed" id="wiki-archive-section">
+                    <div class="wiki-section-header" data-section="wiki-archive-section">
+                        <div class="wiki-section-header-left">
+                            <span class="wiki-dot"></span>
+                            <span>📦 历史归档</span>
+                        </div>
+                        <div class="wiki-section-header-right">
+                            <span class="wiki-count" id="wiki-archive-count">0</span>
+                            <span class="wiki-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="wiki-section-body">
+                        <textarea id="wikiArchive" placeholder="旧章节归档..."></textarea>
+                    </div>
+                </div>
+
+                <div class="wiki-actions">
+                    <button class="btn btn-outline btn-xs" data-expand="wikiCore" data-title="世界观与核心设定">编辑核心</button>
+                    <button class="btn btn-outline btn-xs" data-expand="wikiActive" data-title="活跃记忆">编辑活跃</button>
+                    <button class="btn btn-outline btn-xs" id="archive-wiki-btn">归档</button>
+                </div>
+
+                <div class="wiki-stats">
+                    <span>总计: <b id="wiki-total-count">0</b>字</span>
+                    <span id="wiki-limit-tip">活跃层建议≤1000</span>
+                </div>
             </div>
 
-            <div class="sidebar-flex">
-                <!-- 分层知识库 -->
-                <div class="wiki-container">
-                    <!-- 核心层 -->
-                    <div class="wiki-section wiki-core" id="wiki-core-section">
-                        <div class="wiki-section-header" data-section="wiki-core-section">
-                            <div class="wiki-section-header-left">
-                                <span class="dot"></span>
-                                <span>🔴 核心设定</span>
-                                <span class="manual-badge">手动</span>
-                            </div>
-                            <div class="wiki-section-header-right">
-                                <span class="wiki-char-count" id="wiki-core-count">0字</span>
-                                <span class="wiki-toggle">▼</span>
-                            </div>
-                        </div>
-                        <div class="wiki-section-body">
-                            <textarea id="wikiCore" placeholder="主角核心设定、世界观基础、核心冲突...&#10;（建议≤500字，始终保留不变）"></textarea>
-                        </div>
+            <!-- 角色档案 -->
+            <div class="input-group collapsed" id="character-group">
+                <div class="input-group-header" data-group="character-group">
+                    <div class="input-group-header-left">
+                        <span>👤</span>
+                        <span>角色档案</span>
                     </div>
-
-                    <!-- 活跃层 -->
-                    <div class="wiki-section wiki-active" id="wiki-active-section">
-                        <div class="wiki-section-header" data-section="wiki-active-section">
-                            <div class="wiki-section-header-left">
-                                <span class="dot"></span>
-                                <span>🟢 活跃记忆</span>
-                                <span class="ai-badge">AI自动</span>
-                            </div>
-                            <div class="wiki-section-header-right">
-                                <span class="wiki-char-count" id="wiki-active-count">0字</span>
-                                <span class="wiki-toggle">▼</span>
-                            </div>
-                        </div>
-                        <div class="wiki-section-body">
-                            <textarea id="wikiActive" class="input-ai-auto" placeholder="点击「智能同步知识库」按钮后，AI会自动填充：&#10;═══════ 第N章 ═══════&#10;┄┄┄ 人物 ┄┄┄&#10;• 角色名：特征描述&#10;┄┄┄ 地点 ┄┄┄&#10;• 地名：场景描述"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- 归档层 -->
-                    <div class="wiki-section wiki-archive collapsed" id="wiki-archive-section">
-                        <div class="wiki-section-header" data-section="wiki-archive-section">
-                            <div class="wiki-section-header-left">
-                                <span class="dot"></span>
-                                <span>📦 历史归档</span>
-                            </div>
-                            <div class="wiki-section-header-right">
-                                <span class="wiki-char-count" id="wiki-archive-count">0字</span>
-                                <span class="wiki-toggle">▼</span>
-                            </div>
-                        </div>
-                        <div class="wiki-section-body">
-                            <textarea id="wikiArchive" placeholder="旧章节的归档信息...&#10;（点击「归档旧内容」将活跃记忆移至此处）"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- 知识库操作 -->
-                    <div class="wiki-actions">
-                        <button class="btn btn-outline btn-xs" data-expand="wikiCore" data-title="核心设定">编辑核心</button>
-                        <button class="btn btn-outline btn-xs" data-expand="wikiActive" data-title="活跃记忆">编辑活跃</button>
-                        <button class="btn btn-outline btn-xs" id="archive-wiki-btn">归档旧内容</button>
-                    </div>
-
-                    <!-- 知识库统计 -->
-                    <div class="wiki-stats">
-                        <span>📊 总计: <b id="wiki-total-count">0</b>字</span>
-                        <span>💡 建议: &lt;2000字</span>
+                    <div class="input-group-header-right">
+                        <span class="input-group-preview" id="character-preview"></span>
+                        <button class="btn-expand" data-expand="characterBible" data-title="角色档案">展开</button>
+                        <span class="input-group-toggle">▼</span>
                     </div>
                 </div>
+                <div class="input-group-body">
+                    <textarea id="characterBible" rows="3" placeholder="主角、配角的设定..."></textarea>
+                </div>
+            </div>
 
-                <!-- 世界观 -->
-                <div class="input-group collapsed" id="worldview-group">
-                    <div class="input-group-header" data-group="worldview-group">
-                        <div class="input-group-header-left">
-                            <span class="icon">🌍</span>
-                            <span>世界观</span>
-                            <span class="manual-badge">手动</span>
-                        </div>
-                        <div class="input-group-header-right">
-                            <span class="input-group-preview" id="worldview-preview"></span>
-                            <button class="input-expand-btn" data-expand="worldView" data-title="世界观设定">展开</button>
-                            <span class="input-group-toggle">▼</span>
-                        </div>
+            <!-- 文风 -->
+            <div class="input-group collapsed" id="style-group">
+                <div class="input-group-header" data-group="style-group">
+                    <div class="input-group-header-left">
+                        <span>🎨</span>
+                        <span>文风</span>
                     </div>
-                    <div class="input-group-body">
-                        <textarea id="worldView" rows="3" placeholder="时代背景、社会规则、力量体系..."></textarea>
+                    <div class="input-group-header-right">
+                        <span class="input-group-preview" id="style-preview"></span>
+                        <button class="btn-expand" data-expand="styleRef" data-title="文风">展开</button>
+                        <span class="input-group-toggle">▼</span>
                     </div>
                 </div>
+                <div class="input-group-body">
+                    <textarea id="styleRef" rows="2" placeholder="权谋、悬疑、轻松..."></textarea>
+                </div>
+            </div>
 
-                <!-- 角色档案 -->
-                <div class="input-group collapsed" id="character-group">
-                    <div class="input-group-header" data-group="character-group">
-                        <div class="input-group-header-left">
-                            <span class="icon">👤</span>
-                            <span>角色档案</span>
-                            <span class="manual-badge">手动</span>
-                        </div>
-                        <div class="input-group-header-right">
-                            <span class="input-group-preview" id="character-preview"></span>
-                            <button class="input-expand-btn" data-expand="characterBible" data-title="核心角色档案">展开</button>
-                            <span class="input-group-toggle">▼</span>
-                        </div>
+            <!-- 禁忌 -->
+            <div class="input-group collapsed" id="negative-group">
+                <div class="input-group-header" data-group="negative-group">
+                    <div class="input-group-header-left">
+                        <span>🚫</span>
+                        <span>禁忌</span>
                     </div>
-                    <div class="input-group-body">
-                        <textarea id="characterBible" rows="4" placeholder="主角：姓名、性格、背景、目标...&#10;配角：关系、特点..."></textarea>
+                    <div class="input-group-header-right">
+                        <span class="input-group-preview" id="negative-preview"></span>
+                        <button class="btn-expand" data-expand="negativePrompt" data-title="写作禁忌">展开</button>
+                        <span class="input-group-toggle">▼</span>
                     </div>
                 </div>
-
-                <!-- 文风 -->
-                <div class="input-group collapsed" id="style-group">
-                    <div class="input-group-header" data-group="style-group">
-                        <div class="input-group-header-left">
-                            <span class="icon">🎨</span>
-                            <span>文风</span>
-                            <span class="manual-badge">手动</span>
-                        </div>
-                        <div class="input-group-header-right">
-                            <span class="input-group-preview" id="style-preview"></span>
-                            <button class="input-expand-btn" data-expand="styleRef" data-title="文学风格参考">展开</button>
-                            <span class="input-group-toggle">▼</span>
-                        </div>
-                    </div>
-                    <div class="input-group-body">
-                        <textarea id="styleRef" rows="2" placeholder="权谋、悬疑、轻松幽默、节奏紧凑..."></textarea>
-                    </div>
-                </div>
-
-                <!-- 禁止事项 -->
-                <div class="input-group collapsed" id="negative-group">
-                    <div class="input-group-header" data-group="negative-group">
-                        <div class="input-group-header-left">
-                            <span class="icon">🚫</span>
-                            <span>禁止事项</span>
-                            <span class="manual-badge">手动</span>
-                        </div>
-                        <div class="input-group-header-right">
-                            <span class="input-group-preview" id="negative-preview"></span>
-                            <button class="input-expand-btn" data-expand="negativePrompt" data-title="写作禁忌">展开</button>
-                            <span class="input-group-toggle">▼</span>
-                        </div>
-                    </div>
-                    <div class="input-group-body">
-                        <textarea id="negativePrompt" rows="2" placeholder="禁用词汇、避免的情节套路..."></textarea>
-                    </div>
+                <div class="input-group-body">
+                    <textarea id="negativePrompt" rows="2" placeholder="避免的词汇、套路..."></textarea>
                 </div>
             </div>
         </div>
 
-        <!-- 中间主区域 -->
+        <!-- 中间 -->
         <div id="main-container" class="active-panel">
             <div id="editor-wrapper">
                 <div class="editor-header">
                     <div class="editor-header-left">
-                        <span>📝 上文接力（建议200-500字）</span>
-                        <span class="manual-badge">手动</span>
-                        <button class="expand-btn" data-expand="novel-content" data-title="上一章内容接力">展开编辑</button>
+                        <span>📝 上文接力</span>
+                        <button class="expand-btn" data-expand="novel-content" data-title="上文接力">展开</button>
                     </div>
                     <span id="editor-count">0 字</span>
                 </div>
-                <textarea id="novel-content" placeholder="粘贴上一章的结尾内容，AI将基于此续写..."></textarea>
+                <textarea id="novel-content" placeholder="粘贴上一章结尾200-500字..."></textarea>
             </div>
 
             <div id="history-wrapper">
                 <div id="history-list"></div>
                 <div id="history-empty">
                     <div class="empty-icon">📝</div>
-                    <h3>开始你的创作之旅</h3>
-                    <p>在上方粘贴上一章内容，<br>在下方输入指令后点击"开搞"</p>
+                    <h3>开始创作</h3>
+                    <p>粘贴上文，输入指令，点击开搞</p>
                 </div>
             </div>
 
             <div id="control-bar">
-                <input type="text" id="prompt-input" placeholder="输入创作指令：续写、扩写某段、加入某情节...">
+                <input type="text" id="prompt-input" placeholder="创作指令：续写、扩写、加入某情节...">
                 <button id="btn-gen" class="btn btn-primary">🎬 开搞</button>
                 <button id="btn-stop" class="btn btn-stop" style="display:none;">⏹ 停止</button>
             </div>
         </div>
 
-        <!-- 右侧面板：动态控制 -->
+        <!-- 右侧 -->
         <div class="panel" id="dynamic-sidebar">
-            <button class="btn btn-update" id="btn-update-memory">
-                <span id="update-btn-text">🧠 智能同步知识库</span>
-            </button>
-            <div class="tips" style="text-align:center;margin-top:-10px;margin-bottom:15px;">点击上方按钮，AI将自动更新「活跃记忆」「前情摘要」「事实档案」</div>
+            <div class="sync-float">
+                <button class="btn-sync" id="btn-sync">
+                    <span id="sync-btn-text">🧠 智能同步知识库</span>
+                </button>
+                <div class="sync-tip">自动更新「活跃记忆」「前情摘要」「事实档案」</div>
+                <div class="sync-reminder" id="sync-reminder">
+                    ⚠️ <span id="sync-reminder-text">已创作3章，建议同步</span>
+                </div>
+            </div>
 
             <label>
-                📋 事实档案（全局累积）
-                <span class="ai-badge">AI自动</span>
-                <button class="input-expand-btn label-right" data-expand="statusTracker" data-title="事实档案">展开</button>
+                📋 事实档案
+                <span class="ai-badge">🤖 AI</span>
+                <button class="btn-expand label-right" data-expand="statusTracker" data-title="事实档案">展开</button>
             </label>
-            <div class="tips">记录每章不可逆改变，格式：[第X章] 事件</div>
-            <div class="input-wrapper">
-                <textarea id="statusTracker" rows="4" class="input-fact input-ai-auto" placeholder="点击「智能同步知识库」后AI自动填充：&#10;[第1章] XXX死亡&#10;[第2章] 主角获得神器"></textarea>
-            </div>
+            <div class="tips">记录不可逆改变：[第X章] 事件</div>
+            <textarea id="statusTracker" rows="3" class="input-ai-auto" placeholder="AI自动填充..."></textarea>
 
             <label>
                 📜 前情摘要
-                <span class="ai-badge">AI自动</span>
-                <span class="chapter-tag" id="summary-chapter-tag">第?章</span>
-                <button class="input-expand-btn label-right" data-expand="contextSummary" data-title="前情摘要">展开</button>
+                <span class="ai-badge">🤖 AI</span>
+                <button class="btn-expand label-right" data-expand="contextSummary" data-title="前情摘要">展开</button>
             </label>
-            <div class="input-wrapper">
-                <textarea id="contextSummary" rows="3" class="input-ai-auto" placeholder="点击「智能同步知识库」后AI自动填充：&#10;（第N章）剧情概要..."></textarea>
-            </div>
-
-            <div id="coherence-check" class="coherence-indicator" style="display:none;">
-                <span>⚠️</span>
-                <span id="coherence-text">知识库已更新，建议同步</span>
-            </div>
+            <textarea id="contextSummary" rows="2" class="input-ai-auto" placeholder="AI自动填充..."></textarea>
 
             <hr class="divider">
 
-            <label style="color: var(--accent);">
+            <label>
                 🎯 本段目标
-                <span class="manual-badge">手动</span>
-                <button class="input-expand-btn label-right" data-expand="sceneGoal" data-title="本段目标">展开</button>
+                <button class="btn-expand label-right" data-expand="sceneGoal" data-title="本段目标">展开</button>
             </label>
-            <div class="input-wrapper">
-                <textarea id="sceneGoal" rows="2" placeholder="这一场的核心冲突/要推进的剧情点..."></textarea>
-            </div>
+            <textarea id="sceneGoal" rows="2" placeholder="核心冲突、要推进的剧情..."></textarea>
 
-            <label style="color: var(--danger);">
+            <label>
                 ⚡ 必须包含
-                <span class="manual-badge">手动</span>
-                <button class="input-expand-btn label-right" data-expand="mustInclude" data-title="必须包含的元素">展开</button>
+                <button class="btn-expand label-right" data-expand="mustInclude" data-title="必须包含">展开</button>
             </label>
-            <div class="input-wrapper">
-                <textarea id="mustInclude" rows="2" class="input-must" placeholder="关键道具、必须出现的角色、要埋的伏笔..."></textarea>
-            </div>
+            <textarea id="mustInclude" rows="2" placeholder="关键道具、角色、伏笔..."></textarea>
 
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex;gap:8px;margin-top:10px;">
                 <div style="flex:1">
                     <label>⏱️ 节奏</label>
                     <select id="rhythmControl">
-                        <option value="正常">正常推进</option>
-                        <option value="慢节奏：侧重环境描写和心理刻画">慢：环境/心理</option>
-                        <option value="快节奏：侧重动作场面和对话推进">快：动作/对话</option>
+                        <option value="正常">正常</option>
+                        <option value="慢节奏">慢：心理/环境</option>
+                        <option value="快节奏">快：动作/对话</option>
                     </select>
                 </div>
                 <div style="flex:1">
                     <label>📏 篇幅</label>
                     <select id="lengthMode">
-                        <option value="standard">标准(1500-2000)</option>
-                        <option value="long">长篇(3000+)</option>
-                        <option value="short">短篇(~1000)</option>
+                        <option value="standard">标准1500-2000</option>
+                        <option value="long">长篇3000+</option>
+                        <option value="short">短篇~1000</option>
                     </select>
                 </div>
             </div>
 
             <label>👁️ 视角</label>
             <select id="pov">
-                <option value="第三人称限知视角（跟随主角）">第三人称跟随</option>
-                <option value="第一人称视角">第一人称</option>
-                <option value="全知视角（上帝视角）">全知视角</option>
-                <option value="多视角切换">多视角切换</option>
+                <option value="第三人称限知视角">第三人称跟随</option>
+                <option value="第一人称">第一人称</option>
+                <option value="全知视角">全知视角</option>
             </select>
-
-            <label>📑 当前章节</label>
-            <input type="number" id="currentChapter" min="1" value="1" placeholder="第几章">
 
             <div class="stats-bar">
                 <div class="stat-item">
@@ -1676,21 +1328,21 @@
                     <div class="stat-label">总字数</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="ver-count">0</div>
-                    <div class="stat-label">场次</div>
+                    <div class="stat-value" id="chapter-count">0</div>
+                    <div class="stat-label">章节</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" id="avg-words">0</div>
-                    <div class="stat-label">平均字数</div>
+                    <div class="stat-label">平均</div>
                 </div>
             </div>
 
-            <button class="btn btn-outline" style="width:100%; margin-top:15px;" id="btn-export">
-                📥 导出全本小说 (.doc)
+            <button class="btn btn-outline" style="width:100%;margin-top:12px;" id="btn-export">
+                📥 导出全本 (.doc)
             </button>
         </div>
     </div>
 
-    <script src="/js/xiaoshuo.js"></script>
+    <script src="xiaoshuo.js"></script>
 </body>
 </html>
