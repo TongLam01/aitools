@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V4.0 (语义角色识别版)</title>
+    <title>商事合同诊断助手 V4.1 (深度净化版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -78,8 +78,8 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v4.0</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义角色识别</p>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v4.1</span></h1>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义深度净化</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -252,41 +252,23 @@
 
         // --- 核心修复：语义角色判定 ---
         function isGenericCompanyReference(fullText, matchIndex, matchText) {
-            // 1. 如果完全匹配泛指词表
             if (GENERIC_COMPANY_TERMS.has(matchText)) {
-                // 检查前面是否有"全称是："等特指前缀，如果有，则可能是特指（如：关联公司是：XXX）
-                // 但这里我们只在匹配到"关联公司"这个词本身，所以大概率是泛指
-                // 唯一例外：前面没有"该/此/某"，且看起来像是在定义
                 const prefixStart = Math.max(0, matchIndex - 20);
                 const prefixContext = fullText.substring(prefixStart, matchIndex);
-                // 如果前面有 "名称为："，则这实际上是特指，但通常匹配到的会是后面的名字，而不是"物业公司"这个词本身
+                // 除非前面明确说 "名称为："，否则只要是泛指词汇，一律视为泛指（不脱敏）
+                if (SPECIFIC_COMPANY_INDICATORS.test(prefixContext)) {
+                    return false;
+                }
                 return true; 
             }
-            
-            // 2. 检查前缀 (该物业公司, 某管理公司)
-            const prefixStart = Math.max(0, matchIndex - 5);
-            const prefixText = fullText.substring(prefixStart, matchIndex);
-            // 获取紧挨着的两个字
-            const immediatePrefix = prefixText.slice(-2);
-            
-            if (GENERIC_PREFIX_PATTERN.test(immediatePrefix)) {
-                // 如果前缀是 "该/此/某"，且词很短且以公司/中心结尾，大概率是泛指
-                const genericSuffixes = /(?:公司|中心|单位|机构|部门)$/;
-                if (matchText.length <= 6 && genericSuffixes.test(matchText)) {
-                    return true;
-                }
-            }
-            
             return false;
         }
 
         function isValidCompanyName(text) {
             const fullCompanySuffix = /(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司)$/;
-            // 如果有完整长后缀，放行
-            if (fullCompanySuffix.test(text) && text.length >= 6) { // 放宽到6，如 XX有限公司
+            if (fullCompanySuffix.test(text) && text.length >= 6) { 
                 return true;
             }
-            // 如果词很短，且在泛指表里，拒绝
             if (text.length < 6) {
                 if (GENERIC_COMPANY_TERMS.has(text)) {
                     return false;
@@ -295,10 +277,14 @@
             return true;
         }
 
+        // --- 语义剥离增强版 V4.1 ---
+        // 增加：因、未、并、且、或、即、若、如、另、自行、另行、主动、接受、拒绝、配合、提供
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
-            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等)+(?:\s*)/;
-            const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要|该|此|某|该等)+(?:\s*)/;
+            
+            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供)+(?:\s*)/;
+            
+            const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要|该|此|某|该等|因|未|并|且|或|即|另|自行|另行|主动|接受|拒绝|配合|提供)+(?:\s*)/;
 
             if (type === 'address') {
                 cleaned = cleaned.replace(commonPrefixes, "");
@@ -390,10 +376,18 @@
                     // 2. 语义否定
                     if (isSemanticFalsePositive(processedText, m.index, cleanT)) continue;
 
-                    // 3. 泛指/有效性检查 (V4.0 新增)
+                    // 3. 泛指/有效性检查 (V4.1: 新增后缀检测)
                     if (type === 'company') {
                         if (isGenericCompanyReference(processedText, m.index, cleanT)) continue;
                         if (!isValidCompanyName(cleanT)) continue;
+                        // 后缀安全检查：如果剥离后以"物业公司"结尾，且长度很短，强制丢弃
+                        for (let term of GENERIC_COMPANY_TERMS) {
+                            if (cleanT.endsWith(term) && cleanT.length < term.length + 3) {
+                                // 比如 "新物业公司" (5字) vs "物业公司" (4字)，太短了，大概率泛指
+                                // 这里设定阈值+3，即必须是 "新新新物业公司" 这样才被认为是特指
+                                continue; 
+                            }
+                        }
                     }
 
                     // 4. 黑名单强校验
