@@ -1,5 +1,6 @@
 /**
- * DeepSeek 小说创作工具 v2.2
+ * DeepSeek 小说创作工具 v2.3
+ * 分层知识库系统
  * 仅限 www.aibox6.com 和 aibox6.com 域名使用
  */
 
@@ -22,14 +23,23 @@
         return true;
     }
 
+    // ==================== 知识库分隔符 ====================
+    const WIKI_SEPARATORS = {
+        chapter: (n) => `\n═══════ 第${n}章 ═══════\n`,
+        category: (name) => `\n┄┄┄ ${name} ┄┄┄\n`,
+        item: '• '
+    };
+
     // ==================== Prompt模板系统 ====================
     const PROMPTS = {
         // 主创作系统Prompt
         mainSystem: function(config) {
             const {
-                novelTitle, worldView, characterBible, entityMemory, negativePrompt,
-                contextSummary, statusTracker, sceneGoal, mustInclude,
-                pov, rhythm, lengthInstruction, styleRef, currentChapter
+                novelTitle, worldView, characterBible, 
+                wikiCore, wikiActive, // 分层知识库
+                negativePrompt, contextSummary, statusTracker, 
+                sceneGoal, mustInclude, pov, rhythm, lengthInstruction, 
+                styleRef, currentChapter
             } = config;
 
             return `你是一位世界级畅销小说作家，拥有20年创作经验。你的作品以情节紧凑、人物鲜活、文笔优美著称。
@@ -45,9 +55,13 @@ ${worldView || '（由你根据上下文自由发挥）'}
 【核心人物档案】
 ${characterBible || '（根据上下文理解人物）'}
 
-【知识库 / 记忆存档】
+【🔴 核心记忆（永久有效）】
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-${entityMemory || '暂无存档记录'}
+${wikiCore || '暂无核心设定'}
+
+【🟢 活跃记忆（当前章节相关）】
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+${wikiActive || '暂无活跃记忆'}
 
 【已确认的事实（不可逆转）】
 ${statusTracker || '无'}
@@ -71,7 +85,7 @@ ${negativePrompt || '无特殊禁忌'}
 ══════════════════════════════════════
 📋 创作准则（务必遵守）
 ══════════════════════════════════════
-1. **连贯性**：严格遵循已有设定和事实档案，人物性格、能力、关系必须前后一致
+1. **连贯性**：严格遵循核心记忆和事实档案，人物性格、能力、关系必须前后一致
 2. **具体化**：用具体的动作、对话、细节代替抽象描述，展示而非陈述
 3. **节奏感**：长短句交错，张弛有度，避免平铺直叙
 4. **沉浸感**：调动五感描写（视觉、听觉、触觉、嗅觉、味觉），让读者身临其境
@@ -83,45 +97,66 @@ ${negativePrompt || '无特殊禁忌'}
 ⚠️ 直接输出正文，不要任何解释、标题或元描述。保持文学性和可读性。`;
         },
 
-        // 知识库智能更新Prompt
+        // 分层知识库更新Prompt
         updateMemory: function(currentChapter) {
-            return `你是一位专业的小说剧情分析师和编辑。请仔细分析最新创作的小说片段，完成以下任务：
+            return `你是一位专业的小说剧情分析师。请分析最新创作内容，更新分层知识库。
 
-【任务一：更新知识库 Wiki】
-提取并整理以下信息（保留重要旧条目，合并新信息）：
-- [人物] 新出现或有变化的角色及其特征
-- [关系] 人物关系的建立或变化
-- [物品] 重要道具、武器、信物等
-- [地点] 新场景、地理信息
-- [势力] 组织、门派、国家等
-- [伏笔] 未解之谜、暗示、线索
-- [能力] 技能、功法、特殊能力
+【分层知识库规则】
+1. 🔴 核心层（wikiCore）：
+   - 只保留主角核心设定、世界观基础、贯穿全书的核心冲突
+   - 严格控制在500字以内
+   - 除非有重大永久性改变，否则不轻易修改
 
-【任务二：更新剧情摘要】
-用2-3句话概括最新剧情的核心发展，格式为"（第${currentChapter}章）内容..."，突出：
-- 主要冲突/事件
-- 关键转折
-- 人物状态变化
+2. 🟢 活跃层（wikiActive）：
+   - 当前剧情（第${currentChapter}章）相关的人物、地点、物品、关系
+   - 使用章节分隔符：═══════ 第N章 ═══════
+   - 使用类别分隔符：┄┄┄ 人物 ┄┄┄
+   - 每个条目用 • 开头
+   - 合并重复信息，删除已不相关的旧内容
+   - 控制在800字以内
 
-【任务三：更新事实档案】
-只记录【不可逆】的重大改变，格式为"[第X章] 事件"：
-- 角色死亡/重伤
-- 关系彻底破裂或建立
-- 重要物品得失
-- 重大决定/承诺
-- 身份揭露
-- 实力突破
+3. 📦 归档建议（archiveSuggestion）：
+   - 列出可以从活跃层移到归档层的内容
+   - 包括：已离场角色、已结束事件、已回收伏笔等
 
-请严格按以下JSON格式返回：
+【格式要求】
+使用章节和类别分隔符，保持清晰可读：
+
+═══════ 第N章 ═══════
+┄┄┄ 人物 ┄┄┄
+• 张三：本章新增特征...
+• 李四：状态变化...
+
+┄┄┄ 地点 ┄┄┄
+• 某城：描述...
+
+┄┄┄ 物品/线索 ┄┄┄
+• 神秘信件：进展...
+
+请返回JSON：
 {
-    "wiki": "整理后的知识库内容，使用[类别]标签分类",
-    "summary": "（第${currentChapter}章）2-3句话的剧情摘要",
-    "facts": "事实列表，每条格式为[第X章]事件，保留所有旧事实并添加新事实"
+    "wikiCore": "更新后的核心层（如无重大变化则保持原样）",
+    "wikiActive": "更新后的活跃层（使用分隔符格式）",
+    "archiveSuggestion": "建议归档的内容列表",
+    "summary": "（第${currentChapter}章）2-3句剧情摘要",
+    "newFacts": "本章新增的不可逆事实，格式：[第${currentChapter}章] 事件"
 }`;
-        }
+        },
+
+        // 知识库压缩Prompt
+        compressWiki: `你是知识库管理专家。请压缩以下知识库内容，保留核心信息，删除冗余：
+
+【压缩规则】
+1. 合并同类项（同一人物的多处描述合并）
+2. 删除已无关紧要的细节
+3. 保留关键设定、未解伏笔、重要关系
+4. 使用简洁的描述
+5. 保持分隔符格式
+
+返回压缩后的内容，控制在原文的50%以内。`
     };
 
-    // 篇幅指令映射 - 更新字数要求
+    // 篇幅指令映射
     const LENGTH_INSTRUCTIONS = {
         'standard': '请按标准篇幅创作，约1500-2000字。保持叙事紧凑，情节推进流畅。',
         'long': '请深度扩写，字数3000字以上。充分展开环境描写、心理刻画、人物对话和动作细节，让读者完全沉浸其中。',
@@ -133,12 +168,11 @@ ${negativePrompt || '无特殊禁忌'}
         constructor() {
             this.controller = null;
             this.genCount = 0;
-            this.storageKey = 'deepseek_novel_v22';
+            this.storageKey = 'deepseek_novel_v23';
             this.isGenerating = false;
             this.currentDrawerTarget = null;
             this.liveWordCount = 0;
             this.updatesSinceLastSync = 0;
-            this.collapsedGroups = ['worldview-group', 'character-group', 'style-group', 'negative-group'];
         }
 
         // ========== 初始化 ==========
@@ -153,25 +187,23 @@ ${negativePrompt || '无特殊禁忌'}
             this.checkEmptyState();
             this.updatePreviews();
             this.updateChapterTag();
+            this.updateWikiCounts();
         }
 
         // ========== 事件绑定 ==========
         bindEvents() {
-            // 编辑器字数统计
             const editor = document.getElementById('novel-content');
             editor.addEventListener('input', () => {
                 this.updateEditorCount();
                 this.save();
             });
 
-            // 抽屉textarea字数统计
             const drawerTextarea = document.getElementById('drawer-textarea');
             drawerTextarea.addEventListener('input', () => {
                 document.getElementById('drawer-char-count').innerText =
                     drawerTextarea.value.length;
             });
 
-            // 点击外部关闭API弹窗
             document.addEventListener('click', (e) => {
                 const popup = document.getElementById('api-popup');
                 const btn = document.getElementById('api-key-btn');
@@ -180,20 +212,21 @@ ${negativePrompt || '无特殊禁忌'}
                 }
             });
 
-            // 所有输入框自动保存和预览更新
             document.addEventListener('input', (e) => {
                 if (e.target.matches('input, textarea, select')) {
                     this.save();
                     this.updatePreviews();
+                    // 更新知识库字数统计
+                    if (['wikiCore', 'wikiActive', 'wikiArchive'].includes(e.target.id)) {
+                        this.updateWikiCounts();
+                    }
                 }
             });
 
-            // 章节号变化时更新标签
             document.getElementById('currentChapter').addEventListener('change', () => {
                 this.updateChapterTag();
             });
 
-            // 快捷键
             document.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
@@ -210,19 +243,67 @@ ${negativePrompt || '无特殊禁忌'}
                 }
             });
 
-            // 监听选择变化以提供智能提示
             document.getElementById('lengthMode').addEventListener('change', () => {
                 this.showSmartTip();
             });
+        }
+
+        // ========== 知识库分层管理 ==========
+        toggleWikiSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.toggle('collapsed');
+                this.save();
+            }
+        }
+
+        updateWikiCounts() {
+            const coreText = document.getElementById('wikiCore').value;
+            const activeText = document.getElementById('wikiActive').value;
+            const archiveText = document.getElementById('wikiArchive').value;
+
+            document.getElementById('wiki-core-count').innerText = coreText.length + '字';
+            document.getElementById('wiki-active-count').innerText = activeText.length + '字';
+            document.getElementById('wiki-archive-count').innerText = archiveText.length + '字';
+            document.getElementById('wiki-total-count').innerText = 
+                (coreText.length + activeText.length + archiveText.length);
+
+            // 超出建议字数时显示警告
+            const totalCount = coreText.length + activeText.length;
+            if (totalCount > 2000) {
+                document.getElementById('wiki-total-count').style.color = 'var(--danger)';
+            } else {
+                document.getElementById('wiki-total-count').style.color = '';
+            }
+        }
+
+        // 手动归档旧内容
+        archiveWiki() {
+            const activeText = document.getElementById('wikiActive').value;
+            const archiveText = document.getElementById('wikiArchive').value;
+            const currentChapter = document.getElementById('currentChapter').value || 1;
+
+            if (!activeText.trim()) {
+                this.showToast('活跃记忆为空，无需归档', 'info');
+                return;
+            }
+
+            // 将活跃内容添加到归档
+            const separator = WIKI_SEPARATORS.chapter(currentChapter - 1);
+            const newArchive = archiveText + separator + activeText;
+            
+            document.getElementById('wikiArchive').value = newArchive;
+            document.getElementById('wikiActive').value = '';
+            
+            this.updateWikiCounts();
+            this.save();
+            this.showToast('已将活跃记忆归档', 'success');
         }
 
         // ========== 输入组折叠 ==========
         toggleInputGroup(groupId) {
             const group = document.getElementById(groupId);
             if (!group) return;
-
-            // 知识库组不允许折叠
-            if (groupId === 'wiki-group') return;
 
             group.classList.toggle('collapsed');
             this.updatePreviews();
@@ -248,7 +329,6 @@ ${negativePrompt || '无特殊禁忌'}
             });
         }
 
-        // ========== 更新章节标签 ==========
         updateChapterTag() {
             const chapter = document.getElementById('currentChapter').value || '?';
             document.getElementById('summary-chapter-tag').innerText = `第${chapter}章`;
@@ -353,7 +433,8 @@ ${negativePrompt || '无特殊禁忌'}
                 novelTitle: document.getElementById('novel-title').value.trim(),
                 worldView: document.getElementById('worldView').value.trim(),
                 characterBible: document.getElementById('characterBible').value.trim(),
-                entityMemory: document.getElementById('entityMemory').value.trim(),
+                wikiCore: document.getElementById('wikiCore').value.trim(),
+                wikiActive: document.getElementById('wikiActive').value.trim(),
                 negativePrompt: document.getElementById('negativePrompt').value.trim(),
                 contextSummary: document.getElementById('contextSummary').value.trim(),
                 statusTracker: document.getElementById('statusTracker').value.trim(),
@@ -492,7 +573,7 @@ ${userPrompt || '请继续创作，自然推进剧情。'}`
             }
         }
 
-        // ========== 智能更新记忆 ==========
+        // ========== 智能更新分层知识库 ==========
         async smartUpdateMemory() {
             const apiKey = document.getElementById('apiKey').value.trim();
             if (!apiKey) {
@@ -514,7 +595,6 @@ ${userPrompt || '请继续创作，自然推进剧情。'}`
 
             const currentChapter = document.getElementById('currentChapter').value || 1;
 
-            // 获取最近2-3个片段
             const recentCards = Array.from(historyList.querySelectorAll('.history-body')).slice(0, 3);
             const recentTexts = recentCards.map(el => {
                 const contentSpan = el.querySelector('.content-text');
@@ -534,14 +614,17 @@ ${userPrompt || '请继续创作，自然推进剧情。'}`
                             { role: "system", content: PROMPTS.updateMemory(currentChapter) },
                             {
                                 role: "user",
-                                content: `【当前知识库】
-${document.getElementById('entityMemory').value || '（空）'}
+                                content: `【当前核心层】
+${document.getElementById('wikiCore').value || '（空）'}
 
-【当前剧情摘要】
-${document.getElementById('contextSummary').value || '（空）'}
+【当前活跃层】
+${document.getElementById('wikiActive').value || '（空）'}
 
 【当前事实档案】
 ${document.getElementById('statusTracker').value || '（空）'}
+
+【当前摘要】
+${document.getElementById('contextSummary').value || '（空）'}
 
 【最新创作内容（第${currentChapter}章）】
 ${recentTexts}`
@@ -559,20 +642,41 @@ ${recentTexts}`
                 const data = await response.json();
                 const result = JSON.parse(data.choices[0].message.content);
 
-                if (result.wiki) {
-                    document.getElementById('entityMemory').value = result.wiki;
+                // 更新核心层（仅在有重大变化时）
+                if (result.wikiCore && result.wikiCore !== document.getElementById('wikiCore').value) {
+                    document.getElementById('wikiCore').value = result.wikiCore;
                 }
+
+                // 更新活跃层
+                if (result.wikiActive) {
+                    document.getElementById('wikiActive').value = result.wikiActive;
+                }
+
+                // 更新摘要
                 if (result.summary) {
                     document.getElementById('contextSummary').value = result.summary;
                 }
-                if (result.facts) {
-                    document.getElementById('statusTracker').value = result.facts;
+
+                // 追加新事实到事实档案
+                if (result.newFacts && result.newFacts.trim()) {
+                    const currentFacts = document.getElementById('statusTracker').value;
+                    const newFactsText = result.newFacts.trim();
+                    if (newFactsText && !currentFacts.includes(newFactsText)) {
+                        document.getElementById('statusTracker').value = 
+                            currentFacts + (currentFacts ? '\n' : '') + newFactsText;
+                    }
+                }
+
+                // 显示归档建议
+                if (result.archiveSuggestion && result.archiveSuggestion.trim()) {
+                    this.showToast(`建议归档: ${result.archiveSuggestion.substring(0, 50)}...`, 'info');
                 }
 
                 this.updatesSinceLastSync = 0;
                 this.hideCoherenceReminder();
+                this.updateWikiCounts();
                 this.save();
-                this.showToast('知识库更新完成！AI记忆已同步', 'success');
+                this.showToast('知识库更新完成！', 'success');
 
             } catch (e) {
                 this.showToast('更新失败: ' + e.message, 'error');
@@ -648,7 +752,6 @@ ${recentTexts}`
                 setTimeout(() => this.updateCardWordCount(div), 0);
             }
 
-            // 绑定编辑事件
             const body = div.querySelector('.history-body');
             body.addEventListener('input', () => {
                 this.updateCardWordCount(div);
@@ -727,7 +830,6 @@ ${recentTexts}`
         downloadFullDraft() {
             const title = document.getElementById('novel-title').value || '未命名小说';
 
-            // 创建HTML格式的文档内容（Word可以打开）
             let htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -775,7 +877,6 @@ hr { border: none; border-top: 1px dashed #ccc; margin: 30px 0; }
 </body>
 </html>`;
 
-            // 创建Blob并下载为.doc文件
             const blob = new Blob([htmlContent], { type: 'application/msword;charset=utf-8' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -902,17 +1003,19 @@ h1 { text-align: center; font-size: 18pt; margin-bottom: 30px; }
             const data = {
                 config: {},
                 history: [],
+                wikiSections: {},
                 genCount: this.genCount,
                 updatesSinceLastSync: this.updatesSinceLastSync,
                 collapsedGroups: [],
-                version: '2.2'
+                version: '2.3'
             };
 
             const fields = [
-                'apiKey', 'novel-title', 'entityMemory', 'worldView',
-                'characterBible', 'styleRef', 'negativePrompt', 'statusTracker',
-                'contextSummary', 'sceneGoal', 'mustInclude', 'rhythmControl',
-                'lengthMode', 'pov', 'novel-content', 'prompt-input', 'currentChapter'
+                'apiKey', 'novel-title', 'wikiCore', 'wikiActive', 'wikiArchive',
+                'worldView', 'characterBible', 'styleRef', 'negativePrompt', 
+                'statusTracker', 'contextSummary', 'sceneGoal', 'mustInclude', 
+                'rhythmControl', 'lengthMode', 'pov', 'novel-content', 
+                'prompt-input', 'currentChapter'
             ];
 
             fields.forEach(id => {
@@ -922,7 +1025,15 @@ h1 { text-align: center; font-size: 18pt; margin-bottom: 30px; }
                 }
             });
 
-            // 保存折叠状态
+            // 保存知识库折叠状态
+            ['wiki-core-section', 'wiki-active-section', 'wiki-archive-section'].forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    data.wikiSections[sectionId] = section.classList.contains('collapsed');
+                }
+            });
+
+            // 保存输入组折叠状态
             ['worldview-group', 'character-group', 'style-group', 'negative-group'].forEach(groupId => {
                 const group = document.getElementById(groupId);
                 if (group && group.classList.contains('collapsed')) {
@@ -930,7 +1041,7 @@ h1 { text-align: center; font-size: 18pt; margin-bottom: 30px; }
                 }
             });
 
-            // 保存历史记录（包含章节信息）
+            // 保存历史记录
             document.querySelectorAll('.history-card').forEach(card => {
                 const body = card.querySelector('.history-body');
                 data.history.push({
@@ -965,7 +1076,21 @@ h1 { text-align: center; font-size: 18pt; margin-bottom: 30px; }
                 this.genCount = data.genCount || 0;
                 this.updatesSinceLastSync = data.updatesSinceLastSync || 0;
 
-                // 恢复折叠状态
+                // 恢复知识库折叠状态
+                if (data.wikiSections) {
+                    Object.keys(data.wikiSections).forEach(sectionId => {
+                        const section = document.getElementById(sectionId);
+                        if (section) {
+                            if (data.wikiSections[sectionId]) {
+                                section.classList.add('collapsed');
+                            } else {
+                                section.classList.remove('collapsed');
+                            }
+                        }
+                    });
+                }
+
+                // 恢复输入组折叠状态
                 if (data.collapsedGroups) {
                     ['worldview-group', 'character-group', 'style-group', 'negative-group'].forEach(groupId => {
                         const group = document.getElementById(groupId);
@@ -984,7 +1109,6 @@ h1 { text-align: center; font-size: 18pt; margin-bottom: 30px; }
                     const historyList = document.getElementById('history-list');
                     data.history.reverse().forEach((item, i) => {
                         const count = data.history.length - i;
-                        // 兼容旧版本数据
                         const html = typeof item === 'string' ? item : item.html;
                         const chapter = typeof item === 'string' ? 1 : (item.chapter || 1);
 
@@ -1102,7 +1226,9 @@ h1 { text-align: center; font-size: 18pt; margin-bottom: 30px; }
         closeDrawer: () => tool.closeDrawer(),
         saveDrawer: () => tool.saveDrawer(),
         toggleImmersive: () => tool.toggleImmersive(),
-        toggleInputGroup: (groupId) => tool.toggleInputGroup(groupId)
+        toggleInputGroup: (groupId) => tool.toggleInputGroup(groupId),
+        toggleWikiSection: (sectionId) => tool.toggleWikiSection(sectionId),
+        archiveWiki: () => tool.archiveWiki()
     };
 
 })();
