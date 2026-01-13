@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DeepSeek小说创作工具</title>
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --card: #ffffff;
+            --text: #1d1d1f;
+            --text-sub: #86868b;
+            --accent: #0071e3;
+            --danger: #ff3b30;
+            --success: #34c759;
+            --border: #d2d2d7;
+            --wiki-bg: #f2faff;
+            --fact-bg: #fffcf0;
+            --header-height: 56px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ========== 顶部导航栏 ========== */
+        #top-header {
+            height: var(--header-height);
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+            z-index: 1001;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .header-logo span {
+            color: var(--accent);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .api-key-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .api-key-wrapper input {
+            width: 200px;
+            height: 36px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 13px;
+            background: var(--bg);
+            transition: all 0.2s;
+        }
+
+        .api-key-wrapper input:focus {
+            border-color: var(--accent);
+            outline: none;
+            background: var(--card);
+        }
+
+        .api-help-link {
+            font-size: 12px;
+            color: var(--accent);
+            text-decoration: none;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .api-help-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ========== 移动端Tab栏 ========== */
+        #mobile-tabs {
+            display: none;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            justify-content: space-around;
+            padding: 8px 0;
+            flex-shrink: 0;
+            z-index: 1000;
+        }
+
+        .tab-item {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            padding: 6px 16px;
+            border-radius: 20px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .tab-item.active {
+            color: #fff;
+            background: var(--accent);
+        }
+
+        /* ========== 主布局 ========== */
+        #layout-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #static-sidebar {
+            width: 300px;
+            background: #fbfbfd;
+            border-right: 1px solid var(--border);
+        }
+
+        #dynamic-sidebar {
+            width: 340px;
+            background: #fbfbfd;
+            border-left: 1px solid var(--border);
+        }
+
+        #main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ========== 编辑器区域 ========== */
+        #editor-wrapper {
+            height: 16%;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .editor-header {
+            padding: 10px 20px 0;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-sub);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #novel-content {
+            flex: 1;
+            padding: 12px 20px 20px;
+            border: none;
+            font-size: 14px;
+            line-height: 1.6;
+            outline: none;
+            resize: none;
+            background: transparent;
+        }
+
+        /* ========== 历史记录区域 ========== */
+        #history-wrapper {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            background: #f5f5f7;
+        }
+
+        /* ========== 控制栏 ========== */
+        #control-bar {
+            padding: 12px 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        #control-bar input {
+            flex: 1;
+        }
+
+        /* ========== 通用样式 ========== */
+        h3 {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sub);
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 15px 0 5px 0;
+            color: #333;
+        }
+
+        label:first-child {
+            margin-top: 0;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            margin-left: 5px;
+            background: #999;
+        }
+
+        .tips {
+            font-size: 10px;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        textarea,
+        input,
+        select {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+            background: var(--card);
+            transition: border 0.2s;
+            font-family: inherit;
+        }
+
+        textarea:focus,
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        textarea::placeholder,
+        input::placeholder {
+            color: #b0b0b5;
+            transition: color 0.2s;
+        }
+
+        textarea:focus::placeholder,
+        input:focus::placeholder {
+            color: transparent;
+        }
+
+        .input-wiki {
+            background-color: var(--wiki-bg) !important;
+            border-color: #bce3ff;
+            color: #004085;
+            font-size: 13px;
+            font-family: "Menlo", "Monaco", monospace;
+        }
+
+        .input-fact {
+            background-color: var(--fact-bg) !important;
+        }
+
+        .input-must {
+            background-color: #fff1f0 !important;
+            border-color: #ffbaba;
+        }
+
+        /* ========== 按钮样式 ========== */
+        .btn {
+            padding: 0 16px;
+            height: 42px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:active {
+            opacity: 0.7;
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, #0071e3, #00c7be) !important;
+            color: white !important;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 12px;
+            height: auto;
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+        }
+
+        .btn-outline {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-sm {
+            height: 32px;
+            font-size: 12px;
+            padding: 0 10px;
+        }
+
+        .btn-stop {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ========== 历史卡片样式 ========== */
+        .history-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.2s;
+        }
+
+        .history-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 8px;
+        }
+
+        .history-body {
+            font-size: 16px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            transition: max-height 0.3s ease;
+            overflow: hidden;
+            color: #333;
+        }
+
+        .collapsed .history-body {
+            max-height: 80px;
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        }
+
+        .serial-number {
+            color: var(--danger);
+            font-size: 24px;
+            font-weight: 800;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .history-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+            border-top: 1px dashed #eee;
+            padding-top: 10px;
+        }
+
+        /* ========== 统计栏 ========== */
+        .stats-bar {
+            margin-top: 15px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ========== 分割线 ========== */
+        .divider {
+            width: 100%;
+            border: 0;
+            border-top: 1px solid #e5e5e5;
+            margin: 15px 0;
+        }
+
+        /* ========== 加载状态 ========== */
+        .loading-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            margin-right: 6px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ========== 域名限制提示 ========== */
+        #domain-error {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .domain-error-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .domain-error-content h2 {
+            color: var(--danger);
+            margin-bottom: 16px;
+        }
+
+        .domain-error-content p {
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        /* ========== 响应式设计 ========== */
+        @media (max-width: 768px) {
+            #top-header {
+                padding: 0 12px;
+            }
+
+            .header-logo {
+                font-size: 16px;
+            }
+
+            .api-key-wrapper input {
+                width: 120px;
+                font-size: 12px;
+            }
+
+            .api-help-link span {
+                display: none;
+            }
+
+            #mobile-tabs {
+                display: flex;
+            }
+
+            #layout-wrapper {
+                flex-direction: column;
+            }
+
+            .panel,
+            #main-container {
+                display: none;
+                width: 100% !important;
+                height: 100%;
+            }
+
+            .active-panel {
+                display: flex !important;
+            }
+
+            textarea,
+            input,
+            select {
+                font-size: 16px;
+            }
+
+            #editor-wrapper {
+                height: 120px;
+                min-height: 120px;
+                margin: 0;
+                flex-shrink: 0;
+            }
+
+            #history-wrapper {
+                padding: 15px;
+                background: #f2f2f7;
+            }
+
+            #control-bar {
+                padding: 10px 15px 25px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .api-key-wrapper input {
+                width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 域名限制错误提示 -->
+    <div id="domain-error">
+        <div class="domain-error-content">
+            <h2>⚠️ 访问受限</h2>
+            <p>此工具仅限在 <strong>aibox6.com</strong> 域名下使用。</p>
+            <p>请访问正确的网址以使用本工具。</p>
+        </div>
+    </div>
+
+    <!-- 顶部导航栏 -->
+    <header id="top-header">
+        <div class="header-left">
+            <div class="header-logo">📚 <span>DeepSeek</span> 小说创作</div>
+        </div>
+        <div class="header-right">
+            <div class="api-key-wrapper">
+                <input type="password" id="apiKey" placeholder="输入 API Key">
+                <a href="https://platform.deepseek.com/api_keys" target="_blank" class="api-help-link" title="获取API Key">
+                    🔑 <span>获取Key</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 移动端Tab栏 -->
+    <div id="mobile-tabs">
+        <div class="tab-item" onclick="NovelTool.switchTab('static-sidebar', this)">基础设定</div>
+        <div class="tab-item active" onclick="NovelTool.switchTab('main-container', this)">创作</div>
+        <div class="tab-item" onclick="NovelTool.switchTab('dynamic-sidebar', this)">导演</div>
+    </div>
+
+    <div id="layout-wrapper">
+        <!-- 左侧面板：静态设定 -->
+        <div class="panel" id="static-sidebar">
+            <label>📖 小说名字</label>
+            <input type="text" id="novel-title" placeholder="请输入小说名">
+
+            <hr class="divider">
+
+            <label>📘 智能知识库 (Auto-Wiki)</label>
+            <div class="tips">* AI 自动提取新的人/物/伏笔，保持连贯性。</div>
+            <textarea id="entityMemory" rows="8" class="input-wiki" placeholder="[物品] 武器：金箍棒..."></textarea>
+
+            <label>🌍 世界观 (Worldview)</label>
+            <textarea id="worldView" rows="4" placeholder="规则、环境、体系..."></textarea>
+
+            <label>👤 核心角色档案 (Bible)</label>
+            <textarea id="characterBible" rows="5" placeholder="姓名、性格、人设、关系..."></textarea>
+
+            <label>🎨 文学风格 (Style)</label>
+            <textarea id="styleRef" rows="2" placeholder="例如：权谋，冷峻，节奏紧凑。"></textarea>
+
+            <label>🚫 避坑指令 (Negative)</label>
+            <textarea id="negativePrompt" rows="2" placeholder="例如：少写"眼神一冷"；拒绝流水账。"></textarea>
+        </div>
+
+        <!-- 中间主区域 -->
+        <div id="main-container" class="active-panel">
+            <div id="editor-wrapper">
+                <div class="editor-header">
+                    <span>📝 上一章内容接力</span>
+                    <span id="editor-count">0 字</span>
+                </div>
+                <textarea id="novel-content" placeholder="在此粘贴上一章的结尾约200-500字..."></textarea>
+            </div>
+
+            <div id="history-wrapper">
+                <div id="history-list"></div>
+            </div>
+
+            <div id="control-bar">
+                <input type="text" id="prompt-input" placeholder="输入你的要求，例如"续写"、字数等...">
+                <button id="btn-gen" class="btn btn-primary" onclick="NovelTool.generate()">🎬 开搞</button>
+                <button id="btn-stop" class="btn btn-stop" style="display:none;" onclick="NovelTool.stop()">⏹ 停止</button>
+            </div>
+        </div>
+
+        <!-- 右侧面板：动态控制 -->
+        <div class="panel" id="dynamic-sidebar">
+            <button class="btn btn-update" onclick="NovelTool.smartUpdateMemory()">
+                <span id="update-btn-text">🔄 更新AI记忆+知识库</span>
+            </button>
+
+            <label>① 事实档案 (Facts)</label>
+            <div class="tips">* 记录不可逆的改变或重大转折（如角色死亡、城池陷落）。</div>
+            <textarea id="statusTracker" rows="4" class="input-fact" placeholder="已发生的事实..."></textarea>
+
+            <label>② 前情提要 (Summary)</label>
+            <textarea id="contextSummary" rows="4" placeholder="AI生成上一章剧情浓缩快照..."></textarea>
+
+            <hr class="divider">
+
+            <label style="color: var(--accent);">③ 本段目标 (Goal)</label>
+            <textarea id="sceneGoal" rows="2" placeholder="这一场戏的核心冲突是什么？"></textarea>
+
+            <label style="color: var(--danger);">④ 必须提及 (Must Include)</label>
+            <textarea id="mustInclude" rows="2" class="input-must" placeholder="关键道具、伏笔..."></textarea>
+
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1">
+                    <label>⑤ 节奏</label>
+                    <select id="rhythmControl">
+                        <option value="正常">正常推进</option>
+                        <option value="慢：环境/心理">慢：环境/心理</option>
+                        <option value="快：动作/对话">快：动作/对话</option>
+                    </select>
+                </div>
+                <div style="flex:1">
+                    <label>篇幅</label>
+                    <select id="lengthMode">
+                        <option value="standard">标准</option>
+                        <option value="long">沉浸扩写</option>
+                        <option value="short">短小过渡</option>
+                    </select>
+                </div>
+            </div>
+
+            <label>⑥ 叙事视角 (POV)</label>
+            <select id="pov">
+                <option value="第三人称视角">第三人称</option>
+                <option value="第一人称">第一人称</option>
+                <option value="上帝视角">上帝视角</option>
+            </select>
+
+            <div class="stats-bar">
+                <span>总字数: <b id="total-words">0</b></span>
+                <span>场次: <b id="ver-count">0</b></span>
+            </div>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px; font-size:12px;" onclick="NovelTool.downloadFullDraft()">📥 导出全本</button>
+        </div>
+    </div>
+
+    <!-- 引入外部JS文件 -->
+    <script src="/js/xiaoshuo.js"></script>
+</body>
+</html>
