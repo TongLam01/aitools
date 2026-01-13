@@ -79,7 +79,7 @@
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
                 <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v2.0</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地脱敏 · 保护隐私</p>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 保护隐私</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -170,6 +170,9 @@
     </div>
 
     <script>
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
         // --- 全局脱敏状态 ---
         let globalIdentityMap = new Map();
         let fingerprintMap = new Map();
@@ -178,7 +181,7 @@
         let chatHistory = [];
         let autoDesensitizeEnabled = true;
 
-        // --- 干扰词黑名单 ---
+        // ==================== 1. 静态黑名单 (基础防御) ====================
         const IGNORE_TERMS = new Set([
             '市场', '上市', '股市', '超市', '菜市', '夜市', '早市', '楼市', '车市', '收市', '开市',
             '城市', '城乡', '省心', '省力', '省钱', '省级', '市级', '区级', '县级',
@@ -188,8 +191,22 @@
             '通道', '过道', '廊道', '渠道', '报道', '知道', '味道', '公道', '霸道', '厚道', 
             '下水道', '跑道', '索道', '盲道', '人行道', '占道', '让道', '借道', '栈道',
             '管道', '楼道', '烟道', '风道', '社会', '道德', '道理', '或者', '以及',
-            '法律', '法规', '规定', '条款', '条文', '办法'
+            '法律', '法规', '规定', '条款', '条文', '办法', '死路', '活路', '末路', '跑路'
         ]);
+
+        // ==================== 2. 语义否定规则库 (高级防御) ====================
+        
+        // A. 行为动词否定表：如果“地址”前面紧跟着这些词，说明它不是地址，而是结果
+        // 例如："导致跑路", "出现违约", "存在死路"
+        const ACTION_VERBS = /^(出现|发生|导致|造成|存在|构成|属于|涉嫌|已经|可能|将会|引起|引发|产生|带来|面临|避免|防止|禁止|严禁)/;
+
+        // B. 抽象名词/结果词否定表：这些词本身即使像地址/公司，也必须排除
+        const ABSTRACT_NOUNS = /^(跑路|违约|拖欠|解除|终止|履行|支付|赔偿|损失|转让|协商|沟通|死路|末路|活路|出路|短路|断路|开路|挡路|拦路|带路|引路|迷路|顺路|同路)/;
+
+        // ==================== 3. 合同语境关键词 (公司识别增强) ====================
+        // 用于 "新新公司", "XX工作室" 这种非标准名称的二次确认
+        // 只有前后出现这些词，才认为它是公司
+        const CONTRACT_CONTEXT_KEYWORDS = /甲方|乙方|丙方|丁方|双方|各方|授权|代表|签字|盖章|账户|账号|开户|委托|受托|承包|发包|租赁|出租|承租|供应商|服务商|合作|协议|合同/;
 
         function toggleSettings() {
             document.getElementById('settingsPanel').classList.toggle('open');
@@ -210,7 +227,11 @@
 
         function normalizeText(text) {
             if (!text) return "";
-            return text.replace(/[\u00A0\u1680\u180e\u2000-\u200b\u202f\u205f\u3000\ufeff\u200d\u200c]/g, ' ').replace(/\s+/g, ' ');
+            return text
+                .replace(/[\u00A0\u1680\u180e\u2000-\u200b\u202f\u205f\u3000\ufeff\u200d\u200c]/g, ' ')
+                .replace(/[^\S\n]+/g, ' ') 
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
         }
 
         function getFingerprint(text) {
@@ -223,14 +244,9 @@
             return clean;
         }
 
-        // --- 【核心修复】智能前缀剥离 (V2.0: 增加房地产专属词) ---
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
-            
-            // 通用及房地产前缀库 (包含 "拟", "出租", "物业" 等)
-            // (?:...)+ 确保连续出现的废话都被剥离
             const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之)+(?:\s*)/;
-            
             const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本)+(?:\s*)/;
 
             if (type === 'address') {
@@ -241,27 +257,59 @@
             return cleaned;
         }
 
-        // ==================== 智能脱敏算法 V2.0 ====================
+        // --- 【核心函数 1】语境验证器 ---
+        // 检查 match 在全文中的位置，其前后是否包含“合同语境词”
+        function hasContractContext(fullText, matchIndex, matchText) {
+            // 截取前后 15 个字符的窗口
+            const start = Math.max(0, matchIndex - 15);
+            const end = Math.min(fullText.length, matchIndex + matchText.length + 15);
+            const contextWindow = fullText.substring(start, end);
+            
+            return CONTRACT_CONTEXT_KEYWORDS.test(contextWindow);
+        }
+
+        // --- 【核心函数 2】语义否定检查器 ---
+        // 检查是否命中了“动词+名词”的否定结构
+        function isSemanticFalsePositive(fullText, matchIndex, matchText) {
+            // 1. 自身是否为抽象名词 (如 "跑路", "违约")
+            if (ABSTRACT_NOUNS.test(matchText)) return true;
+
+            // 2. 前置动词检查 (如 "导致" + "XXX")
+            // 截取前面 4 个字
+            const start = Math.max(0, matchIndex - 4);
+            const prefix = fullText.substring(start, matchIndex);
+            
+            if (ACTION_VERBS.test(prefix)) return true;
+
+            return false;
+        }
+
+        // ==================== 智能脱敏算法 V3.0 ====================
         function secureDeIdentify(text) {
             if (!text) return "";
             let processedText = normalizeText(text);
             
-            // 1. 公司名
-            const companyPattern = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
+            // 1. 公司名 - 标准严谨版 (长后缀，置信度高，无需语境验证)
+            const companyStrict = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
             
-            // 2. 地址 - 建筑群/非标层 (增加对开头动词的防守)
+            // 2. 公司名 - 宽松版 (短后缀，置信度低，必须配合【语境验证】)
+            // 匹配：2-10个字 + (公司/科技/工作室/商行/中心/实业...)
+            // 排除：以"为/由/对"开头，以"名称/性质"结尾
+            const companyLoose = /(?<![为由对])[\u4e00-\u9fa5a-zA-Z0-9]{2,10}(?:公司|中心|厂|社|部|行|网|科技|实业|置业|工作室)(?![名称|性质|类|型|等级|规模])/g;
+
+            // 3. 地址 - 建筑群/非标层
             const addressNonStandard = /(?<![将把对就由向])[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)(?:[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|中心|村))(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]+(?:区|栋|座|层|室|号))?/g;
 
-            // 3. 地址 - 标准带门牌
+            // 4. 地址 - 标准带门牌
             const addressWithNum = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道|条)(?:\s*)(?:[\d\-A-Za-z]+号)(?:[\u4e00-\u9fa5\d]*(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室))?/g;
             
-            // 4. 地址 - 省市区级
+            // 5. 地址 - 省市区级
             const addressCityDistrict = /[\u4e00-\u9fa5]{2,10}市(?:\s*)[\u4e00-\u9fa5]{2,10}(?:区|县|镇|市)(?![级])/g;
             
-            // 5. 地址 - 省级开头
+            // 6. 地址 - 省级开头
             const addressProv = /(?:北京|天津|上海|重庆|[\u4e00-\u9fa5]{2,5}(?:省|自治区))(?:\s*)[\u4e00-\u9fa5]{2,10}(?:市|区|县|自治州|盟)/g;
             
-            // 6. 地址 - 弱地址
+            // 7. 地址 - 弱地址 (容易误判，必须配合【语义否定】)
             const addressWeak = /(?<![线管通跑下铁水])([\u4e00-\u9fa5]{2,8}(?:路|街|道|巷|胡同|大道))/g;
 
             const idcardPattern = /(?<!\d)[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx](?!\d)/g;
@@ -271,35 +319,45 @@
 
             let allMatches = [];
 
-            function collect(regex, type, groupIndex = 0) {
+            // 通用收集器 (增强版：加入 strategy 参数)
+            function collect(regex, type, groupIndex = 0, strategy = 'standard') {
                 let m;
                 regex.lastIndex = 0;
                 while ((m = regex.exec(processedText)) !== null) {
-                    let cleanT = groupIndex === 0 ? m[0] : m[groupIndex];
-                    if (!cleanT) continue;
-                    cleanT = cleanT.trim();
+                    let rawMatch = groupIndex === 0 ? m[0] : m[groupIndex];
+                    if (!rawMatch) continue;
+                    let cleanT = rawMatch.trim();
                     
-                    // 核心修复：先进行语义剥离 (去掉 "拟出租物业...")
+                    // 1. 基础剥离
                     cleanT = stripSemanticPrefixes(cleanT, type);
-                    
                     if (cleanT.length < 2) continue;
 
+                    // 2. 语义否定检查 (解决 "出现跑路", "导致违约" 问题)
+                    // 传入原始匹配位置 m.index
+                    if (isSemanticFalsePositive(processedText, m.index, cleanT)) continue;
+
+                    // 3. 黑名单强校验
                     let hitBlacklist = false;
                     if (type === 'address') {
                         const strictBan = ['法律', '法规', '规定', '条款', '或者', '以及'];
-                        for (let ban of strictBan) {
-                            if (cleanT.includes(ban)) { hitBlacklist = true; break; }
-                        }
+                        for (let ban of strictBan) { if (cleanT.includes(ban)) { hitBlacklist = true; break; } }
                         if (!hitBlacklist) {
                             for (let badWord of IGNORE_TERMS) {
-                                if (cleanT.endsWith(badWord) || cleanT === badWord) {
-                                    hitBlacklist = true; break;
-                                }
+                                if (cleanT.endsWith(badWord) || cleanT === badWord) { hitBlacklist = true; break; }
                             }
                         }
                     } else if (IGNORE_TERMS.has(cleanT)) hitBlacklist = true;
                     if (hitBlacklist) continue;
 
+                    // 4. 公司宽松匹配的【语境验证】 (解决 "新新公司" 问题)
+                    if (strategy === 'loose_company') {
+                        // 如果是宽松模式，必须有语境支持
+                        if (!hasContractContext(processedText, m.index, cleanT)) {
+                            continue; // 上下文没有"甲方/签字"等词，丢弃
+                        }
+                    }
+
+                    // 5. 其他校验
                     if (type === 'company' && !/[\u4e00-\u9fa5]{2,}/.test(cleanT)) continue;
                     if (type === 'address' && /^(本次|格式|方式|相关|所有|任何|以及|或者)/.test(cleanT)) continue;
 
@@ -307,7 +365,10 @@
                 }
             }
 
-            collect(companyPattern, 'company');
+            // 执行匹配 (注意顺序和策略)
+            collect(companyStrict, 'company', 0, 'standard');
+            collect(companyLoose,  'company', 0, 'loose_company'); // 启用语境验证
+            
             collect(addressNonStandard, 'address');
             collect(addressWithNum, 'address');
             collect(addressCityDistrict, 'address');
@@ -319,12 +380,14 @@
             collect(emailPattern, 'other');
             collect(bankPattern, 'other');
 
+            // 人名匹配
             const personRe = /(?:法定代表人|法人|负责人|联系人|授权代表|委托人|受托人|签字|签章|代表)[：:\s]*([王李张刘陈杨赵黄周吴徐孙胡朱高林何郭马罗梁宋郑谢韩唐冯于董萧程曹袁邓许傅沈曾彭吕苏卢蒋蔡贾丁魏薛叶阎余潘杜戴夏钟汪田任姜范方石姚谭廖邹熊金陆郝孔白崔康毛邱秦江史顾侯邵孟龙万段钱汤尹黎易常武乔贺赖龚文][\u4e00-\u9fa5]{1,3})/g;
             let pm;
             while ((pm = personRe.exec(processedText)) !== null) {
                 if (pm[1]) allMatches.push({ text: pm[1], type: 'person' });
             }
 
+            // --- 排序、去重、替换 (保持 V2.1 逻辑) ---
             allMatches.sort((a, b) => b.text.length - a.text.length);
             
             const uniqueItems = [];
@@ -463,7 +526,7 @@
                     document.getElementById('fileInput').files = dt.files;
                     document.getElementById('fileInput').dispatchEvent(new Event('change', { bubbles: true }));
                 } else {
-                    alert('不支持的文件格式。请打开 .doc / .docx 文件。');
+                    alert('不支持的文件格式。请上传 .doc / .docx 文件。');
                 }
             }
         }, false);
@@ -557,6 +620,5 @@
         document.getElementById('followUpInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendFollowUp(); });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-    <script src="common.js"></script>
 </body>
 </html>
