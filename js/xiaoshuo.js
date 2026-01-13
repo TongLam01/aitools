@@ -1,5 +1,5 @@
 /**
- * DeepSeek 小说创作工具 v2.1
+ * DeepSeek 小说创作工具 v2.2
  * 仅限 www.aibox6.com 和 aibox6.com 域名使用
  */
 
@@ -14,7 +14,7 @@
     function checkDomain() {
         const isDev = DEV_DOMAINS.includes(currentDomain);
         const isAllowed = ALLOWED_DOMAINS.includes(currentDomain);
-        
+
         if (!isDev && !isAllowed) {
             document.getElementById('domain-error').style.display = 'flex';
             return false;
@@ -26,16 +26,17 @@
     const PROMPTS = {
         // 主创作系统Prompt
         mainSystem: function(config) {
-            const { 
-                worldView, characterBible, entityMemory, negativePrompt,
+            const {
+                novelTitle, worldView, characterBible, entityMemory, negativePrompt,
                 contextSummary, statusTracker, sceneGoal, mustInclude,
-                pov, rhythm, lengthInstruction, styleRef, novelTitle
+                pov, rhythm, lengthInstruction, styleRef, currentChapter
             } = config;
 
             return `你是一位世界级畅销小说作家，拥有20年创作经验。你的作品以情节紧凑、人物鲜活、文笔优美著称。
 
 ══════════════════════════════════════
 📚 作品：《${novelTitle || '未命名'}》
+📖 当前：第${currentChapter}章
 ══════════════════════════════════════
 
 【世界观架构】
@@ -48,7 +49,7 @@ ${characterBible || '（根据上下文理解人物）'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${entityMemory || '暂无存档记录'}
 
-【已确认的事实】
+【已确认的事实（不可逆转）】
 ${statusTracker || '无'}
 
 【前情回顾】
@@ -70,19 +71,21 @@ ${negativePrompt || '无特殊禁忌'}
 ══════════════════════════════════════
 📋 创作准则（务必遵守）
 ══════════════════════════════════════
-1. **连贯性**：严格遵循已有设定，人物性格、能力、关系必须前后一致
-2. **具体化**：用具体的动作、对话、细节代替抽象描述
+1. **连贯性**：严格遵循已有设定和事实档案，人物性格、能力、关系必须前后一致
+2. **具体化**：用具体的动作、对话、细节代替抽象描述，展示而非陈述
 3. **节奏感**：长短句交错，张弛有度，避免平铺直叙
-4. **沉浸感**：调动五感描写，让读者身临其境
-5. **冲突性**：每一场都要有明确的戏剧张力
+4. **沉浸感**：调动五感描写（视觉、听觉、触觉、嗅觉、味觉），让读者身临其境
+5. **冲突性**：每一场都要有明确的戏剧张力或情感起伏
 6. **人物弧光**：通过行动展现性格，通过选择推动成长
-7. **伏笔意识**：适当埋设伏笔，回收前文线索
+7. **伏笔意识**：适当埋设伏笔，回收前文线索，保持悬念
+8. **对话真实**：对话要符合人物身份、性格、当时情绪，避免说教式台词
 
-⚠️ 直接输出正文，不要任何解释、标题或元描述。`;
+⚠️ 直接输出正文，不要任何解释、标题或元描述。保持文学性和可读性。`;
         },
 
         // 知识库智能更新Prompt
-        updateMemory: `你是一位专业的小说剧情分析师和编辑。请仔细分析最新创作的小说片段，完成以下任务：
+        updateMemory: function(currentChapter) {
+            return `你是一位专业的小说剧情分析师和编辑。请仔细分析最新创作的小说片段，完成以下任务：
 
 【任务一：更新知识库 Wiki】
 提取并整理以下信息（保留重要旧条目，合并新信息）：
@@ -95,15 +98,15 @@ ${negativePrompt || '无特殊禁忌'}
 - [能力] 技能、功法、特殊能力
 
 【任务二：更新剧情摘要】
-用2-3句话概括最新剧情的核心发展，突出：
+用2-3句话概括最新剧情的核心发展，格式为"（第${currentChapter}章）内容..."，突出：
 - 主要冲突/事件
 - 关键转折
 - 人物状态变化
 
 【任务三：更新事实档案】
-只记录【不可逆】的重大改变：
+只记录【不可逆】的重大改变，格式为"[第X章] 事件"：
 - 角色死亡/重伤
-- 关系彻底破裂
+- 关系彻底破裂或建立
 - 重要物品得失
 - 重大决定/承诺
 - 身份揭露
@@ -112,33 +115,17 @@ ${negativePrompt || '无特殊禁忌'}
 请严格按以下JSON格式返回：
 {
     "wiki": "整理后的知识库内容，使用[类别]标签分类",
-    "summary": "2-3句话的剧情摘要",
-    "facts": "不可逆事实列表，标注发生章节"
-}`,
-
-        // 连贯性检查Prompt
-        coherenceCheck: `分析以下小说内容，检查是否存在连贯性问题：
-
-检查要点：
-1. 人物性格是否前后一致
-2. 时间线是否合理
-3. 空间位置是否连贯
-4. 已死亡/离开的角色是否意外出现
-5. 能力/物品使用是否符合设定
-
-返回JSON：
-{
-    "hasIssues": true/false,
-    "issues": ["问题1", "问题2"],
-    "suggestions": ["建议1", "建议2"]
-}`
+    "summary": "（第${currentChapter}章）2-3句话的剧情摘要",
+    "facts": "事实列表，每条格式为[第X章]事件，保留所有旧事实并添加新事实"
+}`;
+        }
     };
 
-    // 篇幅指令映射
+    // 篇幅指令映射 - 更新字数要求
     const LENGTH_INSTRUCTIONS = {
-        'standard': '请按标准篇幅创作，约800-1200字。保持叙事紧凑。',
-        'long': '请深度扩写，字数1500字以上。丰富环境描写、心理刻画和对话细节。让读者沉浸其中。',
-        'short': '请精炼叙事，约500字左右。快速推进情节，保留核心冲突。'
+        'standard': '请按标准篇幅创作，约1500-2000字。保持叙事紧凑，情节推进流畅。',
+        'long': '请深度扩写，字数3000字以上。充分展开环境描写、心理刻画、人物对话和动作细节，让读者完全沉浸其中。',
+        'short': '请精炼叙事，约1000字左右。快速推进情节，保留核心冲突，适合过渡场景。'
     };
 
     // ==================== 主工具类 ====================
@@ -146,11 +133,12 @@ ${negativePrompt || '无特殊禁忌'}
         constructor() {
             this.controller = null;
             this.genCount = 0;
-            this.storageKey = 'deepseek_novel_v21';
+            this.storageKey = 'deepseek_novel_v22';
             this.isGenerating = false;
             this.currentDrawerTarget = null;
             this.liveWordCount = 0;
             this.updatesSinceLastSync = 0;
+            this.collapsedGroups = ['worldview-group', 'character-group', 'style-group', 'negative-group'];
         }
 
         // ========== 初始化 ==========
@@ -163,6 +151,8 @@ ${negativePrompt || '无特殊禁忌'}
             this.updateEditorCount();
             this.updateApiKeyStatus();
             this.checkEmptyState();
+            this.updatePreviews();
+            this.updateChapterTag();
         }
 
         // ========== 事件绑定 ==========
@@ -177,7 +167,7 @@ ${negativePrompt || '无特殊禁忌'}
             // 抽屉textarea字数统计
             const drawerTextarea = document.getElementById('drawer-textarea');
             drawerTextarea.addEventListener('input', () => {
-                document.getElementById('drawer-char-count').innerText = 
+                document.getElementById('drawer-char-count').innerText =
                     drawerTextarea.value.length;
             });
 
@@ -190,23 +180,27 @@ ${negativePrompt || '无特殊禁忌'}
                 }
             });
 
-            // 所有输入框自动保存
+            // 所有输入框自动保存和预览更新
             document.addEventListener('input', (e) => {
                 if (e.target.matches('input, textarea, select')) {
                     this.save();
+                    this.updatePreviews();
                 }
+            });
+
+            // 章节号变化时更新标签
+            document.getElementById('currentChapter').addEventListener('change', () => {
+                this.updateChapterTag();
             });
 
             // 快捷键
             document.addEventListener('keydown', (e) => {
-                // Ctrl/Cmd + Enter 生成
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
                     if (!this.isGenerating) {
                         this.generate();
                     }
                 }
-                // Escape 停止生成 或 关闭抽屉
                 if (e.key === 'Escape') {
                     if (this.isGenerating) {
                         this.stop();
@@ -220,6 +214,44 @@ ${negativePrompt || '无特殊禁忌'}
             document.getElementById('lengthMode').addEventListener('change', () => {
                 this.showSmartTip();
             });
+        }
+
+        // ========== 输入组折叠 ==========
+        toggleInputGroup(groupId) {
+            const group = document.getElementById(groupId);
+            if (!group) return;
+
+            // 知识库组不允许折叠
+            if (groupId === 'wiki-group') return;
+
+            group.classList.toggle('collapsed');
+            this.updatePreviews();
+            this.save();
+        }
+
+        // ========== 更新预览文本 ==========
+        updatePreviews() {
+            const previewMap = {
+                'worldview-preview': 'worldView',
+                'character-preview': 'characterBible',
+                'style-preview': 'styleRef',
+                'negative-preview': 'negativePrompt'
+            };
+
+            Object.keys(previewMap).forEach(previewId => {
+                const preview = document.getElementById(previewId);
+                const input = document.getElementById(previewMap[previewId]);
+                if (preview && input) {
+                    const text = input.value.trim();
+                    preview.innerText = text ? text.substring(0, 15) + (text.length > 15 ? '...' : '') : '';
+                }
+            });
+        }
+
+        // ========== 更新章节标签 ==========
+        updateChapterTag() {
+            const chapter = document.getElementById('currentChapter').value || '?';
+            document.getElementById('summary-chapter-tag').innerText = `第${chapter}章`;
         }
 
         // ========== Tab切换 ==========
@@ -275,8 +307,7 @@ ${negativePrompt || '无特殊禁忌'}
             document.getElementById('drawer-textarea').value = target.value;
             document.getElementById('drawer-char-count').innerText = target.value.length;
             document.getElementById('drawer-overlay').classList.add('show');
-            
-            // 聚焦并移动光标到末尾
+
             setTimeout(() => {
                 const textarea = document.getElementById('drawer-textarea');
                 textarea.focus();
@@ -296,7 +327,6 @@ ${negativePrompt || '无特殊禁忌'}
             const newValue = document.getElementById('drawer-textarea').value;
             target.value = newValue;
 
-            // 触发input事件以更新字数统计
             target.dispatchEvent(new Event('input'));
 
             this.closeDrawer();
@@ -308,7 +338,7 @@ ${negativePrompt || '无特殊禁忌'}
         toggleImmersive() {
             document.body.classList.toggle('immersive-mode');
             const isImmersive = document.body.classList.contains('immersive-mode');
-            
+
             if (isImmersive) {
                 this.showToast('已进入沉浸写作模式，按 ESC 可退出', 'info');
             }
@@ -317,6 +347,7 @@ ${negativePrompt || '无特殊禁忌'}
         // ========== 构建Prompt ==========
         buildPromptConfig() {
             const lengthMode = document.getElementById('lengthMode').value;
+            const currentChapter = document.getElementById('currentChapter').value || 1;
 
             return {
                 novelTitle: document.getElementById('novel-title').value.trim(),
@@ -331,7 +362,8 @@ ${negativePrompt || '无特殊禁忌'}
                 pov: document.getElementById('pov').value,
                 rhythm: document.getElementById('rhythmControl').value,
                 lengthInstruction: LENGTH_INSTRUCTIONS[lengthMode],
-                styleRef: document.getElementById('styleRef').value.trim()
+                styleRef: document.getElementById('styleRef').value.trim(),
+                currentChapter: currentChapter
             };
         }
 
@@ -358,7 +390,8 @@ ${negativePrompt || '无特殊禁忌'}
 
             this.genCount++;
             const cardId = `card-${Date.now()}`;
-            const card = this.createHistoryCard(cardId, this.genCount);
+            const currentChapter = document.getElementById('currentChapter').value || 1;
+            const card = this.createHistoryCard(cardId, this.genCount, '', currentChapter);
             document.getElementById('history-list').prepend(card);
             this.checkEmptyState();
 
@@ -367,7 +400,7 @@ ${negativePrompt || '无特殊禁忌'}
             serialSpan.className = 'serial-number';
             serialSpan.innerText = `#${this.genCount}`;
             cardBody.appendChild(serialSpan);
-            
+
             const textContent = document.createElement('span');
             textContent.className = 'content-text';
             cardBody.appendChild(textContent);
@@ -390,18 +423,18 @@ ${negativePrompt || '无特殊禁忌'}
                         model: "deepseek-chat",
                         messages: [
                             { role: "system", content: systemPrompt },
-                            { 
-                                role: "user", 
+                            {
+                                role: "user",
                                 content: `【接续上文】
 ${editor.value || '（从头开始创作）'}
 
 【本次指令】
-${userPrompt || '请继续创作，自然推进剧情。'}` 
+${userPrompt || '请继续创作，自然推进剧情。'}`
                             }
                         ],
                         stream: true,
                         temperature: 0.85,
-                        max_tokens: 4000,
+                        max_tokens: 8000,
                         top_p: 0.9
                     })
                 });
@@ -479,9 +512,14 @@ ${userPrompt || '请继续创作，自然推进剧情。'}`
             btnText.innerHTML = '<span class="loading-indicator"></span>正在分析...';
             btn.disabled = true;
 
-            // 获取最近2-3个片段以获得更好的上下文
+            const currentChapter = document.getElementById('currentChapter').value || 1;
+
+            // 获取最近2-3个片段
             const recentCards = Array.from(historyList.querySelectorAll('.history-body')).slice(0, 3);
-            const recentTexts = recentCards.map(el => el.innerText).join('\n\n---\n\n');
+            const recentTexts = recentCards.map(el => {
+                const contentSpan = el.querySelector('.content-text');
+                return contentSpan ? contentSpan.innerText : el.innerText;
+            }).join('\n\n---\n\n');
 
             try {
                 const response = await fetch('https://api.deepseek.com/chat/completions', {
@@ -493,7 +531,7 @@ ${userPrompt || '请继续创作，自然推进剧情。'}`
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [
-                            { role: "system", content: PROMPTS.updateMemory },
+                            { role: "system", content: PROMPTS.updateMemory(currentChapter) },
                             {
                                 role: "user",
                                 content: `【当前知识库】
@@ -505,7 +543,7 @@ ${document.getElementById('contextSummary').value || '（空）'}
 【当前事实档案】
 ${document.getElementById('statusTracker').value || '（空）'}
 
-【最新创作内容】
+【最新创作内容（第${currentChapter}章）】
 ${recentTexts}`
                             }
                         ],
@@ -551,7 +589,7 @@ ${recentTexts}`
                 const indicator = document.getElementById('coherence-check');
                 indicator.style.display = 'flex';
                 indicator.classList.add('warning');
-                document.getElementById('coherence-text').innerText = 
+                document.getElementById('coherence-text').innerText =
                     `已创作${this.updatesSinceLastSync}段，建议同步知识库`;
             }
         }
@@ -561,23 +599,26 @@ ${recentTexts}`
         }
 
         // ========== 历史卡片 ==========
-        createHistoryCard(id, count, content = '') {
-            const time = new Date().toLocaleString('zh-CN', { 
-                month: 'numeric', 
-                day: 'numeric',
-                hour: '2-digit', 
+        createHistoryCard(id, count, content = '', chapter = 1) {
+            const time = new Date().toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
                 minute: '2-digit',
-                hour12: false 
+                second: '2-digit',
+                hour12: false
             });
-            
+
             const div = document.createElement('div');
             div.className = 'history-card';
             div.id = id;
+            div.dataset.chapter = chapter;
             div.innerHTML = `
                 <div class="history-header">
                     <div class="history-header-left">
-                        <span class="serial-number">#${count}</span>
-                        <span class="history-meta">${time}</span>
+                        <span class="history-time">${time}</span>
+                        <span class="chapter-tag">第${chapter}章</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span class="word-count-badge">
@@ -630,12 +671,10 @@ ${recentTexts}`
             const card = document.getElementById(id);
             if (!card) return;
 
-            // 获取纯文本内容，移除序号
             const contentSpan = card.querySelector('.content-text');
             let text = contentSpan ? contentSpan.innerText : card.querySelector('.history-body').innerText;
             text = text.replace(/^#\d+\s*/, '').trim();
-            
-            // 取最后500字作为上文
+
             if (text.length > 500) {
                 text = '...' + text.slice(-500);
             }
@@ -643,7 +682,6 @@ ${recentTexts}`
             document.getElementById('novel-content').value = text;
             this.updateEditorCount();
 
-            // 切换到创作面板
             const mainTab = document.querySelectorAll('.tab-item')[1];
             if (mainTab) {
                 this.switchTab('main-container', mainTab);
@@ -674,7 +712,7 @@ ${recentTexts}`
                 card.style.transform = 'translateX(100%)';
                 card.style.opacity = '0';
                 card.style.transition = 'all 0.3s ease';
-                
+
                 setTimeout(() => {
                     card.remove();
                     this.updateCounts();
@@ -688,27 +726,65 @@ ${recentTexts}`
         // ========== 导出功能 ==========
         downloadFullDraft() {
             const title = document.getElementById('novel-title').value || '未命名小说';
-            let fullText = `《${title}》\n`;
-            fullText += `${'═'.repeat(30)}\n`;
-            fullText += `导出时间：${new Date().toLocaleString('zh-CN')}\n`;
-            fullText += `${'═'.repeat(30)}\n\n`;
 
-            const cards = Array.from(document.querySelectorAll('.history-body')).reverse();
-            
+            // 创建HTML格式的文档内容（Word可以打开）
+            let htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${title}</title>
+<style>
+body { font-family: "宋体", SimSun, serif; font-size: 14pt; line-height: 1.8; padding: 40px; }
+h1 { text-align: center; font-size: 22pt; margin-bottom: 20px; }
+.meta { text-align: center; color: #666; font-size: 10pt; margin-bottom: 40px; }
+.section { margin-bottom: 30px; }
+.section-title { font-weight: bold; color: #333; margin-bottom: 10px; }
+.content { text-indent: 2em; }
+hr { border: none; border-top: 1px dashed #ccc; margin: 30px 0; }
+</style>
+</head>
+<body>
+<h1>《${title}》</h1>
+<div class="meta">导出时间：${new Date().toLocaleString('zh-CN')}</div>
+`;
+
+            const cards = Array.from(document.querySelectorAll('.history-card')).reverse();
+
             if (cards.length === 0) {
                 this.showToast('暂无内容可导出', 'warning');
                 return;
             }
 
-            cards.forEach((el, index) => {
-                const contentSpan = el.querySelector('.content-text');
-                const text = contentSpan ? contentSpan.innerText : el.innerText;
-                fullText += `【第${index + 1}节】\n\n`;
-                fullText += text.replace(/^#\d+\s*/, '').trim();
-                fullText += '\n\n' + '─'.repeat(20) + '\n\n';
+            cards.forEach((card, index) => {
+                const chapter = card.dataset.chapter || '?';
+                const contentSpan = card.querySelector('.content-text');
+                const text = contentSpan ? contentSpan.innerText : card.querySelector('.history-body').innerText;
+                const cleanText = text.replace(/^#\d+\s*/, '').trim();
+
+                htmlContent += `
+<div class="section">
+<div class="section-title">【第${chapter}章 · 第${index + 1}节】</div>
+<div class="content">${cleanText.replace(/\n/g, '</div><div class="content">')}</div>
+</div>
+<hr>
+`;
             });
 
-            this.saveFile(`《${title}》_全稿_${Date.now()}.txt`, fullText);
+            htmlContent += `
+</body>
+</html>`;
+
+            // 创建Blob并下载为.doc文件
+            const blob = new Blob([htmlContent], { type: 'application/msword;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `《${title}》_全稿_${Date.now()}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+
             this.showToast('全本导出成功！', 'success');
         }
 
@@ -716,23 +792,39 @@ ${recentTexts}`
             const card = document.getElementById(id);
             if (!card) return;
 
+            const chapter = card.dataset.chapter || '?';
             const contentSpan = card.querySelector('.content-text');
             const text = contentSpan ? contentSpan.innerText : card.querySelector('.history-body').innerText;
             const title = document.getElementById('novel-title').value || '未命名';
-            
-            this.saveFile(`${title}_第${count}节.txt`, text);
-            this.showToast('导出成功！', 'success');
-        }
 
-        saveFile(name, text) {
-            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${title} - 第${chapter}章第${count}节</title>
+<style>
+body { font-family: "宋体", SimSun, serif; font-size: 14pt; line-height: 1.8; padding: 40px; }
+h1 { text-align: center; font-size: 18pt; margin-bottom: 30px; }
+.content { text-indent: 2em; }
+</style>
+</head>
+<body>
+<h1>《${title}》第${chapter}章 · 第${count}节</h1>
+<div class="content">${text.replace(/^#\d+\s*/, '').replace(/\n/g, '</div><div class="content">')}</div>
+</body>
+</html>`;
+
+            const blob = new Blob([htmlContent], { type: 'application/msword;charset=utf-8' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = name;
+            a.download = `${title}_第${chapter}章第${count}节.doc`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(a.href);
+
+            this.showToast('导出成功！', 'success');
         }
 
         // ========== 统计更新 ==========
@@ -753,7 +845,7 @@ ${recentTexts}`
                 total += text.replace(/\s/g, '').replace(/^#\d+/, '').length;
                 count++;
             });
-            
+
             document.getElementById('total-words').innerText = total.toLocaleString();
             document.getElementById('ver-count').innerText = count;
             document.getElementById('avg-words').innerText = count > 0 ? Math.round(total / count) : 0;
@@ -767,7 +859,7 @@ ${recentTexts}`
         checkEmptyState() {
             const historyList = document.getElementById('history-list');
             const emptyState = document.getElementById('history-empty');
-            
+
             if (historyList.children.length === 0) {
                 emptyState.style.display = 'block';
             } else {
@@ -782,7 +874,6 @@ ${recentTexts}`
             document.getElementById('btn-stop').style.display = loading ? 'inline-flex' : 'none';
             document.getElementById('generating-stats').classList.toggle('show', loading);
 
-            // 禁用/启用其他按钮
             document.querySelectorAll('.btn-update').forEach(btn => {
                 btn.disabled = loading;
             });
@@ -798,8 +889,8 @@ ${recentTexts}`
         showSmartTip() {
             const lengthMode = document.getElementById('lengthMode').value;
             const tips = {
-                'long': '💡 长篇模式：适合重要场景的深度刻画',
-                'short': '💡 短篇模式：适合过渡场景或快节奏推进'
+                'long': '💡 长篇模式：适合重要场景的深度刻画，约3000字以上',
+                'short': '💡 短篇模式：适合过渡场景或快节奏推进，约1000字'
             };
             if (tips[lengthMode]) {
                 this.showToast(tips[lengthMode], 'info');
@@ -813,14 +904,15 @@ ${recentTexts}`
                 history: [],
                 genCount: this.genCount,
                 updatesSinceLastSync: this.updatesSinceLastSync,
-                version: '2.1'
+                collapsedGroups: [],
+                version: '2.2'
             };
 
             const fields = [
                 'apiKey', 'novel-title', 'entityMemory', 'worldView',
                 'characterBible', 'styleRef', 'negativePrompt', 'statusTracker',
                 'contextSummary', 'sceneGoal', 'mustInclude', 'rhythmControl',
-                'lengthMode', 'pov', 'novel-content', 'prompt-input'
+                'lengthMode', 'pov', 'novel-content', 'prompt-input', 'currentChapter'
             ];
 
             fields.forEach(id => {
@@ -830,8 +922,21 @@ ${recentTexts}`
                 }
             });
 
-            document.querySelectorAll('.history-body').forEach(el => {
-                data.history.push(el.innerHTML);
+            // 保存折叠状态
+            ['worldview-group', 'character-group', 'style-group', 'negative-group'].forEach(groupId => {
+                const group = document.getElementById(groupId);
+                if (group && group.classList.contains('collapsed')) {
+                    data.collapsedGroups.push(groupId);
+                }
+            });
+
+            // 保存历史记录（包含章节信息）
+            document.querySelectorAll('.history-card').forEach(card => {
+                const body = card.querySelector('.history-body');
+                data.history.push({
+                    html: body.innerHTML,
+                    chapter: card.dataset.chapter || 1
+                });
             });
 
             try {
@@ -860,18 +965,38 @@ ${recentTexts}`
                 this.genCount = data.genCount || 0;
                 this.updatesSinceLastSync = data.updatesSinceLastSync || 0;
 
+                // 恢复折叠状态
+                if (data.collapsedGroups) {
+                    ['worldview-group', 'character-group', 'style-group', 'negative-group'].forEach(groupId => {
+                        const group = document.getElementById(groupId);
+                        if (group) {
+                            if (data.collapsedGroups.includes(groupId)) {
+                                group.classList.add('collapsed');
+                            } else {
+                                group.classList.remove('collapsed');
+                            }
+                        }
+                    });
+                }
+
+                // 恢复历史记录
                 if (data.history && data.history.length > 0) {
                     const historyList = document.getElementById('history-list');
-                    data.history.reverse().forEach((html, i) => {
+                    data.history.reverse().forEach((item, i) => {
                         const count = data.history.length - i;
-                        const card = this.createHistoryCard(`restored-${i}`, count);
+                        // 兼容旧版本数据
+                        const html = typeof item === 'string' ? item : item.html;
+                        const chapter = typeof item === 'string' ? 1 : (item.chapter || 1);
+
+                        const card = this.createHistoryCard(`restored-${i}`, count, '', chapter);
                         card.querySelector('.history-body').innerHTML = html;
+                        card.dataset.chapter = chapter;
+                        card.querySelector('.chapter-tag').innerText = `第${chapter}章`;
                         historyList.prepend(card);
                         this.updateCardWordCount(card);
                     });
                 }
 
-                // 检查是否需要显示连贯性提醒
                 if (this.updatesSinceLastSync >= 3) {
                     this.checkCoherenceReminder();
                 }
@@ -976,7 +1101,8 @@ ${recentTexts}`
         openDrawer: (targetId, title) => tool.openDrawer(targetId, title),
         closeDrawer: () => tool.closeDrawer(),
         saveDrawer: () => tool.saveDrawer(),
-        toggleImmersive: () => tool.toggleImmersive()
+        toggleImmersive: () => tool.toggleImmersive(),
+        toggleInputGroup: (groupId) => tool.toggleInputGroup(groupId)
     };
 
 })();
