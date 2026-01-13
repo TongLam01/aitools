@@ -170,9 +170,9 @@
     </div>
 
     <script>
-        // ==================== 1. 常量定义 (必须置顶) ====================
+        // ==================== 1. 常量定义 ====================
         
-        // 【A】泛指公司词汇表 (直接忽略)
+        // 【A】泛指公司词汇表 - V4.2扩充
         const GENERIC_COMPANY_TERMS = new Set([
             '物业公司', '管理公司', '项目公司', '担保公司', '中介公司', 
             '租赁公司', '关联公司', '服务公司', '合作公司', '目标公司',
@@ -181,38 +181,20 @@
             '物流公司', '快递公司', '搬家公司', '清洁公司', '保洁公司',
             '安保公司', '劳务公司', '派遣公司', '外包公司', '代理公司',
             '分公司', '子公司', '母公司', '总公司', '控股公司',
-            '上市公司', '国有公司', '民营公司', '外资公司', '合资公司'
+            '上市公司', '国有公司', '民营公司', '外资公司', '合资公司',
+            // V4.2新增
+            '国企', '央企', '私企', '外企', '民企',
+            '区政府', '市政府', '省政府', '县政府', '镇政府', '街道办',
+            '服务中心', '活动中心', '养老中心', '托管中心', '便民中心'
         ]);
 
-        // 【B】非商事机构词汇表 - V4.2新增：用于过滤公共服务机构
-        const NON_COMMERCIAL_ENTITIES = new Set([
-            // 政府/公共服务
-            '服务中心', '便民中心', '政务中心', '办事中心', '行政中心',
-            '活动中心', '文化中心', '体育中心', '健身中心', '养老中心',
-            '托管中心', '托育中心', '日托中心', '护理中心', '康复中心',
-            '救助中心', '福利中心', '慈善中心', '志愿中心',
-            // 老年/社区服务
-            '老年人服务中心', '老年服务中心', '老年活动中心', '长者服务中心',
-            '社区服务中心', '社区中心', '居家养老中心', '日间照料中心',
-            '颐养中心', '敬老中心', '托老中心',
-            // 医疗/卫生
-            '卫生服务中心', '医疗中心', '急救中心', '疾控中心',
-            '血液中心', '妇幼中心', '保健中心',
-            // 教育/培训 (非商业)
-            '青少年中心', '儿童中心', '妇女中心', '党群中心',
-            '就业中心', '创业中心', '人才中心', '劳动中心',
-            // 其他公共设施
-            '会议中心', '展览中心', '交易中心', '物流中心', '配送中心',
-            '数据中心', '信息中心', '监控中心', '指挥中心', '调度中心'
-        ]);
-
-        // 【C】泛指前缀模式
+        // 【B】泛指前缀模式
         const GENERIC_PREFIX_PATTERN = /(?:与|和|向|跟|给|替|被|由|经|同|对|该|此|某|本|其|各|任何|相关|有关|指定|选定|委托|聘请|雇佣|选择|更换|变更|另行|自行|单独|共同|联合|其他|第三方)/;
 
-        // 【D】特指标志模式
+        // 【C】特指标志模式
         const SPECIFIC_COMPANY_INDICATORS = /(?:名称|全称|简称)(?:为|是|：|:)|(?:即|系|指)["「『]?[\u4e00-\u9fa5]/;
 
-        // 【E】通用黑名单
+        // 【D】通用黑名单 - V4.2扩充
         const IGNORE_TERMS = new Set([
             '市场', '上市', '股市', '超市', '菜市', '夜市', '早市', '楼市', '车市', '收市', '开市',
             '城市', '城乡', '省心', '省力', '省钱', '省级', '市级', '区级', '县级',
@@ -225,20 +207,20 @@
             '社会', '道德', '道理', '或者', '以及', '法律', '法规', '规定', '条款', '条文', '办法', 
             '死路', '活路', '末路', '跑路',
             '全部', '内部', '外部', '系统', '阶段', '目标', '函件', '情况', 
-            '运行', '进行', '执行', '实行', '完成'
+            '运行', '进行', '执行', '实行', '完成',
+            // V4.2新增：泛称建筑
+            '政协大楼', '政府大楼', '办公大楼', '商业大楼', '写字楼'
         ]);
+
+        // 【E】V4.2新增：地址动作前缀（需剥离）
+        const ADDRESS_ACTION_PREFIXES = /^(?:持续跟进|跟进|完成|处理|办理|落实|推进|协调|对接|公司向|我司向|甲方向|乙方向|双方向|拟向|需向|应向|将向|要向)/;
+
+        // 【F】V4.2新增：泛称建筑模式（不应作为地址脱敏）
+        const GENERIC_BUILDING_PATTERN = /^(?:原|旧|老|新)?(?:区|市|省|县)?(?:政协|政府|人大|党委|机关|单位)?(?:大楼|大厦|办公楼|综合楼)$/;
 
         const ACTION_VERBS = /^(出现|发生|导致|造成|存在|构成|属于|涉嫌|已经|可能|将会|引起|引发|产生|带来|面临|避免|防止|禁止|严禁)/;
         const ABSTRACT_NOUNS = /^(跑路|违约|拖欠|解除|终止|履行|支付|赔偿|损失|转让|协商|沟通|死路|末路|活路|出路|短路|断路|开路|挡路|拦路|带路|引路|迷路|顺路|同路)/;
         const CONTRACT_CONTEXT_KEYWORDS = /甲方|乙方|丙方|丁方|双方|各方|授权|代表|签字|盖章|账户|账号|开户|委托|受托|承包|发包|租赁|出租|承租|供应商|服务商|合作|协议|合同/;
-
-        // 【F】V4.2新增：地址前导词汇（用于精确剥离）
-        const ADDRESS_LEAD_PHRASES = [
-            '我两司将对位于', '我司将对位于', '双方将对位于', '甲方将对位于', '乙方将对位于',
-            '将对位于', '拟对位于', '针对位于', '关于位于', '涉及位于',
-            '位于', '坐落于', '坐落在', '地处', '地址为', '地址是', '地址：', '地址:',
-            '在于', '处于', '设于', '建于', '落于'
-        ];
 
         // ==================== 2. 全局状态 ====================
         let globalIdentityMap = new Map();
@@ -280,24 +262,6 @@
             return clean;
         }
 
-        // --- V4.2核心修复：增强的非商事机构检测 ---
-        function isNonCommercialEntity(text) {
-            // 直接命中白名单
-            if (NON_COMMERCIAL_ENTITIES.has(text)) return true;
-            
-            // 模糊匹配：包含"老年人"/"老年"且以"中心"结尾
-            if (/老年.*中心$/.test(text)) return true;
-            
-            // 模糊匹配：包含"服务"且以"中心"结尾，且不含商业关键词
-            if (/服务.*中心$/.test(text) && !/商务|商业|贸易|科技|投资/.test(text)) return true;
-            
-            // 物业描述性短语检测（如"2项物业为老年人服务中心"）
-            if (/^\d+项?物业/.test(text)) return true;
-            
-            return false;
-        }
-
-        // --- 核心修复：语义角色判定 ---
         function isGenericCompanyReference(fullText, matchIndex, matchText) {
             if (GENERIC_COMPANY_TERMS.has(matchText)) {
                 const prefixStart = Math.max(0, matchIndex - 20);
@@ -311,8 +275,11 @@
         }
 
         function isValidCompanyName(text) {
-            // V4.2: 先检查是否为非商事机构
-            if (isNonCommercialEntity(text)) return false;
+            // V4.2: 过滤非商事机构
+            if (/老年.*中心$|服务中心$|活动中心$|养老中心$|托管中心$|便民中心$/.test(text)) return false;
+            if (/^\d+项?物业/.test(text)) return false;
+            if (/^(?:区|市|省|县|镇)?政府$/.test(text)) return false;
+            if (/^(?:国企|央企|私企|外企|民企)$/.test(text)) return false;
             
             const fullCompanySuffix = /(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司)$/;
             if (fullCompanySuffix.test(text) && text.length >= 6) { 
@@ -326,49 +293,19 @@
             return true;
         }
 
-        // --- V4.2增强：地址精确提取 ---
-        function extractPureAddress(fullText, matchIndex, rawMatch) {
-            // 向前查找，检测是否有前导短语需要剥离
-            const lookbackStart = Math.max(0, matchIndex - 30);
-            const lookbackText = fullText.substring(lookbackStart, matchIndex + rawMatch.length);
-            
-            for (const leadPhrase of ADDRESS_LEAD_PHRASES) {
-                const leadIdx = lookbackText.indexOf(leadPhrase);
-                if (leadIdx !== -1) {
-                    // 找到前导词，计算纯地址的起始位置
-                    const pureStart = leadIdx + leadPhrase.length;
-                    const pureAddress = lookbackText.substring(pureStart).trim();
-                    
-                    // 验证提取的地址是否有效
-                    if (pureAddress.length >= 4 && /[\u4e00-\u9fa5]/.test(pureAddress)) {
-                        return {
-                            cleanAddress: pureAddress,
-                            originalInText: lookbackText.substring(leadIdx)
-                        };
-                    }
-                }
-            }
-            
-            return null; // 无需特殊处理
-        }
-
-        // --- 语义剥离增强版 V4.2 ---
+        // V4.2修改：增强地址剥离
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
             
-            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供|我两司将对)+(?:\s*)/;
-            
-            const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要|该|此|某|该等|因|未|并|且|或|即|另|自行|另行|主动|接受|拒绝|配合|提供|权属单位为)+(?:\s*)/;
-
-            // V4.2: 地址类型增加更多前导词剥离
-            const addressPrefixes = /^(?:我两司将对位于|将对位于|拟对位于|位于|坐落于|坐落在|地处|地址为|地址是|地址：|地址:|在于|处于|设于|建于|落于|甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供)+(?:\s*)/;
-
             if (type === 'address') {
+                // 先剥离动作前缀
+                cleaned = cleaned.replace(ADDRESS_ACTION_PREFIXES, "");
+                // 再剥离常规前缀
+                const addressPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供|我两司将对)+(?:\s*)/;
                 cleaned = cleaned.replace(addressPrefixes, "");
             } else if (type === 'company') {
+                const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要|该|此|某|该等|因|未|并|且|或|即|另|自行|另行|主动|接受|拒绝|配合|提供|权属单位为|尽快成立)+(?:\s*)/;
                 cleaned = cleaned.replace(companyPrefixes, "");
-            } else {
-                cleaned = cleaned.replace(commonPrefixes, "");
             }
             return cleaned;
         }
@@ -386,6 +323,11 @@
             const prefix = fullText.substring(start, matchIndex);
             if (ACTION_VERBS.test(prefix)) return true;
             return false;
+        }
+
+        // V4.2新增：检查是否为泛称建筑
+        function isGenericBuilding(text) {
+            return GENERIC_BUILDING_PATTERN.test(text);
         }
 
         function updateStats() {
@@ -421,24 +363,16 @@
             document.getElementById('mapModal').classList.remove('hidden');
         }
 
-        // ==================== 4. 核心脱敏算法 V4.2 ====================
+        // ==================== 4. 核心脱敏算法 ====================
         function secureDeIdentify(text) {
             if (!text) return "";
             let processedText = normalizeText(text);
             
-            // V4.2: 调整正则，对"中心"类机构增加更严格的前置要求
             const companyStrict = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
-            
-            // V4.2修改：对"中心"类匹配增加商业性质前缀要求
-            const companyLoose = /(?<![为由对项])[\u4e00-\u9fa5a-zA-Z0-9]{2,10}(?:公司|工作室|商行|商贸|科技|实业|置业|经营部)(?![名称|性质|类|型|等级|规模])/g;
-            
-            // V4.2新增：商业中心专用正则（必须有明确商业属性）
-            const commercialCenter = /[\u4e00-\u9fa5]{2,8}(?:商务|商业|贸易|科技|投资|金融|创投)中心(?![名称|性质|类|型])/g;
-            
-            // V4.2: 地址正则优化，增加更精确的边界检测
-            const addressNonStandard = /[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|村)(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]*(?:区|栋|座|层|室|号|首层|底层|裙楼))?/g;
-            
-            const addressWithNum = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道|条)(?:\s*)(?:[\d\-A-Za-z]+号)(?:[\u4e00-\u9fa5\d]*(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室))?/g;
+            // V4.2修改：移除"中心"匹配，避免误伤服务类机构
+            const companyLoose = /(?<![为由对])[\u4e00-\u9fa5a-zA-Z0-9]{2,10}(?:公司|工作室|商行|商贸|科技|实业|置业|经营部)(?![名称|性质|类|型|等级|规模])/g;
+            const addressNonStandard = /(?<![将把对就由向])[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)(?:[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|中心|村))(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]+(?:区|栋|座|层|室|号|首层))?/g;
+            const addressWithNum = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道|条)(?:\s*)(?:[\d\-A-Za-z]+号)(?:[\u4e00-\u9fa5\d]*(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室|首层))?/g;
             const addressCityDistrict = /[\u4e00-\u9fa5]{2,10}市(?:\s*)[\u4e00-\u9fa5]{2,10}(?:区|县|镇|市)(?![级])/g;
             const addressProv = /(?:北京|天津|上海|重庆|[\u4e00-\u9fa5]{2,5}(?:省|自治区))(?:\s*)[\u4e00-\u9fa5]{2,10}(?:市|区|县|自治州|盟)/g;
             const addressWeak = /(?<![线管通跑下铁水])([\u4e00-\u9fa5]{2,8}(?:路|街|道|巷|胡同|大道))/g;
@@ -457,14 +391,6 @@
                     if (!rawMatch) continue;
                     let cleanT = rawMatch.trim();
                     
-                    // V4.2: 对地址类型，先尝试精确提取
-                    if (type === 'address') {
-                        const pureResult = extractPureAddress(processedText, m.index, rawMatch);
-                        if (pureResult) {
-                            cleanT = pureResult.cleanAddress;
-                        }
-                    }
-                    
                     // 1. 剥离
                     cleanT = stripSemanticPrefixes(cleanT, type);
                     if (cleanT.length < 2) continue;
@@ -474,13 +400,8 @@
 
                     // 3. 泛指/有效性检查
                     if (type === 'company') {
-                        // V4.2: 先检查是否为非商事机构
-                        if (isNonCommercialEntity(cleanT)) continue;
-                        
                         if (isGenericCompanyReference(processedText, m.index, cleanT)) continue;
                         if (!isValidCompanyName(cleanT)) continue;
-                        
-                        // 后缀安全检查
                         for (let term of GENERIC_COMPANY_TERMS) {
                             if (cleanT.endsWith(term) && cleanT.length < term.length + 3) {
                                 continue; 
@@ -488,10 +409,15 @@
                         }
                     }
 
+                    // V4.2新增：地址类型检查泛称建筑
+                    if (type === 'address') {
+                        if (isGenericBuilding(cleanT)) continue;
+                    }
+
                     // 4. 黑名单强校验
                     let hitBlacklist = false;
                     if (type === 'address') {
-                        const strictBan = ['法律', '法规', '规定', '条款', '或者', '以及'];
+                        const strictBan = ['法律', '法规', '规定', '条款', '或者', '以及', '政协大楼', '政府大楼'];
                         for (let ban of strictBan) { if (cleanT.includes(ban)) { hitBlacklist = true; break; } }
                         if (!hitBlacklist) {
                             for (let badWord of IGNORE_TERMS) {
@@ -511,13 +437,12 @@
                     if (type === 'company' && !/[\u4e00-\u9fa5]{2,}/.test(cleanT)) continue;
                     if (type === 'address' && /^(本次|格式|方式|相关|所有|任何|以及|或者)/.test(cleanT)) continue;
 
-                    allMatches.push({ text: cleanT, type: type, originalIndex: m.index });
+                    allMatches.push({ text: cleanT, type: type });
                 }
             }
 
             collect(companyStrict, 'company', 0, 'standard');
             collect(companyLoose, 'company', 0, 'loose_company');
-            collect(commercialCenter, 'company', 0, 'loose_company'); // V4.2新增
             collect(addressNonStandard, 'address');
             collect(addressWithNum, 'address');
             collect(addressCityDistrict, 'address');
