@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V4.1 (深度净化版)</title>
+    <title>商事合同诊断助手 V4.2 </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <style>
+        /* ... 保持原有 CSS 不变 ... */
         * { box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         .prose table { border-collapse: collapse; width: 100%; margin: 1.5em 0; }
@@ -78,7 +79,7 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v4.1</span></h1>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v4.2</span></h1>
                 <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义深度净化</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
@@ -173,6 +174,7 @@
         // ==================== 1. 常量定义 (必须置顶) ====================
         
         // 【A】泛指公司词汇表 (直接忽略)
+        // 增加：服务中心、活动中心等，防止“老年人服务中心”被误识别为企业
         const GENERIC_COMPANY_TERMS = new Set([
             '物业公司', '管理公司', '项目公司', '担保公司', '中介公司', 
             '租赁公司', '关联公司', '服务公司', '合作公司', '目标公司',
@@ -181,7 +183,8 @@
             '物流公司', '快递公司', '搬家公司', '清洁公司', '保洁公司',
             '安保公司', '劳务公司', '派遣公司', '外包公司', '代理公司',
             '分公司', '子公司', '母公司', '总公司', '控股公司',
-            '上市公司', '国有公司', '民营公司', '外资公司', '合资公司'
+            '上市公司', '国有公司', '民营公司', '外资公司', '合资公司',
+            '服务中心', '活动中心', '卫生站', '居委会', '村委会' // 新增：设施类后缀
         ]);
 
         // 【B】泛指前缀模式
@@ -203,12 +206,16 @@
             '社会', '道德', '道理', '或者', '以及', '法律', '法规', '规定', '条款', '条文', '办法', 
             '死路', '活路', '末路', '跑路',
             '全部', '内部', '外部', '系统', '阶段', '目标', '函件', '情况', 
-            '运行', '进行', '执行', '实行', '完成'
+            '运行', '进行', '执行', '实行', '完成',
+            '我司', '贵司', '两司' // 增加：代词黑名单
         ]);
 
         const ACTION_VERBS = /^(出现|发生|导致|造成|存在|构成|属于|涉嫌|已经|可能|将会|引起|引发|产生|带来|面临|避免|防止|禁止|严禁)/;
         const ABSTRACT_NOUNS = /^(跑路|违约|拖欠|解除|终止|履行|支付|赔偿|损失|转让|协商|沟通|死路|末路|活路|出路|短路|断路|开路|挡路|拦路|带路|引路|迷路|顺路|同路)/;
         const CONTRACT_CONTEXT_KEYWORDS = /甲方|乙方|丙方|丁方|双方|各方|授权|代表|签字|盖章|账户|账号|开户|委托|受托|承包|发包|租赁|出租|承租|供应商|服务商|合作|协议|合同/;
+        
+        // 设施类黑名单（如果不含有限公司等强特征，视为地点或设施）
+        const FACILITY_BLACKLIST = /(?:服务中心|活动中心|卫生站|居委会|村委会|党群中心)$/;
 
         // ==================== 2. 全局状态 ====================
         let globalIdentityMap = new Map();
@@ -242,8 +249,8 @@
 
         function getFingerprint(text) {
             return text.replace(/[（）() \t\n\r_\-]/g, "");
-        }
-
+        </script>
+        <script>
         function getCoreAddress(text) {
             let clean = text.replace(/^(位于|坐落于|地处|地址|与|在|及|对于)/, "");
             clean = clean.replace(/[，。、,.\s]/g, "");
@@ -255,7 +262,6 @@
             if (GENERIC_COMPANY_TERMS.has(matchText)) {
                 const prefixStart = Math.max(0, matchIndex - 20);
                 const prefixContext = fullText.substring(prefixStart, matchIndex);
-                // 除非前面明确说 "名称为："，否则只要是泛指词汇，一律视为泛指（不脱敏）
                 if (SPECIFIC_COMPANY_INDICATORS.test(prefixContext)) {
                     return false;
                 }
@@ -274,15 +280,20 @@
                     return false;
                 }
             }
+            // 修复点：如果只有“服务中心”等后缀，且没有全称后缀，视为无效（设施）
+            if (FACILITY_BLACKLIST.test(text)) {
+                return false;
+            }
             return true;
         }
 
-        // --- 语义剥离增强版 V4.1 ---
-        // 增加：因、未、并、且、或、即、若、如、另、自行、另行、主动、接受、拒绝、配合、提供
+        // --- 语义剥离增强版 V4.2 ---
+        // 修复点：加强了对“我两司”、“将对位于”等复杂前缀的剥离
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
             
-            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供)+(?:\s*)/;
+            // 地址前缀：增加了 我司、两司、我两司、公司、本司、贵司 以及各种介词组合
+            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|我司|两司|我两司|本司|贵司|公司|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供)+(?:\s*)/;
             
             const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要|该|此|某|该等|因|未|并|且|或|即|另|自行|另行|主动|接受|拒绝|配合|提供)+(?:\s*)/;
 
@@ -348,7 +359,10 @@
             let processedText = normalizeText(text);
             
             const companyStrict = /[\u4e00-\u9fa5a-zA-Z0-9（）()]{4,60}(?:\s*)(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司|分行|支行|营业部|派出所|村委会|居委会|管理处)(?![名称|章程|法|制|度])/g;
+            // 修正 loose 模式：不再过度匹配可能只是设施名称的“中心”
             const companyLoose = /(?<![为由对])[\u4e00-\u9fa5a-zA-Z0-9]{2,10}(?:公司|中心|工作室|商行|商贸|科技|实业|置业|经营部)(?![名称|性质|类|型|等级|规模])/g;
+            
+            // 地址匹配修正：增加前瞻否定，防止匹配到明显的公司代词
             const addressNonStandard = /(?<![将把对就由向])[\u4e00-\u9fa5]{2,10}(?:市|区|县|镇|街道|路|街)(?:[\u4e00-\u9fa5a-zA-Z0-9]{2,20}(?:回迁房|安置房|自建房|社区|小区|公寓|大厦|广场|园区|基地|厂房|大楼|中心|村))(?:\s*)(?:[a-zA-Z0-9\-\u4e00-\u9fa5]+(?:区|栋|座|层|室|号))?/g;
             const addressWithNum = /[\u4e00-\u9fa5]{2,10}(?:路|街|道|巷|胡同|大道|条)(?:\s*)(?:[\d\-A-Za-z]+号)(?:[\u4e00-\u9fa5\d]*(?:小区|大厦|广场|中心|花园|公寓|栋|座|层|室))?/g;
             const addressCityDistrict = /[\u4e00-\u9fa5]{2,10}市(?:\s*)[\u4e00-\u9fa5]{2,10}(?:区|县|镇|市)(?![级])/g;
@@ -369,22 +383,21 @@
                     if (!rawMatch) continue;
                     let cleanT = rawMatch.trim();
                     
-                    // 1. 剥离
+                    // 1. 剥离 (V4.2 核心：这里会处理 "我两司将对位于" 这种复合前缀)
                     cleanT = stripSemanticPrefixes(cleanT, type);
                     if (cleanT.length < 2) continue;
 
                     // 2. 语义否定
                     if (isSemanticFalsePositive(processedText, m.index, cleanT)) continue;
 
-                    // 3. 泛指/有效性检查 (V4.1: 新增后缀检测)
+                    // 3. 泛指/有效性检查
                     if (type === 'company') {
                         if (isGenericCompanyReference(processedText, m.index, cleanT)) continue;
                         if (!isValidCompanyName(cleanT)) continue;
-                        // 后缀安全检查：如果剥离后以"物业公司"结尾，且长度很短，强制丢弃
+                        
+                        // 后缀安全检查
                         for (let term of GENERIC_COMPANY_TERMS) {
                             if (cleanT.endsWith(term) && cleanT.length < term.length + 3) {
-                                // 比如 "新物业公司" (5字) vs "物业公司" (4字)，太短了，大概率泛指
-                                // 这里设定阈值+3，即必须是 "新新新物业公司" 这样才被认为是特指
                                 continue; 
                             }
                         }
@@ -400,11 +413,21 @@
                                 if (cleanT.endsWith(badWord) || cleanT === badWord) { hitBlacklist = true; break; }
                             }
                         }
+                        // 额外检查：剥离后是否还残留“位于”等（防止正则剥离漏网）
+                        if (/^(位于|坐落于|地处)/.test(cleanT)) {
+                             cleanT = cleanT.replace(/^(位于|坐落于|地处)/, "");
+                        }
                     } else if (IGNORE_TERMS.has(cleanT)) hitBlacklist = true;
                     if (hitBlacklist) continue;
 
                     // 5. 语境验证
                     if (strategy === 'loose_company') {
+                        // 如果只是“中心”结尾，且前面有“为”，双重检查
+                        if (cleanT.endsWith('中心') || cleanT.endsWith('工作室')) {
+                            // 检查原文中前面是否是 "为" 或者 "是"
+                            const prefixChar = processedText[m.index - 1];
+                            if (prefixChar === '为' || prefixChar === '是') continue;
+                        }
                         if (!hasContractContext(processedText, m.index, cleanT)) {
                             continue;
                         }
@@ -501,18 +524,7 @@
             return result;
         }
 
-        function triggerAutoDesensitize() {
-            const ta = document.getElementById('contractText');
-            if (!ta.value.trim()) return alert('请先粘贴合同文本');
-            try {
-                ta.value = secureDeIdentify(ta.value);
-            } catch (e) {
-                console.error(e);
-                alert('脱敏执行出错: ' + e.message);
-            }
-        }
-
-        // ==================== 5. 事件监听 ====================
+        // ==================== 5. 事件监听 (保持不变) ====================
         document.addEventListener('DOMContentLoaded', () => {
             const k = localStorage.getItem('ds_api_key');
             if (k) document.getElementById('apiKey').value = k;
