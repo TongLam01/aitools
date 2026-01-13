@@ -422,25 +422,133 @@
             align-items: center;
         }
 
-        label {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 13px;
-            font-weight: 600;
-            margin: 15px 0 5px 0;
-            color: #333;
-        }
-
-        label:first-child {
-            margin-top: 0;
-        }
-
         .tips {
             font-size: 10px;
             color: var(--text-sub);
             margin-bottom: 4px;
             line-height: 1.4;
+        }
+
+        /* ========== 可折叠输入组 ========== */
+        .input-group {
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--card);
+            transition: all 0.3s ease;
+        }
+
+        .input-group.collapsed {
+            background: var(--bg);
+        }
+
+        .input-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .input-group-header:hover {
+            background: rgba(0, 113, 227, 0.05);
+        }
+
+        .input-group-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .input-group-header-left .icon {
+            font-size: 16px;
+        }
+
+        .input-group-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group-preview {
+            font-size: 11px;
+            color: var(--text-sub);
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .input-group-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text-sub);
+            transition: all 0.2s;
+        }
+
+        .input-group.collapsed .input-group-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .input-group-body {
+            padding: 0 14px 14px;
+            display: block;
+        }
+
+        .input-group.collapsed .input-group-body {
+            display: none;
+        }
+
+        .input-group-body textarea {
+            margin: 0;
+        }
+
+        /* 知识库特殊样式 - 自动扩展 */
+        #wiki-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 200px;
+        }
+
+        #wiki-group .input-group-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #wiki-group .input-group-body textarea {
+            flex: 1;
+            min-height: 150px;
+        }
+
+        /* 侧边栏flex布局 */
+        #static-sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-top {
+            flex-shrink: 0;
+        }
+
+        .sidebar-flex {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
 
         /* 输入框容器 */
@@ -481,6 +589,8 @@
             color: #004085;
             font-size: 13px;
             font-family: "Menlo", "Monaco", monospace;
+            border: none;
+            border-radius: 0;
         }
 
         .input-fact {
@@ -493,29 +603,37 @@
             border-color: #ffbaba;
         }
 
-        /* 展开按钮 - 输入框内 */
+        /* 展开按钮 */
         .input-expand-btn {
-            position: absolute;
-            right: 8px;
-            top: 8px;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--card);
+            padding: 4px 8px;
+            background: transparent;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 11px;
+            color: var(--text-sub);
             transition: all 0.2s;
-            z-index: 5;
         }
 
         .input-expand-btn:hover {
             background: var(--accent);
             border-color: var(--accent);
             color: white;
+        }
+
+        /* ========== 标签样式 ========== */
+        label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 12px 0 5px 0;
+            color: #333;
+        }
+
+        label:first-child {
+            margin-top: 0;
         }
 
         /* ========== 按钮样式 ========== */
@@ -621,8 +739,14 @@
 
         .history-header-left {
             display: flex;
-            align-items: baseline;
-            gap: 8px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-time {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
         }
 
         .history-body {
@@ -641,19 +765,16 @@
             -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
         }
 
-        /* 章节序号 - 更大更醒目 */
+        /* 章节序号 - 更大更醒目，仅在正文中显示 */
         .serial-number {
+            display: block;
             color: var(--danger);
-            font-size: 36px;
+            font-size: 42px;
             font-weight: 900;
             font-family: "SF Pro Display", -apple-system, sans-serif;
             line-height: 1;
+            margin-bottom: 15px;
             text-shadow: 2px 2px 4px rgba(255, 59, 48, 0.2);
-        }
-
-        .history-meta {
-            font-size: 11px;
-            color: var(--text-sub);
         }
 
         .history-actions {
@@ -941,7 +1062,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
+            padding: 8px 12px;
             background: var(--accent-light);
             border-radius: 8px;
             font-size: 11px;
@@ -952,6 +1073,18 @@
         .coherence-indicator.warning {
             background: #fff3e0;
             color: var(--warning);
+        }
+
+        /* ========== 章节标签 ========== */
+        .chapter-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 4px;
+            margin-left: 8px;
         }
 
         /* ========== 响应式设计 ========== */
@@ -1099,52 +1232,104 @@
     <div id="layout-wrapper">
         <!-- 左侧面板：静态设定 -->
         <div class="panel" id="static-sidebar">
-            <label>
-                📖 小说名字
-            </label>
-            <input type="text" id="novel-title" placeholder="请输入小说名">
-
-            <hr class="divider">
-
-            <label>
-                📘 智能知识库
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('entityMemory', '智能知识库 (Auto-Wiki)')">⤢</button>
-            </label>
-            <div class="tips">AI 自动提取人物/物品/伏笔，保持连贯性</div>
-            <div class="input-wrapper">
-                <textarea id="entityMemory" rows="6" class="input-wiki" placeholder="[人物] 张三：性格沉稳...&#10;[物品] 金箍棒：重一万三千五百斤...&#10;[伏笔] 神秘信件：内容未知..."></textarea>
+            <!-- 顶部固定区域 -->
+            <div class="sidebar-top">
+                <label>📖 小说名字</label>
+                <input type="text" id="novel-title" placeholder="请输入小说名">
+                <hr class="divider">
             </div>
 
-            <label>
-                🌍 世界观
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('worldView', '世界观设定')">⤢</button>
-            </label>
-            <div class="input-wrapper">
-                <textarea id="worldView" rows="3" placeholder="时代背景、社会规则、力量体系..."></textarea>
-            </div>
+            <!-- 可伸缩区域 -->
+            <div class="sidebar-flex">
+                <!-- 智能知识库 - 自动扩展 -->
+                <div class="input-group" id="wiki-group">
+                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('wiki-group')">
+                        <div class="input-group-header-left">
+                            <span class="icon">📘</span>
+                            <span>智能知识库</span>
+                        </div>
+                        <div class="input-group-header-right">
+                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('entityMemory', '智能知识库 (Auto-Wiki)')">展开</button>
+                            <span class="input-group-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="input-group-body">
+                        <div class="tips">AI 自动提取人物/物品/伏笔，保持连贯性</div>
+                        <textarea id="entityMemory" class="input-wiki" placeholder="[人物] 张三：性格沉稳...&#10;[物品] 金箍棒：重一万三千五百斤...&#10;[伏笔] 神秘信件：内容未知..."></textarea>
+                    </div>
+                </div>
 
-            <label>
-                👤 角色档案
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('characterBible', '核心角色档案')">⤢</button>
-            </label>
-            <div class="input-wrapper">
-                <textarea id="characterBible" rows="4" placeholder="主角：姓名、性格、背景、目标...&#10;配角：关系、特点..."></textarea>
-            </div>
+                <!-- 世界观 - 可折叠 -->
+                <div class="input-group collapsed" id="worldview-group">
+                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('worldview-group')">
+                        <div class="input-group-header-left">
+                            <span class="icon">🌍</span>
+                            <span>世界观</span>
+                        </div>
+                        <div class="input-group-header-right">
+                            <span class="input-group-preview" id="worldview-preview"></span>
+                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('worldView', '世界观设定')">展开</button>
+                            <span class="input-group-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="input-group-body">
+                        <textarea id="worldView" rows="3" placeholder="时代背景、社会规则、力量体系..."></textarea>
+                    </div>
+                </div>
 
-            <label>
-                🎨 文风
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('styleRef', '文学风格参考')">⤢</button>
-            </label>
-            <div class="input-wrapper">
-                <textarea id="styleRef" rows="2" placeholder="权谋、悬疑、轻松幽默、节奏紧凑..."></textarea>
-            </div>
+                <!-- 角色档案 - 可折叠 -->
+                <div class="input-group collapsed" id="character-group">
+                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('character-group')">
+                        <div class="input-group-header-left">
+                            <span class="icon">👤</span>
+                            <span>角色档案</span>
+                        </div>
+                        <div class="input-group-header-right">
+                            <span class="input-group-preview" id="character-preview"></span>
+                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('characterBible', '核心角色档案')">展开</button>
+                            <span class="input-group-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="input-group-body">
+                        <textarea id="characterBible" rows="4" placeholder="主角：姓名、性格、背景、目标...&#10;配角：关系、特点..."></textarea>
+                    </div>
+                </div>
 
-            <label>
-                🚫 禁止事项
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('negativePrompt', '写作禁忌')">⤢</button>
-            </label>
-            <div class="input-wrapper">
-                <textarea id="negativePrompt" rows="2" placeholder="禁用词汇、避免的情节套路..."></textarea>
+                <!-- 文风 - 可折叠 -->
+                <div class="input-group collapsed" id="style-group">
+                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('style-group')">
+                        <div class="input-group-header-left">
+                            <span class="icon">🎨</span>
+                            <span>文风</span>
+                        </div>
+                        <div class="input-group-header-right">
+                            <span class="input-group-preview" id="style-preview"></span>
+                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('styleRef', '文学风格参考')">展开</button>
+                            <span class="input-group-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="input-group-body">
+                        <textarea id="styleRef" rows="2" placeholder="权谋、悬疑、轻松幽默、节奏紧凑..."></textarea>
+                    </div>
+                </div>
+
+                <!-- 禁止事项 - 可折叠 -->
+                <div class="input-group collapsed" id="negative-group">
+                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('negative-group')">
+                        <div class="input-group-header-left">
+                            <span class="icon">🚫</span>
+                            <span>禁止事项</span>
+                        </div>
+                        <div class="input-group-header-right">
+                            <span class="input-group-preview" id="negative-preview"></span>
+                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('negativePrompt', '写作禁忌')">展开</button>
+                            <span class="input-group-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="input-group-body">
+                        <textarea id="negativePrompt" rows="2" placeholder="禁用词汇、避免的情节套路..."></textarea>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1184,20 +1369,21 @@
             </button>
 
             <label>
-                📋 事实档案
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('statusTracker', '事实档案')">⤢</button>
+                📋 事实档案（全局）
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('statusTracker', '事实档案')">展开</button>
             </label>
-            <div class="tips">记录不可逆改变：死亡、毁灭、重大决定...</div>
+            <div class="tips">记录每章不可逆改变：死亡、毁灭、重大决定...</div>
             <div class="input-wrapper">
-                <textarea id="statusTracker" rows="3" class="input-fact" placeholder="[第X章] XXX死亡&#10;[第X章] 主角获得神器"></textarea>
+                <textarea id="statusTracker" rows="4" class="input-fact" placeholder="[第1章] XXX死亡&#10;[第2章] 主角获得神器&#10;[第3章] 与XX结盟"></textarea>
             </div>
 
             <label>
                 📜 前情摘要
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('contextSummary', '前情摘要')">⤢</button>
+                <span class="chapter-tag" id="summary-chapter-tag">第?章</span>
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('contextSummary', '前情摘要')">展开</button>
             </label>
             <div class="input-wrapper">
-                <textarea id="contextSummary" rows="3" placeholder="AI自动生成的剧情概要..."></textarea>
+                <textarea id="contextSummary" rows="3" placeholder="（第N章）剧情概要..."></textarea>
             </div>
 
             <div id="coherence-check" class="coherence-indicator" style="display:none;">
@@ -1209,7 +1395,7 @@
 
             <label style="color: var(--accent);">
                 🎯 本段目标
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('sceneGoal', '本段目标')">⤢</button>
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('sceneGoal', '本段目标')">展开</button>
             </label>
             <div class="input-wrapper">
                 <textarea id="sceneGoal" rows="2" placeholder="这一场的核心冲突/要推进的剧情点..."></textarea>
@@ -1217,7 +1403,7 @@
 
             <label style="color: var(--danger);">
                 ⚡ 必须包含
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('mustInclude', '必须包含的元素')">⤢</button>
+                <button class="input-expand-btn" onclick="NovelTool.openDrawer('mustInclude', '必须包含的元素')">展开</button>
             </label>
             <div class="input-wrapper">
                 <textarea id="mustInclude" rows="2" class="input-must" placeholder="关键道具、必须出现的角色、要埋的伏笔..."></textarea>
@@ -1235,9 +1421,9 @@
                 <div style="flex:1">
                     <label>📏 篇幅</label>
                     <select id="lengthMode">
-                        <option value="standard">标准(800-1200)</option>
-                        <option value="long">长篇(1500+)</option>
-                        <option value="short">短篇(~500)</option>
+                        <option value="standard">标准(1500-2000)</option>
+                        <option value="long">长篇(3000+)</option>
+                        <option value="short">短篇(~1000)</option>
                     </select>
                 </div>
             </div>
@@ -1249,6 +1435,9 @@
                 <option value="全知视角（上帝视角）">全知视角</option>
                 <option value="多视角切换">多视角切换</option>
             </select>
+
+            <label>📑 当前章节</label>
+            <input type="number" id="currentChapter" min="1" value="1" placeholder="第几章">
 
             <div class="stats-bar">
                 <div class="stat-item">
@@ -1264,9 +1453,9 @@
                     <div class="stat-label">平均字数</div>
                 </div>
             </div>
-            
+
             <button class="btn btn-outline" style="width:100%; margin-top:15px;" onclick="NovelTool.downloadFullDraft()">
-                📥 导出全本小说
+                📥 导出全本小说 (.doc)
             </button>
         </div>
     </div>
