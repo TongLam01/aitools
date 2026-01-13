@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V5.3 (语义精修版)</title>
+    <title>商事合同诊断助手 V5.4 (终极修复版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -78,8 +78,8 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v5.3</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义精修 · Word专用</p>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v5.4</span></h1>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义精修 · 修复运行版</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -170,9 +170,10 @@
     </div>
 
     <script>
-        // ==================== 1. 常量定义 ====================
+        // ==================== 1. 常量定义 (必须置顶) ====================
         
         // 【A】泛指公司词汇表 (直接忽略)
+        // V5.3 新增: 老年人服务中心、服务中心、活动中心 (视为公共设施)
         const GENERIC_COMPANY_TERMS = new Set([
             '物业公司', '管理公司', '项目公司', '担保公司', '中介公司', 
             '租赁公司', '关联公司', '服务公司', '合作公司', '目标公司',
@@ -255,10 +256,10 @@
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
             
-            // 地址前缀 (包含: 将, 对, 我, 两, 司, 权属, 单位, 项, 是, 为)
+            // 地址前缀剥离 (包含: 将, 对, 我, 两, 司, 权属, 单位, 项, 是, 为, 数字)
             const addrRegex = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供|我|贵|两|司|权属|单位|项|是|[\d]+|个|处|宗)+(?:\s*)/;
 
-            // 公司前缀 (包含: 权属, 单位, 为, 物业, 2, 项)
+            // 公司前缀剥离 (包含: 权属, 单位, 为, 物业, 2, 项)
             const compRegex = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要|该|此|某|该等|因|未|并|且|或|即|另|自行|另行|主动|接受|拒绝|配合|提供|权属|单位|是|物业|[\d]+|项|个|处|宗)+(?:\s*)/;
 
             if (type === 'address') {
