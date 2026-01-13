@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公文写作扩展工具 V1.7 </title>
+    <title>公文写作扩展工具 V1.8 </title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -135,7 +135,6 @@
         }
         .tool-btn i { font-size: 1.25rem; color: var(--text-secondary); transition: color 0.2s; }
         .tool-btn span { 
-            /* 优化3：字号加大，颜色加深 */
             font-size: 12px; font-weight: 700; 
             color: var(--text-primary); 
             opacity: 0.8;
@@ -287,7 +286,7 @@
                 <h1 class="text-base lg:text-lg font-black tracking-tight" :class="isDark ? 'text-white' : 'text-slate-800'">
                     公文写作扩展工具
                 </h1>
-                <p class="text-[10px] text-slate-400 hidden sm:block">Writer Swiss Knife V1.7</p>
+                <p class="text-[10px] text-slate-400 hidden sm:block">Writer Swiss Knife V1.8</p>
             </div>
         </div>
         
@@ -342,12 +341,13 @@
                             </span>
                         </label>
                         
-                        <button v-if="isDesensitize && mapList.length > 0" 
+                        <button v-if="isDesensitize" 
                                 @click="showMapModal = true"
                                 class="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 text-[10px] font-bold transition-colors"
                                 title="查看脱敏映射">
                             <i class="fa-solid fa-list-ul"></i>
                             <span>脱敏映射</span>
+                            <span v-if="mapList.length > 0" class="ml-0.5 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px]">{{ mapList.length }}</span>
                         </button>
                     </div>
 
@@ -449,7 +449,7 @@
                 <span>{{ t.name }}</span>
             </button>
         </div>
-        </footer>
+    </footer>
 
     <div id="poster-wrap">
         <div class="poster-card">
@@ -497,7 +497,10 @@
                                 </td>
                             </tr>
                             <tr v-if="mapList.length === 0">
-                                <td colspan="3" class="p-8 text-center opacity-50">暂无脱敏数据</td>
+                                <td colspan="3" class="p-8 text-center opacity-50">
+                                    <p class="mb-2">暂无脱敏数据</p>
+                                    <p class="text-[10px]">您可以开启脱敏开关后输入包含企业/人名/地址的文本进行测试</p>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -522,82 +525,36 @@
                         <i class="fa-solid fa-times"></i>
                     </button>
                 </div>
-                
                 <div class="flex-1 overflow-y-auto p-6 space-y-6">
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block"
-                               :class="isDark ? 'text-slate-400' : 'text-slate-400'">
-                            DeepSeek API Key
-                        </label>
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block" :class="isDark ? 'text-slate-400' : 'text-slate-400'">DeepSeek API Key</label>
                         <div class="relative">
-                            <input v-model="config.apiKey" 
-                                   :type="showApiKey ? 'text' : 'password'" 
-                                   placeholder="sk-..." 
-                                   class="w-full p-4 pr-12 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                                   :class="isDark ? 'bg-slate-700 text-white placeholder-slate-500' : 'bg-slate-50 text-slate-800'">
-                            <button @click="showApiKey = !showApiKey" 
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 p-2"
-                                    :class="isDark ? 'text-slate-400' : 'text-slate-400'">
-                                <i :class="showApiKey ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
-                            </button>
+                            <input v-model="config.apiKey" :type="showApiKey ? 'text' : 'password'" placeholder="sk-..." class="w-full p-4 pr-12 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" :class="isDark ? 'bg-slate-700 text-white placeholder-slate-500' : 'bg-slate-50 text-slate-800'">
+                            <button @click="showApiKey = !showApiKey" class="absolute right-3 top-1/2 -translate-y-1/2 p-2" :class="isDark ? 'text-slate-400' : 'text-slate-400'"><i :class="showApiKey ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i></button>
                         </div>
                     </div>
-                    
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block"
-                               :class="isDark ? 'text-slate-400' : 'text-slate-400'">
-                            模型选择
-                        </label>
-                        <select v-model="config.model" 
-                                class="w-full p-4 rounded-xl outline-none font-medium focus:ring-2 focus:ring-indigo-500"
-                                :class="isDark ? 'bg-slate-700 text-white' : 'bg-slate-50 text-slate-800'">
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block" :class="isDark ? 'text-slate-400' : 'text-slate-400'">模型选择</label>
+                        <select v-model="config.model" class="w-full p-4 rounded-xl outline-none font-medium focus:ring-2 focus:ring-indigo-500" :class="isDark ? 'bg-slate-700 text-white' : 'bg-slate-50 text-slate-800'">
                             <option value="deepseek-reasoner">DeepSeek R1 (深度思考，较慢)</option>
                             <option value="deepseek-chat">DeepSeek V3 (极速响应)</option>
                         </select>
                     </div>
-
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block"
-                               :class="isDark ? 'text-slate-400' : 'text-slate-400'">
-                            生成温度 ({{ config.temperature }})
-                        </label>
-                        <input type="range" v-model="config.temperature" min="0" max="1" step="0.1"
-                               class="w-full h-2 rounded-full appearance-none cursor-pointer"
-                               :class="isDark ? 'bg-slate-700' : 'bg-slate-200'">
-                        <div class="flex justify-between text-[10px] mt-1"
-                             :class="isDark ? 'text-slate-500' : 'text-slate-400'">
-                            <span>精确</span>
-                            <span>创意</span>
-                        </div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block" :class="isDark ? 'text-slate-400' : 'text-slate-400'">生成温度 ({{ config.temperature }})</label>
+                        <input type="range" v-model="config.temperature" min="0" max="1" step="0.1" class="w-full h-2 rounded-full appearance-none cursor-pointer" :class="isDark ? 'bg-slate-700' : 'bg-slate-200'">
+                        <div class="flex justify-between text-[10px] mt-1" :class="isDark ? 'text-slate-500' : 'text-slate-400'"><span>精确</span><span>创意</span></div>
                     </div>
-
                     <div class="pt-4 border-t" :class="isDark ? 'border-slate-700' : 'border-slate-100'">
-                        <label class="text-[10px] font-bold uppercase tracking-widest mb-3 block"
-                               :class="isDark ? 'text-slate-400' : 'text-slate-400'">
-                            数据管理
-                        </label>
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-3 block" :class="isDark ? 'text-slate-400' : 'text-slate-400'">数据管理</label>
                         <div class="space-y-2">
-                            <button @click="exportData" 
-                                    class="w-full p-3 rounded-xl text-sm font-medium text-left flex items-center gap-3 transition-colors"
-                                    :class="isDark ? 'bg-slate-700 hover:bg-slate-600 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'">
-                                <i class="fa-solid fa-download"></i>
-                                导出数据备份
-                            </button>
-                            <button @click="clearAllData" 
-                                    class="w-full p-3 rounded-xl text-sm font-medium text-left flex items-center gap-3 transition-colors text-red-500"
-                                    :class="isDark ? 'bg-slate-700 hover:bg-red-900/30' : 'bg-slate-50 hover:bg-red-50'">
-                                <i class="fa-solid fa-trash"></i>
-                                清除所有数据
-                            </button>
+                            <button @click="exportData" class="w-full p-3 rounded-xl text-sm font-medium text-left flex items-center gap-3 transition-colors" :class="isDark ? 'bg-slate-700 hover:bg-slate-600 text-slate-200' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'"><i class="fa-solid fa-download"></i>导出数据备份</button>
+                            <button @click="clearAllData" class="w-full p-3 rounded-xl text-sm font-medium text-left flex items-center gap-3 transition-colors text-red-500" :class="isDark ? 'bg-slate-700 hover:bg-red-900/30' : 'bg-slate-50 hover:bg-red-50'"><i class="fa-solid fa-trash"></i>清除所有数据</button>
                         </div>
                     </div>
                 </div>
-                
                 <div class="p-6 border-t" :class="isDark ? 'border-slate-700' : 'border-slate-100'">
-                    <button @click="saveConfig" 
-                            class="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all">
-                        保存设置
-                    </button>
+                    <button @click="saveConfig" class="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all">保存设置</button>
                 </div>
             </div>
         </div>
@@ -606,49 +563,22 @@
     <Transition name="slide">
         <div v-if="showHistory" class="fixed inset-0 z-[100] flex justify-end">
             <div class="absolute inset-0 bg-black/20 backdrop-blur-sm" @click="showHistory = false"></div>
-            <div class="relative w-full max-w-sm h-full shadow-2xl flex flex-col overflow-hidden"
-                 :class="isDark ? 'bg-slate-800' : 'bg-white'">
-                <div class="p-6 border-b flex justify-between items-center"
-                     :class="isDark ? 'border-slate-700' : 'border-slate-100'">
+            <div class="relative w-full max-w-sm h-full shadow-2xl flex flex-col overflow-hidden" :class="isDark ? 'bg-slate-800' : 'bg-white'">
+                <div class="p-6 border-b flex justify-between items-center" :class="isDark ? 'border-slate-700' : 'border-slate-100'">
                     <h3 class="font-bold text-lg" :class="isDark ? 'text-white' : 'text-slate-800'">历史记录</h3>
-                    <button @click="showHistory = false" class="w-8 h-8 rounded-full flex items-center justify-center"
-                            :class="isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-400'">
-                        <i class="fa-solid fa-times"></i>
-                    </button>
+                    <button @click="showHistory = false" class="w-8 h-8 rounded-full flex items-center justify-center" :class="isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-400'"><i class="fa-solid fa-times"></i></button>
                 </div>
-                
                 <div class="flex-1 overflow-y-auto p-4">
-                    <div v-if="history.length === 0" class="text-center py-20">
-                        <i class="fa-solid fa-clock-rotate-left text-4xl mb-4"
-                           :class="isDark ? 'text-slate-600' : 'text-slate-200'"></i>
-                        <p class="text-sm" :class="isDark ? 'text-slate-500' : 'text-slate-400'">暂无历史记录</p>
-                    </div>
+                    <div v-if="history.length === 0" class="text-center py-20"><i class="fa-solid fa-clock-rotate-left text-4xl mb-4" :class="isDark ? 'text-slate-600' : 'text-slate-200'"></i><p class="text-sm" :class="isDark ? 'text-slate-500' : 'text-slate-400'">暂无历史记录</p></div>
                     <div v-else class="space-y-2">
-                        <div v-for="(item, idx) in history" :key="idx" 
-                             @click="loadHistory(item)"
-                             class="history-item">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
-                                      :class="isDark ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'">
-                                    {{ item.toolName }}
-                                </span>
-                                <span class="text-[10px]" :class="isDark ? 'text-slate-500' : 'text-slate-400'">
-                                    {{ formatDate(item.time) }}
-                                </span>
-                            </div>
-                            <p class="text-sm line-clamp-2" :class="isDark ? 'text-slate-300' : 'text-slate-600'">
-                                {{ item.input.substring(0, 100) }}...
-                            </p>
+                        <div v-for="(item, idx) in history" :key="idx" @click="loadHistory(item)" class="history-item">
+                            <div class="flex items-center gap-2 mb-1"><span class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="isDark ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'">{{ item.toolName }}</span><span class="text-[10px]" :class="isDark ? 'text-slate-500' : 'text-slate-400'">{{ formatDate(item.time) }}</span></div>
+                            <p class="text-sm line-clamp-2" :class="isDark ? 'text-slate-300' : 'text-slate-600'">{{ item.input.substring(0, 100) }}...</p>
                         </div>
                     </div>
                 </div>
-                
                 <div v-if="history.length > 0" class="p-4 border-t" :class="isDark ? 'border-slate-700' : 'border-slate-100'">
-                    <button @click="clearHistory" 
-                            class="w-full py-3 rounded-xl text-sm font-medium text-red-500 transition-colors"
-                            :class="isDark ? 'bg-slate-700 hover:bg-red-900/30' : 'bg-slate-50 hover:bg-red-50'">
-                        <i class="fa-solid fa-trash mr-2"></i>清空历史
-                    </button>
+                    <button @click="clearHistory" class="w-full py-3 rounded-xl text-sm font-medium text-red-500 transition-colors" :class="isDark ? 'bg-slate-700 hover:bg-red-900/30' : 'bg-slate-50 hover:bg-red-50'"><i class="fa-solid fa-trash mr-2"></i>清空历史</button>
                 </div>
             </div>
         </div>
@@ -656,9 +586,7 @@
 
     <div class="toast-container">
         <TransitionGroup name="toast">
-            <div v-for="t in toasts" :key="t.id" class="toast" :class="t.type">
-                <i :class="t.icon" class="mr-2"></i>{{ t.message }}
-            </div>
+            <div v-for="t in toasts" :key="t.id" class="toast" :class="t.type"><i :class="t.icon" class="mr-2"></i>{{ t.message }}</div>
         </TransitionGroup>
     </div>
 </div>
@@ -668,7 +596,6 @@ const { createApp, ref, computed, watch, nextTick, onMounted, onUnmounted } = Vu
 
 createApp({
     setup() {
-        // ============ 状态定义 ============
         const inputBody = ref('');
         const outputBody = ref('');
         const isGenerating = ref(false);
@@ -682,24 +609,16 @@ createApp({
         const errorMsg = ref('');
         const isDark = ref(false);
         const lastTool = ref(null);
-        
-        // 新增脱敏状态
         const isDesensitize = ref(false); 
         const showMapModal = ref(false);
-        const mapList = ref([]); // 存储 {original: '', placeholder: ''}
-        const userExcludedTerms = ref(new Set()); // 优化2：用户手动排除的词汇（不进行脱敏）
+        const mapList = ref([]);
+        const userExcludedTerms = ref(new Set()); // 白名单
         
-        const config = ref({ 
-            apiKey: '', 
-            model: 'deepseek-reasoner',
-            temperature: 0.4
-        });
-        
+        const config = ref({ apiKey: '', model: 'deepseek-reasoner', temperature: 0.4 });
         const history = ref([]);
         let abortController = null;
         let toastId = 0;
 
-        // ============ 工具配置（5个工具） ============
         const tools = [
             { id: 'style', name: '文风转换', icon: 'fa-solid fa-repeat', desc: '提供公文体和润色两种改写结果' },
             { id: 'extract', name: '提炼要点', icon: 'fa-solid fa-crosshairs', desc: '直击核心，提炼关键观点（需200字以上）' },
@@ -708,16 +627,12 @@ createApp({
             { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-diagram-project', desc: '生成可视化思维导图大纲（需200字以上）' }
         ];
 
-        // ============ 核心脱敏逻辑 (优化版V4.3) ============
+        // 核心脱敏逻辑
         const GENERIC_COMPANY_TERMS = new Set([
-            '物业公司', '管理公司', '项目公司', '担保公司', '中介公司', 
-            '租赁公司', '关联公司', '服务公司', '合作公司', '目标公司',
-            '保险公司', '装修公司', '施工公司', '设计公司', '监理公司',
-            '运营公司', '投资公司', '贸易公司', '广告公司', '咨询公司',
-            '物流公司', '快递公司', '搬家公司', '清洁公司', '保洁公司',
-            '安保公司', '劳务公司', '派遣公司', '外包公司', '代理公司',
-            '分公司', '子公司', '母公司', '总公司', '控股公司',
-            '上市公司', '国有公司', '民营公司', '外资公司', '合资公司',
+            '物业公司', '管理公司', '项目公司', '担保公司', '中介公司', '租赁公司', '关联公司', '服务公司', '合作公司', '目标公司',
+            '保险公司', '装修公司', '施工公司', '设计公司', '监理公司', '运营公司', '投资公司', '贸易公司', '广告公司', '咨询公司',
+            '物流公司', '快递公司', '搬家公司', '清洁公司', '保洁公司', '安保公司', '劳务公司', '派遣公司', '外包公司', '代理公司',
+            '分公司', '子公司', '母公司', '总公司', '控股公司', '上市公司', '国有公司', '民营公司', '外资公司', '合资公司',
             '服务中心', '活动中心', '卫生站', '居委会', '村委会'
         ]);
         const SPECIFIC_COMPANY_INDICATORS = /(?:名称|全称|简称)(?:为|是|：|:)|(?:即|系|指)["「『]?[\u4e00-\u9fa5]/;
@@ -729,14 +644,10 @@ createApp({
             '线路', '电路', '网路', '水路', '思路', '门路', '大路', '道路', '马路', '走路',
             '通道', '过道', '廊道', '渠道', '报道', '知道', '味道', '公道', '霸道', '厚道', 
             '下水道', '跑道', '索道', '盲道', '人行道', '占道', '让道', '借道', '栈道',
-            '管道', '楼道', '烟道', '风道', 
-            '社会', '道德', '道理', '或者', '以及', '法律', '法规', '规定', '条款', '条文', '办法', 
-            '死路', '活路', '末路', '跑路',
-            '全部', '内部', '外部', '系统', '阶段', '目标', '函件', '情况', 
-            '运行', '进行', '执行', '实行', '完成',
-            '我司', '贵司', '两司',
-            // 优化2：新增"一道"，防止"运营部全体同事一道"被误识别
-            '一道', '称道', '说道', '一道走'
+            '管道', '楼道', '烟道', '风道', '社会', '道德', '道理', '或者', '以及', '法律', '法规', '规定', '条款', '条文', '办法', 
+            '死路', '活路', '末路', '跑路', '全部', '内部', '外部', '系统', '阶段', '目标', '函件', '情况', 
+            '运行', '进行', '执行', '实行', '完成', '我司', '贵司', '两司',
+            '一道', '一道来', '一道去', '一道走'
         ]);
         const ACTION_VERBS = /^(出现|发生|导致|造成|存在|构成|属于|涉嫌|已经|可能|将会|引起|引发|产生|带来|面临|避免|防止|禁止|严禁)/;
         const ABSTRACT_NOUNS = /^(跑路|违约|拖欠|解除|终止|履行|支付|赔偿|损失|转让|协商|沟通|死路|末路|活路|出路|短路|断路|开路|挡路|拦路|带路|引路|迷路|顺路|同路)/;
@@ -751,7 +662,6 @@ createApp({
 
         const getFingerprint = (text) => text.replace(/[（）() \t\n\r_\-]/g, "");
         const getCoreAddress = (text) => text.replace(/^(位于|坐落于|地处|地址|与|在|及|对于)/, "").replace(/[，。、,.\s]/g, "");
-        
         const isGenericCompanyReference = (fullText, matchIndex, matchText) => {
             if (GENERIC_COMPANY_TERMS.has(matchText)) {
                 const prefixStart = Math.max(0, matchIndex - 20);
@@ -761,7 +671,6 @@ createApp({
             }
             return false;
         };
-
         const isValidCompanyName = (text) => {
             const fullCompanySuffix = /(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司)$/;
             if (fullCompanySuffix.test(text) && text.length >= 6) return true;
@@ -769,7 +678,6 @@ createApp({
             if (FACILITY_BLACKLIST.test(text)) return false;
             return true;
         };
-
         const stripSemanticPrefixes = (text, type) => {
             let cleaned = text;
             const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|我司|两司|我两司|本司|贵司|公司|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供)+(?:\s*)/;
@@ -778,31 +686,23 @@ createApp({
             else if (type === 'company') cleaned = cleaned.replace(companyPrefixes, "");
             return cleaned;
         };
-
         const isSemanticFalsePositive = (fullText, matchIndex, matchText) => {
             if (ABSTRACT_NOUNS.test(matchText)) return true;
             const start = Math.max(0, matchIndex - 4);
             const prefix = fullText.substring(start, matchIndex);
             if (ACTION_VERBS.test(prefix)) return true;
-            
-            // 优化2：对地址误判的额外检查 (如 "同事一道")
             const surrounding = fullText.substring(Math.max(0, matchIndex - 10), Math.min(fullText.length, matchIndex + matchText.length + 10));
             if (/(?:同事|全体|部门|人员|大家)/.test(surrounding) && /道$/.test(matchText)) return true;
-
             return false;
         };
-
         const hasContractContext = (fullText, matchIndex, matchText) => {
             const start = Math.max(0, matchIndex - 15);
             const end = Math.min(fullText.length, matchIndex + matchText.length + 15);
             return CONTRACT_CONTEXT_KEYWORDS.test(fullText.substring(start, end));
         };
 
-        // 脱敏主函数
         const secureDeIdentify = (text) => {
             if (!text) return text;
-            
-            // 重置计数器
             let globalCounters = { company: 0, address: 0, person: 0, other: 0 };
             let identityMap = new Map();
             let fingerprintMap = new Map();
@@ -830,12 +730,8 @@ createApp({
                     let cleanT = rawMatch.trim();
                     cleanT = stripSemanticPrefixes(cleanT, type);
                     if (cleanT.length < 2) continue;
-
-                    // 优化2：检查是否在用户白名单中
                     if (userExcludedTerms.value.has(cleanT)) continue;
-
                     if (isSemanticFalsePositive(processedText, m.index, cleanT)) continue;
-
                     if (type === 'company') {
                         if (isGenericCompanyReference(processedText, m.index, cleanT)) continue;
                         if (!isValidCompanyName(cleanT)) continue;
@@ -843,7 +739,6 @@ createApp({
                             if (cleanT.endsWith(term) && cleanT.length < term.length + 3) continue;
                         }
                     }
-
                     let hitBlacklist = false;
                     if (type === 'address') {
                         const strictBan = ['法律', '法规', '规定', '条款', '或者', '以及'];
@@ -853,7 +748,6 @@ createApp({
                         }
                         if (/^(位于|坐落于|地处)/.test(cleanT)) cleanT = cleanT.replace(/^(位于|坐落于|地处)/, "");
                     } else if (IGNORE_TERMS.has(cleanT)) hitBlacklist = true;
-                    
                     if (hitBlacklist) continue;
                     if (strategy === 'loose_company') {
                         if (cleanT.endsWith('中心') || cleanT.endsWith('工作室')) {
@@ -862,7 +756,6 @@ createApp({
                         }
                         if (!hasContractContext(processedText, m.index, cleanT)) continue;
                     }
-
                     if (type === 'company' && !/[\u4e00-\u9fa5]{2,}/.test(cleanT)) continue;
                     if (type === 'address' && /^(本次|格式|方式|相关|所有|任何|以及|或者)/.test(cleanT)) continue;
                     allMatches.push({ text: cleanT, type: type });
@@ -895,18 +788,14 @@ createApp({
 
             let result = processedText;
             for (const item of uniqueItems) {
-                // 再次检查白名单
                 if (userExcludedTerms.value.has(item.text)) continue;
                 if (!result.includes(item.text)) continue;
-
                 let ph;
                 let foundExisting = false;
-                
                 if (identityMap.has(item.text)) {
                     ph = identityMap.get(item.text);
                     foundExisting = true;
                 }
-                
                 if (!foundExisting && item.type === 'address') {
                     let coreCurrent = getCoreAddress(item.text);
                     for (const [storedKey, storedID] of identityMap) {
@@ -920,7 +809,6 @@ createApp({
                         }
                     }
                 }
-                
                 if (!foundExisting && item.type === 'company') {
                     let fingerprint = getFingerprint(item.text);
                     if (fingerprintMap.has(fingerprint)) {
@@ -931,7 +819,6 @@ createApp({
                          fingerprintMap.set(fingerprint, item.text);
                     }
                 }
-
                 if (!foundExisting) {
                     if (item.type === 'company') {
                         globalCounters.company++;
@@ -945,18 +832,13 @@ createApp({
                     }
                     identityMap.set(item.text, ph);
                 }
-
                 const safeText = item.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 result = result.replace(new RegExp(safeText, 'g'), ph);
             }
-
-            // 更新映射列表
             mapList.value = Array.from(identityMap.entries()).map(([original, placeholder]) => ({ original, placeholder }));
-            
             return result;
         };
 
-        // ============ 计算属性 ============
         const renderedOutput = computed(() => {
             if (!outputBody.value) return '';
             try {
@@ -966,7 +848,6 @@ createApp({
             }
         });
 
-        // ============ 监听器 ============
         watch(outputBody, () => {
             if (isGenerating.value) {
                 nextTick(() => { 
@@ -985,12 +866,10 @@ createApp({
             }
         }, { debounce: 500 });
 
-        // 自动保存草稿
         watch(inputBody, (val) => {
             localStorage.setItem('knife_draft_v10', val);
         }, { debounce: 1000 });
 
-        // ============ 生命周期 ============
         onMounted(() => {
             const savedConfig = localStorage.getItem('knife_cfg_v10');
             if (savedConfig) {
@@ -1014,11 +893,8 @@ createApp({
             document.removeEventListener('keydown', handleGlobalKeydown);
         });
 
-        // ============ 方法定义 ============
-        // 优化2：新增移除映射功能
         const removeMapping = (original) => {
-            userExcludedTerms.value.add(original); // 加入白名单
-            // 立即重新执行脱敏，更新列表
+            userExcludedTerms.value.add(original);
             if (inputBody.value && isDesensitize.value) {
                 secureDeIdentify(inputBody.value);
             }
@@ -1026,16 +902,10 @@ createApp({
         };
 
         const showToast = (message, type = 'info') => {
-            const icons = {
-                success: 'fa-solid fa-check-circle',
-                error: 'fa-solid fa-exclamation-circle',
-                info: 'fa-solid fa-info-circle'
-            };
+            const icons = { success: 'fa-solid fa-check-circle', error: 'fa-solid fa-exclamation-circle', info: 'fa-solid fa-info-circle' };
             const id = ++toastId;
             toasts.value.push({ id, message, type, icon: icons[type] });
-            setTimeout(() => {
-                toasts.value = toasts.value.filter(t => t.id !== id);
-            }, 3000);
+            setTimeout(() => { toasts.value = toasts.value.filter(t => t.id !== id); }, 3000);
         };
 
         const toggleDark = () => {
@@ -1067,12 +937,7 @@ createApp({
         const generateImage = async () => {
             showToast('海报渲染中...', 'info');
             try {
-                const canvas = await html2canvas(document.getElementById('poster-wrap'), { 
-                    scale: 3, 
-                    useCORS: true,
-                    backgroundColor: null,
-                    logging: false
-                });
+                const canvas = await html2canvas(document.getElementById('poster-wrap'), { scale: 3, useCORS: true, backgroundColor: null, logging: false });
                 const link = document.createElement('a');
                 link.download = `写作成果_${new Date().toLocaleDateString()}.png`;
                 link.href = canvas.toDataURL('image/png');
@@ -1094,9 +959,7 @@ createApp({
         };
 
         const handleGlobalKeydown = (e) => {
-            if (e.key === 'Escape' && isGenerating.value) {
-                stopStream();
-            }
+            if (e.key === 'Escape' && isGenerating.value) stopStream();
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 localStorage.setItem('knife_draft_v10', inputBody.value);
@@ -1108,7 +971,6 @@ createApp({
             const date = new Date(timestamp);
             const now = new Date();
             const diff = now - date;
-            
             if (diff < 60000) return '刚刚';
             if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
             if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
@@ -1132,25 +994,13 @@ createApp({
         };
 
         const saveToHistory = (toolName, input, output) => {
-            history.value.unshift({
-                toolName,
-                input,
-                output,
-                time: Date.now()
-            });
-            if (history.value.length > 10) {
-                history.value = history.value.slice(0, 10);
-            }
+            history.value.unshift({ toolName, input, output, time: Date.now() });
+            if (history.value.length > 10) history.value = history.value.slice(0, 10);
             localStorage.setItem('knife_history_v10', JSON.stringify(history.value));
         };
 
         const exportData = () => {
-            const data = {
-                config: config.value,
-                history: history.value,
-                draft: inputBody.value,
-                exportTime: new Date().toISOString()
-            };
+            const data = { config: config.value, history: history.value, draft: inputBody.value, exportTime: new Date().toISOString() };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const link = document.createElement('a');
             link.download = `写作瑞士军刀备份_${new Date().toLocaleDateString()}.json`;
@@ -1178,18 +1028,9 @@ createApp({
         };
 
         const runTool = async (tool) => {
-            if (!inputBody.value.trim()) {
-                return showToast('请输入内容', 'error');
-            }
-            
-            if ((tool.id === 'extract' || tool.id === 'mindmap') && inputBody.value.length < 200) {
-                return showToast('内容少于200字，不适合使用此功能', 'error');
-            }
-            
-            if (!config.value.apiKey) { 
-                showConfig.value = true; 
-                return showToast('请先配置 API Key', 'error'); 
-            }
+            if (!inputBody.value.trim()) return showToast('请输入内容', 'error');
+            if ((tool.id === 'extract' || tool.id === 'mindmap') && inputBody.value.length < 200) return showToast('内容少于200字，不适合使用此功能', 'error');
+            if (!config.value.apiKey) { showConfig.value = true; return showToast('请先配置 API Key', 'error'); }
             
             isGenerating.value = true;
             outputBody.value = '';
@@ -1217,40 +1058,27 @@ createApp({
                 const res = await fetch('/api/zonghexiezuo2', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        message: finalInput, 
-                        userKey: config.value.apiKey, 
-                        model: config.value.model,
-                        temperature: parseFloat(config.value.temperature),
-                        toolId: tool.id 
-                    }),
+                    body: JSON.stringify({ message: finalInput, userKey: config.value.apiKey, model: config.value.model, temperature: parseFloat(config.value.temperature), toolId: tool.id }),
                     signal: abortController.signal
                 });
-
                 if (!res.ok) {
                     const errorText = await res.text();
                     throw new Error(errorText || `HTTP ${res.status}`);
                 }
-
                 const reader = res.body.getReader();
                 const decoder = new TextDecoder();
                 let buffer = '';
-                
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    
                     buffer += decoder.decode(value, { stream: true });
                     const lines = buffer.split('\n');
                     buffer = lines.pop() || '';
-                    
                     for (const line of lines) {
                         if (line.trim() === '' || line.trim() === ': heartbeat') continue;
-                        
                         if (line.startsWith('data: ')) {
                             const dataStr = line.substring(6).trim();
                             if (dataStr === '[DONE]') continue;
-                            
                             try {
                                 const data = JSON.parse(dataStr);
                                 if (data.error) throw new Error(data.error.message || '生成出错');
@@ -1262,14 +1090,9 @@ createApp({
                         }
                     }
                 }
-
-                if (outputBody.value) {
-                    saveToHistory(tool.name, inputBody.value, outputBody.value);
-                }
-                
+                if (outputBody.value) saveToHistory(tool.name, inputBody.value, outputBody.value);
             } catch (err) {
-                if (err.name === 'AbortError') {
-                } else {
+                if (err.name !== 'AbortError') {
                     errorMsg.value = err.message || '连接出错';
                     showToast('生成失败: ' + errorMsg.value, 'error');
                 }
@@ -1280,15 +1103,10 @@ createApp({
         };
 
         return { 
-            inputBody, outputBody, renderedOutput, isGenerating, 
-            tools, runTool, currentId, currentName, 
-            generateImage, copyText, stopStream,
-            showConfig, config, saveConfig, showApiKey,
-            scrollBox, toasts, errorMsg,
-            isDark, toggleDark,
-            showHistory, history, loadHistory, clearHistory, formatDate,
-            handleKeydown, retryLast, exportData, clearAllData,
-            lastTool,
+            inputBody, outputBody, renderedOutput, isGenerating, tools, runTool, currentId, currentName, 
+            generateImage, copyText, stopStream, showConfig, config, saveConfig, showApiKey,
+            scrollBox, toasts, errorMsg, isDark, toggleDark, showHistory, history, loadHistory, clearHistory, 
+            formatDate, handleKeydown, retryLast, exportData, clearAllData, lastTool,
             isDesensitize, showMapModal, mapList, removeMapping
         };
     }
@@ -1296,37 +1114,13 @@ createApp({
 </script>
 
 <style>
-/* Vue 过渡动画 */
-.slide-enter-active, .slide-leave-active {
-    transition: all 0.3s ease;
-}
-.slide-enter-from, .slide-leave-to {
-    opacity: 0;
-}
-.slide-enter-from > div:last-child,
-.slide-leave-to > div:last-child {
-    transform: translateX(100%);
-}
-
-.toast-enter-active, .toast-leave-active {
-    transition: all 0.3s ease;
-}
-.toast-enter-from {
-    opacity: 0;
-    transform: translateY(-20px);
-}
-.toast-leave-to {
-    opacity: 0;
-    transform: translateX(100px);
-}
-
-/* 行数限制 */
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
+.slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
+.slide-enter-from, .slide-leave-to { opacity: 0; }
+.slide-enter-from > div:last-child, .slide-leave-to > div:last-child { transform: translateX(100%); }
+.toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
+.toast-enter-from { opacity: 0; transform: translateY(-20px); }
+.toast-leave-to { opacity: 0; transform: translateX(100px); }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 </style>
 <script src="common.js"></script>
 </body>
