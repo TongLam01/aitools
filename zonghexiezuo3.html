@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公文写作扩展工具 V1.6 (隐私保护版)</title>
+    <title>公文写作扩展工具 V1.7 </title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -135,8 +135,10 @@
         }
         .tool-btn i { font-size: 1.25rem; color: var(--text-secondary); transition: color 0.2s; }
         .tool-btn span { 
-            font-size: 10px; font-weight: 700; 
-            color: var(--text-secondary); 
+            /* 优化3：字号加大，颜色加深 */
+            font-size: 12px; font-weight: 700; 
+            color: var(--text-primary); 
+            opacity: 0.8;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -152,11 +154,11 @@
             background: #111827; 
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
         }
-        .tool-btn.active i, .tool-btn.active span { color: white; }
+        .tool-btn.active i, .tool-btn.active span { color: white; opacity: 1; }
 
         @media (max-width: 640px) {
             .tool-btn { padding: 10px 4px; }
-            .tool-btn span { font-size: 9px; }
+            .tool-btn span { font-size: 11px; }
             .tool-btn i { font-size: 1.1rem; }
         }
 
@@ -285,17 +287,11 @@
                 <h1 class="text-base lg:text-lg font-black tracking-tight" :class="isDark ? 'text-white' : 'text-slate-800'">
                     公文写作扩展工具
                 </h1>
-                <p class="text-[10px] text-slate-400 hidden sm:block">Writer Swiss Knife V1.6</p>
+                <p class="text-[10px] text-slate-400 hidden sm:block">Writer Swiss Knife V1.7</p>
             </div>
         </div>
         
         <div class="flex items-center gap-2">
-            <div v-if="inputBody" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs"
-                 :class="isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-500'">
-                <i class="fa-solid fa-calculator"></i>
-                <span>{{ inputBody.length }} 字</span>
-            </div>
-            
             <button @click="showHistory = true" 
                     class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
                     :class="isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-400'"
@@ -326,9 +322,9 @@
                 <div class="flex items-center gap-3">
                     <span class="text-[10px] font-black tracking-widest uppercase"
                           :class="isDark ? 'text-slate-400' : 'text-slate-400'">
-                        Source Material
+                        素材文本
                     </span>
-                    <span v-if="inputBody" class="text-[10px] px-2 py-0.5 rounded-full sm:hidden"
+                    <span v-if="inputBody" class="text-[10px] px-2 py-0.5 rounded-full"
                           :class="isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-500'">
                         {{ inputBody.length }}字
                     </span>
@@ -348,9 +344,10 @@
                         
                         <button v-if="isDesensitize && mapList.length > 0" 
                                 @click="showMapModal = true"
-                                class="w-5 h-5 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 text-xs transition-colors"
+                                class="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 text-[10px] font-bold transition-colors"
                                 title="查看脱敏映射">
                             <i class="fa-solid fa-list-ul"></i>
+                            <span>脱敏映射</span>
                         </button>
                     </div>
 
@@ -373,7 +370,7 @@
                 <div class="flex items-center gap-3">
                     <span class="text-[10px] font-black tracking-widest uppercase"
                           :class="isDark ? 'text-indigo-400' : 'text-black'">
-                        AI Output
+                        AI输出
                     </span>
                     <span v-if="isGenerating" class="status-badge generating">
                         <i class="fa-solid fa-circle-notch fa-spin"></i>
@@ -452,12 +449,7 @@
                 <span>{{ t.name }}</span>
             </button>
         </div>
-        <div class="hidden lg:flex justify-center mt-2 gap-4 text-[10px]" :class="isDark ? 'text-slate-500' : 'text-slate-400'">
-            <span><span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> 快速生成</span>
-            <span><span class="kbd">Ctrl</span> + <span class="kbd">S</span> 保存草稿</span>
-            <span><span class="kbd">Esc</span> 停止生成</span>
-        </div>
-    </footer>
+        </footer>
 
     <div id="poster-wrap">
         <div class="poster-card">
@@ -489,18 +481,29 @@
                             <tr>
                                 <th class="p-4 w-1/3">替换为</th>
                                 <th class="p-4">原始文本</th>
+                                <th class="p-4 w-10">操作</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in mapList" :key="item.placeholder" class="border-b" :class="isDark ? 'border-slate-700' : 'border-slate-50'">
+                            <tr v-for="item in mapList" :key="item.placeholder" class="border-b transition-colors hover:bg-opacity-50" :class="isDark ? 'border-slate-700 hover:bg-slate-700/30' : 'border-slate-50 hover:bg-slate-50'">
                                 <td class="p-4 font-mono font-bold text-emerald-500">{{ item.placeholder }}</td>
                                 <td class="p-4 break-all">{{ item.original }}</td>
+                                <td class="p-4 text-center">
+                                    <button @click="removeMapping(item.original)" 
+                                            class="w-6 h-6 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                            title="取消脱敏此词">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                </td>
                             </tr>
                             <tr v-if="mapList.length === 0">
-                                <td colspan="2" class="p-8 text-center opacity-50">暂无脱敏数据</td>
+                                <td colspan="3" class="p-8 text-center opacity-50">暂无脱敏数据</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="p-4 text-[10px] text-center opacity-60 bg-opacity-10" :class="isDark ? 'bg-black text-slate-400' : 'bg-slate-100 text-slate-500'">
+                    点击 <i class="fa-solid fa-times text-xs"></i> 将保留原词不进行脱敏
                 </div>
             </div>
         </div>
@@ -684,6 +687,7 @@ createApp({
         const isDesensitize = ref(false); 
         const showMapModal = ref(false);
         const mapList = ref([]); // 存储 {original: '', placeholder: ''}
+        const userExcludedTerms = ref(new Set()); // 优化2：用户手动排除的词汇（不进行脱敏）
         
         const config = ref({ 
             apiKey: '', 
@@ -704,7 +708,7 @@ createApp({
             { id: 'mindmap', name: '思维大纲', icon: 'fa-solid fa-diagram-project', desc: '生成可视化思维导图大纲（需200字以上）' }
         ];
 
-        // ============ 核心脱敏逻辑 (移植自V4.2) ============
+        // ============ 核心脱敏逻辑 (优化版V4.3) ============
         const GENERIC_COMPANY_TERMS = new Set([
             '物业公司', '管理公司', '项目公司', '担保公司', '中介公司', 
             '租赁公司', '关联公司', '服务公司', '合作公司', '目标公司',
@@ -730,7 +734,9 @@ createApp({
             '死路', '活路', '末路', '跑路',
             '全部', '内部', '外部', '系统', '阶段', '目标', '函件', '情况', 
             '运行', '进行', '执行', '实行', '完成',
-            '我司', '贵司', '两司'
+            '我司', '贵司', '两司',
+            // 优化2：新增"一道"，防止"运营部全体同事一道"被误识别
+            '一道', '称道', '说道', '一道走'
         ]);
         const ACTION_VERBS = /^(出现|发生|导致|造成|存在|构成|属于|涉嫌|已经|可能|将会|引起|引发|产生|带来|面临|避免|防止|禁止|严禁)/;
         const ABSTRACT_NOUNS = /^(跑路|违约|拖欠|解除|终止|履行|支付|赔偿|损失|转让|协商|沟通|死路|末路|活路|出路|短路|断路|开路|挡路|拦路|带路|引路|迷路|顺路|同路)/;
@@ -778,6 +784,11 @@ createApp({
             const start = Math.max(0, matchIndex - 4);
             const prefix = fullText.substring(start, matchIndex);
             if (ACTION_VERBS.test(prefix)) return true;
+            
+            // 优化2：对地址误判的额外检查 (如 "同事一道")
+            const surrounding = fullText.substring(Math.max(0, matchIndex - 10), Math.min(fullText.length, matchIndex + matchText.length + 10));
+            if (/(?:同事|全体|部门|人员|大家)/.test(surrounding) && /道$/.test(matchText)) return true;
+
             return false;
         };
 
@@ -819,6 +830,10 @@ createApp({
                     let cleanT = rawMatch.trim();
                     cleanT = stripSemanticPrefixes(cleanT, type);
                     if (cleanT.length < 2) continue;
+
+                    // 优化2：检查是否在用户白名单中
+                    if (userExcludedTerms.value.has(cleanT)) continue;
+
                     if (isSemanticFalsePositive(processedText, m.index, cleanT)) continue;
 
                     if (type === 'company') {
@@ -880,7 +895,10 @@ createApp({
 
             let result = processedText;
             for (const item of uniqueItems) {
+                // 再次检查白名单
+                if (userExcludedTerms.value.has(item.text)) continue;
                 if (!result.includes(item.text)) continue;
+
                 let ph;
                 let foundExisting = false;
                 
@@ -959,10 +977,8 @@ createApp({
             }
         });
         
-        // 监听脱敏开关或输入变化，如果开启脱敏，实时更新映射表（不修改原文本，只计算映射）
         watch([inputBody, isDesensitize], ([newInput, newDesensitize]) => {
             if (newDesensitize && newInput) {
-                // 这里调用一次只是为了生成映射表供查看，实际发送时会再调用
                 secureDeIdentify(newInput); 
             } else {
                 mapList.value = [];
@@ -976,32 +992,21 @@ createApp({
 
         // ============ 生命周期 ============
         onMounted(() => {
-            // 加载配置
             const savedConfig = localStorage.getItem('knife_cfg_v10');
             if (savedConfig) {
                 try {
                     config.value = { ...config.value, ...JSON.parse(savedConfig) };
                 } catch (e) {}
             }
-            
-            // 加载草稿
             inputBody.value = localStorage.getItem('knife_draft_v10') || '';
-            
-            // 加载历史
             const savedHistory = localStorage.getItem('knife_history_v10');
             if (savedHistory) {
                 try {
                     history.value = JSON.parse(savedHistory);
                 } catch (e) {}
             }
-            
-            // 加载主题
             isDark.value = localStorage.getItem('knife_dark') === 'true';
-            
-            // 加载上次使用的工具
             lastTool.value = localStorage.getItem('knife_last_tool');
-
-            // 全局键盘事件
             document.addEventListener('keydown', handleGlobalKeydown);
         });
 
@@ -1010,6 +1015,16 @@ createApp({
         });
 
         // ============ 方法定义 ============
+        // 优化2：新增移除映射功能
+        const removeMapping = (original) => {
+            userExcludedTerms.value.add(original); // 加入白名单
+            // 立即重新执行脱敏，更新列表
+            if (inputBody.value && isDesensitize.value) {
+                secureDeIdentify(inputBody.value);
+            }
+            showToast('已取消该词脱敏', 'success');
+        };
+
         const showToast = (message, type = 'info') => {
             const icons = {
                 success: 'fa-solid fa-check-circle',
@@ -1069,7 +1084,6 @@ createApp({
         };
 
         const handleKeydown = (e) => {
-            // Ctrl+Enter 快速生成
             if (e.ctrlKey && e.key === 'Enter') {
                 e.preventDefault();
                 if (lastTool.value && inputBody.value && !isGenerating.value) {
@@ -1080,11 +1094,9 @@ createApp({
         };
 
         const handleGlobalKeydown = (e) => {
-            // Esc 停止生成
             if (e.key === 'Escape' && isGenerating.value) {
                 stopStream();
             }
-            // Ctrl+S 保存
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 localStorage.setItem('knife_draft_v10', inputBody.value);
@@ -1126,7 +1138,6 @@ createApp({
                 output,
                 time: Date.now()
             });
-            // 只保留最近 10 条
             if (history.value.length > 10) {
                 history.value = history.value.slice(0, 10);
             }
@@ -1171,7 +1182,6 @@ createApp({
                 return showToast('请输入内容', 'error');
             }
             
-            // 字数限制检查
             if ((tool.id === 'extract' || tool.id === 'mindmap') && inputBody.value.length < 200) {
                 return showToast('内容少于200字，不适合使用此功能', 'error');
             }
@@ -1190,7 +1200,6 @@ createApp({
             localStorage.setItem('knife_last_tool', tool.id);
             abortController = new AbortController();
 
-            // 核心修改：如果开启了脱敏，在这里处理文本
             let finalInput = inputBody.value;
             if (isDesensitize.value) {
                 try {
@@ -1209,7 +1218,7 @@ createApp({
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        message: finalInput, // 发送处理过的文本
+                        message: finalInput, 
                         userKey: config.value.apiKey, 
                         model: config.value.model,
                         temperature: parseFloat(config.value.temperature),
@@ -1244,15 +1253,9 @@ createApp({
                             
                             try {
                                 const data = JSON.parse(dataStr);
-                                
-                                if (data.error) {
-                                    throw new Error(data.error.message || '生成出错');
-                                }
-                                
+                                if (data.error) throw new Error(data.error.message || '生成出错');
                                 const content = data.choices?.[0]?.delta?.content;
-                                if (content) {
-                                    outputBody.value += content;
-                                }
+                                if (content) outputBody.value += content;
                             } catch (parseErr) {
                                 console.warn('Parse error:', parseErr);
                             }
@@ -1260,14 +1263,12 @@ createApp({
                     }
                 }
 
-                // 保存到历史 (保存原始输入，还是脱敏输入？为了用户体验，建议保存原始输入，但标记已脱敏)
                 if (outputBody.value) {
                     saveToHistory(tool.name, inputBody.value, outputBody.value);
                 }
                 
             } catch (err) {
                 if (err.name === 'AbortError') {
-                    // 用户主动停止
                 } else {
                     errorMsg.value = err.message || '连接出错';
                     showToast('生成失败: ' + errorMsg.value, 'error');
@@ -1288,8 +1289,7 @@ createApp({
             showHistory, history, loadHistory, clearHistory, formatDate,
             handleKeydown, retryLast, exportData, clearAllData,
             lastTool,
-            // 新增返回
-            isDesensitize, showMapModal, mapList
+            isDesensitize, showMapModal, mapList, removeMapping
         };
     }
 }).mount('#app');
