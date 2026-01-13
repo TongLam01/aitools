@@ -17,12 +17,13 @@
             --warning: #ff9500;
             --border: #d2d2d7;
             --wiki-bg: #f2faff;
-            --wiki-core: #fff0f0;
+            --wiki-core: #fff5f5;
             --wiki-active: #f0fff4;
-            --wiki-archive: #f5f5f5;
+            --wiki-archive: #f8f8f8;
             --fact-bg: #fffcf0;
             --header-height: 56px;
             --sidebar-width: 340px;
+            --ai-badge: #9333ea;
         }
 
         * {
@@ -148,7 +149,6 @@
             background: var(--success);
         }
 
-        /* API Key 弹窗 */
         .api-popup {
             position: absolute;
             top: calc(100% + 8px);
@@ -195,7 +195,6 @@
         .api-popup-actions {
             display: flex;
             gap: 8px;
-            align-items: center;
         }
 
         .api-popup-actions .btn {
@@ -214,6 +213,43 @@
 
         .api-help-link:hover {
             text-decoration: underline;
+        }
+
+        /* ========== AI自动标识 ========== */
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #9333ea, #7c3aed);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+
+        .ai-badge::before {
+            content: "🤖";
+            font-size: 10px;
+        }
+
+        .manual-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: var(--text-sub);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+
+        .manual-badge::before {
+            content: "✏️";
+            font-size: 10px;
         }
 
         /* ========== 移动端Tab栏 ========== */
@@ -262,6 +298,8 @@
             width: var(--sidebar-width);
             background: #fbfbfd;
             border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
         }
 
         #dynamic-sidebar {
@@ -359,6 +397,7 @@
             font-size: 16px;
             color: var(--text);
             margin-bottom: 8px;
+            text-transform: none;
         }
 
         #history-empty p {
@@ -430,6 +469,18 @@
             color: var(--text-sub);
             margin-bottom: 4px;
             line-height: 1.4;
+        }
+
+        .sidebar-top {
+            flex-shrink: 0;
+        }
+
+        .sidebar-flex {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow-y: auto;
         }
 
         /* ========== 分层知识库样式 ========== */
@@ -555,6 +606,22 @@
             font-size: 11px;
         }
 
+        .wiki-stats {
+            display: flex;
+            gap: 12px;
+            padding: 8px 14px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            font-size: 10px;
+            color: var(--text-sub);
+        }
+
+        .wiki-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         /* ========== 可折叠输入组 ========== */
         .input-group {
             margin-bottom: 12px;
@@ -605,7 +672,7 @@
         .input-group-preview {
             font-size: 11px;
             color: var(--text-sub);
-            max-width: 100px;
+            max-width: 80px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -639,24 +706,6 @@
 
         .input-group-body textarea {
             margin: 0;
-        }
-
-        /* 侧边栏flex布局 */
-        #static-sidebar {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-top {
-            flex-shrink: 0;
-        }
-
-        .sidebar-flex {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-            overflow-y: auto;
         }
 
         /* 输入框容器 */
@@ -702,6 +751,16 @@
             border-color: #ffbaba;
         }
 
+        /* AI自动生成字段样式 */
+        .input-ai-auto {
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%) !important;
+            border-color: #d8b4fe;
+        }
+
+        .input-ai-auto::placeholder {
+            color: #a78bfa;
+        }
+
         /* 展开按钮 */
         .input-expand-btn {
             padding: 4px 8px;
@@ -724,15 +783,20 @@
         label {
             display: flex;
             align-items: center;
-            justify-content: space-between;
             font-size: 13px;
             font-weight: 600;
             margin: 12px 0 5px 0;
             color: #333;
+            flex-wrap: wrap;
+            gap: 4px;
         }
 
         label:first-child {
             margin-top: 0;
+        }
+
+        .label-right {
+            margin-left: auto;
         }
 
         /* ========== 按钮样式 ========== */
@@ -770,13 +834,13 @@
         }
 
         .btn-update {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important;
             color: white !important;
             width: 100%;
             margin-bottom: 15px;
             padding: 14px;
             height: auto;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
         }
 
         .btn-outline {
@@ -870,7 +934,6 @@
             -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
         }
 
-        /* 章节序号 - 更大更醒目 */
         .serial-number {
             display: block;
             color: var(--danger);
@@ -1019,6 +1082,12 @@
             font-size: 18px;
             cursor: pointer;
             color: var(--text-sub);
+            transition: all 0.2s;
+        }
+
+        .drawer-close:hover {
+            background: var(--danger);
+            color: white;
         }
 
         .drawer-body {
@@ -1102,7 +1171,6 @@
             color: #e0e0e0;
         }
 
-        /* 沉浸模式退出按钮 */
         #exit-immersive {
             position: fixed;
             top: 20px;
@@ -1189,24 +1257,6 @@
             font-size: 11px;
             font-weight: 600;
             border-radius: 4px;
-            margin-left: 8px;
-        }
-
-        /* ========== 知识库统计 ========== */
-        .wiki-stats {
-            display: flex;
-            gap: 12px;
-            padding: 8px 14px;
-            background: var(--bg);
-            border-top: 1px solid var(--border);
-            font-size: 10px;
-            color: var(--text-sub);
-        }
-
-        .wiki-stats span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
         /* ========== 响应式设计 ========== */
@@ -1284,16 +1334,16 @@
     </div>
 
     <!-- 沉浸模式退出按钮 -->
-    <button id="exit-immersive" onclick="NovelTool.toggleImmersive()">
+    <button id="exit-immersive">
         <span>☀️</span> 退出沉浸
     </button>
 
     <!-- 文本编辑抽屉 -->
-    <div class="drawer-overlay" id="drawer-overlay" onclick="NovelTool.closeDrawer()">
+    <div class="drawer-overlay" id="drawer-overlay">
         <div class="drawer-panel" onclick="event.stopPropagation()">
             <div class="drawer-header">
                 <h3 id="drawer-title">编辑内容</h3>
-                <button class="drawer-close" onclick="NovelTool.closeDrawer()">✕</button>
+                <button class="drawer-close" id="drawer-close-btn">✕</button>
             </div>
             <div class="drawer-body">
                 <textarea id="drawer-textarea" placeholder="在此输入内容..."></textarea>
@@ -1301,8 +1351,8 @@
             <div class="drawer-footer">
                 <span class="char-count"><span id="drawer-char-count">0</span> 字</span>
                 <div style="display:flex;gap:10px;">
-                    <button class="btn btn-outline" onclick="NovelTool.closeDrawer()">取消</button>
-                    <button class="btn btn-primary" onclick="NovelTool.saveDrawer()">确认保存</button>
+                    <button class="btn btn-outline" id="drawer-cancel-btn">取消</button>
+                    <button class="btn btn-primary" id="drawer-save-btn">确认保存</button>
                 </div>
             </div>
         </div>
@@ -1314,7 +1364,7 @@
             <div class="header-logo">📚 <span>DeepSeek</span> 小说创作</div>
         </div>
         <div class="header-center">
-            <button class="immersive-btn" onclick="NovelTool.toggleImmersive()">
+            <button class="immersive-btn" id="immersive-btn">
                 🌙 沉浸写作
             </button>
         </div>
@@ -1325,7 +1375,7 @@
                 <span>字</span>
             </div>
             <div style="position:relative;">
-                <button class="api-key-btn" id="api-key-btn" onclick="NovelTool.toggleApiPopup()">
+                <button class="api-key-btn" id="api-key-btn">
                     <span class="api-key-status"></span>
                     <span>API Key</span>
                 </button>
@@ -1333,8 +1383,8 @@
                     <h4>🔑 配置 DeepSeek API Key</h4>
                     <input type="password" id="apiKey" placeholder="sk-xxxxxxxxxxxxxxxx">
                     <div class="api-popup-actions">
-                        <button class="btn btn-primary btn-sm" onclick="NovelTool.saveApiKey()">保存</button>
-                        <button class="btn btn-outline btn-sm" onclick="NovelTool.toggleApiPopup()">取消</button>
+                        <button class="btn btn-primary btn-sm" id="save-api-btn">保存</button>
+                        <button class="btn btn-outline btn-sm" id="cancel-api-btn">取消</button>
                     </div>
                     <a href="https://platform.deepseek.com/api_keys" target="_blank" class="api-help-link">
                         🔗 如何获取 API Key？→ DeepSeek 官网申请
@@ -1346,31 +1396,30 @@
 
     <!-- 移动端Tab栏 -->
     <div id="mobile-tabs">
-        <div class="tab-item" onclick="NovelTool.switchTab('static-sidebar', this)">设定</div>
-        <div class="tab-item active" onclick="NovelTool.switchTab('main-container', this)">创作</div>
-        <div class="tab-item" onclick="NovelTool.switchTab('dynamic-sidebar', this)">导演</div>
+        <div class="tab-item" data-panel="static-sidebar">设定</div>
+        <div class="tab-item active" data-panel="main-container">创作</div>
+        <div class="tab-item" data-panel="dynamic-sidebar">导演</div>
     </div>
 
     <div id="layout-wrapper">
         <!-- 左侧面板：静态设定 -->
         <div class="panel" id="static-sidebar">
-            <!-- 顶部固定区域 -->
             <div class="sidebar-top">
-                <label>📖 小说名字</label>
+                <label>📖 小说名字 <span class="manual-badge">手动</span></label>
                 <input type="text" id="novel-title" placeholder="请输入小说名">
                 <hr class="divider">
             </div>
 
-            <!-- 可伸缩区域 -->
             <div class="sidebar-flex">
                 <!-- 分层知识库 -->
                 <div class="wiki-container">
                     <!-- 核心层 -->
                     <div class="wiki-section wiki-core" id="wiki-core-section">
-                        <div class="wiki-section-header" onclick="NovelTool.toggleWikiSection('wiki-core-section')">
+                        <div class="wiki-section-header" data-section="wiki-core-section">
                             <div class="wiki-section-header-left">
                                 <span class="dot"></span>
-                                <span>🔴 核心设定（永久）</span>
+                                <span>🔴 核心设定</span>
+                                <span class="manual-badge">手动</span>
                             </div>
                             <div class="wiki-section-header-right">
                                 <span class="wiki-char-count" id="wiki-core-count">0字</span>
@@ -1378,16 +1427,17 @@
                             </div>
                         </div>
                         <div class="wiki-section-body">
-                            <textarea id="wikiCore" placeholder="主角核心设定、世界观基础、核心冲突...&#10;（建议控制在500字以内，始终保留）"></textarea>
+                            <textarea id="wikiCore" placeholder="主角核心设定、世界观基础、核心冲突...&#10;（建议≤500字，始终保留不变）"></textarea>
                         </div>
                     </div>
 
                     <!-- 活跃层 -->
                     <div class="wiki-section wiki-active" id="wiki-active-section">
-                        <div class="wiki-section-header" onclick="NovelTool.toggleWikiSection('wiki-active-section')">
+                        <div class="wiki-section-header" data-section="wiki-active-section">
                             <div class="wiki-section-header-left">
                                 <span class="dot"></span>
-                                <span>🟢 活跃记忆（近期）</span>
+                                <span>🟢 活跃记忆</span>
+                                <span class="ai-badge">AI自动</span>
                             </div>
                             <div class="wiki-section-header-right">
                                 <span class="wiki-char-count" id="wiki-active-count">0字</span>
@@ -1395,13 +1445,13 @@
                             </div>
                         </div>
                         <div class="wiki-section-body">
-                            <textarea id="wikiActive" placeholder="═══ 第N章相关 ═══&#10;[人物] ...&#10;[地点] ...&#10;[物品] ...&#10;（当前剧情相关，AI自动更新）"></textarea>
+                            <textarea id="wikiActive" class="input-ai-auto" placeholder="点击「智能同步知识库」按钮后，AI会自动填充：&#10;═══════ 第N章 ═══════&#10;┄┄┄ 人物 ┄┄┄&#10;• 角色名：特征描述&#10;┄┄┄ 地点 ┄┄┄&#10;• 地名：场景描述"></textarea>
                         </div>
                     </div>
 
                     <!-- 归档层 -->
                     <div class="wiki-section wiki-archive collapsed" id="wiki-archive-section">
-                        <div class="wiki-section-header" onclick="NovelTool.toggleWikiSection('wiki-archive-section')">
+                        <div class="wiki-section-header" data-section="wiki-archive-section">
                             <div class="wiki-section-header-left">
                                 <span class="dot"></span>
                                 <span>📦 历史归档</span>
@@ -1412,15 +1462,15 @@
                             </div>
                         </div>
                         <div class="wiki-section-body">
-                            <textarea id="wikiArchive" placeholder="═══ 第1-N章归档 ═══&#10;[已离场人物] ...&#10;[已结束事件] ...&#10;（历史信息，需要时可查阅）"></textarea>
+                            <textarea id="wikiArchive" placeholder="旧章节的归档信息...&#10;（点击「归档旧内容」将活跃记忆移至此处）"></textarea>
                         </div>
                     </div>
 
                     <!-- 知识库操作 -->
                     <div class="wiki-actions">
-                        <button class="btn btn-outline btn-xs" onclick="NovelTool.openDrawer('wikiCore', '核心设定')">编辑核心</button>
-                        <button class="btn btn-outline btn-xs" onclick="NovelTool.openDrawer('wikiActive', '活跃记忆')">编辑活跃</button>
-                        <button class="btn btn-outline btn-xs" onclick="NovelTool.archiveWiki()">归档旧内容</button>
+                        <button class="btn btn-outline btn-xs" data-expand="wikiCore" data-title="核心设定">编辑核心</button>
+                        <button class="btn btn-outline btn-xs" data-expand="wikiActive" data-title="活跃记忆">编辑活跃</button>
+                        <button class="btn btn-outline btn-xs" id="archive-wiki-btn">归档旧内容</button>
                     </div>
 
                     <!-- 知识库统计 -->
@@ -1430,16 +1480,17 @@
                     </div>
                 </div>
 
-                <!-- 世界观 - 可折叠 -->
+                <!-- 世界观 -->
                 <div class="input-group collapsed" id="worldview-group">
-                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('worldview-group')">
+                    <div class="input-group-header" data-group="worldview-group">
                         <div class="input-group-header-left">
                             <span class="icon">🌍</span>
                             <span>世界观</span>
+                            <span class="manual-badge">手动</span>
                         </div>
                         <div class="input-group-header-right">
                             <span class="input-group-preview" id="worldview-preview"></span>
-                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('worldView', '世界观设定')">展开</button>
+                            <button class="input-expand-btn" data-expand="worldView" data-title="世界观设定">展开</button>
                             <span class="input-group-toggle">▼</span>
                         </div>
                     </div>
@@ -1448,16 +1499,17 @@
                     </div>
                 </div>
 
-                <!-- 角色档案 - 可折叠 -->
+                <!-- 角色档案 -->
                 <div class="input-group collapsed" id="character-group">
-                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('character-group')">
+                    <div class="input-group-header" data-group="character-group">
                         <div class="input-group-header-left">
                             <span class="icon">👤</span>
                             <span>角色档案</span>
+                            <span class="manual-badge">手动</span>
                         </div>
                         <div class="input-group-header-right">
                             <span class="input-group-preview" id="character-preview"></span>
-                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('characterBible', '核心角色档案')">展开</button>
+                            <button class="input-expand-btn" data-expand="characterBible" data-title="核心角色档案">展开</button>
                             <span class="input-group-toggle">▼</span>
                         </div>
                     </div>
@@ -1466,16 +1518,17 @@
                     </div>
                 </div>
 
-                <!-- 文风 - 可折叠 -->
+                <!-- 文风 -->
                 <div class="input-group collapsed" id="style-group">
-                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('style-group')">
+                    <div class="input-group-header" data-group="style-group">
                         <div class="input-group-header-left">
                             <span class="icon">🎨</span>
                             <span>文风</span>
+                            <span class="manual-badge">手动</span>
                         </div>
                         <div class="input-group-header-right">
                             <span class="input-group-preview" id="style-preview"></span>
-                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('styleRef', '文学风格参考')">展开</button>
+                            <button class="input-expand-btn" data-expand="styleRef" data-title="文学风格参考">展开</button>
                             <span class="input-group-toggle">▼</span>
                         </div>
                     </div>
@@ -1484,16 +1537,17 @@
                     </div>
                 </div>
 
-                <!-- 禁止事项 - 可折叠 -->
+                <!-- 禁止事项 -->
                 <div class="input-group collapsed" id="negative-group">
-                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('negative-group')">
+                    <div class="input-group-header" data-group="negative-group">
                         <div class="input-group-header-left">
                             <span class="icon">🚫</span>
                             <span>禁止事项</span>
+                            <span class="manual-badge">手动</span>
                         </div>
                         <div class="input-group-header-right">
                             <span class="input-group-preview" id="negative-preview"></span>
-                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('negativePrompt', '写作禁忌')">展开</button>
+                            <button class="input-expand-btn" data-expand="negativePrompt" data-title="写作禁忌">展开</button>
                             <span class="input-group-toggle">▼</span>
                         </div>
                     </div>
@@ -1510,7 +1564,8 @@
                 <div class="editor-header">
                     <div class="editor-header-left">
                         <span>📝 上文接力（建议200-500字）</span>
-                        <button class="expand-btn" onclick="NovelTool.openDrawer('novel-content', '上一章内容接力')">展开编辑</button>
+                        <span class="manual-badge">手动</span>
+                        <button class="expand-btn" data-expand="novel-content" data-title="上一章内容接力">展开编辑</button>
                     </div>
                     <span id="editor-count">0 字</span>
                 </div>
@@ -1528,33 +1583,36 @@
 
             <div id="control-bar">
                 <input type="text" id="prompt-input" placeholder="输入创作指令：续写、扩写某段、加入某情节...">
-                <button id="btn-gen" class="btn btn-primary" onclick="NovelTool.generate()">🎬 开搞</button>
-                <button id="btn-stop" class="btn btn-stop" style="display:none;" onclick="NovelTool.stop()">⏹ 停止</button>
+                <button id="btn-gen" class="btn btn-primary">🎬 开搞</button>
+                <button id="btn-stop" class="btn btn-stop" style="display:none;">⏹ 停止</button>
             </div>
         </div>
 
         <!-- 右侧面板：动态控制 -->
         <div class="panel" id="dynamic-sidebar">
-            <button class="btn btn-update" onclick="NovelTool.smartUpdateMemory()">
+            <button class="btn btn-update" id="btn-update-memory">
                 <span id="update-btn-text">🧠 智能同步知识库</span>
             </button>
+            <div class="tips" style="text-align:center;margin-top:-10px;margin-bottom:15px;">点击上方按钮，AI将自动更新「活跃记忆」「前情摘要」「事实档案」</div>
 
             <label>
                 📋 事实档案（全局累积）
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('statusTracker', '事实档案')">展开</button>
+                <span class="ai-badge">AI自动</span>
+                <button class="input-expand-btn label-right" data-expand="statusTracker" data-title="事实档案">展开</button>
             </label>
             <div class="tips">记录每章不可逆改变，格式：[第X章] 事件</div>
             <div class="input-wrapper">
-                <textarea id="statusTracker" rows="4" class="input-fact" placeholder="[第1章] XXX死亡&#10;[第2章] 主角获得神器&#10;[第3章] 与XX结盟"></textarea>
+                <textarea id="statusTracker" rows="4" class="input-fact input-ai-auto" placeholder="点击「智能同步知识库」后AI自动填充：&#10;[第1章] XXX死亡&#10;[第2章] 主角获得神器"></textarea>
             </div>
 
             <label>
                 📜 前情摘要
+                <span class="ai-badge">AI自动</span>
                 <span class="chapter-tag" id="summary-chapter-tag">第?章</span>
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('contextSummary', '前情摘要')">展开</button>
+                <button class="input-expand-btn label-right" data-expand="contextSummary" data-title="前情摘要">展开</button>
             </label>
             <div class="input-wrapper">
-                <textarea id="contextSummary" rows="3" placeholder="（第N章）剧情概要..."></textarea>
+                <textarea id="contextSummary" rows="3" class="input-ai-auto" placeholder="点击「智能同步知识库」后AI自动填充：&#10;（第N章）剧情概要..."></textarea>
             </div>
 
             <div id="coherence-check" class="coherence-indicator" style="display:none;">
@@ -1566,7 +1624,8 @@
 
             <label style="color: var(--accent);">
                 🎯 本段目标
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('sceneGoal', '本段目标')">展开</button>
+                <span class="manual-badge">手动</span>
+                <button class="input-expand-btn label-right" data-expand="sceneGoal" data-title="本段目标">展开</button>
             </label>
             <div class="input-wrapper">
                 <textarea id="sceneGoal" rows="2" placeholder="这一场的核心冲突/要推进的剧情点..."></textarea>
@@ -1574,7 +1633,8 @@
 
             <label style="color: var(--danger);">
                 ⚡ 必须包含
-                <button class="input-expand-btn" onclick="NovelTool.openDrawer('mustInclude', '必须包含的元素')">展开</button>
+                <span class="manual-badge">手动</span>
+                <button class="input-expand-btn label-right" data-expand="mustInclude" data-title="必须包含的元素">展开</button>
             </label>
             <div class="input-wrapper">
                 <textarea id="mustInclude" rows="2" class="input-must" placeholder="关键道具、必须出现的角色、要埋的伏笔..."></textarea>
@@ -1625,14 +1685,12 @@
                 </div>
             </div>
 
-            <button class="btn btn-outline" style="width:100%; margin-top:15px;" onclick="NovelTool.downloadFullDraft()">
+            <button class="btn btn-outline" style="width:100%; margin-top:15px;" id="btn-export">
                 📥 导出全本小说 (.doc)
             </button>
         </div>
     </div>
 
-    <!-- 引入外部JS文件 -->
-    <script src="xiaoshuo.js"></script>
-    <script src="common.js"></script>
+    <script src="/js/xiaoshuo.js"></script>
 </body>
 </html>
