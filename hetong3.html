@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V6.0 (终极纯净版)</title>
+    <title>商事合同诊断助手 V4.1 (深度净化版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -78,8 +78,8 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v6.0</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">Word专用 · 强力去噪 · 精准脱敏</p>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v4.1</span></h1>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义深度净化</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -118,7 +118,7 @@
                             <label class="block text-sm font-medium text-gray-700">合同文本/脱敏预览</label>
                             <button onclick="triggerAutoDesensitize()" class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center space-x-1 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
-                                <span>自动脱敏</span>
+                                <span>点击脱敏</span>
                             </button>
                         </div>
                         <textarea id="contractText" rows="6" class="input-field resize-none text-xs font-mono leading-relaxed" placeholder="打开文档后自动执行脱敏..."></textarea>
@@ -181,8 +181,7 @@
             '物流公司', '快递公司', '搬家公司', '清洁公司', '保洁公司',
             '安保公司', '劳务公司', '派遣公司', '外包公司', '代理公司',
             '分公司', '子公司', '母公司', '总公司', '控股公司',
-            '上市公司', '国有公司', '民营公司', '外资公司', '合资公司',
-            '老年人服务中心', '服务中心', '活动中心', '党群服务中心', '社区中心'
+            '上市公司', '国有公司', '民营公司', '外资公司', '合资公司'
         ]);
 
         // 【B】泛指前缀模式
@@ -251,43 +250,12 @@
             return clean;
         }
 
-        // --- 【核心函数】智能前缀剥离 (V5.4: 增强列表) ---
-        function stripSemanticPrefixes(text, type) {
-            let cleaned = text;
-            
-            // 地址前缀剥离 (包含: 我, 贵, 两, 司, 权属, 单位, 项, 是, 为, 数字, 动词)
-            const addrRegex = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供|我|贵|两|司|权属|单位|项|是|[\d]+|个|处|宗)+(?:\s*)/;
-
-            // 公司前缀剥离 (包含: 权属, 单位, 为, 物业, 2, 项)
-            const compRegex = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要|该|此|某|该等|因|未|并|且|或|即|另|自行|另行|主动|接受|拒绝|配合|提供|权属|单位|是|物业|[\d]+|项|个|处|宗)+(?:\s*)/;
-
-            if (type === 'address') {
-                cleaned = cleaned.replace(addrRegex, "");
-            } else if (type === 'company') {
-                cleaned = cleaned.replace(compRegex, "");
-            }
-            return cleaned;
-        }
-
-        function hasContractContext(fullText, matchIndex, matchText) {
-            const start = Math.max(0, matchIndex - 15);
-            const end = Math.min(fullText.length, matchIndex + matchText.length + 15);
-            const contextWindow = fullText.substring(start, end);
-            return CONTRACT_CONTEXT_KEYWORDS.test(contextWindow);
-        }
-
-        function isSemanticFalsePositive(fullText, matchIndex, matchText) {
-            if (ABSTRACT_NOUNS.test(matchText)) return true;
-            const start = Math.max(0, matchIndex - 4);
-            const prefix = fullText.substring(start, matchIndex);
-            if (ACTION_VERBS.test(prefix)) return true;
-            return false;
-        }
-
+        // --- 核心修复：语义角色判定 ---
         function isGenericCompanyReference(fullText, matchIndex, matchText) {
             if (GENERIC_COMPANY_TERMS.has(matchText)) {
                 const prefixStart = Math.max(0, matchIndex - 20);
                 const prefixContext = fullText.substring(prefixStart, matchIndex);
+                // 除非前面明确说 "名称为："，否则只要是泛指词汇，一律视为泛指（不脱敏）
                 if (SPECIFIC_COMPANY_INDICATORS.test(prefixContext)) {
                     return false;
                 }
@@ -307,6 +275,38 @@
                 }
             }
             return true;
+        }
+
+        // --- 语义剥离增强版 V4.1 ---
+        // 增加：因、未、并、且、或、即、若、如、另、自行、另行、主动、接受、拒绝、配合、提供
+        function stripSemanticPrefixes(text, type) {
+            let cleaned = text;
+            
+            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供)+(?:\s*)/;
+            
+            const companyPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要|该|此|某|该等|因|未|并|且|或|即|另|自行|另行|主动|接受|拒绝|配合|提供)+(?:\s*)/;
+
+            if (type === 'address') {
+                cleaned = cleaned.replace(commonPrefixes, "");
+            } else if (type === 'company') {
+                cleaned = cleaned.replace(companyPrefixes, "");
+            }
+            return cleaned;
+        }
+
+        function hasContractContext(fullText, matchIndex, matchText) {
+            const start = Math.max(0, matchIndex - 15);
+            const end = Math.min(fullText.length, matchIndex + matchText.length + 15);
+            const contextWindow = fullText.substring(start, end);
+            return CONTRACT_CONTEXT_KEYWORDS.test(contextWindow);
+        }
+
+        function isSemanticFalsePositive(fullText, matchIndex, matchText) {
+            if (ABSTRACT_NOUNS.test(matchText)) return true;
+            const start = Math.max(0, matchIndex - 4);
+            const prefix = fullText.substring(start, matchIndex);
+            if (ACTION_VERBS.test(prefix)) return true;
+            return false;
         }
 
         function updateStats() {
@@ -376,15 +376,18 @@
                     // 2. 语义否定
                     if (isSemanticFalsePositive(processedText, m.index, cleanT)) continue;
 
-                    // 3. 泛指/有效性检查
+                    // 3. 泛指/有效性检查 (V4.1: 新增后缀检测)
                     if (type === 'company') {
                         if (isGenericCompanyReference(processedText, m.index, cleanT)) continue;
                         if (!isValidCompanyName(cleanT)) continue;
-                        let isSuffixGeneric = false;
+                        // 后缀安全检查：如果剥离后以"物业公司"结尾，且长度很短，强制丢弃
                         for (let term of GENERIC_COMPANY_TERMS) {
-                            if (cleanT === term) { isSuffixGeneric = true; break; }
+                            if (cleanT.endsWith(term) && cleanT.length < term.length + 3) {
+                                // 比如 "新物业公司" (5字) vs "物业公司" (4字)，太短了，大概率泛指
+                                // 这里设定阈值+3，即必须是 "新新新物业公司" 这样才被认为是特指
+                                continue; 
+                            }
                         }
-                        if (isSuffixGeneric) continue;
                     }
 
                     // 4. 黑名单强校验
@@ -509,7 +512,141 @@
             }
         }
 
-        document.getElementById('followUpInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendFollowUp(); });
+        // ==================== 5. 事件监听 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            const k = localStorage.getItem('ds_api_key');
+            if (k) document.getElementById('apiKey').value = k;
+
+            document.getElementById('fileInput').addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.name.match(/\.(docx?)$/i)) {
+                    alert('不支持的文件格式。仅支持 .doc / .docx 文件。');
+                    e.target.value = '';
+                    return;
+                }
+                resetDesensitizationState();
+                originalFileName = file.name.replace(/\.[^/.]+$/, "");
+                document.getElementById('fileStatus').innerHTML = `<span class="text-emerald-600">${file.name}</span>`;
+                try {
+                    const ab = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer: ab });
+                    document.getElementById('contractText').value = secureDeIdentify(result.value);
+                } catch (err) {
+                    alert('文档解析失败: ' + err.message);
+                    console.error(err);
+                }
+            });
+
+            const ua = document.getElementById('uploadArea');
+            ['dragenter','dragover','dragleave','drop'].forEach(e => document.body.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }, false));
+            ['dragenter','dragover'].forEach(e => ua.addEventListener(e, () => ua.classList.add('drag-over'), false));
+            ['dragleave','drop'].forEach(e => ua.addEventListener(e, () => ua.classList.remove('drag-over'), false));
+            ua.addEventListener('drop', e => {
+                const f = e.dataTransfer.files[0];
+                if (f) {
+                    if (f.name.match(/\.(docx?)$/i)) {
+                        const dt = new DataTransfer(); dt.items.add(f);
+                        document.getElementById('fileInput').files = dt.files;
+                        document.getElementById('fileInput').dispatchEvent(new Event('change', { bubbles: true }));
+                    } else {
+                        alert('不支持的文件格式。请上传 .doc / .docx 文件。');
+                    }
+                }
+            }, false);
+
+            document.getElementById('followUpInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendFollowUp(); });
+        });
+
+        async function startInitialAudit() {
+            const role = document.getElementById('role').value;
+            const focus = document.getElementById('focus').value;
+            const ta = document.getElementById('contractText');
+            const key = document.getElementById('apiKey').value;
+            let txt = ta.value.trim();
+            if (!key) { toggleSettings(); return alert('请先设置 API Key'); }
+            if (!txt || !focus) return alert('请确保合同文本和关注点已填写');
+            
+            if (autoDesensitizeEnabled && !txt.includes('[企业')) {
+                try {
+                    txt = secureDeIdentify(txt);
+                    ta.value = txt;
+                } catch(e) { console.error(e); }
+            }
+            
+            localStorage.setItem('ds_api_key', key);
+            document.getElementById('reportOutput').innerHTML = '';
+            document.getElementById('followUpZone').classList.remove('hidden');
+            chatHistory = [{ role: 'user', content: `【身份】：${role}\n【特别关注】：${focus}\n\n【合同文本】：\n${txt}` }];
+            await callAI(chatHistory);
+        }
+
+        async function sendFollowUp() {
+            const inp = document.getElementById('followUpInput');
+            const q = inp.value.trim();
+            if (!q) return;
+            const mq = secureDeIdentify(q);
+            inp.value = '';
+            const qDiv = document.createElement('div');
+            qDiv.className = 'bg-emerald-50 p-4 rounded-xl mb-6 text-sm border-l-4 border-emerald-400';
+            qDiv.innerHTML = `<span class="text-emerald-700 font-medium">追问：</span> ${mq}`;
+            document.getElementById('reportOutput').appendChild(qDiv);
+            chatHistory.push({ role: 'user', content: mq });
+            await callAI(chatHistory);
+        }
+
+        async function callAI(msgs) {
+            const key = document.getElementById('apiKey').value || localStorage.getItem('ds_api_key');
+            const model = document.getElementById('model').value;
+            const out = document.getElementById('reportOutput');
+            const btn = document.getElementById('exportBtn');
+            btn.disabled = true;
+            btn.className = "btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
+            const div = document.createElement('div');
+            div.className = 'mb-8';
+            div.innerHTML = `<div class="flex items-center space-x-3 text-emerald-600 py-6 thinking-indicator"><svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="font-medium">AI 正在深度分析...</span></div>`;
+            out.appendChild(div);
+            document.getElementById('chatScrollZone').scrollTop = 1e9;
+            let full = '', started = false;
+            try {
+                const res = await fetch('/api/hetong.js', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userKey: key, messages: msgs, model })
+                });
+                const reader = res.body.getReader();
+                const dec = new TextDecoder();
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    for (const line of dec.decode(value).split('\n')) {
+                        if (line.startsWith('data: ') && line.slice(6) !== '[DONE]') {
+                            try {
+                                const d = JSON.parse(line.slice(6)).choices?.[0]?.delta?.content || '';
+                                if (d) {
+                                    if (!started) { div.innerHTML = ''; started = true; }
+                                    full += d;
+                                    div.innerHTML = marked.parse(full);
+                                    document.getElementById('chatScrollZone').scrollTop = 1e9;
+                                }
+                            } catch {}
+                        }
+                    }
+                }
+                chatHistory.push({ role: 'assistant', content: full });
+                btn.disabled = false;
+                btn.className = "btn-export-active px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all";
+            } catch (e) {
+                div.innerHTML = `<p class="text-red-500">连接异常: ${e.message}</p>`;
+                btn.disabled = false;
+            }
+        }
+
+        function exportToWord() {
+            const c = document.getElementById('reportOutput').innerHTML;
+            const h = `<html><head><meta charset='utf-8'><style>body{font-family:'SimSun',serif;font-size:10.5pt}table{width:100%;border-collapse:collapse;margin:1em 0}th,td{border:1pt solid black;padding:6pt}h1{text-align:center}h2{color:#059669}</style></head><body><h1>合同审核报告</h1><p style='text-align:right'>关联：${originalFileName}</p><hr>${c}</body></html>`;
+            saveAs(new Blob(['\ufeff', h], { type: 'application/msword' }), `${originalFileName}_诊断报告.doc`);
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 </body>
