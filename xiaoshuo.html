@@ -17,9 +17,12 @@
             --warning: #ff9500;
             --border: #d2d2d7;
             --wiki-bg: #f2faff;
+            --wiki-core: #fff0f0;
+            --wiki-active: #f0fff4;
+            --wiki-archive: #f5f5f5;
             --fact-bg: #fffcf0;
             --header-height: 56px;
-            --sidebar-width: 320px;
+            --sidebar-width: 340px;
         }
 
         * {
@@ -429,6 +432,129 @@
             line-height: 1.4;
         }
 
+        /* ========== 分层知识库样式 ========== */
+        .wiki-container {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--card);
+            margin-bottom: 12px;
+        }
+
+        .wiki-section {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .wiki-section:last-child {
+            border-bottom: none;
+        }
+
+        .wiki-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .wiki-section-header:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .wiki-section-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .wiki-section-header-left .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .wiki-core .dot { background: var(--danger); }
+        .wiki-active .dot { background: var(--success); }
+        .wiki-archive .dot { background: var(--text-sub); }
+
+        .wiki-section-header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .wiki-char-count {
+            font-size: 10px;
+            color: var(--text-sub);
+            background: var(--bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .wiki-toggle {
+            font-size: 10px;
+            color: var(--text-sub);
+            transition: transform 0.2s;
+        }
+
+        .wiki-section.collapsed .wiki-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .wiki-section-body {
+            display: block;
+        }
+
+        .wiki-section.collapsed .wiki-section-body {
+            display: none;
+        }
+
+        .wiki-section-body textarea {
+            width: 100%;
+            border: none;
+            border-radius: 0;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            font-family: "Menlo", "Monaco", monospace;
+        }
+
+        .wiki-core .wiki-section-body textarea {
+            background: var(--wiki-core);
+            min-height: 80px;
+        }
+
+        .wiki-active .wiki-section-body textarea {
+            background: var(--wiki-active);
+            min-height: 100px;
+        }
+
+        .wiki-archive .wiki-section-body textarea {
+            background: var(--wiki-archive);
+            min-height: 60px;
+            color: #666;
+        }
+
+        .wiki-actions {
+            display: flex;
+            gap: 6px;
+            padding: 10px 14px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+        }
+
+        .wiki-actions .btn {
+            flex: 1;
+            height: 32px;
+            font-size: 11px;
+        }
+
         /* ========== 可折叠输入组 ========== */
         .input-group {
             margin-bottom: 12px;
@@ -515,25 +641,6 @@
             margin: 0;
         }
 
-        /* 知识库特殊样式 - 自动扩展 */
-        #wiki-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 200px;
-        }
-
-        #wiki-group .input-group-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #wiki-group .input-group-body textarea {
-            flex: 1;
-            min-height: 150px;
-        }
-
         /* 侧边栏flex布局 */
         #static-sidebar {
             display: flex;
@@ -549,6 +656,7 @@
             display: flex;
             flex-direction: column;
             min-height: 0;
+            overflow-y: auto;
         }
 
         /* 输入框容器 */
@@ -559,6 +667,7 @@
         textarea,
         input[type="text"],
         input[type="password"],
+        input[type="number"],
         select {
             width: 100%;
             border: 1px solid var(--border);
@@ -581,16 +690,6 @@
         textarea::placeholder,
         input::placeholder {
             color: #b0b0b5;
-        }
-
-        .input-wiki {
-            background-color: var(--wiki-bg) !important;
-            border-color: #bce3ff;
-            color: #004085;
-            font-size: 13px;
-            font-family: "Menlo", "Monaco", monospace;
-            border: none;
-            border-radius: 0;
         }
 
         .input-fact {
@@ -697,6 +796,12 @@
             padding: 0 10px;
         }
 
+        .btn-xs {
+            height: 26px;
+            font-size: 10px;
+            padding: 0 8px;
+        }
+
         .btn-stop {
             background: linear-gradient(135deg, #ff416c, #ff4b2b);
             color: white;
@@ -765,7 +870,7 @@
             -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
         }
 
-        /* 章节序号 - 更大更醒目，仅在正文中显示 */
+        /* 章节序号 - 更大更醒目 */
         .serial-number {
             display: block;
             color: var(--danger);
@@ -1087,10 +1192,27 @@
             margin-left: 8px;
         }
 
+        /* ========== 知识库统计 ========== */
+        .wiki-stats {
+            display: flex;
+            gap: 12px;
+            padding: 8px 14px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            font-size: 10px;
+            color: var(--text-sub);
+        }
+
+        .wiki-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         /* ========== 响应式设计 ========== */
         @media (max-width: 900px) {
             :root {
-                --sidebar-width: 280px;
+                --sidebar-width: 300px;
             }
         }
 
@@ -1241,21 +1363,70 @@
 
             <!-- 可伸缩区域 -->
             <div class="sidebar-flex">
-                <!-- 智能知识库 - 自动扩展 -->
-                <div class="input-group" id="wiki-group">
-                    <div class="input-group-header" onclick="NovelTool.toggleInputGroup('wiki-group')">
-                        <div class="input-group-header-left">
-                            <span class="icon">📘</span>
-                            <span>智能知识库</span>
+                <!-- 分层知识库 -->
+                <div class="wiki-container">
+                    <!-- 核心层 -->
+                    <div class="wiki-section wiki-core" id="wiki-core-section">
+                        <div class="wiki-section-header" onclick="NovelTool.toggleWikiSection('wiki-core-section')">
+                            <div class="wiki-section-header-left">
+                                <span class="dot"></span>
+                                <span>🔴 核心设定（永久）</span>
+                            </div>
+                            <div class="wiki-section-header-right">
+                                <span class="wiki-char-count" id="wiki-core-count">0字</span>
+                                <span class="wiki-toggle">▼</span>
+                            </div>
                         </div>
-                        <div class="input-group-header-right">
-                            <button class="input-expand-btn" onclick="event.stopPropagation(); NovelTool.openDrawer('entityMemory', '智能知识库 (Auto-Wiki)')">展开</button>
-                            <span class="input-group-toggle">▼</span>
+                        <div class="wiki-section-body">
+                            <textarea id="wikiCore" placeholder="主角核心设定、世界观基础、核心冲突...&#10;（建议控制在500字以内，始终保留）"></textarea>
                         </div>
                     </div>
-                    <div class="input-group-body">
-                        <div class="tips">AI 自动提取人物/物品/伏笔，保持连贯性</div>
-                        <textarea id="entityMemory" class="input-wiki" placeholder="[人物] 张三：性格沉稳...&#10;[物品] 金箍棒：重一万三千五百斤...&#10;[伏笔] 神秘信件：内容未知..."></textarea>
+
+                    <!-- 活跃层 -->
+                    <div class="wiki-section wiki-active" id="wiki-active-section">
+                        <div class="wiki-section-header" onclick="NovelTool.toggleWikiSection('wiki-active-section')">
+                            <div class="wiki-section-header-left">
+                                <span class="dot"></span>
+                                <span>🟢 活跃记忆（近期）</span>
+                            </div>
+                            <div class="wiki-section-header-right">
+                                <span class="wiki-char-count" id="wiki-active-count">0字</span>
+                                <span class="wiki-toggle">▼</span>
+                            </div>
+                        </div>
+                        <div class="wiki-section-body">
+                            <textarea id="wikiActive" placeholder="═══ 第N章相关 ═══&#10;[人物] ...&#10;[地点] ...&#10;[物品] ...&#10;（当前剧情相关，AI自动更新）"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 归档层 -->
+                    <div class="wiki-section wiki-archive collapsed" id="wiki-archive-section">
+                        <div class="wiki-section-header" onclick="NovelTool.toggleWikiSection('wiki-archive-section')">
+                            <div class="wiki-section-header-left">
+                                <span class="dot"></span>
+                                <span>📦 历史归档</span>
+                            </div>
+                            <div class="wiki-section-header-right">
+                                <span class="wiki-char-count" id="wiki-archive-count">0字</span>
+                                <span class="wiki-toggle">▼</span>
+                            </div>
+                        </div>
+                        <div class="wiki-section-body">
+                            <textarea id="wikiArchive" placeholder="═══ 第1-N章归档 ═══&#10;[已离场人物] ...&#10;[已结束事件] ...&#10;（历史信息，需要时可查阅）"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 知识库操作 -->
+                    <div class="wiki-actions">
+                        <button class="btn btn-outline btn-xs" onclick="NovelTool.openDrawer('wikiCore', '核心设定')">编辑核心</button>
+                        <button class="btn btn-outline btn-xs" onclick="NovelTool.openDrawer('wikiActive', '活跃记忆')">编辑活跃</button>
+                        <button class="btn btn-outline btn-xs" onclick="NovelTool.archiveWiki()">归档旧内容</button>
+                    </div>
+
+                    <!-- 知识库统计 -->
+                    <div class="wiki-stats">
+                        <span>📊 总计: <b id="wiki-total-count">0</b>字</span>
+                        <span>💡 建议: &lt;2000字</span>
                     </div>
                 </div>
 
@@ -1365,14 +1536,14 @@
         <!-- 右侧面板：动态控制 -->
         <div class="panel" id="dynamic-sidebar">
             <button class="btn btn-update" onclick="NovelTool.smartUpdateMemory()">
-                <span id="update-btn-text">🧠 同步AI记忆 + 更新知识库</span>
+                <span id="update-btn-text">🧠 智能同步知识库</span>
             </button>
 
             <label>
-                📋 事实档案（全局）
+                📋 事实档案（全局累积）
                 <button class="input-expand-btn" onclick="NovelTool.openDrawer('statusTracker', '事实档案')">展开</button>
             </label>
-            <div class="tips">记录每章不可逆改变：死亡、毁灭、重大决定...</div>
+            <div class="tips">记录每章不可逆改变，格式：[第X章] 事件</div>
             <div class="input-wrapper">
                 <textarea id="statusTracker" rows="4" class="input-fact" placeholder="[第1章] XXX死亡&#10;[第2章] 主角获得神器&#10;[第3章] 与XX结盟"></textarea>
             </div>
@@ -1461,6 +1632,7 @@
     </div>
 
     <!-- 引入外部JS文件 -->
-    <script src="/js/xiaoshuo.js"></script>
+    <script src="xiaoshuo.js"></script>
+    <script src="common.js"></script>
 </body>
 </html>
