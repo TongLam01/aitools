@@ -1047,8 +1047,11 @@
                 flex-direction: column; 
             }
 
-            /* 修正面板显示逻辑 */
-            .panel, #main-container { 
+            /* 修正面板显示逻辑 - 修复优先级问题 */
+            /* 必须显式列出 ID 才能覆盖 PC 端 #dynamic-sidebar { display: flex } 的设置 */
+            #static-sidebar, 
+            #dynamic-sidebar, 
+            #main-container {
                 display: none; 
                 width: 100% !important; 
                 height: 100%; 
