@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V5.0 (语义边界重构版)</title>
+    <title>商事合同诊断助手 V5.1 (稳定修复版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -78,8 +78,8 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v5.0</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义边界重构 · 精准脱敏</p>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v5.1</span></h1>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义边界重构 · 修复版</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -173,7 +173,6 @@
         // ==================== 1. 常量定义 (必须置顶) ====================
         
         // 【A】泛指公司词汇表 (直接忽略)
-        // V5.0 新增: 老年人服务中心、服务中心、活动中心 (视为公共设施)
         const GENERIC_COMPANY_TERMS = new Set([
             '物业公司', '管理公司', '项目公司', '担保公司', '中介公司', 
             '租赁公司', '关联公司', '服务公司', '合作公司', '目标公司',
@@ -183,7 +182,7 @@
             '安保公司', '劳务公司', '派遣公司', '外包公司', '代理公司',
             '分公司', '子公司', '母公司', '总公司', '控股公司',
             '上市公司', '国有公司', '民营公司', '外资公司', '合资公司',
-            '老年人服务中心', '服务中心', '活动中心', '党群服务中心', '社区中心'
+            '老年人服务中心', '服务中心', '活动中心', '党群服务中心', '社区中心' // V5.0 新增
         ]);
 
         // 【B】泛指前缀模式
@@ -252,18 +251,14 @@
             return clean;
         }
 
-        // --- 【核心函数】智能前缀剥离 (V5.0: 主谓隔离) ---
-        // 增加: 我, 贵, 两, 司, 权属, 单位, 项, 是, 为
+        // --- 【核心函数】智能前缀剥离 (V5.0 更新) ---
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
             
-            // 地址前缀剥离: 包含动词、介词、代词
-            const commonPrefixes = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供|我|贵|两|司|权属|单位|项|是)+/gm;
-            // 注意：上面的 + 实际上匹配了单字符，这里改写为循环剥离逻辑可能更稳，但正则组 + 也能工作。
-            // 使用 gm 标志不合适，因为我们只匹配开头。修正如下：
+            // 地址前缀剥离 (包含: 我, 贵, 两, 司, 权属, 单位, 项, 是)
             const addrRegex = /^(?:甲方|乙方|丙方|丁方|双方|各方|本合同|本协议|我们|我方|你方|他方|同意|承诺|确认|将|把|对|要|给|替|就|涉及|针对|有关|关于|依照|按照|根据|拟|出租|承租|租赁|交付|归还|使用|物业|房屋|店铺|商铺|场地|项目|标的|位于|坐落于|地处|地址|在|与|由|向|为|及|和|以|至|到|从|的|之|该|此|某|本|该等|因|未|并|且|或|即|若|如|另|自行|另行|主动|接受|拒绝|配合|提供|我|贵|两|司|权属|单位|项|是)+(?:\s*)/;
 
-            // 公司前缀剥离
+            // 公司前缀剥离 (包含: 权属, 单位, 是)
             const compRegex = /^(?:甲方|乙方|丙方|丁方|双方|各方|与|由|向|为|及|和|根据|依据|按照|依照|关于|由于|鉴于|若|如|本|对|将|要|该|此|某|该等|因|未|并|且|或|即|另|自行|另行|主动|接受|拒绝|配合|提供|权属|单位|是)+(?:\s*)/;
 
             if (type === 'address') {
@@ -287,6 +282,32 @@
             const prefix = fullText.substring(start, matchIndex);
             if (ACTION_VERBS.test(prefix)) return true;
             return false;
+        }
+
+        // --- 泛指判断函数 (补回 V5.0 遗漏) ---
+        function isGenericCompanyReference(fullText, matchIndex, matchText) {
+            if (GENERIC_COMPANY_TERMS.has(matchText)) {
+                const prefixStart = Math.max(0, matchIndex - 20);
+                const prefixContext = fullText.substring(prefixStart, matchIndex);
+                if (SPECIFIC_COMPANY_INDICATORS.test(prefixContext)) {
+                    return false;
+                }
+                return true; 
+            }
+            return false;
+        }
+
+        function isValidCompanyName(text) {
+            const fullCompanySuffix = /(?:有限公司|股份有限公司|有限责任公司|集团有限公司|集团公司)$/;
+            if (fullCompanySuffix.test(text) && text.length >= 6) { 
+                return true;
+            }
+            if (text.length < 6) {
+                if (GENERIC_COMPANY_TERMS.has(text)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         function updateStats() {
@@ -360,7 +381,7 @@
                     if (type === 'company') {
                         if (isGenericCompanyReference(processedText, m.index, cleanT)) continue;
                         if (!isValidCompanyName(cleanT)) continue;
-                        // V5.0: 对后缀"物业公司"等做更严格的检查 (防止"权属单位为广州鑫鑫..."被剥离后剩泛指词)
+                        // V5.0: 对后缀"物业公司"等做更严格的检查
                         let isSuffixGeneric = false;
                         for (let term of GENERIC_COMPANY_TERMS) {
                             if (cleanT === term) { isSuffixGeneric = true; break; }
