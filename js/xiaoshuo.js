@@ -17,7 +17,7 @@
 
     // ========== 配置 ==========
     const STORAGE_KEY = 'novel_v241';
-    const WIKI_LIMIT = 1000;
+    const WIKI_LIMIT = 10000;
 
     const LENGTH_MAP = {
         standard: '1500-2000字',
