@@ -1,6 +1,6 @@
 /**
- * DeepSeek 小说创作工具 v2.3
- * 分层知识库系统
+ * DeepSeek 小说创作工具 v2.3.1
+ * 修复版 - 所有按钮事件正常工作
  * 仅限 www.aibox6.com 和 aibox6.com 域名使用
  */
 
@@ -9,344 +9,226 @@
 
     // ==================== 域名验证 ====================
     const ALLOWED_DOMAINS = ['www.aibox6.com', 'aibox6.com'];
-    const currentDomain = window.location.hostname;
     const DEV_DOMAINS = ['localhost', '127.0.0.1', ''];
+    const currentDomain = window.location.hostname;
 
     function checkDomain() {
-        const isDev = DEV_DOMAINS.includes(currentDomain);
-        const isAllowed = ALLOWED_DOMAINS.includes(currentDomain);
-
-        if (!isDev && !isAllowed) {
+        if (!DEV_DOMAINS.includes(currentDomain) && !ALLOWED_DOMAINS.includes(currentDomain)) {
             document.getElementById('domain-error').style.display = 'flex';
             return false;
         }
         return true;
     }
 
-    // ==================== 知识库分隔符 ====================
-    const WIKI_SEPARATORS = {
-        chapter: (n) => `\n═══════ 第${n}章 ═══════\n`,
-        category: (name) => `\n┄┄┄ ${name} ┄┄┄\n`,
-        item: '• '
-    };
-
-    // ==================== Prompt模板系统 ====================
+    // ==================== Prompt模板 ====================
     const PROMPTS = {
-        // 主创作系统Prompt
-        mainSystem: function(config) {
-            const {
-                novelTitle, worldView, characterBible, 
-                wikiCore, wikiActive, // 分层知识库
-                negativePrompt, contextSummary, statusTracker, 
-                sceneGoal, mustInclude, pov, rhythm, lengthInstruction, 
-                styleRef, currentChapter
-            } = config;
+        mainSystem: (config) => {
+            const { novelTitle, worldView, characterBible, wikiCore, wikiActive,
+                    negativePrompt, contextSummary, statusTracker, sceneGoal,
+                    mustInclude, pov, rhythm, lengthInstruction, styleRef, currentChapter } = config;
 
-            return `你是一位世界级畅销小说作家，拥有20年创作经验。你的作品以情节紧凑、人物鲜活、文笔优美著称。
+            return `你是一位世界级畅销小说作家，拥有20年创作经验。
 
 ══════════════════════════════════════
-📚 作品：《${novelTitle || '未命名'}》
-📖 当前：第${currentChapter}章
+📚 作品：《${novelTitle || '未命名'}》 第${currentChapter}章
 ══════════════════════════════════════
 
-【世界观架构】
-${worldView || '（由你根据上下文自由发挥）'}
+【世界观】
+${worldView || '（自由发挥）'}
 
-【核心人物档案】
-${characterBible || '（根据上下文理解人物）'}
+【角色档案】
+${characterBible || '（根据上下文）'}
 
-【🔴 核心记忆（永久有效）】
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-${wikiCore || '暂无核心设定'}
+【🔴 核心记忆（永久）】
+${wikiCore || '暂无'}
 
-【🟢 活跃记忆（当前章节相关）】
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-${wikiActive || '暂无活跃记忆'}
+【🟢 活跃记忆（当前章节）】
+${wikiActive || '暂无'}
 
-【已确认的事实（不可逆转）】
+【已确认事实】
 ${statusTracker || '无'}
 
 【前情回顾】
 ${contextSummary || '无'}
 
 ══════════════════════════════════════
-🎬 本场创作指令
+🎬 本场指令
 ══════════════════════════════════════
-▸ 场景目标：${sceneGoal || '自然推进剧情'}
-▸ 必须包含：${mustInclude || '无强制要求'}
-▸ 叙事视角：${pov}
-▸ 节奏控制：${rhythm}
-▸ 篇幅要求：${lengthInstruction}
-▸ 文学风格：${styleRef || '自然流畅，张弛有度'}
+▸ 目标：${sceneGoal || '自然推进'}
+▸ 必含：${mustInclude || '无'}
+▸ 视角：${pov}
+▸ 节奏：${rhythm}
+▸ 篇幅：${lengthInstruction}
+▸ 风格：${styleRef || '自然流畅'}
 
-【写作禁忌】
-${negativePrompt || '无特殊禁忌'}
+【禁忌】${negativePrompt || '无'}
 
-══════════════════════════════════════
-📋 创作准则（务必遵守）
-══════════════════════════════════════
-1. **连贯性**：严格遵循核心记忆和事实档案，人物性格、能力、关系必须前后一致
-2. **具体化**：用具体的动作、对话、细节代替抽象描述，展示而非陈述
-3. **节奏感**：长短句交错，张弛有度，避免平铺直叙
-4. **沉浸感**：调动五感描写（视觉、听觉、触觉、嗅觉、味觉），让读者身临其境
-5. **冲突性**：每一场都要有明确的戏剧张力或情感起伏
-6. **人物弧光**：通过行动展现性格，通过选择推动成长
-7. **伏笔意识**：适当埋设伏笔，回收前文线索，保持悬念
-8. **对话真实**：对话要符合人物身份、性格、当时情绪，避免说教式台词
+【创作准则】
+1. 严格遵循核心记忆和事实档案
+2. 用具体动作、对话代替抽象描述
+3. 长短句交错，张弛有度
+4. 调动五感描写
+5. 每场都有戏剧张力
+6. 通过行动展现性格
+7. 适当埋设伏笔
 
-⚠️ 直接输出正文，不要任何解释、标题或元描述。保持文学性和可读性。`;
+⚠️ 直接输出正文，不要解释。`;
         },
 
-        // 分层知识库更新Prompt
-        updateMemory: function(currentChapter) {
-            return `你是一位专业的小说剧情分析师。请分析最新创作内容，更新分层知识库。
+        updateMemory: (chapter) => `你是小说剧情分析师。分析最新内容，更新分层知识库。
 
-【分层知识库规则】
-1. 🔴 核心层（wikiCore）：
-   - 只保留主角核心设定、世界观基础、贯穿全书的核心冲突
-   - 严格控制在500字以内
-   - 除非有重大永久性改变，否则不轻易修改
+【规则】
+1. 🔴 核心层：主角核心设定、世界观基础（≤500字，很少改动）
+2. 🟢 活跃层：第${chapter}章相关人物/地点/物品（≤800字）
+   格式：
+   ═══════ 第${chapter}章 ═══════
+   ┄┄┄ 人物 ┄┄┄
+   • 角色：描述
+   ┄┄┄ 地点 ┄┄┄
+   • 地名：描述
+3. 事实：只记录不可逆改变，格式 [第X章] 事件
 
-2. 🟢 活跃层（wikiActive）：
-   - 当前剧情（第${currentChapter}章）相关的人物、地点、物品、关系
-   - 使用章节分隔符：═══════ 第N章 ═══════
-   - 使用类别分隔符：┄┄┄ 人物 ┄┄┄
-   - 每个条目用 • 开头
-   - 合并重复信息，删除已不相关的旧内容
-   - 控制在800字以内
-
-3. 📦 归档建议（archiveSuggestion）：
-   - 列出可以从活跃层移到归档层的内容
-   - 包括：已离场角色、已结束事件、已回收伏笔等
-
-【格式要求】
-使用章节和类别分隔符，保持清晰可读：
-
-═══════ 第N章 ═══════
-┄┄┄ 人物 ┄┄┄
-• 张三：本章新增特征...
-• 李四：状态变化...
-
-┄┄┄ 地点 ┄┄┄
-• 某城：描述...
-
-┄┄┄ 物品/线索 ┄┄┄
-• 神秘信件：进展...
-
-请返回JSON：
+返回JSON：
 {
-    "wikiCore": "更新后的核心层（如无重大变化则保持原样）",
-    "wikiActive": "更新后的活跃层（使用分隔符格式）",
-    "archiveSuggestion": "建议归档的内容列表",
-    "summary": "（第${currentChapter}章）2-3句剧情摘要",
-    "newFacts": "本章新增的不可逆事实，格式：[第${currentChapter}章] 事件"
-}`;
-        },
-
-        // 知识库压缩Prompt
-        compressWiki: `你是知识库管理专家。请压缩以下知识库内容，保留核心信息，删除冗余：
-
-【压缩规则】
-1. 合并同类项（同一人物的多处描述合并）
-2. 删除已无关紧要的细节
-3. 保留关键设定、未解伏笔、重要关系
-4. 使用简洁的描述
-5. 保持分隔符格式
-
-返回压缩后的内容，控制在原文的50%以内。`
+    "wikiCore": "核心层（无变化则原样返回）",
+    "wikiActive": "活跃层（用分隔符格式）",
+    "summary": "（第${chapter}章）2-3句摘要",
+    "newFacts": "新事实或空字符串"
+}`
     };
 
-    // 篇幅指令映射
-    const LENGTH_INSTRUCTIONS = {
-        'standard': '请按标准篇幅创作，约1500-2000字。保持叙事紧凑，情节推进流畅。',
-        'long': '请深度扩写，字数3000字以上。充分展开环境描写、心理刻画、人物对话和动作细节，让读者完全沉浸其中。',
-        'short': '请精炼叙事，约1000字左右。快速推进情节，保留核心冲突，适合过渡场景。'
+    const LENGTH_MAP = {
+        'standard': '1500-2000字，紧凑流畅',
+        'long': '3000字以上，深度刻画',
+        'short': '约1000字，快速推进'
     };
 
     // ==================== 主工具类 ====================
-    class NovelCreationTool {
+    class NovelTool {
         constructor() {
             this.controller = null;
             this.genCount = 0;
-            this.storageKey = 'deepseek_novel_v23';
+            this.storageKey = 'deepseek_novel_v231';
             this.isGenerating = false;
-            this.currentDrawerTarget = null;
+            this.drawerTarget = null;
             this.liveWordCount = 0;
-            this.updatesSinceLastSync = 0;
+            this.updatesSinceSync = 0;
         }
 
         // ========== 初始化 ==========
         init() {
             if (!checkDomain()) return;
-
-            this.loadFromStorage();
-            this.bindEvents();
-            this.updateCounts();
-            this.updateEditorCount();
-            this.updateApiKeyStatus();
-            this.checkEmptyState();
-            this.updatePreviews();
-            this.updateChapterTag();
-            this.updateWikiCounts();
+            this.bindAllEvents();
+            this.loadStorage();
+            this.updateUI();
         }
 
-        // ========== 事件绑定 ==========
-        bindEvents() {
-            const editor = document.getElementById('novel-content');
-            editor.addEventListener('input', () => {
-                this.updateEditorCount();
-                this.save();
-            });
+        // ========== 绑定所有事件 ==========
+        bindAllEvents() {
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
 
-            const drawerTextarea = document.getElementById('drawer-textarea');
-            drawerTextarea.addEventListener('input', () => {
-                document.getElementById('drawer-char-count').innerText =
-                    drawerTextarea.value.length;
-            });
+            // API Key
+            $('#api-key-btn').onclick = () => this.toggleApiPopup();
+            $('#save-api-btn').onclick = () => this.saveApiKey();
+            $('#cancel-api-btn').onclick = () => this.toggleApiPopup();
 
+            // 点击外部关闭弹窗
             document.addEventListener('click', (e) => {
-                const popup = document.getElementById('api-popup');
-                const btn = document.getElementById('api-key-btn');
-                if (!popup.contains(e.target) && !btn.contains(e.target)) {
+                const popup = $('#api-popup');
+                const btn = $('#api-key-btn');
+                if (popup.classList.contains('show') && !popup.contains(e.target) && !btn.contains(e.target)) {
                     popup.classList.remove('show');
                 }
             });
 
+            // 沉浸模式
+            $('#immersive-btn').onclick = () => this.toggleImmersive();
+            $('#exit-immersive').onclick = () => this.toggleImmersive();
+
+            // 抽屉
+            $('#drawer-overlay').onclick = (e) => { if (e.target === $('#drawer-overlay')) this.closeDrawer(); };
+            $('#drawer-close-btn').onclick = () => this.closeDrawer();
+            $('#drawer-cancel-btn').onclick = () => this.closeDrawer();
+            $('#drawer-save-btn').onclick = () => this.saveDrawer();
+            $('#drawer-textarea').oninput = () => {
+                $('#drawer-char-count').textContent = $('#drawer-textarea').value.length;
+            };
+
+            // 展开按钮（使用data属性）
+            $$('[data-expand]').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    this.openDrawer(btn.dataset.expand, btn.dataset.title);
+                };
+            });
+
+            // 知识库分区折叠
+            $$('.wiki-section-header').forEach(header => {
+                header.onclick = () => this.toggleWikiSection(header.dataset.section);
+            });
+
+            // 输入组折叠
+            $$('.input-group-header').forEach(header => {
+                header.onclick = (e) => {
+                    if (!e.target.classList.contains('input-expand-btn')) {
+                        this.toggleInputGroup(header.dataset.group);
+                    }
+                };
+            });
+
+            // 归档按钮
+            $('#archive-wiki-btn').onclick = () => this.archiveWiki();
+
+            // 移动端Tab
+            $$('.tab-item').forEach(tab => {
+                tab.onclick = () => this.switchTab(tab.dataset.panel, tab);
+            });
+
+            // 生成和停止
+            $('#btn-gen').onclick = () => this.generate();
+            $('#btn-stop').onclick = () => this.stop();
+
+            // 更新知识库
+            $('#btn-update-memory').onclick = () => this.updateMemory();
+
+            // 导出
+            $('#btn-export').onclick = () => this.exportDoc();
+
+            // 编辑器字数
+            $('#novel-content').oninput = () => {
+                this.updateEditorCount();
+                this.save();
+            };
+
+            // 章节变化
+            $('#currentChapter').onchange = () => this.updateChapterTag();
+
+            // 自动保存
             document.addEventListener('input', (e) => {
                 if (e.target.matches('input, textarea, select')) {
                     this.save();
                     this.updatePreviews();
-                    // 更新知识库字数统计
                     if (['wikiCore', 'wikiActive', 'wikiArchive'].includes(e.target.id)) {
                         this.updateWikiCounts();
                     }
                 }
             });
 
-            document.getElementById('currentChapter').addEventListener('change', () => {
-                this.updateChapterTag();
-            });
-
+            // 快捷键
             document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !this.isGenerating) {
                     e.preventDefault();
-                    if (!this.isGenerating) {
-                        this.generate();
-                    }
+                    this.generate();
                 }
                 if (e.key === 'Escape') {
-                    if (this.isGenerating) {
-                        this.stop();
-                    } else if (document.getElementById('drawer-overlay').classList.contains('show')) {
-                        this.closeDrawer();
-                    }
-                }
-            });
-
-            document.getElementById('lengthMode').addEventListener('change', () => {
-                this.showSmartTip();
-            });
-        }
-
-        // ========== 知识库分层管理 ==========
-        toggleWikiSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            if (section) {
-                section.classList.toggle('collapsed');
-                this.save();
-            }
-        }
-
-        updateWikiCounts() {
-            const coreText = document.getElementById('wikiCore').value;
-            const activeText = document.getElementById('wikiActive').value;
-            const archiveText = document.getElementById('wikiArchive').value;
-
-            document.getElementById('wiki-core-count').innerText = coreText.length + '字';
-            document.getElementById('wiki-active-count').innerText = activeText.length + '字';
-            document.getElementById('wiki-archive-count').innerText = archiveText.length + '字';
-            document.getElementById('wiki-total-count').innerText = 
-                (coreText.length + activeText.length + archiveText.length);
-
-            // 超出建议字数时显示警告
-            const totalCount = coreText.length + activeText.length;
-            if (totalCount > 2000) {
-                document.getElementById('wiki-total-count').style.color = 'var(--danger)';
-            } else {
-                document.getElementById('wiki-total-count').style.color = '';
-            }
-        }
-
-        // 手动归档旧内容
-        archiveWiki() {
-            const activeText = document.getElementById('wikiActive').value;
-            const archiveText = document.getElementById('wikiArchive').value;
-            const currentChapter = document.getElementById('currentChapter').value || 1;
-
-            if (!activeText.trim()) {
-                this.showToast('活跃记忆为空，无需归档', 'info');
-                return;
-            }
-
-            // 将活跃内容添加到归档
-            const separator = WIKI_SEPARATORS.chapter(currentChapter - 1);
-            const newArchive = archiveText + separator + activeText;
-            
-            document.getElementById('wikiArchive').value = newArchive;
-            document.getElementById('wikiActive').value = '';
-            
-            this.updateWikiCounts();
-            this.save();
-            this.showToast('已将活跃记忆归档', 'success');
-        }
-
-        // ========== 输入组折叠 ==========
-        toggleInputGroup(groupId) {
-            const group = document.getElementById(groupId);
-            if (!group) return;
-
-            group.classList.toggle('collapsed');
-            this.updatePreviews();
-            this.save();
-        }
-
-        // ========== 更新预览文本 ==========
-        updatePreviews() {
-            const previewMap = {
-                'worldview-preview': 'worldView',
-                'character-preview': 'characterBible',
-                'style-preview': 'styleRef',
-                'negative-preview': 'negativePrompt'
-            };
-
-            Object.keys(previewMap).forEach(previewId => {
-                const preview = document.getElementById(previewId);
-                const input = document.getElementById(previewMap[previewId]);
-                if (preview && input) {
-                    const text = input.value.trim();
-                    preview.innerText = text ? text.substring(0, 15) + (text.length > 15 ? '...' : '') : '';
+                    if (this.isGenerating) this.stop();
+                    else if ($('#drawer-overlay').classList.contains('show')) this.closeDrawer();
                 }
             });
         }
 
-        updateChapterTag() {
-            const chapter = document.getElementById('currentChapter').value || '?';
-            document.getElementById('summary-chapter-tag').innerText = `第${chapter}章`;
-        }
-
-        // ========== Tab切换 ==========
-        switchTab(panelId, tabEl) {
-            document.querySelectorAll('.panel, #main-container').forEach(p => {
-                p.classList.remove('active-panel');
-            });
-            document.querySelectorAll('.tab-item').forEach(t => {
-                t.classList.remove('active');
-            });
-            document.getElementById(panelId).classList.add('active-panel');
-            tabEl.classList.add('active');
-        }
-
-        // ========== API Key 管理 ==========
+        // ========== API Key ==========
         toggleApiPopup() {
             const popup = document.getElementById('api-popup');
             popup.classList.toggle('show');
@@ -361,357 +243,294 @@ ${negativePrompt || '无特殊禁忌'}
                 this.save();
                 this.updateApiKeyStatus();
                 this.toggleApiPopup();
-                this.showToast('API Key 已保存', 'success');
+                this.toast('API Key 已保存', 'success');
             } else {
-                this.showToast('请输入有效的 API Key', 'error');
+                this.toast('请输入有效的 API Key', 'error');
             }
         }
 
         updateApiKeyStatus() {
             const btn = document.getElementById('api-key-btn');
             const key = document.getElementById('apiKey').value.trim();
-            if (key) {
-                btn.classList.add('configured');
-            } else {
-                btn.classList.remove('configured');
-            }
-        }
-
-        // ========== 抽屉编辑器 ==========
-        openDrawer(targetId, title) {
-            const target = document.getElementById(targetId);
-            if (!target) return;
-
-            this.currentDrawerTarget = targetId;
-            document.getElementById('drawer-title').innerText = title;
-            document.getElementById('drawer-textarea').value = target.value;
-            document.getElementById('drawer-char-count').innerText = target.value.length;
-            document.getElementById('drawer-overlay').classList.add('show');
-
-            setTimeout(() => {
-                const textarea = document.getElementById('drawer-textarea');
-                textarea.focus();
-                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-            }, 100);
-        }
-
-        closeDrawer() {
-            document.getElementById('drawer-overlay').classList.remove('show');
-            this.currentDrawerTarget = null;
-        }
-
-        saveDrawer() {
-            if (!this.currentDrawerTarget) return;
-
-            const target = document.getElementById(this.currentDrawerTarget);
-            const newValue = document.getElementById('drawer-textarea').value;
-            target.value = newValue;
-
-            target.dispatchEvent(new Event('input'));
-
-            this.closeDrawer();
-            this.showToast('内容已保存', 'success');
-            this.save();
+            btn.classList.toggle('configured', !!key);
         }
 
         // ========== 沉浸模式 ==========
         toggleImmersive() {
             document.body.classList.toggle('immersive-mode');
-            const isImmersive = document.body.classList.contains('immersive-mode');
-
-            if (isImmersive) {
-                this.showToast('已进入沉浸写作模式，按 ESC 可退出', 'info');
+            if (document.body.classList.contains('immersive-mode')) {
+                this.toast('沉浸模式，按 ESC 退出', 'info');
             }
         }
 
-        // ========== 构建Prompt ==========
-        buildPromptConfig() {
-            const lengthMode = document.getElementById('lengthMode').value;
-            const currentChapter = document.getElementById('currentChapter').value || 1;
-
-            return {
-                novelTitle: document.getElementById('novel-title').value.trim(),
-                worldView: document.getElementById('worldView').value.trim(),
-                characterBible: document.getElementById('characterBible').value.trim(),
-                wikiCore: document.getElementById('wikiCore').value.trim(),
-                wikiActive: document.getElementById('wikiActive').value.trim(),
-                negativePrompt: document.getElementById('negativePrompt').value.trim(),
-                contextSummary: document.getElementById('contextSummary').value.trim(),
-                statusTracker: document.getElementById('statusTracker').value.trim(),
-                sceneGoal: document.getElementById('sceneGoal').value.trim(),
-                mustInclude: document.getElementById('mustInclude').value.trim(),
-                pov: document.getElementById('pov').value,
-                rhythm: document.getElementById('rhythmControl').value,
-                lengthInstruction: LENGTH_INSTRUCTIONS[lengthMode],
-                styleRef: document.getElementById('styleRef').value.trim(),
-                currentChapter: currentChapter
-            };
+        // ========== 抽屉 ==========
+        openDrawer(targetId, title) {
+            const target = document.getElementById(targetId);
+            if (!target) return;
+            this.drawerTarget = targetId;
+            document.getElementById('drawer-title').textContent = title || '编辑';
+            document.getElementById('drawer-textarea').value = target.value;
+            document.getElementById('drawer-char-count').textContent = target.value.length;
+            document.getElementById('drawer-overlay').classList.add('show');
+            setTimeout(() => {
+                const ta = document.getElementById('drawer-textarea');
+                ta.focus();
+                ta.setSelectionRange(ta.value.length, ta.value.length);
+            }, 100);
         }
 
-        // ========== 生成内容 ==========
+        closeDrawer() {
+            document.getElementById('drawer-overlay').classList.remove('show');
+            this.drawerTarget = null;
+        }
+
+        saveDrawer() {
+            if (!this.drawerTarget) return;
+            const target = document.getElementById(this.drawerTarget);
+            target.value = document.getElementById('drawer-textarea').value;
+            target.dispatchEvent(new Event('input'));
+            this.closeDrawer();
+            this.toast('已保存', 'success');
+        }
+
+        // ========== 折叠 ==========
+        toggleWikiSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.toggle('collapsed');
+                this.save();
+            }
+        }
+
+        toggleInputGroup(groupId) {
+            const group = document.getElementById(groupId);
+            if (group) {
+                group.classList.toggle('collapsed');
+                this.updatePreviews();
+                this.save();
+            }
+        }
+
+        // ========== 归档 ==========
+        archiveWiki() {
+            const active = document.getElementById('wikiActive').value;
+            const archive = document.getElementById('wikiArchive').value;
+            const chapter = document.getElementById('currentChapter').value || 1;
+
+            if (!active.trim()) {
+                this.toast('活跃记忆为空', 'info');
+                return;
+            }
+
+            const sep = `\n═══════ 第${chapter - 1}章归档 ═══════\n`;
+            document.getElementById('wikiArchive').value = archive + sep + active;
+            document.getElementById('wikiActive').value = '';
+            this.updateWikiCounts();
+            this.save();
+            this.toast('已归档到历史', 'success');
+        }
+
+        // ========== Tab切换 ==========
+        switchTab(panelId, tabEl) {
+            document.querySelectorAll('.panel, #main-container').forEach(p => p.classList.remove('active-panel'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active-panel');
+            tabEl.classList.add('active');
+        }
+
+        // ========== 生成 ==========
         async generate() {
             const apiKey = document.getElementById('apiKey').value.trim();
             if (!apiKey) {
-                this.showToast('请先配置 API Key', 'error');
+                this.toast('请先配置 API Key', 'error');
                 this.toggleApiPopup();
                 return;
             }
 
-            const editor = document.getElementById('novel-content');
-            const userPrompt = document.getElementById('prompt-input').value.trim();
-
-            if (!editor.value.trim() && !userPrompt) {
-                this.showToast('请输入上文内容或创作指令', 'warning');
+            const content = document.getElementById('novel-content').value;
+            const prompt = document.getElementById('prompt-input').value.trim();
+            if (!content.trim() && !prompt) {
+                this.toast('请输入上文或指令', 'warning');
                 return;
             }
 
-            this.toggleUI(true);
+            this.setGenerating(true);
             this.controller = new AbortController();
             this.liveWordCount = 0;
-
             this.genCount++;
+
+            const chapter = document.getElementById('currentChapter').value || 1;
             const cardId = `card-${Date.now()}`;
-            const currentChapter = document.getElementById('currentChapter').value || 1;
-            const card = this.createHistoryCard(cardId, this.genCount, '', currentChapter);
+            const card = this.createCard(cardId, this.genCount, chapter);
             document.getElementById('history-list').prepend(card);
-            this.checkEmptyState();
+            document.getElementById('history-empty').style.display = 'none';
 
-            const cardBody = card.querySelector('.history-body');
-            const serialSpan = document.createElement('span');
-            serialSpan.className = 'serial-number';
-            serialSpan.innerText = `#${this.genCount}`;
-            cardBody.appendChild(serialSpan);
+            const body = card.querySelector('.history-body');
+            const serial = document.createElement('span');
+            serial.className = 'serial-number';
+            serial.textContent = `#${this.genCount}`;
+            body.appendChild(serial);
 
-            const textContent = document.createElement('span');
-            textContent.className = 'content-text';
-            cardBody.appendChild(textContent);
+            const text = document.createElement('span');
+            text.className = 'content-text';
+            body.appendChild(text);
 
             card.classList.add('generating');
             document.getElementById('history-wrapper').scrollTop = 0;
 
             try {
-                const config = this.buildPromptConfig();
-                const systemPrompt = PROMPTS.mainSystem(config);
+                const config = {
+                    novelTitle: document.getElementById('novel-title').value.trim(),
+                    worldView: document.getElementById('worldView').value.trim(),
+                    characterBible: document.getElementById('characterBible').value.trim(),
+                    wikiCore: document.getElementById('wikiCore').value.trim(),
+                    wikiActive: document.getElementById('wikiActive').value.trim(),
+                    negativePrompt: document.getElementById('negativePrompt').value.trim(),
+                    contextSummary: document.getElementById('contextSummary').value.trim(),
+                    statusTracker: document.getElementById('statusTracker').value.trim(),
+                    sceneGoal: document.getElementById('sceneGoal').value.trim(),
+                    mustInclude: document.getElementById('mustInclude').value.trim(),
+                    pov: document.getElementById('pov').value,
+                    rhythm: document.getElementById('rhythmControl').value,
+                    lengthInstruction: LENGTH_MAP[document.getElementById('lengthMode').value],
+                    styleRef: document.getElementById('styleRef').value.trim(),
+                    currentChapter: chapter
+                };
 
-                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                const res = await fetch('https://api.deepseek.com/chat/completions', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                     signal: this.controller.signal,
                     body: JSON.stringify({
-                        model: "deepseek-chat",
+                        model: 'deepseek-chat',
                         messages: [
-                            { role: "system", content: systemPrompt },
-                            {
-                                role: "user",
-                                content: `【接续上文】
-${editor.value || '（从头开始创作）'}
-
-【本次指令】
-${userPrompt || '请继续创作，自然推进剧情。'}`
-                            }
+                            { role: 'system', content: PROMPTS.mainSystem(config) },
+                            { role: 'user', content: `【上文】\n${content || '（开头）'}\n\n【指令】\n${prompt || '继续创作'}` }
                         ],
                         stream: true,
                         temperature: 0.85,
-                        max_tokens: 8000,
-                        top_p: 0.9
+                        max_tokens: 8000
                     })
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error?.message || `请求失败: ${response.status}`);
-                }
+                if (!res.ok) throw new Error(`请求失败: ${res.status}`);
 
-                const reader = response.body.getReader();
+                const reader = res.body.getReader();
                 const decoder = new TextDecoder();
                 let buffer = '';
 
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-
                     buffer += decoder.decode(value, { stream: true });
                     const lines = buffer.split('\n');
                     buffer = lines.pop() || '';
-
                     for (const line of lines) {
                         if (line.startsWith('data: ') && line !== 'data: [DONE]') {
                             try {
-                                const data = JSON.parse(line.slice(6));
-                                const content = data.choices?.[0]?.delta?.content;
-                                if (content) {
-                                    textContent.innerText += content;
-                                    this.liveWordCount = textContent.innerText.replace(/\s/g, '').length;
-                                    document.getElementById('live-word-count').innerText = this.liveWordCount;
+                                const delta = JSON.parse(line.slice(6)).choices?.[0]?.delta?.content;
+                                if (delta) {
+                                    text.textContent += delta;
+                                    this.liveWordCount = text.textContent.replace(/\s/g, '').length;
+                                    document.getElementById('live-word-count').textContent = this.liveWordCount;
                                 }
-                            } catch (parseError) {
-                                // 忽略解析错误
-                            }
+                            } catch {}
                         }
                     }
                 }
 
-                this.showToast(`创作完成！共 ${this.liveWordCount} 字`, 'success');
-                this.updatesSinceLastSync++;
-                this.checkCoherenceReminder();
+                this.toast(`完成！${this.liveWordCount}字`, 'success');
+                this.updatesSinceSync++;
+                this.checkSyncReminder();
 
             } catch (e) {
-                if (e.name === 'AbortError') {
-                    this.showToast('已停止生成', 'info');
-                } else {
-                    this.showToast(e.message, 'error');
-                    console.error('生成错误:', e);
-                }
+                if (e.name === 'AbortError') this.toast('已停止', 'info');
+                else this.toast(e.message, 'error');
             } finally {
                 card.classList.remove('generating');
-                this.updateCardWordCount(card);
-                this.toggleUI(false);
+                this.updateCardCount(card);
+                this.setGenerating(false);
                 this.save();
             }
         }
 
-        // ========== 智能更新分层知识库 ==========
-        async smartUpdateMemory() {
+        stop() {
+            if (this.controller) this.controller.abort();
+        }
+
+        // ========== 更新知识库 ==========
+        async updateMemory() {
             const apiKey = document.getElementById('apiKey').value.trim();
             if (!apiKey) {
-                this.showToast('请先配置 API Key', 'error');
+                this.toast('请先配置 API Key', 'error');
                 return;
             }
 
-            const historyList = document.getElementById('history-list');
-            if (historyList.children.length === 0) {
-                this.showToast('暂无内容可同步', 'warning');
+            const list = document.getElementById('history-list');
+            if (!list.children.length) {
+                this.toast('暂无内容', 'warning');
                 return;
             }
 
-            const btn = document.querySelector('.btn-update');
+            const btn = document.getElementById('btn-update-memory');
             const btnText = document.getElementById('update-btn-text');
-            const originalText = btnText.innerText;
-            btnText.innerHTML = '<span class="loading-indicator"></span>正在分析...';
+            const orig = btnText.textContent;
+            btnText.innerHTML = '<span class="loading-indicator"></span>分析中...';
             btn.disabled = true;
 
-            const currentChapter = document.getElementById('currentChapter').value || 1;
-
-            const recentCards = Array.from(historyList.querySelectorAll('.history-body')).slice(0, 3);
-            const recentTexts = recentCards.map(el => {
-                const contentSpan = el.querySelector('.content-text');
-                return contentSpan ? contentSpan.innerText : el.innerText;
-            }).join('\n\n---\n\n');
+            const chapter = document.getElementById('currentChapter').value || 1;
+            const recent = Array.from(list.querySelectorAll('.history-body')).slice(0, 3)
+                .map(el => (el.querySelector('.content-text')?.textContent || el.textContent)).join('\n---\n');
 
             try {
-                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                const res = await fetch('https://api.deepseek.com/chat/completions', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: "deepseek-chat",
+                        model: 'deepseek-chat',
                         messages: [
-                            { role: "system", content: PROMPTS.updateMemory(currentChapter) },
-                            {
-                                role: "user",
-                                content: `【当前核心层】
-${document.getElementById('wikiCore').value || '（空）'}
-
-【当前活跃层】
-${document.getElementById('wikiActive').value || '（空）'}
-
-【当前事实档案】
-${document.getElementById('statusTracker').value || '（空）'}
-
-【当前摘要】
-${document.getElementById('contextSummary').value || '（空）'}
-
-【最新创作内容（第${currentChapter}章）】
-${recentTexts}`
-                            }
+                            { role: 'system', content: PROMPTS.updateMemory(chapter) },
+                            { role: 'user', content: `【核心层】\n${document.getElementById('wikiCore').value}\n\n【活跃层】\n${document.getElementById('wikiActive').value}\n\n【事实】\n${document.getElementById('statusTracker').value}\n\n【摘要】\n${document.getElementById('contextSummary').value}\n\n【最新内容】\n${recent}` }
                         ],
                         response_format: { type: 'json_object' },
                         temperature: 0.3
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`请求失败: ${response.status}`);
-                }
+                if (!res.ok) throw new Error(`请求失败: ${res.status}`);
 
-                const data = await response.json();
+                const data = await res.json();
                 const result = JSON.parse(data.choices[0].message.content);
 
-                // 更新核心层（仅在有重大变化时）
-                if (result.wikiCore && result.wikiCore !== document.getElementById('wikiCore').value) {
-                    document.getElementById('wikiCore').value = result.wikiCore;
-                }
-
-                // 更新活跃层
-                if (result.wikiActive) {
-                    document.getElementById('wikiActive').value = result.wikiActive;
-                }
-
-                // 更新摘要
-                if (result.summary) {
-                    document.getElementById('contextSummary').value = result.summary;
-                }
-
-                // 追加新事实到事实档案
-                if (result.newFacts && result.newFacts.trim()) {
-                    const currentFacts = document.getElementById('statusTracker').value;
-                    const newFactsText = result.newFacts.trim();
-                    if (newFactsText && !currentFacts.includes(newFactsText)) {
-                        document.getElementById('statusTracker').value = 
-                            currentFacts + (currentFacts ? '\n' : '') + newFactsText;
+                if (result.wikiCore) document.getElementById('wikiCore').value = result.wikiCore;
+                if (result.wikiActive) document.getElementById('wikiActive').value = result.wikiActive;
+                if (result.summary) document.getElementById('contextSummary').value = result.summary;
+                if (result.newFacts?.trim()) {
+                    const facts = document.getElementById('statusTracker');
+                    if (!facts.value.includes(result.newFacts.trim())) {
+                        facts.value = facts.value + (facts.value ? '\n' : '') + result.newFacts.trim();
                     }
                 }
 
-                // 显示归档建议
-                if (result.archiveSuggestion && result.archiveSuggestion.trim()) {
-                    this.showToast(`建议归档: ${result.archiveSuggestion.substring(0, 50)}...`, 'info');
-                }
-
-                this.updatesSinceLastSync = 0;
-                this.hideCoherenceReminder();
+                this.updatesSinceSync = 0;
+                this.hideSyncReminder();
                 this.updateWikiCounts();
                 this.save();
-                this.showToast('知识库更新完成！', 'success');
+                this.toast('知识库已更新', 'success');
 
             } catch (e) {
-                this.showToast('更新失败: ' + e.message, 'error');
-                console.error('更新错误:', e);
+                this.toast('更新失败: ' + e.message, 'error');
             } finally {
-                btnText.innerText = originalText;
+                btnText.textContent = orig;
                 btn.disabled = false;
             }
         }
 
-        // ========== 连贯性提醒 ==========
-        checkCoherenceReminder() {
-            if (this.updatesSinceLastSync >= 3) {
-                const indicator = document.getElementById('coherence-check');
-                indicator.style.display = 'flex';
-                indicator.classList.add('warning');
-                document.getElementById('coherence-text').innerText =
-                    `已创作${this.updatesSinceLastSync}段，建议同步知识库`;
-            }
-        }
-
-        hideCoherenceReminder() {
-            document.getElementById('coherence-check').style.display = 'none';
-        }
-
-        // ========== 历史卡片 ==========
-        createHistoryCard(id, count, content = '', chapter = 1) {
+        // ========== 卡片操作 ==========
+        createCard(id, count, chapter) {
             const time = new Date().toLocaleString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             });
 
             const div = document.createElement('div');
@@ -725,510 +544,335 @@ ${recentTexts}`
                         <span class="chapter-tag">第${chapter}章</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;">
-                        <span class="word-count-badge">
-                            📝 <span class="w-count">0</span> 字
-                        </span>
-                        <button class="btn btn-outline btn-sm" onclick="NovelTool.toggleCard('${id}')">折叠</button>
+                        <span class="word-count-badge">📝 <span class="w-count">0</span> 字</span>
+                        <button class="btn btn-outline btn-sm toggle-btn">折叠</button>
                     </div>
                 </div>
-                <div class="history-body" contenteditable="true">${content ? `<span class="serial-number">#${count}</span><span class="content-text">${content}</span>` : ''}</div>
+                <div class="history-body" contenteditable="true"></div>
                 <div class="history-actions">
-                    <button class="btn btn-outline btn-sm" style="flex:1" onclick="NovelTool.setAsBase('${id}')">
-                        📌 设为上文
-                    </button>
-                    <button class="btn btn-outline btn-sm" style="flex:1" onclick="NovelTool.downloadOne('${id}', ${count})">
-                        📥 导出
-                    </button>
-                    <button class="btn btn-outline btn-sm" onclick="NovelTool.copyCard('${id}')">
-                        📋
-                    </button>
-                    <button class="btn btn-outline btn-sm" style="color:var(--danger)" onclick="NovelTool.deleteCard('${id}')">
-                        🗑
-                    </button>
+                    <button class="btn btn-outline btn-sm set-base-btn" style="flex:1">📌 设为上文</button>
+                    <button class="btn btn-outline btn-sm export-one-btn" style="flex:1">📥 导出</button>
+                    <button class="btn btn-outline btn-sm copy-btn">📋</button>
+                    <button class="btn btn-outline btn-sm delete-btn" style="color:var(--danger)">🗑</button>
                 </div>
             `;
 
-            if (content) {
-                setTimeout(() => this.updateCardWordCount(div), 0);
-            }
+            // 绑定卡片事件
+            div.querySelector('.toggle-btn').onclick = () => {
+                div.classList.toggle('collapsed');
+                div.querySelector('.toggle-btn').textContent = div.classList.contains('collapsed') ? '展开' : '折叠';
+            };
 
-            const body = div.querySelector('.history-body');
-            body.addEventListener('input', () => {
-                this.updateCardWordCount(div);
+            div.querySelector('.set-base-btn').onclick = () => {
+                const ct = div.querySelector('.content-text');
+                let t = ct ? ct.textContent : div.querySelector('.history-body').textContent;
+                t = t.replace(/^#\d+\s*/, '').trim();
+                if (t.length > 500) t = '...' + t.slice(-500);
+                document.getElementById('novel-content').value = t;
+                this.updateEditorCount();
+                this.toast('已设为上文', 'success');
+            };
+
+            div.querySelector('.export-one-btn').onclick = () => this.exportOne(id, count);
+
+            div.querySelector('.copy-btn').onclick = () => {
+                const ct = div.querySelector('.content-text');
+                navigator.clipboard.writeText(ct ? ct.textContent : '').then(
+                    () => this.toast('已复制', 'success'),
+                    () => this.toast('复制失败', 'error')
+                );
+            };
+
+            div.querySelector('.delete-btn').onclick = () => {
+                if (!confirm('确定删除？')) return;
+                div.style.cssText = 'transform:translateX(100%);opacity:0;transition:0.3s';
+                setTimeout(() => {
+                    div.remove();
+                    this.updateCounts();
+                    this.save();
+                    if (!document.getElementById('history-list').children.length) {
+                        document.getElementById('history-empty').style.display = 'block';
+                    }
+                    this.toast('已删除', 'info');
+                }, 300);
+            };
+
+            div.querySelector('.history-body').oninput = () => {
+                this.updateCardCount(div);
                 this.save();
-            });
+            };
 
             return div;
         }
 
-        toggleCard(id) {
-            const card = document.getElementById(id);
-            if (!card) return;
-
-            const btn = card.querySelector('button[onclick^="NovelTool.toggleCard"]');
-            card.classList.toggle('collapsed');
-            btn.innerText = card.classList.contains('collapsed') ? '展开' : '折叠';
-        }
-
-        setAsBase(id) {
-            const card = document.getElementById(id);
-            if (!card) return;
-
-            const contentSpan = card.querySelector('.content-text');
-            let text = contentSpan ? contentSpan.innerText : card.querySelector('.history-body').innerText;
-            text = text.replace(/^#\d+\s*/, '').trim();
-
-            if (text.length > 500) {
-                text = '...' + text.slice(-500);
-            }
-
-            document.getElementById('novel-content').value = text;
-            this.updateEditorCount();
-
-            const mainTab = document.querySelectorAll('.tab-item')[1];
-            if (mainTab) {
-                this.switchTab('main-container', mainTab);
-            }
-
-            this.showToast('已设为上文接力点', 'success');
-        }
-
-        copyCard(id) {
-            const card = document.getElementById(id);
-            if (!card) return;
-
-            const contentSpan = card.querySelector('.content-text');
-            const text = contentSpan ? contentSpan.innerText : card.querySelector('.history-body').innerText;
-
-            navigator.clipboard.writeText(text).then(() => {
-                this.showToast('已复制到剪贴板', 'success');
-            }).catch(() => {
-                this.showToast('复制失败', 'error');
-            });
-        }
-
-        deleteCard(id) {
-            if (!confirm('确定要删除这个片段吗？此操作不可恢复。')) return;
-
-            const card = document.getElementById(id);
-            if (card) {
-                card.style.transform = 'translateX(100%)';
-                card.style.opacity = '0';
-                card.style.transition = 'all 0.3s ease';
-
-                setTimeout(() => {
-                    card.remove();
-                    this.updateCounts();
-                    this.save();
-                    this.checkEmptyState();
-                    this.showToast('已删除', 'info');
-                }, 300);
-            }
-        }
-
-        // ========== 导出功能 ==========
-        downloadFullDraft() {
-            const title = document.getElementById('novel-title').value || '未命名小说';
-
-            let htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>${title}</title>
-<style>
-body { font-family: "宋体", SimSun, serif; font-size: 14pt; line-height: 1.8; padding: 40px; }
-h1 { text-align: center; font-size: 22pt; margin-bottom: 20px; }
-.meta { text-align: center; color: #666; font-size: 10pt; margin-bottom: 40px; }
-.section { margin-bottom: 30px; }
-.section-title { font-weight: bold; color: #333; margin-bottom: 10px; }
-.content { text-indent: 2em; }
-hr { border: none; border-top: 1px dashed #ccc; margin: 30px 0; }
-</style>
-</head>
-<body>
-<h1>《${title}》</h1>
-<div class="meta">导出时间：${new Date().toLocaleString('zh-CN')}</div>
-`;
-
-            const cards = Array.from(document.querySelectorAll('.history-card')).reverse();
-
-            if (cards.length === 0) {
-                this.showToast('暂无内容可导出', 'warning');
-                return;
-            }
-
-            cards.forEach((card, index) => {
-                const chapter = card.dataset.chapter || '?';
-                const contentSpan = card.querySelector('.content-text');
-                const text = contentSpan ? contentSpan.innerText : card.querySelector('.history-body').innerText;
-                const cleanText = text.replace(/^#\d+\s*/, '').trim();
-
-                htmlContent += `
-<div class="section">
-<div class="section-title">【第${chapter}章 · 第${index + 1}节】</div>
-<div class="content">${cleanText.replace(/\n/g, '</div><div class="content">')}</div>
-</div>
-<hr>
-`;
-            });
-
-            htmlContent += `
-</body>
-</html>`;
-
-            const blob = new Blob([htmlContent], { type: 'application/msword;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `《${title}》_全稿_${Date.now()}.doc`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
-
-            this.showToast('全本导出成功！', 'success');
-        }
-
-        downloadOne(id, count) {
-            const card = document.getElementById(id);
-            if (!card) return;
-
-            const chapter = card.dataset.chapter || '?';
-            const contentSpan = card.querySelector('.content-text');
-            const text = contentSpan ? contentSpan.innerText : card.querySelector('.history-body').innerText;
-            const title = document.getElementById('novel-title').value || '未命名';
-
-            const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>${title} - 第${chapter}章第${count}节</title>
-<style>
-body { font-family: "宋体", SimSun, serif; font-size: 14pt; line-height: 1.8; padding: 40px; }
-h1 { text-align: center; font-size: 18pt; margin-bottom: 30px; }
-.content { text-indent: 2em; }
-</style>
-</head>
-<body>
-<h1>《${title}》第${chapter}章 · 第${count}节</h1>
-<div class="content">${text.replace(/^#\d+\s*/, '').replace(/\n/g, '</div><div class="content">')}</div>
-</body>
-</html>`;
-
-            const blob = new Blob([htmlContent], { type: 'application/msword;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `${title}_第${chapter}章第${count}节.doc`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
-
-            this.showToast('导出成功！', 'success');
-        }
-
-        // ========== 统计更新 ==========
-        updateCardWordCount(card) {
-            const contentSpan = card.querySelector('.content-text');
-            const text = contentSpan ? contentSpan.innerText : card.querySelector('.history-body').innerText;
-            const wordCount = text.replace(/\s/g, '').replace(/^#\d+/, '').length;
-            card.querySelector('.w-count').innerText = wordCount.toLocaleString();
+        updateCardCount(card) {
+            const ct = card.querySelector('.content-text');
+            const text = ct ? ct.textContent : card.querySelector('.history-body').textContent;
+            card.querySelector('.w-count').textContent = text.replace(/\s/g, '').replace(/^#\d+/, '').length.toLocaleString();
             this.updateCounts();
         }
 
-        updateCounts() {
-            let total = 0;
-            let count = 0;
-            document.querySelectorAll('.history-body').forEach(el => {
-                const contentSpan = el.querySelector('.content-text');
-                const text = contentSpan ? contentSpan.innerText : el.innerText;
-                total += text.replace(/\s/g, '').replace(/^#\d+/, '').length;
-                count++;
+        // ========== 导出 ==========
+        exportDoc() {
+            const title = document.getElementById('novel-title').value || '未命名';
+            const cards = Array.from(document.querySelectorAll('.history-card')).reverse();
+
+            if (!cards.length) {
+                this.toast('暂无内容', 'warning');
+                return;
+            }
+
+            let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title>
+<style>body{font-family:"宋体";font-size:14pt;line-height:1.8;padding:40px}
+h1{text-align:center;font-size:22pt}
+.meta{text-align:center;color:#666;font-size:10pt;margin-bottom:40px}
+.section{margin-bottom:30px}.section-title{font-weight:bold;margin-bottom:10px}
+.content{text-indent:2em}hr{border:none;border-top:1px dashed #ccc;margin:30px 0}</style></head>
+<body><h1>《${title}》</h1><div class="meta">导出时间：${new Date().toLocaleString('zh-CN')}</div>`;
+
+            cards.forEach((card, i) => {
+                const ch = card.dataset.chapter || '?';
+                const ct = card.querySelector('.content-text');
+                const text = (ct ? ct.textContent : card.querySelector('.history-body').textContent).replace(/^#\d+\s*/, '').trim();
+                html += `<div class="section"><div class="section-title">【第${ch}章·第${i+1}节】</div>
+<div class="content">${text.replace(/\n/g, '</div><div class="content">')}</div></div><hr>`;
             });
 
-            document.getElementById('total-words').innerText = total.toLocaleString();
-            document.getElementById('ver-count').innerText = count;
-            document.getElementById('avg-words').innerText = count > 0 ? Math.round(total / count) : 0;
+            html += '</body></html>';
+            this.download(`《${title}》_全稿.doc`, html, 'application/msword');
+            this.toast('导出成功', 'success');
         }
 
-        updateEditorCount() {
-            const text = document.getElementById('novel-content').value;
-            document.getElementById('editor-count').innerText = text.length + ' 字';
+        exportOne(id, count) {
+            const card = document.getElementById(id);
+            if (!card) return;
+            const title = document.getElementById('novel-title').value || '未命名';
+            const ch = card.dataset.chapter || '?';
+            const ct = card.querySelector('.content-text');
+            const text = (ct ? ct.textContent : '').replace(/^#\d+\s*/, '');
+
+            const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title>
+<style>body{font-family:"宋体";font-size:14pt;line-height:1.8;padding:40px}
+h1{text-align:center;font-size:18pt;margin-bottom:30px}.content{text-indent:2em}</style></head>
+<body><h1>《${title}》第${ch}章·第${count}节</h1>
+<div class="content">${text.replace(/\n/g, '</div><div class="content">')}</div></body></html>`;
+
+            this.download(`${title}_第${ch}章第${count}节.doc`, html, 'application/msword');
+            this.toast('导出成功', 'success');
         }
 
-        checkEmptyState() {
-            const historyList = document.getElementById('history-list');
-            const emptyState = document.getElementById('history-empty');
-
-            if (historyList.children.length === 0) {
-                emptyState.style.display = 'block';
-            } else {
-                emptyState.style.display = 'none';
-            }
+        download(name, content, type) {
+            const blob = new Blob([content], { type: type + ';charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = name;
+            a.click();
+            URL.revokeObjectURL(a.href);
         }
 
-        // ========== UI状态切换 ==========
-        toggleUI(loading) {
+        // ========== UI更新 ==========
+        setGenerating(loading) {
             this.isGenerating = loading;
             document.getElementById('btn-gen').style.display = loading ? 'none' : 'inline-flex';
             document.getElementById('btn-stop').style.display = loading ? 'inline-flex' : 'none';
             document.getElementById('generating-stats').classList.toggle('show', loading);
+            document.getElementById('btn-update-memory').disabled = loading;
+        }
 
-            document.querySelectorAll('.btn-update').forEach(btn => {
-                btn.disabled = loading;
+        updateUI() {
+            this.updateCounts();
+            this.updateEditorCount();
+            this.updateApiKeyStatus();
+            this.updatePreviews();
+            this.updateChapterTag();
+            this.updateWikiCounts();
+            if (!document.getElementById('history-list').children.length) {
+                document.getElementById('history-empty').style.display = 'block';
+            }
+        }
+
+        updateCounts() {
+            let total = 0, count = 0;
+            document.querySelectorAll('.history-body').forEach(el => {
+                const ct = el.querySelector('.content-text');
+                total += (ct ? ct.textContent : el.textContent).replace(/\s/g, '').replace(/^#\d+/, '').length;
+                count++;
+            });
+            document.getElementById('total-words').textContent = total.toLocaleString();
+            document.getElementById('ver-count').textContent = count;
+            document.getElementById('avg-words').textContent = count ? Math.round(total / count) : 0;
+        }
+
+        updateEditorCount() {
+            document.getElementById('editor-count').textContent = document.getElementById('novel-content').value.length + ' 字';
+        }
+
+        updatePreviews() {
+            const map = { 'worldview-preview': 'worldView', 'character-preview': 'characterBible', 'style-preview': 'styleRef', 'negative-preview': 'negativePrompt' };
+            Object.entries(map).forEach(([pid, iid]) => {
+                const p = document.getElementById(pid);
+                const t = document.getElementById(iid)?.value.trim() || '';
+                if (p) p.textContent = t ? t.substring(0, 12) + (t.length > 12 ? '...' : '') : '';
             });
         }
 
-        stop() {
-            if (this.controller) {
-                this.controller.abort();
+        updateChapterTag() {
+            document.getElementById('summary-chapter-tag').textContent = '第' + (document.getElementById('currentChapter').value || '?') + '章';
+        }
+
+        updateWikiCounts() {
+            const core = document.getElementById('wikiCore').value.length;
+            const active = document.getElementById('wikiActive').value.length;
+            const archive = document.getElementById('wikiArchive').value.length;
+            document.getElementById('wiki-core-count').textContent = core + '字';
+            document.getElementById('wiki-active-count').textContent = active + '字';
+            document.getElementById('wiki-archive-count').textContent = archive + '字';
+            const total = core + active + archive;
+            const el = document.getElementById('wiki-total-count');
+            el.textContent = total;
+            el.style.color = (core + active) > 2000 ? 'var(--danger)' : '';
+        }
+
+        checkSyncReminder() {
+            if (this.updatesSinceSync >= 3) {
+                document.getElementById('coherence-check').style.display = 'flex';
+                document.getElementById('coherence-text').textContent = `已创作${this.updatesSinceSync}段，建议同步`;
             }
         }
 
-        // ========== 智能提示 ==========
-        showSmartTip() {
-            const lengthMode = document.getElementById('lengthMode').value;
-            const tips = {
-                'long': '💡 长篇模式：适合重要场景的深度刻画，约3000字以上',
-                'short': '💡 短篇模式：适合过渡场景或快节奏推进，约1000字'
-            };
-            if (tips[lengthMode]) {
-                this.showToast(tips[lengthMode], 'info');
-            }
+        hideSyncReminder() {
+            document.getElementById('coherence-check').style.display = 'none';
         }
 
-        // ========== 存储管理 ==========
+        // ========== 存储 ==========
         save() {
+            const fields = ['apiKey', 'novel-title', 'wikiCore', 'wikiActive', 'wikiArchive', 'worldView', 'characterBible',
+                'styleRef', 'negativePrompt', 'statusTracker', 'contextSummary', 'sceneGoal', 'mustInclude',
+                'rhythmControl', 'lengthMode', 'pov', 'novel-content', 'prompt-input', 'currentChapter'];
+
             const data = {
                 config: {},
                 history: [],
                 wikiSections: {},
-                genCount: this.genCount,
-                updatesSinceLastSync: this.updatesSinceLastSync,
                 collapsedGroups: [],
-                version: '2.3'
+                genCount: this.genCount,
+                updatesSinceSync: this.updatesSinceSync,
+                version: '2.3.1'
             };
-
-            const fields = [
-                'apiKey', 'novel-title', 'wikiCore', 'wikiActive', 'wikiArchive',
-                'worldView', 'characterBible', 'styleRef', 'negativePrompt', 
-                'statusTracker', 'contextSummary', 'sceneGoal', 'mustInclude', 
-                'rhythmControl', 'lengthMode', 'pov', 'novel-content', 
-                'prompt-input', 'currentChapter'
-            ];
 
             fields.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) {
-                    data.config[id] = el.value;
-                }
+                if (el) data.config[id] = el.value;
             });
 
-            // 保存知识库折叠状态
-            ['wiki-core-section', 'wiki-active-section', 'wiki-archive-section'].forEach(sectionId => {
-                const section = document.getElementById(sectionId);
-                if (section) {
-                    data.wikiSections[sectionId] = section.classList.contains('collapsed');
-                }
+            ['wiki-core-section', 'wiki-active-section', 'wiki-archive-section'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) data.wikiSections[id] = el.classList.contains('collapsed');
             });
 
-            // 保存输入组折叠状态
-            ['worldview-group', 'character-group', 'style-group', 'negative-group'].forEach(groupId => {
-                const group = document.getElementById(groupId);
-                if (group && group.classList.contains('collapsed')) {
-                    data.collapsedGroups.push(groupId);
-                }
+            ['worldview-group', 'character-group', 'style-group', 'negative-group'].forEach(id => {
+                if (document.getElementById(id)?.classList.contains('collapsed')) data.collapsedGroups.push(id);
             });
 
-            // 保存历史记录
             document.querySelectorAll('.history-card').forEach(card => {
-                const body = card.querySelector('.history-body');
-                data.history.push({
-                    html: body.innerHTML,
-                    chapter: card.dataset.chapter || 1
-                });
+                data.history.push({ html: card.querySelector('.history-body').innerHTML, chapter: card.dataset.chapter || 1 });
             });
 
-            try {
-                localStorage.setItem(this.storageKey, JSON.stringify(data));
-            } catch (e) {
-                console.warn('保存失败:', e);
-            }
+            try { localStorage.setItem(this.storageKey, JSON.stringify(data)); } catch {}
         }
 
-        loadFromStorage() {
+        loadStorage() {
             try {
-                const saved = localStorage.getItem(this.storageKey);
-                if (!saved) return;
-
-                const data = JSON.parse(saved);
+                const raw = localStorage.getItem(this.storageKey);
+                if (!raw) return;
+                const data = JSON.parse(raw);
 
                 if (data.config) {
-                    Object.keys(data.config).forEach(id => {
+                    Object.entries(data.config).forEach(([id, val]) => {
                         const el = document.getElementById(id);
-                        if (el) {
-                            el.value = data.config[id];
-                        }
+                        if (el) el.value = val;
                     });
                 }
 
                 this.genCount = data.genCount || 0;
-                this.updatesSinceLastSync = data.updatesSinceLastSync || 0;
+                this.updatesSinceSync = data.updatesSinceSync || 0;
 
-                // 恢复知识库折叠状态
                 if (data.wikiSections) {
-                    Object.keys(data.wikiSections).forEach(sectionId => {
-                        const section = document.getElementById(sectionId);
-                        if (section) {
-                            if (data.wikiSections[sectionId]) {
-                                section.classList.add('collapsed');
-                            } else {
-                                section.classList.remove('collapsed');
-                            }
-                        }
+                    Object.entries(data.wikiSections).forEach(([id, collapsed]) => {
+                        const el = document.getElementById(id);
+                        if (el) el.classList.toggle('collapsed', collapsed);
                     });
                 }
 
-                // 恢复输入组折叠状态
                 if (data.collapsedGroups) {
-                    ['worldview-group', 'character-group', 'style-group', 'negative-group'].forEach(groupId => {
-                        const group = document.getElementById(groupId);
-                        if (group) {
-                            if (data.collapsedGroups.includes(groupId)) {
-                                group.classList.add('collapsed');
-                            } else {
-                                group.classList.remove('collapsed');
-                            }
-                        }
+                    ['worldview-group', 'character-group', 'style-group', 'negative-group'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.classList.toggle('collapsed', data.collapsedGroups.includes(id));
                     });
                 }
 
-                // 恢复历史记录
-                if (data.history && data.history.length > 0) {
-                    const historyList = document.getElementById('history-list');
-                    data.history.reverse().forEach((item, i) => {
-                        const count = data.history.length - i;
+                if (data.history?.length) {
+                    const list = document.getElementById('history-list');
+                    data.history.slice().reverse().forEach((item, i) => {
                         const html = typeof item === 'string' ? item : item.html;
-                        const chapter = typeof item === 'string' ? 1 : (item.chapter || 1);
-
-                        const card = this.createHistoryCard(`restored-${i}`, count, '', chapter);
+                        const ch = typeof item === 'string' ? 1 : (item.chapter || 1);
+                        const count = data.history.length - i;
+                        const card = this.createCard(`r-${i}`, count, ch);
                         card.querySelector('.history-body').innerHTML = html;
-                        card.dataset.chapter = chapter;
-                        card.querySelector('.chapter-tag').innerText = `第${chapter}章`;
-                        historyList.prepend(card);
-                        this.updateCardWordCount(card);
+                        card.querySelector('.chapter-tag').textContent = `第${ch}章`;
+                        list.prepend(card);
+                        this.updateCardCount(card);
                     });
                 }
 
-                if (this.updatesSinceLastSync >= 3) {
-                    this.checkCoherenceReminder();
-                }
+                if (this.updatesSinceSync >= 3) this.checkSyncReminder();
 
-            } catch (e) {
-                console.warn('加载存储数据失败:', e);
-            }
+            } catch (e) { console.warn('加载失败:', e); }
         }
 
-        // ========== Toast提示 ==========
-        showToast(message, type = 'info') {
-            const existingToast = document.querySelector('.toast-message');
-            if (existingToast) {
-                existingToast.remove();
-            }
-
-            const toast = document.createElement('div');
-            toast.className = 'toast-message';
-
-            const icons = {
-                success: '✓',
-                error: '✕',
-                warning: '⚠',
-                info: 'ℹ'
-            };
-
+        // ========== Toast ==========
+        toast(msg, type = 'info') {
+            document.querySelector('.toast-msg')?.remove();
+            const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
             const colors = {
-                success: 'linear-gradient(135deg, #34c759, #30d158)',
-                error: 'linear-gradient(135deg, #ff3b30, #ff453a)',
-                warning: 'linear-gradient(135deg, #ff9500, #ff9f0a)',
-                info: 'linear-gradient(135deg, #0071e3, #0077ed)'
+                success: 'linear-gradient(135deg,#34c759,#30d158)',
+                error: 'linear-gradient(135deg,#ff3b30,#ff453a)',
+                warning: 'linear-gradient(135deg,#ff9500,#ff9f0a)',
+                info: 'linear-gradient(135deg,#0071e3,#0077ed)'
             };
 
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 100px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: ${colors[type]};
-                color: white;
-                padding: 14px 28px;
-                border-radius: 50px;
-                font-size: 14px;
-                font-weight: 600;
-                z-index: 10000;
-                box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                animation: toastIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            `;
+            const div = document.createElement('div');
+            div.className = 'toast-msg';
+            div.style.cssText = `position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+background:${colors[type]};color:#fff;padding:14px 28px;border-radius:50px;font-size:14px;
+font-weight:600;z-index:10000;box-shadow:0 8px 30px rgba(0,0,0,0.2);display:flex;align-items:center;gap:10px;
+animation:toastIn 0.4s cubic-bezier(0.68,-0.55,0.265,1.55)`;
+            div.innerHTML = `<span style="font-size:18px">${icons[type]}</span><span>${msg}</span>`;
+            document.body.appendChild(div);
 
-            toast.innerHTML = `<span style="font-size:18px">${icons[type]}</span><span>${message}</span>`;
-            document.body.appendChild(toast);
-
-            if (!document.getElementById('toast-style')) {
-                const style = document.createElement('style');
-                style.id = 'toast-style';
-                style.textContent = `
-                    @keyframes toastIn {
-                        from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(0.9); }
-                        to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-                    }
-                    @keyframes toastOut {
-                        from { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-                        to { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(0.9); }
-                    }
-                `;
-                document.head.appendChild(style);
+            if (!document.getElementById('toast-css')) {
+                const s = document.createElement('style');
+                s.id = 'toast-css';
+                s.textContent = `@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(30px) scale(0.9)}
+to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+to{opacity:0;transform:translateX(-50%) translateY(-20px) scale(0.9)}}`;
+                document.head.appendChild(s);
             }
 
             setTimeout(() => {
-                toast.style.animation = 'toastOut 0.3s ease forwards';
-                setTimeout(() => toast.remove(), 300);
+                div.style.animation = 'toastOut 0.3s ease forwards';
+                setTimeout(() => div.remove(), 300);
             }, 2500);
         }
     }
 
-    // ==================== 初始化 ====================
-    const tool = new NovelCreationTool();
-
+    // ==================== 启动 ====================
+    const tool = new NovelTool();
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => tool.init());
     } else {
         tool.init();
     }
-
-    // 导出全局接口
-    window.NovelTool = {
-        generate: () => tool.generate(),
-        stop: () => tool.stop(),
-        smartUpdateMemory: () => tool.smartUpdateMemory(),
-        switchTab: (panelId, tabEl) => tool.switchTab(panelId, tabEl),
-        toggleCard: (id) => tool.toggleCard(id),
-        setAsBase: (id) => tool.setAsBase(id),
-        copyCard: (id) => tool.copyCard(id),
-        deleteCard: (id) => tool.deleteCard(id),
-        downloadFullDraft: () => tool.downloadFullDraft(),
-        downloadOne: (id, count) => tool.downloadOne(id, count),
-        toggleApiPopup: () => tool.toggleApiPopup(),
-        saveApiKey: () => tool.saveApiKey(),
-        openDrawer: (targetId, title) => tool.openDrawer(targetId, title),
-        closeDrawer: () => tool.closeDrawer(),
-        saveDrawer: () => tool.saveDrawer(),
-        toggleImmersive: () => tool.toggleImmersive(),
-        toggleInputGroup: (groupId) => tool.toggleInputGroup(groupId),
-        toggleWikiSection: (sectionId) => tool.toggleWikiSection(sectionId),
-        archiveWiki: () => tool.archiveWiki()
-    };
 
 })();
