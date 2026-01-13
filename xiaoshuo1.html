@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DeepSeek小说创作工具</title>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1a202c;
+            --text-sub: #718096;
+            --primary: #3182ce;
+            --primary-light: #ebf8ff;
+            --primary-dark: #2c5282;
+            --danger: #e53e3e;
+            --success: #38a169;
+            --warning: #dd6b20;
+            --border: #e2e8f0;
+            --sidebar-left: #f7fafc;
+            --sidebar-right: #fafbfc;
+            --header-height: 56px;
+            --sidebar-width: 340px;
+            --sync-height: 90px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            /* 核心修复：使用 dvh 适配移动端动态地址栏 */
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ========== 顶部导航 ========== */
+        #top-header {
+            height: var(--header-height);
+            background: linear-gradient(135deg, #2c5282 0%, #3182ce 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* API Key */
+        .api-key-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--primary-dark);
+            transition: all 0.2s;
+        }
+
+        .api-key-btn:hover {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .api-key-btn.configured {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .api-key-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+        }
+
+        .api-key-btn.configured .api-key-status {
+            background: var(--success);
+        }
+
+        .api-popup {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 320px;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            padding: 20px;
+            display: none;
+            z-index: 1002;
+        }
+
+        .api-popup.show {
+            display: block;
+            animation: popupIn 0.2s ease;
+        }
+
+        @keyframes popupIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .api-popup h4 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .api-popup input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .api-popup input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .api-popup-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .api-popup-actions .btn { flex: 1; }
+
+        .api-help-link {
+            font-size: 12px;
+            color: var(--primary);
+            text-decoration: none;
+            display: block;
+            margin-top: 12px;
+        }
+
+        .api-help-link:hover { text-decoration: underline; }
+
+        /* AI标识 */
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, var(--primary), #4299e1);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+
+        /* 实时字数 */
+        .generating-stats {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .generating-stats.show { display: flex; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ========== 移动端Tab ========== */
+        #mobile-tabs {
+            display: none;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            justify-content: space-around;
+            padding: 8px 0;
+            flex-shrink: 0;
+            z-index: 99; /* 确保不被遮挡 */
+        }
+
+        .tab-item {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tab-item.active {
+            color: white;
+            background: var(--primary);
+        }
+
+        /* ========== 主布局 ========== */
+        #layout-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #static-sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-left);
+            border-right: 1px solid var(--border);
+            padding: 16px;
+        }
+
+        #dynamic-sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-right);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--card);
+            overflow: hidden;
+        }
+
+        /* ========== 右侧固定同步按钮区域 ========== */
+        .sync-fixed {
+            flex-shrink: 0;
+            padding: 12px 16px;
+            background: linear-gradient(180deg, var(--sidebar-right) 0%, #f0f4f8 100%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .btn-sync {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary), #4299e1);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-sync:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(49, 130, 206, 0.4);
+        }
+
+        .btn-sync:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .sync-tip {
+            font-size: 10px;
+            color: var(--text-sub);
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .sync-reminder {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 6px 10px;
+            background: #fef3c7;
+            border-radius: 6px;
+            font-size: 10px;
+            color: #92400e;
+            margin-top: 6px;
+        }
+
+        .sync-reminder.show { display: flex; }
+
+        /* 右侧可滚动内容区 */
+        .sidebar-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ========== 编辑器 ========== */
+        #editor-wrapper {
+            height: 16%;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid var(--border);
+            background: #fafbfc;
+            flex-shrink: 0;
+        }
+
+        .editor-header {
+            padding: 10px 20px 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sub);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .expand-btn {
+            padding: 4px 10px;
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .expand-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        #novel-content {
+            flex: 1;
+            padding: 12px 20px 16px;
+            border: none;
+            font-size: 15px;
+            line-height: 1.8;
+            outline: none;
+            resize: none;
+            background: transparent;
+        }
+
+        /* ========== 历史区 ========== */
+        #history-wrapper {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--bg);
+        }
+
+        #history-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sub);
+        }
+
+        #history-empty .empty-icon { font-size: 48px; margin-bottom: 16px; }
+        #history-empty h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; text-transform: none; }
+        #history-empty p { font-size: 13px; line-height: 1.6; margin: 0; }
+
+        /* ========== 控制栏 ========== */
+        #control-bar {
+            padding: 12px 16px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        #control-bar input {
+            flex: 1;
+            height: 44px;
+            padding: 0 16px;
+            font-size: 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+        }
+
+        #control-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+
+        /* ========== 知识库 ========== */
+        .wiki-container {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--card);
+            margin-bottom: 12px;
+        }
+
+        .wiki-section { border-bottom: 1px solid var(--border); }
+        .wiki-section:last-child { border-bottom: none; }
+
+        .wiki-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .wiki-section-header:hover { background: rgba(49, 130, 206, 0.05); }
+
+        .wiki-section-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .wiki-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .wiki-core .wiki-dot { background: var(--primary-dark); }
+        .wiki-active .wiki-dot { background: var(--success); }
+        .wiki-archive .wiki-dot { background: var(--text-sub); }
+
+        .wiki-section-header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .wiki-count {
+            font-size: 10px;
+            color: var(--text-sub);
+            background: var(--bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .wiki-count.over { background: #fed7d7; color: var(--danger); }
+
+        .wiki-toggle {
+            font-size: 10px;
+            color: var(--text-sub);
+            transition: transform 0.2s;
+        }
+
+        .wiki-section.collapsed .wiki-toggle { transform: rotate(-90deg); }
+        .wiki-section.collapsed .wiki-section-body { display: none; }
+
+        .wiki-section-body textarea {
+            width: 100%;
+            border: none;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .wiki-core .wiki-section-body textarea {
+            background: #f0f5ff;
+            min-height: 100px;
+        }
+
+        .wiki-active .wiki-section-body textarea {
+            background: #f0fff4;
+            min-height: 80px;
+        }
+
+        .wiki-archive .wiki-section-body textarea {
+            background: #f7fafc;
+            min-height: 60px;
+            color: #718096;
+        }
+
+        .wiki-actions {
+            display: flex;
+            gap: 6px;
+            padding: 10px 14px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+        }
+
+        .wiki-actions .btn { flex: 1; }
+
+        .wiki-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            font-size: 10px;
+            color: var(--text-sub);
+        }
+
+        /* ========== 可折叠输入组 ========== */
+        .input-group {
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--card);
+        }
+
+        .input-group.collapsed { background: var(--bg); }
+
+        .input-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .input-group-header:hover { background: rgba(49, 130, 206, 0.05); }
+
+        .input-group-header-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .input-group-header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-group-preview {
+            font-size: 11px;
+            color: var(--text-sub);
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .input-group-toggle {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border-radius: 6px;
+            font-size: 10px;
+            color: var(--text-sub);
+            transition: transform 0.2s;
+        }
+
+        .input-group.collapsed .input-group-toggle { transform: rotate(-90deg); }
+        .input-group.collapsed .input-group-body { display: none; }
+
+        .input-group-body {
+            padding: 0 12px 12px;
+        }
+
+        /* ========== 通用输入 ========== */
+        textarea, input[type="text"], input[type="password"], input[type="number"], select {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+            background: var(--card);
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        .input-ai-auto {
+            background: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%) !important;
+            border-color: #90cdf4;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 10px 0 5px;
+            color: var(--text);
+            gap: 4px;
+        }
+
+        .label-right { margin-left: auto; }
+
+        .tips {
+            font-size: 10px;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+
+        /* ========== 按钮 ========== */
+        .btn {
+            padding: 0 14px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #4299e1);
+            color: white;
+            box-shadow: 0 2px 8px rgba(49, 130, 206, 0.3);
+        }
+
+        .btn-primary:hover { box-shadow: 0 4px 12px rgba(49, 130, 206, 0.4); }
+
+        .btn-outline {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-sm { height: 32px; font-size: 12px; padding: 0 10px; }
+        .btn-xs { height: 28px; font-size: 11px; padding: 0 8px; }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+            color: white;
+        }
+
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-expand {
+            padding: 3px 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-expand:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* ========== 历史卡片 ========== */
+        .history-card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .history-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        .history-card.generating {
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(49, 130, 206, 0.2);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .history-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chapter-badge {
+            padding: 4px 10px;
+            background: linear-gradient(135deg, var(--primary), #4299e1);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        .history-time {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .history-body {
+            font-size: 16px;
+            line-height: 2;
+            white-space: pre-wrap;
+            overflow: hidden;
+            color: #2d3748;
+            padding: 8px 0;
+        }
+
+        .history-card.collapsed .history-body {
+            max-height: 100px;
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+        }
+
+        .serial-number {
+            display: block;
+            color: var(--primary);
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+
+        .history-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 6px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .word-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg);
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        /* ========== 统计栏 ========== */
+        .stats-bar {
+            margin-top: 12px;
+            padding: 14px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .stat-item { text-align: center; }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: "SF Mono", monospace;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        /* ========== 分割线 ========== */
+        .divider {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 12px 0;
+        }
+
+        /* ========== 加载动画 ========== */
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ========== 抽屉 ========== */
+        .drawer-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .drawer-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .drawer-panel {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 85vh;
+            background: var(--card);
+            border-radius: 20px 20px 0 0;
+            z-index: 2001;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer-overlay.show .drawer-panel { transform: translateY(0); }
+
+        .drawer-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .drawer-header h3 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: none;
+        }
+
+        .drawer-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-sub);
+            transition: all 0.2s;
+        }
+
+        .drawer-close:hover { background: var(--danger); color: white; }
+
+        .drawer-body {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .drawer-body textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            font-size: 16px;
+            line-height: 1.8;
+            resize: none;
+            outline: none;
+            background: transparent;
+        }
+
+        .drawer-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            background: var(--bg);
+        }
+
+        /* ========== 沉浸模式 ========== */
+        body.immersive-mode #top-header,
+        body.immersive-mode #mobile-tabs,
+        body.immersive-mode #static-sidebar,
+        body.immersive-mode #dynamic-sidebar { display: none !important; }
+
+        body.immersive-mode #main-container { background: #1a202c; }
+        body.immersive-mode #editor-wrapper { background: #1a202c; border-color: #2d3748; }
+        body.immersive-mode #novel-content { color: #e2e8f0; }
+        body.immersive-mode #history-wrapper { background: #171923; }
+        body.immersive-mode .history-card { background: #2d3748; border-color: #4a5568; }
+        body.immersive-mode .history-body { color: #e2e8f0; }
+        body.immersive-mode #control-bar { background: #1a202c; border-color: #2d3748; }
+        body.immersive-mode #control-bar input { background: #2d3748; border-color: #4a5568; color: #e2e8f0; }
+
+        #exit-immersive {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        body.immersive-mode #exit-immersive { display: flex; align-items: center; gap: 6px; }
+        #exit-immersive:hover { background: rgba(255,255,255,0.2); }
+
+        /* ========== 域名限制 ========== */
+        #domain-error {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .domain-error-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .domain-error-content h2 { color: var(--danger); margin-bottom: 16px; }
+        .domain-error-content p { color: var(--text-sub); line-height: 1.6; margin: 0; }
+
+        /* ========== 响应式修正 (移动端核心修复) ========== */
+        @media (max-width: 900px) {
+            :root { --sidebar-width: 300px; }
+        }
+
+        @media (max-width: 768px) {
+            /* 隐藏 PC 端不需要的元素 */
+            .header-center { display: none; }
+            
+            /* 显示移动端 Tab */
+            #mobile-tabs { 
+                display: flex; 
+            }
+
+            /* 修正布局容器，确保 Tab 正常显示且高度不溢出 */
+            #layout-wrapper { 
+                flex-direction: column; 
+            }
+
+            /* 修正面板显示逻辑 */
+            .panel, #main-container { 
+                display: none; 
+                width: 100% !important; 
+                height: 100%; 
+                border: none;
+            }
+
+            /* 激活的面板占满剩余空间 */
+            .active-panel { 
+                display: flex !important; 
+                flex-direction: column;
+            }
+
+            /* 核心修复：编辑器高度 
+               不再固定 100px，改为占据约25%且最小180px，保证能看到上文
+            */
+            #editor-wrapper { 
+                height: auto;
+                flex: 0 0 25%;
+                min-height: 180px; 
+                max-height: 40%;
+                border-bottom: 1px solid var(--border);
+            }
+
+            /* 历史记录区域自适应 */
+            #history-wrapper {
+                flex: 1;
+                overflow-y: auto;
+            }
+
+            /* 底部控制栏优化 */
+            #control-bar { 
+                padding: 10px 12px;
+                /* 适配 iPhone 底部 Home 条 (Safe Area) */
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
+            }
+            
+            /* 输入框字体防缩放 (iOS要求至少16px) */
+            textarea, input, select { 
+                font-size: 16px !important; 
+            }
+
+            /* 侧边栏优化 */
+            #static-sidebar, #dynamic-sidebar {
+                padding: 12px;
+                background: var(--bg);
+            }
+
+            /* 抽屉在移动端稍微留出顶部距离 */
+            .drawer-panel { 
+                height: 85dvh; 
+                border-radius: 16px 16px 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="domain-error">
+        <div class="domain-error-content">
+            <h2>⚠️ 访问受限</h2>
+            <p>此工具仅限在 <strong>aibox6.com</strong> 域名下使用。</p>
+        </div>
+    </div>
+
+    <button id="exit-immersive">☀️ 退出沉浸</button>
+
+    <div class="drawer-overlay" id="drawer-overlay">
+        <div class="drawer-panel">
+            <div class="drawer-header">
+                <h3 id="drawer-title">编辑</h3>
+                <button class="drawer-close" id="drawer-close-btn">✕</button>
+            </div>
+            <div class="drawer-body">
+                <textarea id="drawer-textarea" placeholder="输入内容..."></textarea>
+            </div>
+            <div class="drawer-footer">
+                <span><span id="drawer-char-count">0</span> 字</span>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn btn-outline" id="drawer-cancel-btn">取消</button>
+                    <button class="btn btn-primary" id="drawer-save-btn">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header id="top-header">
+        <div class="header-logo">📚 DeepSeek 小说创作</div>
+        <div class="header-center">
+            <button class="header-btn" id="immersive-btn">🌙 沉浸写作</button>
+        </div>
+        <div class="header-right">
+            <div class="generating-stats" id="generating-stats">
+                <span>✍️</span>
+                <span id="live-word-count">0</span>
+                <span>字</span>
+            </div>
+            <div style="position:relative;">
+                <button class="api-key-btn" id="api-key-btn">
+                    <span class="api-key-status"></span>
+                    <span>API Key</span>
+                </button>
+                <div class="api-popup" id="api-popup">
+                    <h4>🔑 配置 DeepSeek API Key</h4>
+                    <input type="password" id="apiKey" placeholder="sk-xxx...">
+                    <div class="api-popup-actions">
+                        <button class="btn btn-primary btn-sm" id="save-api-btn">保存</button>
+                        <button class="btn btn-outline btn-sm" id="cancel-api-btn">取消</button>
+                    </div>
+                    <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="api-help-link">
+                        🔗 如何获取 API Key
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="mobile-tabs">
+        <div class="tab-item" data-panel="static-sidebar">设定</div>
+        <div class="tab-item active" data-panel="main-container">创作</div>
+        <div class="tab-item" data-panel="dynamic-sidebar">控制</div>
+    </div>
+
+    <div id="layout-wrapper">
+        <div class="panel" id="static-sidebar">
+            <label>📖 小说名</label>
+            <input type="text" id="novel-title" placeholder="输入小说名">
+            <hr class="divider">
+
+            <div class="wiki-container">
+                <div class="wiki-section wiki-core" id="wiki-core-section">
+                    <div class="wiki-section-header">
+                        <div class="wiki-section-header-left">
+                            <span class="wiki-dot"></span>
+                            <span>🏛️ 世界观与核心设定</span>
+                        </div>
+                        <div class="wiki-section-header-right">
+                            <span class="wiki-count" id="wiki-core-count">0</span>
+                            <span class="wiki-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="wiki-section-body">
+                        <textarea id="wikiCore" placeholder="世界观、时代背景、力量体系、主角设定...&#10;💡 建议≤800字"></textarea>
+                    </div>
+                </div>
+
+                <div class="wiki-section wiki-active" id="wiki-active-section">
+                    <div class="wiki-section-header">
+                        <div class="wiki-section-header-left">
+                            <span class="wiki-dot"></span>
+                            <span>🧠 活跃记忆</span>
+                            <span class="ai-badge">🤖 AI</span>
+                        </div>
+                        <div class="wiki-section-header-right">
+                            <span class="wiki-count" id="wiki-active-count">0</span>
+                            <span class="wiki-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="wiki-section-body">
+                        <textarea id="wikiActive" class="input-ai-auto" placeholder="点击「一键同步」后AI自动填充&#10;💡 单章≤250字，总计≤1000字"></textarea>
+                    </div>
+                </div>
+
+                <div class="wiki-section wiki-archive collapsed" id="wiki-archive-section">
+                    <div class="wiki-section-header">
+                        <div class="wiki-section-header-left">
+                            <span class="wiki-dot"></span>
+                            <span>📦 历史归档</span>
+                        </div>
+                        <div class="wiki-section-header-right">
+                            <span class="wiki-count" id="wiki-archive-count">0</span>
+                            <span class="wiki-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="wiki-section-body">
+                        <textarea id="wikiArchive" placeholder="旧章节归档..."></textarea>
+                    </div>
+                </div>
+
+                <div class="wiki-actions">
+                    <button class="btn btn-outline btn-xs" id="btn-edit-core">编辑核心</button>
+                    <button class="btn btn-outline btn-xs" id="btn-edit-active">编辑活跃</button>
+                    <button class="btn btn-outline btn-xs" id="btn-archive">归档</button>
+                </div>
+
+                <div class="wiki-stats">
+                    <span>总计: <b id="wiki-total-count">0</b>字</span>
+                    <span id="wiki-limit-tip">活跃层≤10000</span>
+                </div>
+            </div>
+
+            <div class="input-group collapsed" id="character-group">
+                <div class="input-group-header">
+                    <div class="input-group-header-left">
+                        <span>👤</span>
+                        <span>角色档案</span>
+                    </div>
+                    <div class="input-group-header-right">
+                        <span class="input-group-preview" id="character-preview"></span>
+                        <button class="btn-expand" id="btn-expand-char">展开</button>
+                        <span class="input-group-toggle">▼</span>
+                    </div>
+                </div>
+                <div class="input-group-body">
+                    <textarea id="characterBible" rows="3" placeholder="主角、配角的设定..."></textarea>
+                </div>
+            </div>
+
+            <div class="input-group collapsed" id="style-group">
+                <div class="input-group-header">
+                    <div class="input-group-header-left">
+                        <span>🎨</span>
+                        <span>文风</span>
+                    </div>
+                    <div class="input-group-header-right">
+                        <span class="input-group-preview" id="style-preview"></span>
+                        <button class="btn-expand" id="btn-expand-style">展开</button>
+                        <span class="input-group-toggle">▼</span>
+                    </div>
+                </div>
+                <div class="input-group-body">
+                    <textarea id="styleRef" rows="2" placeholder="权谋、悬疑、轻松..."></textarea>
+                </div>
+            </div>
+
+            <div class="input-group collapsed" id="negative-group">
+                <div class="input-group-header">
+                    <div class="input-group-header-left">
+                        <span>🚫</span>
+                        <span>禁忌</span>
+                    </div>
+                    <div class="input-group-header-right">
+                        <span class="input-group-preview" id="negative-preview"></span>
+                        <button class="btn-expand" id="btn-expand-neg">展开</button>
+                        <span class="input-group-toggle">▼</span>
+                    </div>
+                </div>
+                <div class="input-group-body">
+                    <textarea id="negativePrompt" rows="2" placeholder="避免的词汇、套路..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-container" class="active-panel">
+            <div id="editor-wrapper">
+                <div class="editor-header">
+                    <div class="editor-header-left">
+                        <span>📝 上文接力</span>
+                        <button class="expand-btn" id="btn-expand-content">展开</button>
+                    </div>
+                    <span id="editor-count">0 字</span>
+                </div>
+                <textarea id="novel-content" placeholder="粘贴上一章结尾200-500字..."></textarea>
+            </div>
+
+            <div id="history-wrapper">
+                <div id="history-list"></div>
+                <div id="history-empty">
+                    <div class="empty-icon">📝</div>
+                    <h3>开始创作</h3>
+                    <p>粘贴上文，输入指令，点击开搞</p>
+                </div>
+            </div>
+
+            <div id="control-bar">
+                <input type="text" id="prompt-input" placeholder="创作指令：续写、扩写、加入某情节...">
+                <button id="btn-gen" class="btn btn-primary">🎬 开搞</button>
+                <button id="btn-stop" class="btn btn-stop" style="display:none;">⏹ 停止</button>
+            </div>
+        </div>
+
+        <div class="panel" id="dynamic-sidebar">
+            <div class="sync-fixed">
+                <button class="btn-sync" id="btn-sync">
+                    <span id="sync-btn-text">🧠 一键同步知识库</span>
+                </button>
+                <div class="sync-tip">自动更新活跃记忆、摘要、事实</div>
+                <div class="sync-reminder" id="sync-reminder">
+                    ⚠️ <span id="sync-reminder-text">已创作3章，建议同步</span>
+                </div>
+            </div>
+
+            <div class="sidebar-scroll">
+                <label>
+                    📋 事实档案
+                    <span class="ai-badge">🤖 AI</span>
+                    <button class="btn-expand label-right" id="btn-expand-facts">展开</button>
+                </label>
+                <div class="tips">不可逆改变：[第X章] 事件</div>
+                <textarea id="statusTracker" rows="3" class="input-ai-auto" placeholder="AI自动填充..."></textarea>
+
+                <label>
+                    📜 前情摘要
+                    <span class="ai-badge">🤖 AI</span>
+                    <button class="btn-expand label-right" id="btn-expand-summary">展开</button>
+                </label>
+                <textarea id="contextSummary" rows="2" class="input-ai-auto" placeholder="AI自动填充..."></textarea>
+
+                <hr class="divider">
+
+                <label>
+                    🎯 本段目标
+                    <button class="btn-expand label-right" id="btn-expand-goal">展开</button>
+                </label>
+                <textarea id="sceneGoal" rows="2" placeholder="核心冲突、剧情推进点..."></textarea>
+
+                <label>
+                    ⚡ 必须包含
+                    <button class="btn-expand label-right" id="btn-expand-must">展开</button>
+                </label>
+                <textarea id="mustInclude" rows="2" placeholder="关键道具、角色、伏笔..."></textarea>
+
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                    <div style="flex:1">
+                        <label>⏱️ 节奏</label>
+                        <select id="rhythmControl">
+                            <option value="正常">正常</option>
+                            <option value="慢节奏">慢：心理/环境</option>
+                            <option value="快节奏">快：动作/对话</option>
+                        </select>
+                    </div>
+                    <div style="flex:1">
+                        <label>📏 篇幅</label>
+                        <select id="lengthMode">
+                            <option value="standard">标准1500-2000</option>
+                            <option value="long">长篇3000+</option>
+                            <option value="short">短篇~1000</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label>👁️ 视角</label>
+                <select id="pov">
+                    <option value="第三人称限知视角">第三人称跟随</option>
+                    <option value="第一人称">第一人称</option>
+                    <option value="全知视角">全知视角</option>
+                </select>
+
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-words">0</div>
+                        <div class="stat-label">总字数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="chapter-count">0</div>
+                        <div class="stat-label">章节</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="avg-words">0</div>
+                        <div class="stat-label">平均</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-outline" style="width:100%;margin-top:12px;" id="btn-export">
+                    📥 导出全本 (.doc)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/xiaoshuo.js"></script>
+    <script src="common.js"></script>
+</body>
+</html>
