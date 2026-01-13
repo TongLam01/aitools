@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V5.1 (稳定修复版)</title>
+    <title>商事合同诊断助手 V5.2 (稳定运行版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -78,8 +78,8 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v5.1</span></h1>
-                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义边界重构 · 修复版</p>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v5.2</span></h1>
+                <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地解析 · 语义深度净化 · 稳定修复版</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
                 <button id="exportBtn" disabled onclick="exportToWord()" class="btn-export-waiting px-4 py-2 lg:px-5 lg:py-2.5 rounded-xl text-sm font-medium transition-all">导出报告</button>
@@ -182,7 +182,7 @@
             '安保公司', '劳务公司', '派遣公司', '外包公司', '代理公司',
             '分公司', '子公司', '母公司', '总公司', '控股公司',
             '上市公司', '国有公司', '民营公司', '外资公司', '合资公司',
-            '老年人服务中心', '服务中心', '活动中心', '党群服务中心', '社区中心' // V5.0 新增
+            '老年人服务中心', '服务中心', '活动中心', '党群服务中心', '社区中心'
         ]);
 
         // 【B】泛指前缀模式
@@ -251,7 +251,6 @@
             return clean;
         }
 
-        // --- 【核心函数】智能前缀剥离 (V5.0 更新) ---
         function stripSemanticPrefixes(text, type) {
             let cleaned = text;
             
@@ -284,7 +283,6 @@
             return false;
         }
 
-        // --- 泛指判断函数 (补回 V5.0 遗漏) ---
         function isGenericCompanyReference(fullText, matchIndex, matchText) {
             if (GENERIC_COMPANY_TERMS.has(matchText)) {
                 const prefixStart = Math.max(0, matchIndex - 20);
@@ -370,18 +368,14 @@
                     if (!rawMatch) continue;
                     let cleanT = rawMatch.trim();
                     
-                    // 1. 剥离
                     cleanT = stripSemanticPrefixes(cleanT, type);
                     if (cleanT.length < 2) continue;
 
-                    // 2. 语义否定
                     if (isSemanticFalsePositive(processedText, m.index, cleanT)) continue;
 
-                    // 3. 泛指/有效性检查
                     if (type === 'company') {
                         if (isGenericCompanyReference(processedText, m.index, cleanT)) continue;
                         if (!isValidCompanyName(cleanT)) continue;
-                        // V5.0: 对后缀"物业公司"等做更严格的检查
                         let isSuffixGeneric = false;
                         for (let term of GENERIC_COMPANY_TERMS) {
                             if (cleanT === term) { isSuffixGeneric = true; break; }
@@ -389,7 +383,6 @@
                         if (isSuffixGeneric) continue;
                     }
 
-                    // 4. 黑名单强校验
                     let hitBlacklist = false;
                     if (type === 'address') {
                         const strictBan = ['法律', '法规', '规定', '条款', '或者', '以及'];
@@ -402,7 +395,6 @@
                     } else if (IGNORE_TERMS.has(cleanT)) hitBlacklist = true;
                     if (hitBlacklist) continue;
 
-                    // 5. 语境验证
                     if (strategy === 'loose_company') {
                         if (!hasContractContext(processedText, m.index, cleanT)) {
                             continue;
