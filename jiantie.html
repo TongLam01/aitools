@@ -200,6 +200,8 @@
             gap: 8px;
             opacity: 0.2;
             transition: opacity 0.2s;
+            /* 确保容器宽度占满，以便 flex 布局生效 */
+            width: 100%; 
         }
         .item-row:hover .actions { opacity: 1; }
 
@@ -211,7 +213,6 @@
             background: transparent;
         }
         
-        /* 修复：悬停时背景透明，只变文字颜色 */
         .action-btn:hover { 
             border-color: var(--fg); 
             color: var(--fg); 
@@ -224,10 +225,17 @@
             border-color: var(--fg); 
         }
         
+        /* --- 修改开始：针对删除按钮的样式 --- */
+        .action-btn.del {
+            /* 关键：利用 flexbox 自动边距将元素推到最右侧 */
+            margin-left: auto; 
+        }
+        
         .action-btn.del:hover { 
             border-color: #d32f2f; 
             color: #d32f2f; 
         }
+        /* --- 修改结束 --- */
 
         .empty-row {
             padding: 60px 0;
@@ -293,7 +301,6 @@
 
     function handlePaste(e) {
         // 只有当焦点不在 contenteditable 元素上时才触发全局粘贴
-        // 这样可以允许用户在编辑某一行时进行粘贴操作，而不创建新卡片
         if (document.activeElement.getAttribute('contenteditable') === 'true') {
             return; 
         }
@@ -353,22 +360,15 @@
             
             const isLong = item.content.length > MAX_LENGTH;
             let contentHtml = '';
-            // 判断是否允许编辑：短文本允许，长文本只有在展开时允许（防止编辑截断的文本）
             let isEditable = false;
 
             if (isLong && !item.expanded) {
-                // 折叠状态：显示摘要，不可编辑
                 const safeShortText = escapeHtml(item.content.substring(0, MAX_LENGTH));
                 contentHtml = `${safeShortText}... <span class="toggle-btn" onclick="toggleExpand(${item.id})">[展开]</span>`;
             } else if (isLong && item.expanded) {
-                // 展开状态：显示全文，可编辑，附加收起按钮
-                // 按钮放在外面，或者作为不可编辑元素插入（这里简单处理放在后面，编辑时需注意）
-                // 为了编辑体验，展开时我们只渲染纯文本以便编辑，折叠按钮放在下方Actions里或者独立
-                // 方案：内容区纯文本可编辑，"收起"按钮作为单独的span，设为 contenteditable="false"
                 contentHtml = `${escapeHtml(item.content)} <span class="toggle-btn" contenteditable="false" onclick="toggleExpand(${item.id})">[收起]</span>`;
                 isEditable = true;
             } else {
-                // 短文本：直接可编辑
                 contentHtml = escapeHtml(item.content);
                 isEditable = true;
             }
@@ -399,17 +399,12 @@
         });
     }
 
-    // 更新内容（当编辑失去焦点时触发）
     function updateContent(id, el) {
-        // 移除可能混入的 [收起] 按钮文本
         let newText = el.innerText.replace(/\[收起\]$/, '').trim();
         
-        // 如果内容没变，无需保存
         const item = historyData.find(i => i.id === id);
         if (item && item.content !== newText) {
             item.content = newText;
-            // 不调用 render，避免焦点丢失或闪烁，仅静默保存
-            // 但如果文本长度跨越了 MAX_LENGTH，下次刷新会重新计算折叠
             localStorage.setItem(STORAGE_KEY, JSON.stringify(historyData));
             showToast("已保存修改");
         }
@@ -441,7 +436,6 @@
     }
 
     function deleteItem(id) {
-        // 删除前不再确认，直接删除
         historyData = historyData.filter(i => i.id !== id);
         saveAndRender();
         showToast("已删除");
@@ -455,8 +449,6 @@
     }
 
     function saveAndRender() {
-        // 保存时重置展开状态可选，这里保留展开状态可能更好？
-        // 为保持一致性，每次大操作（如添加/置顶）重置展开状态，编辑保持
         const dataToSave = historyData.map(item => ({...item, expanded: item.expanded || false}));
         localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
         render();
