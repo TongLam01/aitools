@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商事合同诊断助手 V4.2</title>
+    <title>商事合同诊断助手 V4.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -78,7 +78,7 @@
     <div class="max-w-6xl mx-auto px-4 py-6 lg:py-8">
         <header class="flex items-center justify-between mb-6 lg:mb-8">
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v4.2</span></h1>
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">合同诊断助手<span class="text-emerald-500 text-xs font-normal ml-1">v4.3</span></h1>
                 <p class="text-xs lg:text-sm text-gray-400 mt-0.5">本地脱敏 · 隐私安全</p>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-3">
@@ -330,15 +330,26 @@
             return GENERIC_BUILDING_PATTERN.test(text);
         }
 
+        // 核心修改点：updateStats 改为动态计算，不再依赖累加器，确保删除后数字准确
         function updateStats() {
-            const t = globalCounters.company + globalCounters.address + globalCounters.person + globalCounters.other;
+            let c = 0, a = 0, p = 0, o = 0;
+            // 遍历 Map 实时计算当前存在的脱敏项
+            for(let val of globalIdentityMap.values()) {
+                if(val.startsWith('[企业')) c++;
+                else if(val.startsWith('[地址')) a++;
+                else if(val.startsWith('[某') || val.startsWith('[甲') || val.startsWith('[乙') || val.startsWith('[丙') || val.startsWith('[丁')) p++;
+                else o++;
+            }
+            
+            const total = c + a + p + o;
             const s = document.getElementById('desensitizeStats');
-            if (t > 0) {
+            
+            if (total > 0) {
                 s.classList.remove('hidden');
-                document.getElementById('companyStats').textContent = globalCounters.company;
-                document.getElementById('addressStats').textContent = globalCounters.address;
-                document.getElementById('personStats').textContent = globalCounters.person;
-                document.getElementById('otherStats').textContent = globalCounters.other;
+                document.getElementById('companyStats').textContent = c;
+                document.getElementById('addressStats').textContent = a;
+                document.getElementById('personStats').textContent = p;
+                document.getElementById('otherStats').textContent = o;
             } else {
                 s.classList.add('hidden');
             }
@@ -361,7 +372,7 @@
                                 <span class="text-emerald-600 font-mono text-sm font-medium mr-3 shrink-0">${ph}</span>
                                 <span class="text-gray-600 text-sm truncate" title="${orig}">${preview}</span>
                             </div>
-                            <button onclick="deleteMapping('${orig.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')" class="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-all shrink-0" title="删除此映射">
+                            <button onclick="deleteMapping('${orig.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')" class="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-all shrink-0" title="恢复此文本">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                           </div>`;
@@ -372,10 +383,20 @@
             document.getElementById('mapModal').classList.remove('hidden');
         }
 
-        // 新增：删除映射的逻辑
+        // 新增：删除映射并恢复编辑器文本的逻辑
         function deleteMapping(key) {
             if (globalIdentityMap.has(key)) {
-                if (confirm('确定要删除 "' + key + '" 的脱敏映射吗？\n注意：这不会自动恢复编辑器中已脱敏的文本，但会从映射表中移除记录。')) {
+                const placeholder = globalIdentityMap.get(key);
+                
+                if (confirm(`确定要恢复 "${key}" 吗？\n这将把编辑器中所有的 "${placeholder}" 还原为原文本。`)) {
+                    // 1. 恢复编辑器中的文本
+                    const textArea = document.getElementById('contractText');
+                    // 转义正则特殊字符，防止 [企业A] 中的 [] 被识别为正则组
+                    const safePlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    // 使用全局正则替换回原文本
+                    textArea.value = textArea.value.replace(new RegExp(safePlaceholder, 'g'), key);
+
+                    // 2. 删除数据映射
                     globalIdentityMap.delete(key);
                     // 清理指纹映射
                     for (let [fp, orig] of fingerprintMap.entries()) {
@@ -384,10 +405,13 @@
                             break;
                         }
                     }
-                    showDesensitizeMap(); // 刷新列表
-                    if(globalIdentityMap.size === 0) {
-                        document.getElementById('desensitizeStats').classList.add('hidden');
-                    }
+
+                    // 3. 刷新 UI
+                    showDesensitizeMap(); 
+                    updateStats(); // 重新计算统计数字
+
+                    // 注意：我们不回退 globalCounters (如 globalCounters.company)，
+                    // 以防止 ID 复用导致冲突（例如删除[企业A]后，新生成的仍应是[企业B]而非重复的[企业A]）
                 }
             }
         }
