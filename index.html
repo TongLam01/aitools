@@ -13,6 +13,9 @@
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-color: #1e293b;
+            --success-green: #22c55e;
+            --danger-red: #ef4444;
+            --header-mt: 30px; 
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -23,109 +26,79 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
             width: 100%;
         }
+
+        /* --- 右上角管理按钮 --- */
+        .top-nav {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            padding: 15px 20px;
+            box-sizing: border-box;
+            position: absolute;
+            top: 0;
+            z-index: 100;
+        }
+        .btn-manage {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-manage:hover { color: var(--primary-color); background: #f1f5f9; }
+        .btn-manage.active { color: var(--primary-color); font-weight: 600; }
+
         header {
-            margin-top: 50px;
+            margin-top: var(--header-mt);
             text-align: center;
             padding: 0 20px;
         }
-
         h1 { 
-            font-size: 2rem; 
-            margin-bottom: 10px; 
-            color: #0f172a; 
-            display: flex;           
-            align-items: center;     
-            justify-content: center; 
-            gap: 15px;               
+            font-size: 2rem; margin-bottom: 8px; color: #0f172a; 
+            display: flex; align-items: center; justify-content: center; gap: 15px;               
         }
+        .site-logo { width: 45px; height: 45px; }
+        header p { color: #64748b; margin-bottom: 30px; font-size: 1rem; }
 
-        .site-logo {
-            width: 45px;             
-            height: 45px;
-            display: block;
-        }
-
-        header p { color: #64748b; margin-bottom: 30px; }
-
-        /* --- PC端搜索框样式 --- */
-        .pc-search-box {
-            display: none; 
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto 40px auto;
-            position: relative;
-        }
-
+        /* --- 搜索框 --- */
+        .pc-search-box { width: 90%; max-width: 600px; margin: 0 auto 40px auto; }
         .search-form {
-            display: flex;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border-radius: 50px;
-            background: white;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s;
-            overflow: hidden;
+            display: flex; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 50px; background: white; border: 1px solid #e2e8f0;
+            transition: all 0.2s; overflow: hidden;
+        }
+        .search-form:focus-within { border-color: var(--primary-color); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .search-input { flex: 1; border: none; padding: 16px 24px; font-size: 16px; outline: none; }
+        .search-btn { background: transparent; border: none; padding: 0 24px; cursor: pointer; color: var(--primary-color); }
+
+        /* --- 动画：呼吸效果 --- */
+        @keyframes breath-text {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
         }
 
-        .search-form:hover, .search-form:focus-within {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary-color);
-        }
-
-        .search-input {
-            flex: 1;
-            border: none;
-            padding: 16px 24px;
-            font-size: 16px;
-            outline: none;
-            color: #334155;
-        }
-        .search-input::placeholder {
-            color: #94a3b8; 
-            opacity: 1;
-        }
-        .search-btn {
-            background: transparent;
-            border: none;
-            padding: 0 24px;
-            cursor: pointer;
-            color: var(--primary-color);
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        @media (min-width: 768px) {
-            .pc-search-box { display: block; }
-            header { margin-top: 60px; }
-        }
-
-        /* 工具卡片容器 */
+        /* --- 容器布局 --- */
         .container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            width: 90%;
-            max-width: 1000px;
-            padding-bottom: 50px;
-            flex: 1;
+            gap: 20px; width: 90%; max-width: 1000px; padding-bottom: 50px;
         }
 
-        /* 卡片样式 */
         .tool-card {
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 12px;
-            text-decoration: none;
-            color: inherit;
+            background: var(--card-bg); padding: 24px; border-radius: 12px;
+            text-decoration: none; color: inherit; border: 1px solid #e2e8f0;
+            display: flex; flex-direction: column; position: relative;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-            border: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .tool-card:hover {
             transform: translateY(-5px);
@@ -133,66 +106,66 @@
             border-color: var(--primary-color);
         }
 
-        .card-header {
-            display: flex;
+        /* --- 状态指示器逻辑 --- */
+        .status-indicator {
+            position: absolute; top: 24px; right: 24px;
+            font-size: 0.75rem; font-weight: 600;
+            white-space: nowrap;
+            display: none; /* 平时完全隐藏，不显示绿灯 */
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
+            justify-content: flex-end;
         }
 
+        /* 管理模式开启时，显示指示器 */
+        body.edit-mode .status-indicator { display: flex; }
+
+        /* 管理模式：未置顶 -> 绿色呼吸文字 */
+        body.edit-mode .tool-card:not(.is-pinned) .status-indicator {
+            color: var(--success-green);
+            animation: breath-text 2s infinite ease-in-out;
+        }
+        body.edit-mode .tool-card:not(.is-pinned) .status-indicator::after { content: "置顶"; }
+
+        /* 管理模式：已置顶 -> 红色静止文字 */
+        body.edit-mode .tool-card.is-pinned .status-indicator {
+            color: var(--danger-red);
+            animation: none;
+        }
+        body.edit-mode .tool-card.is-pinned .status-indicator::after { content: "取消置顶"; }
+
+        /* --- 置顶后的半包边效果 (1.5px 细线) --- */
+        .tool-card.is-pinned {
+            border-left: 2px solid var(--primary-color);
+            background: linear-gradient(to right, #f8fbff, #ffffff);
+        }
+
+        /* 视觉回归：保持原始尺寸 */
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .tool-icon {
-            font-size: 24px;
-            width: 40px;
-            height: 40px;
-            background: rgba(37, 99, 235, 0.08);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            font-size: 24px; width: 40px; height: 40px; background: rgba(37, 99, 235, 0.08);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
+        .tool-name { font-weight: bold; font-size: 1.1rem; color: var(--primary-color); }
+        .tool-desc { font-size: 0.9rem; color: #64748b; line-height: 1.5; }
 
-        .tool-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: var(--primary-color);
-        }
-
-        .tool-desc {
-            font-size: 0.9rem;
-            color: #64748b;
-            line-height: 1.5;
-        }
-
-        /* --- 页脚样式 --- */
-        footer {
-            padding: 30px 20px;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #94a3b8;
-            letter-spacing: 0.5px;
-        }
-
-        /* 这是为您新增的教程链接样式 */
-        .footer-tutorial-link {
-            display: block;               /* 占满一行 */
-            color: var(--primary-color);  /* 蓝色 */
-            text-decoration: none;       /* 去掉下划线 */
-            font-size: 0.85rem;           /* 比底部版权字稍大一点 */
-            margin-bottom: 10px;          /* 与下方版权信息的间距 */
-            font-weight: 500;
-        }
-        .footer-tutorial-link:hover {
-            text-decoration: underline;   /* 悬停时显示下划线 */
-        }
+        footer { padding: 40px 20px; text-align: center; font-size: 0.75rem; color: #94a3b8; }
+        .footer-tutorial-link { color: var(--primary-color); text-decoration: none; margin-bottom: 10px; display: inline-block; font-weight: 500;}
 
         @media (max-width: 640px) {
-            .container { grid-template-columns: 1fr; width: 92%; }
+            :root { --header-mt: 50px; }
+            .container { grid-template-columns: 1fr; }
             h1 { font-size: 1.75rem; }
         }
     </style>
 </head>
 <body>
+
+    <nav class="top-nav">
+        <button class="btn-manage" id="toggleEdit">
+            <svg viewBox="0 0 1024 1024" width="16" height="16"><path d="M912 192H112c-8.8 0-16 7.2-16 16v56c0 8.8 7.2 16 16 16h800c8.8 0 16-7.2 16-16v-56c0-8.8-7.2-16-16-16zM912 448H112c-8.8 0-16 7.2-16 16v56c0 8.8 7.2 16 16 16h800c8.8 0 16-7.2 16-16v-56c0-8.8-7.2-16-16-16zM912 704H112c-8.8 0-16 7.2-16 16v56c0 8.8 7.2 16 16 16h800c8.8 0 16-7.2 16-16v-56c0-8.8-7.2-16-16-16z" fill="currentColor"></path></svg>
+            <span id="editText">管理</span>
+        </button>
+    </nav>
 
     <header>
         <h1>
@@ -207,112 +180,73 @@
             <input type="text" name="wd" class="search-input" placeholder="这里是百度搜索，输入内容回车直达..." autocomplete="off">
             <button type="submit" class="search-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
             </button>
         </form>
     </div>
 
-    <div class="container">
-    
-            <a href="bianjiqi4.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">📜️</div>
-                <div class="tool-name">公众号AI排版</div>
-            </div>
+    <div class="container" id="mainContainer">
+        <a href="bianjiqi4.html" class="tool-card" data-id="1">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">📜️</div><div class="tool-name">公众号AI排版</div></div>
             <div class="tool-desc">同时支持手工调整，更适合结构清晰文章</div>
-        </a>    
-        
-        <a href="hetong4.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">⚖️</div>
-                <div class="tool-name">AI合同审核</div>
-            </div>
+        </a>
+        <a href="hetong4.html" class="tool-card" data-id="2">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">⚖️</div><div class="tool-name">AI合同审核</div></div>
             <div class="tool-desc">商事合同本地自动脱敏后审核</div>
         </a>
-                
-        <a href="gongwen3.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">✒️</div>
-                <div class="tool-name">AI公文笔杆子</div>
-            </div>
+        <a href="gongwen3.html" class="tool-card" data-id="3">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">✒️</div><div class="tool-name">AI公文笔杆子</div></div>
             <div class="tool-desc">写总结、计划、通知、汇报、讲话稿…</div>
-        </a>      
-
-        <a href="zonghexiezuo3.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">🗃️</div>
-                <div class="tool-name">公文写作扩展工具</div>
-            </div>
+        </a>
+        <a href="zonghexiezuo3.html" class="tool-card" data-id="4">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">🗃️</div><div class="tool-name">公文写作扩展工具</div></div>
             <div class="tool-desc">AI改写、续写、纠错等</div>
         </a>
-
-        <a href="bidui.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">📰</div>
-                <div class="tool-name">文本比对</div>
-            </div>
+        <a href="bidui.html" class="tool-card" data-id="5">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">📰</div><div class="tool-name">文本比对</div></div>
             <div class="tool-desc">一键比对文本差异，并导出Word</div>
         </a>
-
-        <a href="jiantie.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">📋️</div>
-                <div class="tool-name">剪贴板管理工具</div>
-            </div>
+        <a href="jiantie.html" class="tool-card" data-id="6">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">📋️</div><div class="tool-name">剪贴板管理工具</div></div>
             <div class="tool-desc">管理剪贴内容，随取随用</div>
         </a>
-
-
-        <a href="wentu.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">🖼️</div>
-                <div class="tool-name">文字转卡片</div>
-            </div>
+        <a href="wentu.html" class="tool-card" data-id="7">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">🖼️</div><div class="tool-name">文字转卡片</div></div>
             <div class="tool-desc">简洁、美观，支持自定义署名</div>
         </a>
-
-        <a href="PDFReader.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">📙</div>
-                <div class="tool-name">PDF阅读器+转Word文档</div>
-            </div>
+        <a href="PDFReader.html" class="tool-card" data-id="8">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">📙</div><div class="tool-name">PDF阅读器+转Word</div></div>
             <div class="tool-desc">像阅读电子书一样阅读PDF</div>
         </a>
-
-        <a href="tupianbiaozhu.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">🧩</div>
-                <div class="tool-name">图片标记工具</div>
-            </div>
+        <a href="tupianbiaozhu.html" class="tool-card" data-id="9">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">🧩</div><div class="tool-name">图片标记工具</div></div>
             <div class="tool-desc">标记图片，加图案、箭头、序号等</div>
         </a>
-        
-        <a href="gushi.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">🌌</div>
-                <div class="tool-name">古诗共鸣</div>
-            </div>
+        <a href="gushi.html" class="tool-card" data-id="10">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">🌌</div><div class="tool-name">古诗共鸣</div></div>
             <div class="tool-desc">以古诗为启发，得到一首现代诗</div>
         </a>
-        
-        <a href="gupiao6.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">📈</div>
-                <div class="tool-name">AI股票分析</div>
-            </div>
+        <a href="gupiao6.html" class="tool-card" data-id="11">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">📈</div><div class="tool-name">AI股票分析</div></div>
             <div class="tool-desc">DeepSeek股票投研分析</div>
         </a>
-        
-        <a href="xiaoshuo1.html" class="tool-card">
-            <div class="card-header">
-                <div class="tool-icon">📝</div>
-                <div class="tool-name">AI小说创作器</div>
-            </div>
-            <div class="tool-desc">去DeepSeek官方充1元 API 可以写3天</div>
+        <a href="xiaoshuo1.html" class="tool-card" data-id="12">
+            <div class="status-indicator"></div>
+            <div class="card-header"><div class="tool-icon">📝</div><div class="tool-name">AI小说创作器</div></div>
+            <div class="tool-desc">DeepSeek官方API 驱动创作</div>
         </a>
-
     </div>
 
     <footer>
@@ -320,5 +254,66 @@
         <p>© 纯属探索 · 公众号：67号技师</p>
     </footer>
 
+    <script>
+        const toggleBtn = document.getElementById('toggleEdit');
+        const mainContainer = document.getElementById('mainContainer');
+        const allCards = Array.from(document.querySelectorAll('.tool-card'));
+        
+        let isEditMode = false;
+        let pinnedIds = JSON.parse(localStorage.getItem('pinnedToolsV7') || '[]');
+
+        function init() {
+            renderCards();
+            
+            toggleBtn.addEventListener('click', () => {
+                isEditMode = !isEditMode;
+                document.body.classList.toggle('edit-mode', isEditMode);
+                toggleBtn.classList.toggle('active', isEditMode);
+                document.getElementById('editText').innerText = isEditMode ? '完成' : '管理';
+            });
+
+            document.addEventListener('click', (e) => {
+                const card = e.target.closest('.tool-card');
+                if (card && isEditMode) {
+                    e.preventDefault();
+                    togglePin(card.getAttribute('data-id'));
+                }
+            });
+        }
+
+        function togglePin(id) {
+            const index = pinnedIds.indexOf(id);
+            if (index > -1) {
+                pinnedIds.splice(index, 1); 
+            } else {
+                pinnedIds.unshift(id); 
+            }
+            localStorage.setItem('pinnedToolsV7', JSON.stringify(pinnedIds));
+            renderCards();
+        }
+
+        function renderCards() {
+            const sortedCards = allCards.sort((a, b) => {
+                const idA = a.getAttribute('data-id');
+                const idB = b.getAttribute('data-id');
+                const indexA = pinnedIds.indexOf(idA);
+                const indexB = pinnedIds.indexOf(idB);
+
+                if (indexA > -1 && indexB > -1) return indexA - indexB; 
+                if (indexA > -1) return -1; 
+                if (indexB > -1) return 1;  
+                return 0; 
+            });
+
+            mainContainer.innerHTML = '';
+            sortedCards.forEach(card => {
+                const isPinned = pinnedIds.includes(card.getAttribute('data-id'));
+                card.classList.toggle('is-pinned', isPinned);
+                mainContainer.appendChild(card);
+            });
+        }
+
+        init();
+    </script>
 </body>
 </html>
