@@ -144,7 +144,15 @@
         .tool-icon {
             font-size: 24px; width: 40px; height: 40px; background: rgba(37, 99, 235, 0.08);
             border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            overflow: hidden;
         }
+        /* --- 新增：专门为了适配图片图标 --- */
+    .tool-icon img {
+    width: 26px;  /* 设置为26px，视觉上和24px的emoji大小最接近 */
+    height: 26px;
+    object-fit: contain; /* 保持图片比例，不拉伸 */
+    display: block;
+       }
         .tool-name { font-weight: bold; font-size: 1.1rem; color: var(--primary-color); }
         .tool-desc { font-size: 0.9rem; color: #64748b; line-height: 1.5; }
 
@@ -242,6 +250,18 @@
             <div class="card-header"><div class="tool-icon">📈</div><div class="tool-name">AI股票分析</div></div>
             <div class="tool-desc">DeepSeek股票投研分析</div>
         </a>
+        
+        <a href="gongzhonghao.html" class="tool-card" data-id="2">
+           <div class="status-indicator"></div>
+           <div class="card-header">
+           <div class="tool-icon">
+                <img src="images/gongzhonghao.png" alt="公众号文章图标">
+           </div>
+           <div class="tool-name">公众号文章生成器</div>
+           </div>
+           <div class="tool-desc">2分钟一篇公众号文章</div>
+        </a>
+
         <a href="xiaoshuo1.html" class="tool-card" data-id="12">
             <div class="status-indicator"></div>
             <div class="card-header"><div class="tool-icon">📝</div><div class="tool-name">AI小说创作器</div></div>
