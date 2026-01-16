@@ -1,21 +1,27 @@
-// 域名锁
+/** * GZH AI Editor v2.2 - Final UX Polish
+ */
+
 const ALLOWED = ['aibox6.com', 'www.aibox6.com', 'localhost', '127.0.0.1'];
 if (!ALLOWED.includes(window.location.hostname)) {
-    document.body.innerHTML = "<div style='padding:50px;text-align:center;'>Domain Denied.</div>";
+    document.body.innerHTML = "<div style='padding:100px;text-align:center;'>Domain Denied.</div>";
 }
 
 let activeBlockEl = null;
 let newDraftContent = "";
 
+// 1. 初始化
 window.addEventListener('DOMContentLoaded', () => {
     const key = localStorage.getItem('ds_api_key_v1');
-    if (key) {
+    if (key && document.getElementById('apiKeyInput')) {
         document.getElementById('apiKeyInput').value = key;
         updateApiLight(true);
     }
 });
 
-function toggleApiModal(show) { document.getElementById('apiModal').classList.toggle('hidden', !show); }
+function toggleApiModal(show) { 
+    const m = document.getElementById('apiModal');
+    if(m) m.classList.toggle('hidden', !show); 
+}
 
 function updateApiLight(ok) {
     const dot = document.getElementById('statusDot');
@@ -23,9 +29,9 @@ function updateApiLight(ok) {
 }
 
 function saveApiKey() {
-    const key = document.getElementById('apiKeyInput').value.trim();
-    if (!key.startsWith('sk-')) return alert("无效的 Key");
-    localStorage.setItem('ds_api_key_v1', key);
+    const input = document.getElementById('apiKeyInput');
+    if (!input || !input.value.startsWith('sk-')) return alert("请输入有效密钥");
+    localStorage.setItem('ds_api_key_v1', input.value.trim());
     updateApiLight(true);
     toggleApiModal(false);
 }
@@ -37,48 +43,73 @@ function checkKeyOnFocus() {
 function updateWordCount(textarea) {
     const count = textarea.value.length;
     const label = document.getElementById('charCount');
-    label.innerText = `${count} / 150`;
-    label.className = `text-xs ml-2 ${count >= 150 ? 'text-green-500 font-bold' : 'text-red-400'}`;
+    if(label) {
+        label.innerText = `${count} / 150`;
+        label.className = `text-xs ml-2 ${count >= 150 ? 'text-green-500 font-bold' : 'text-red-400'}`;
+    }
 }
 
+// 2. 块生成：带精准定位逻辑
 function createAtomicBlock(content = "") {
     const div = document.createElement('div');
-    div.className = "block-node";
+    div.className = "block-node text-slate-800 leading-relaxed";
     div.innerText = content;
+    
     div.onclick = (e) => {
         e.stopPropagation();
         if (activeBlockEl) activeBlockEl.classList.remove('active');
         activeBlockEl = div;
         activeBlockEl.classList.add('active');
-        const bar = document.getElementById('floatingBar');
-        bar.classList.remove('hidden');
-        bar.style.top = `${div.offsetTop - 50}px`;
-        bar.style.right = `10px`;
+        
+        positionToolbar(div);
     };
     return div;
 }
 
+// 核心：工具栏跟随选中块
+function positionToolbar(el) {
+    const bar = document.getElementById('floatingBar');
+    if(!bar) return;
+
+    // 获取块相对于父容器的位置
+    const elTop = el.offsetTop;
+    const elHeight = el.offsetHeight;
+    
+    // 定位：在块的正下方
+    bar.style.display = "flex";
+    bar.style.top = `${elTop + elHeight + 10}px`;
+    bar.style.left = "50%";
+    
+    // 自动滚动，确保工具栏可见
+    const view = document.getElementById('editorView');
+    const scrollTarget = elTop + elHeight + 100;
+    if (scrollTarget > view.scrollTop + view.offsetHeight) {
+        view.scrollTo({ top: elTop - 50, behavior: 'smooth' });
+    }
+}
+
+// 3. 全文生成
 async function runGeneration() {
     const key = localStorage.getItem('ds_api_key_v1');
     if (!key) return toggleApiModal(true);
 
-    const materialText = document.getElementById('material').value;
-    if (materialText.length < 150) return alert("素材不足150字");
+    const materialEl = document.getElementById('material');
+    if (!materialEl || materialEl.value.length < 150) return alert("素材字数不足150字");
 
     const btn = document.getElementById('genBtn');
     const view = document.getElementById('editorView');
+    
     btn.disabled = true;
-    btn.innerText = "生成中...";
-    view.innerHTML = "";
+    btn.innerText = "DeepSeek 写作中...";
+    view.innerHTML = ""; // 重置预览区
 
-    // 修正点：增加了防御性代码，防止读取 null
     const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : "";
 
     const params = {
         topic: getVal('topic'),
         style: getVal('style'),
         referenceStyle: getVal('refStyle'),
-        material: materialText,
+        material: materialEl.value,
         taboos: getVal('taboos'),
         lengthRange: getVal('lengthRange')
     };
@@ -124,43 +155,85 @@ async function runGeneration() {
             }
         }
     } catch (err) {
-        view.innerHTML = `<div class='text-red-500'>生成失败: ${err.message}</div>`;
+        view.innerHTML = `<div class='text-red-500 p-4'>Error: ${err.message}</div>`;
     } finally {
         btn.disabled = false;
-        btn.innerText = "重新生成";
+        btn.innerText = "重新生成全文";
     }
 }
 
-// 块编辑和对比弹窗逻辑保持不变...
-async function handleBlockAction(action) {
+// 4. 块操作：带加载状态逻辑
+async function handleBlockAction(btn, action) {
     if (!activeBlockEl) return;
     const key = localStorage.getItem('ds_api_key_v1');
-    const original = activeBlockEl.innerText;
-    activeBlockEl.classList.add('animate-pulse');
+    const originalText = activeBlockEl.innerText;
+    
+    // 状态 1：块进入加载动画
+    activeBlockEl.classList.add('block-processing');
+    
+    // 状态 2：按钮进入加载样式
+    const oldBtnText = btn.innerText;
+    btn.innerText = "思考中";
+    btn.classList.add('btn-loading');
+    
+    // 锁定工具栏所有按钮
+    const allBtns = document.querySelectorAll('#floatingBar button');
+    allBtns.forEach(b => b.disabled = true);
+
     try {
         const res = await fetch("https://api.deepseek.com/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             body: JSON.stringify({
                 model: "deepseek-chat",
-                messages: [{ role: "system", content: GZH_PROMPTS.system }, { role: "user", content: GZH_PROMPTS.blockAction(action, original, original) }]
+                messages: [
+                    { role: "system", content: GZH_PROMPTS.system },
+                    { role: "user", content: GZH_PROMPTS.blockAction(action, originalText, originalText) }
+                ]
             })
         });
         const data = await res.json();
         newDraftContent = data.choices[0].message.content;
-        document.getElementById('oldTextPreview').innerText = original;
+        
+        // 弹出对比弹窗
+        document.getElementById('oldTextPreview').innerText = originalText;
         document.getElementById('newTextPreview').innerText = newDraftContent;
         document.getElementById('compareModal').classList.remove('hidden');
-    } catch (e) { alert("微调失败"); } finally { activeBlockEl.classList.remove('animate-pulse'); }
+
+    } catch (e) {
+        alert("优化超时，请检查网络或Key余额");
+    } finally {
+        // 恢复状态
+        activeBlockEl.classList.remove('block-processing');
+        btn.innerText = oldBtnText;
+        btn.classList.remove('btn-loading');
+        allBtns.forEach(b => b.disabled = false);
+        document.getElementById('floatingBar').style.display = "none";
+    }
 }
+
 function closeCompareModal() { document.getElementById('compareModal').classList.add('hidden'); }
-function confirmReplace() { if(activeBlockEl) activeBlockEl.innerText = newDraftContent; closeCompareModal(); }
-function copyAll() {
-    const text = Array.from(document.querySelectorAll('.block-node')).map(el => el.innerText).join('\n\n');
-    navigator.clipboard.writeText(text).then(() => alert("已复制"));
+
+function confirmReplace() {
+    if (activeBlockEl && newDraftContent) {
+        activeBlockEl.innerText = newDraftContent;
+        // 替换后重新定位一次工具栏
+        positionToolbar(activeBlockEl);
+    }
+    closeCompareModal();
 }
+
+function copyAll() {
+    const nodes = document.querySelectorAll('.block-node');
+    const text = Array.from(nodes).map(el => el.innerText).join('\n\n');
+    navigator.clipboard.writeText(text).then(() => alert("全文已复制，可在公众号后台直接粘贴！"));
+}
+
+// 全局点击监听：点击空白处隐藏工具栏
 window.onclick = (e) => {
-    if (!e.target.closest('.block-node') && !e.target.closest('#floatingBar')) {
-        document.getElementById('floatingBar').classList.add('hidden');
+    if (!e.target.closest('.block-node') && !e.target.closest('#floatingBar') && !e.target.closest('#apiModal')) {
+        if (activeBlockEl) activeBlockEl.classList.remove('active');
+        const bar = document.getElementById('floatingBar');
+        if(bar) bar.style.display = "none";
     }
 };
