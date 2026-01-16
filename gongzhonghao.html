@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GZH Editor - v3.6 Layout Fix</title>
+    <title>公众号文章写作助手 - v1.7 引导版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --wx-green: #07C160; }
 
-        /* 1. 滚动条美化 (核心修复：解决丑陋滚动条占位问题) */
+        /* 1. 滚动条美化 */
         .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { 
@@ -154,12 +154,12 @@
                         <label class="text-sm font-bold text-gray-700">核心素材 <span class="text-red-500">(必填)</span></label>
                         <span id="charCount" class="text-xs text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">0 / 150</span>
                     </div>
-                    <textarea id="material" oninput="updateWordCount(this)" placeholder="输入事实、观点或故事背景..." class="w-full h-44 max-h-[500px] p-4 bg-gray-50 rounded-xl outline-none text-sm leading-relaxed border border-transparent focus:border-[#07C160] resize-y"></textarea>
+                    <textarea id="material" oninput="updateWordCount(this)" placeholder="输入文章素材、背景等...150字以上" class="w-full h-44 max-h-[500px] p-4 bg-gray-50 rounded-xl outline-none text-sm leading-relaxed border border-transparent focus:border-[#07C160] resize-y"></textarea>
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">补充要求 (可选)</label>
-                    <input id="taboos" type="text" placeholder="例如：语气要活泼，不要提竞品..." class="w-full p-4 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-[#07C160]">
+                    <input id="taboos" type="text" placeholder="例：超越素材；克制；反讽；不提竞品，等等..." class="w-full p-4 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-[#07C160]">
                 </div>
 
                 <button id="genBtn" onclick="runGeneration()" class="w-full py-4 bg-[#07C160] text-white rounded-xl font-bold text-lg shadow-lg hover:bg-[#06ad56] active:scale-[0.99] transition-all">
@@ -181,10 +181,33 @@
                 <div class="status-bar-mask"></div>
 
                 <div id="editorView" class="wechat-screen">
-                    <div class="h-full flex flex-col items-center justify-center text-gray-300">
-                        <p class="text-sm">内容生成区</p>
+                    <div class="h-full flex flex-col items-center justify-center p-8 select-none opacity-90">
+                        <div class="mb-6 p-4 bg-[#07C160]/5 rounded-full">
+                            <svg class="w-12 h-12 text-[#07C160]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        </div>
+                        
+                        <div class="text-center space-y-4">
+                            <h3 class="text-gray-400 font-bold text-lg tracking-wider">创作准备就绪</h3>
+                            
+                            <div class="bg-[#07C160]/10 border border-[#07C160]/20 rounded-2xl p-5 shadow-sm transform transition hover:scale-105 duration-300">
+                                <div class="flex items-center justify-center gap-2 mb-3 text-[#07C160] font-bold text-sm">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                                    使用指南
+                                </div>
+                                <div class="text-[#07C160] text-xs font-medium space-y-2 text-left leading-relaxed">
+                                    <p class="flex items-start gap-2">
+                                        <span class="bg-[#07C160] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">1</span>
+                                        <span>生成后，点击任一段落重写</span>
+                                    </p>
+                                    <p class="flex items-start gap-2">
+                                        <span class="bg-[#07C160] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">2</span>
+                                        <span>段落可反复重写，直到满意</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    </div>
 
                 <div id="floatingBar" class="arrow-down">
                     <button onclick="handleBlockAction(this, 'rewrite')" class="toolbar-btn">✨ 重写</button>
@@ -205,7 +228,7 @@
             
             <div class="mb-6 flex justify-center">
                 <a href="https://www.aibox6.com/jiaocheng.html" target="_blank" class="text-xs text-[#07C160] font-bold hover:underline flex items-center">
-                    没有Key? 点击获取 API 教程
+                    点击了解如何获得Key
                     <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                 </a>
             </div>
@@ -238,5 +261,6 @@
 
     <script src="./js/gzhprompts.js"></script>
     <script src="./js/gzhapp.js"></script>
+    <script src="common.js"></script>
 </body>
 </html>
