@@ -36,47 +36,47 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/* --- Markdown 渲染 (v3.6 智能标点版) --- */
+/* --- Markdown 渲染 (v3.7 智能引号穿透版) --- */
 function formatMD(text) {
     if (!text) return "";
 
-    // 1. 按行拆分
     const lines = text.split('\n');
     
     const processedLines = lines.map(line => {
-        // 去除尾部空格
         let trimLine = line.trim();
         
-        // A. 跳过特殊格式：空行、标题(#)、列表(-/•)、引用(>)
+        // 1. 跳过特殊格式
         if (!trimLine || trimLine.startsWith('#') || trimLine.startsWith('-') || trimLine.startsWith('•') || trimLine.startsWith('>')) {
             return line;
         }
 
-        // B. 标点检测正则：检测结尾是否已经有标点 (含中英文句号、问号、叹号、省略号、波浪号、右引号)
-        // 注意：这里包含了 ？ 和 ！，所以如果 AI 已经输出了问号，这里会返回 true，代码就不会乱加句号。
-        const hasPunctuation = /[。！？：；…~”"!.?:;~]$/.test(trimLine);
-        
-        // C. Emoji 检测正则：检测结尾是不是 Emoji (现代浏览器支持 \p{Emoji})
-        // 公众号常用 Emoji 结尾，此时不应加句号
-        const endsWithEmoji = /\p{Emoji_Presentation}$/u.test(trimLine);
+        // 2. 获取有效检测字符
+        // 如果结尾是引号 (” " ’ ')，就检测引号前的一个字
+        const lastChar = trimLine.slice(-1);
+        const isQuote = /["”'’]/.test(lastChar);
+        const checkChar = isQuote ? trimLine.slice(-2, -1) : lastChar;
 
-        // D. 只有当“没标点”且“不是Emoji”时，才补句号
+        // 3. 标点检测 (检测 checkChar 是否为标点)
+        // 注意：这里排除了引号本身，只认真正的句读符号
+        const hasPunctuation = /[。！？：；…~!.?:;~]/.test(checkChar);
+        
+        // 4. Emoji 检测 (如果结尾是 Emoji，不管有没有引号，都不补句号)
+        const endsWithEmoji = /\p{Emoji_Presentation}/u.test(lastChar);
+
+        // 5. 补全逻辑
         if (!hasPunctuation && !endsWithEmoji) {
+            // 如果本来就是引号结尾，把句号补在最后： "内容" -> "内容"。
+            // 这种“外挂式”句号在排版上是最安全的兜底方案
             return line + "。";
         }
         
         return line;
     });
 
-    // 重新组合
     let html = processedLines.join('\n');
-
-    // 2. 常规 Markdown 渲染
-    html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); // 加粗
-    html = html.replace(/^\s*-\s+(.*)/gm, '• $1');    // 列表
-    html = html.replace(/^#+\s+(.*)/gm, '<b>$1</b>'); // 标题
-    
-    // 3. 换行处理
+    html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    html = html.replace(/^\s*-\s+(.*)/gm, '• $1');
+    html = html.replace(/^#+\s+(.*)/gm, '<b>$1</b>');
     return html.replace(/\n/g, '<br>');
 }
 
