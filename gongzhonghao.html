@@ -3,16 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GZH Editor - v3.4 Mobile Ready</title>
+    <title>GZH Editor - v3.6 Layout Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --wx-green: #07C160; }
 
-        /* 1. 仿真手机壳 (响应式高度) */
+        /* 1. 滚动条美化 (核心修复：解决丑陋滚动条占位问题) */
+        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { 
+            background-color: rgba(0,0,0,0.1); 
+            border-radius: 10px; 
+            transition: background-color 0.3s;
+        }
+        .custom-scroll:hover::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); }
+
+        /* 2. 仿真手机壳 */
         .iphone-shell { 
-            width: 100%; max-width: 400px; 
-            /* 关键修改：高度适配屏幕，不再写死像素 */
-            height: 85vh; max-height: 820px;
+            width: 100%; max-width: 400px; height: 85vh; 
             background: #fff; 
             border: 14px solid #1a1a1a; 
             border-radius: 55px; 
@@ -23,7 +31,6 @@
             transition: height 0.3s;
         }
         
-        /* 灵动岛 */
         .notch {
             width: 125px; height: 35px; background: #000; 
             position: absolute; top: 12px; left: 50%; transform: translateX(-50%); 
@@ -31,10 +38,9 @@
             display: flex; align-items: center; justify-content: center;
             color: rgba(255,255,255,0.95); font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            pointer-events: none; /* 穿透点击 */
+            pointer-events: none;
         }
 
-        /* 顶部复制按钮 (新增) */
         .header-action {
             position: absolute; top: 18px; right: 24px; z-index: 60;
             color: #333; cursor: pointer; transition: 0.2s;
@@ -44,23 +50,19 @@
         .header-action:hover { color: var(--wx-green); background: #fff; transform: scale(1.1); }
         .header-action:active { transform: scale(0.95); }
 
-        /* 顶部遮罩 */
         .status-bar-mask {
             position: absolute; top: 0; left: 0; right: 0; height: 60px;
             background: linear-gradient(to bottom, rgba(255,255,255,1) 60%, rgba(255,255,255,0));
             z-index: 50; pointer-events: none;
         }
 
-        /* 滚动内容区 */
         .wechat-screen { 
             background: #fff; flex: 1; overflow-y: auto; 
-            /* 关键修改：底部留白 120px，保证最后一块也能被推上去显示工具栏 */
             padding: 80px 24px 120px 24px; 
             scroll-behavior: auto;
         }
         .wechat-screen::-webkit-scrollbar { width: 0px; }
 
-        /* 内容块 */
         .block-node { 
             position: relative; padding: 10px 8px; margin-bottom: 12px; 
             border-radius: 8px; border: 1.5px solid transparent; 
@@ -73,7 +75,6 @@
         .block-node:hover { background-color: rgba(0,0,0,0.02); }
         .block-node.active { background-color: rgba(7, 193, 96, 0.06); border-color: rgba(7, 193, 96, 0.4); }
 
-        /* 浮动工具栏 */
         #floatingBar { 
             position: absolute; display: none; z-index: 100; 
             background: #222; border-radius: 10px; padding: 5px; 
@@ -119,8 +120,8 @@
 
     <main class="max-w-[1600px] mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 h-full min-h-0">
         
-        <section class="lg:col-span-7 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 lg:overflow-y-auto custom-scroll h-full">
-            <div class="space-y-6">
+        <section class="lg:col-span-7 bg-white p-5 rounded-[2rem] shadow-sm border border-gray-100 lg:overflow-y-auto custom-scroll h-full">
+            <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">文章主题</label>
                     <input id="topic" onfocus="checkKeyOnFocus()" type="text" placeholder="输入核心话题..." class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-[#07C160] transition border border-transparent">
@@ -145,7 +146,7 @@
                         <label class="text-sm font-bold text-gray-700">参考文风 (可选)</label>
                         <span id="refCount" class="text-xs text-gray-400 font-mono bg-gray-100 px-2 py-0.5 rounded">0/1000</span>
                     </div>
-                    <textarea id="refStyle" oninput="updateRefLimit(this)" placeholder="粘贴你想模仿的文字片段..." class="w-full h-24 p-4 bg-gray-50 rounded-xl outline-none text-sm resize-none border border-transparent focus:border-[#07C160]"></textarea>
+                    <textarea id="refStyle" oninput="updateRefLimit(this)" placeholder="粘贴你想模仿的文字片段..." class="w-full h-20 p-4 bg-gray-50 rounded-xl outline-none text-sm resize-none border border-transparent focus:border-[#07C160]"></textarea>
                 </div>
 
                 <div class="relative flex-1">
@@ -153,7 +154,7 @@
                         <label class="text-sm font-bold text-gray-700">核心素材 <span class="text-red-500">(必填)</span></label>
                         <span id="charCount" class="text-xs text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">0 / 150</span>
                     </div>
-                    <textarea id="material" oninput="updateWordCount(this)" placeholder="输入事实、观点或故事背景..." class="w-full h-48 max-h-[500px] p-4 bg-gray-50 rounded-xl outline-none text-sm leading-relaxed border border-transparent focus:border-[#07C160] resize-y"></textarea>
+                    <textarea id="material" oninput="updateWordCount(this)" placeholder="输入事实、观点或故事背景..." class="w-full h-44 max-h-[500px] p-4 bg-gray-50 rounded-xl outline-none text-sm leading-relaxed border border-transparent focus:border-[#07C160] resize-y"></textarea>
                 </div>
 
                 <div>
@@ -198,7 +199,7 @@
     <div id="apiModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl">
             <h3 class="text-xl font-bold mb-2">DeepSeek API 设置</h3>
-            <p class="text-xs text-gray-400 mb-4">密钥只保存在您本地浏览器中。</p>
+            <p class="text-xs text-gray-400 mb-4">密钥只保存在你本地浏览器中</p>
             
             <input id="apiKeyInput" type="password" placeholder="sk-..." class="w-full p-4 border border-gray-200 rounded-xl mb-4 outline-none focus:border-[#07C160]">
             
