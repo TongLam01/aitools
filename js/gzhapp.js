@@ -1,4 +1,4 @@
-/** GZH AI Editor v3.1 - Ultimate UX Fixes */
+/** GZH AI Editor v3.2 - Speed & Stability */
 
 const ALLOWED = ['aibox6.com', 'www.aibox6.com', 'localhost', '127.0.0.1'];
 if (!ALLOWED.includes(window.location.hostname)) document.body.innerHTML = "Domain Denied.";
@@ -14,26 +14,34 @@ window.addEventListener('DOMContentLoaded', () => {
         updateApiLight(true);
     }
     
-    // 滚动监听：实时调整工具栏位置
+    // 监听滚动：实时更新工具栏位置 (使用 requestAnimationFrame 优化性能)
     const view = document.getElementById('editorView');
     if(view) {
         view.addEventListener('scroll', () => {
-            if(activeBlockEl) positionToolbar(activeBlockEl);
-            else document.getElementById('floatingBar').style.display = 'none';
+            if(activeBlockEl) {
+                requestAnimationFrame(() => positionToolbar(activeBlockEl));
+            } else {
+                document.getElementById('floatingBar').style.display = 'none';
+            }
+        });
+        
+        // 使用事件委托处理点击，解决“点不到”和“不出现”的问题
+        view.addEventListener('click', (e) => {
+            const block = e.target.closest('.block-node');
+            if (block) {
+                e.stopPropagation(); // 阻止冒泡到 window
+                activateBlock(block);
+            }
         });
     }
 });
 
-/* --- Markdown 简易渲染器 (修复符号问题) --- */
+/* --- Markdown 渲染 --- */
 function formatMD(text) {
     if (!text) return "";
-    // 1. 加粗 **text** -> <b>text</b>
     let html = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-    // 2. 列表 - item -> • item
     html = html.replace(/^\s*-\s+(.*)/gm, '• $1');
-    // 3. 标题 ## -> <b> (公众号一般用加粗代替H2)
     html = html.replace(/^#+\s+(.*)/gm, '<b>$1</b>');
-    // 4. 处理换行
     return html.replace(/\n/g, '<br>');
 }
 
@@ -56,11 +64,7 @@ function updateWordCount(el) {
     const len = el.value.length;
     const label = document.getElementById('charCount');
     label.innerText = `${len} / 150`;
-    if(len >= 150) {
-        label.className = "text-xs font-bold text-[#07C160] bg-green-50 px-2 py-0.5 rounded";
-    } else {
-        label.className = "text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded";
-    }
+    label.className = len >= 150 ? "text-xs font-bold text-[#07C160] bg-green-50 px-2 py-0.5 rounded" : "text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded";
 }
 function updateRefLimit(el) {
     if (el.value.length > 1000) el.value = el.value.substring(0, 1000);
@@ -70,54 +74,58 @@ function updateTotalWords() {
     const nodes = document.querySelectorAll('.block-node');
     let total = 0;
     nodes.forEach(n => total += n.innerText.trim().length);
-    document.getElementById('totalWords').innerText = `公众号预览 (${total}字)`;
+    document.getElementById('totalWords').innerText = `预览 (${total}字)`;
 }
 
-/* --- 核心交互 --- */
+/* --- 核心交互 (重写版) --- */
 function createAtomicBlock(rawText = "") {
     const div = document.createElement('div');
     div.className = "block-node";
-    div.innerHTML = formatMD(rawText); // 使用 Markdown 渲染
-    div.dataset.raw = rawText; // 存储原始文本供重写使用
-    
-    div.onclick = (e) => {
-        e.stopPropagation();
-        if (activeBlockEl) activeBlockEl.classList.remove('active');
-        activeBlockEl = div;
-        activeBlockEl.classList.add('active');
-        positionToolbar(div);
-    };
+    div.innerHTML = formatMD(rawText);
+    div.dataset.raw = rawText;
+    // 注意：点击事件已移至 editorView 的事件委托中
     return div;
 }
 
-// 智能定位：防遮挡算法
+// 激活块
+function activateBlock(div) {
+    // 清除旧的
+    if (activeBlockEl) activeBlockEl.classList.remove('active');
+    
+    // 设置新的
+    activeBlockEl = div;
+    activeBlockEl.classList.add('active');
+    
+    // 立即计算位置
+    positionToolbar(div);
+}
+
+// 物理级定位 (BoundingRect)
 function positionToolbar(el) {
     const bar = document.getElementById('floatingBar');
-    const view = document.getElementById('editorView');
+    const shell = document.querySelector('.iphone-shell');
     
+    // 获取两个矩形的物理坐标
     const elRect = el.getBoundingClientRect();
-    const viewRect = view.getBoundingClientRect();
+    const shellRect = shell.getBoundingClientRect();
     
-    // 默认显示在下方
-    let top = elRect.bottom - viewRect.top + view.scrollTop + 10;
+    // 计算相对坐标：块的底部 - 壳的顶部
+    // 这样无论 scroll 怎么变，这个物理差值是视觉上正确的
+    let top = elRect.bottom - shellRect.top + 8; // +8px 间距
     
-    // 检查底部是否溢出
-    const barHeight = 50; 
-    const isOverflowBottom = (elRect.bottom + barHeight) > viewRect.bottom;
-    
-    if (isOverflowBottom) {
-        // 翻转到上方
-        top = elRect.top - viewRect.top + view.scrollTop - barHeight - 10;
-        bar.classList.remove('arrow-down');
-        bar.classList.add('arrow-up');
+    // 边界检测：如果超出 Shell 底部
+    const barHeight = 45;
+    if (top + barHeight > shellRect.height) {
+        // 翻转到上方：块的顶部 - 壳的顶部 - 工具栏高度
+        top = elRect.top - shellRect.top - barHeight - 8;
+        bar.className = 'arrow-up flex space-x-1'; // 切换箭头
     } else {
-        bar.classList.remove('arrow-up');
-        bar.classList.add('arrow-down');
+        bar.className = 'arrow-down flex space-x-1';
     }
 
     bar.style.display = 'flex';
     bar.style.top = `${top}px`;
-    bar.style.left = '50%';
+    bar.style.left = '50%'; // CSS 已处理居中
 }
 
 /* --- 生成逻辑 --- */
@@ -125,12 +133,12 @@ async function runGeneration() {
     const key = localStorage.getItem('ds_api_key_v1');
     if (!key) return toggleApiModal(true);
     const mat = document.getElementById('material').value;
-    if (mat.length < 150) return alert("素材太少");
+    if (mat.length < 150) return alert("素材不足150字");
 
     const btn = document.getElementById('genBtn');
     const view = document.getElementById('editorView');
     btn.disabled = true;
-    btn.innerText = "AI 正在创作...";
+    btn.innerText = "正在创作...";
     view.innerHTML = "";
     updateTotalWords();
 
@@ -169,17 +177,13 @@ async function runGeneration() {
                         const json = JSON.parse(line.substring(6));
                         const text = json.choices[0].delta.content || "";
                         if (text.includes('\n')) {
-                            // 换行时，完成上一块的渲染
                             currentBlock.innerHTML = formatMD(rawBuffer);
                             currentBlock.dataset.raw = rawBuffer;
-                            
-                            // 开启新块
                             rawBuffer = ""; 
                             currentBlock = createAtomicBlock("");
                             view.appendChild(currentBlock);
                         } else {
                             rawBuffer += text;
-                            // 流式输出时暂不渲染Markdown，保持流畅，只更新文本
                             currentBlock.innerText = rawBuffer;
                         }
                         updateTotalWords();
@@ -188,7 +192,6 @@ async function runGeneration() {
                 }
             }
         }
-        // 最后一段渲染
         if(currentBlock) {
              currentBlock.innerHTML = formatMD(rawBuffer);
              currentBlock.dataset.raw = rawBuffer;
@@ -202,15 +205,14 @@ async function runGeneration() {
     }
 }
 
-/* --- 块操作 --- */
+/* --- 块操作 (修复状态复位) --- */
 async function handleBlockAction(btn, action) {
     if (!activeBlockEl) return;
     const key = localStorage.getItem('ds_api_key_v1');
-    const original = activeBlockEl.dataset.raw || activeBlockEl.innerText; // 优先取raw
+    const original = activeBlockEl.dataset.raw || activeBlockEl.innerText;
     
-    // UI 反馈：流光特效 + 按钮状态
     const oldText = btn.innerText;
-    btn.innerHTML = `<svg class="animate-spin h-4 w-4 mr-1 inline" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>思考中`;
+    btn.innerHTML = `...`; 
     activeBlockEl.classList.add('scanning-effect');
     
     try {
@@ -225,20 +227,28 @@ async function handleBlockAction(btn, action) {
         const data = await res.json();
         newDraftContent = data.choices[0].message.content;
         
-        // 对比弹窗显示 Markdown 渲染后的效果
         document.getElementById('oldTextPreview').innerHTML = formatMD(original);
         document.getElementById('newTextPreview').innerHTML = formatMD(newDraftContent);
         document.getElementById('compareModal').classList.remove('hidden');
     } catch (e) {
-        alert("请求超时");
+        alert("操作失败");
     } finally {
         btn.innerText = oldText;
         activeBlockEl.classList.remove('scanning-effect');
+        
+        // 关键修复：操作结束后，隐藏工具栏，但不清空 activeBlockEl，
+        // 除非点击了“取消”或“替换”。
         document.getElementById('floatingBar').style.display = 'none';
     }
 }
 
-function closeCompareModal() { document.getElementById('compareModal').classList.add('hidden'); }
+function closeCompareModal() { 
+    document.getElementById('compareModal').classList.add('hidden'); 
+    // 关闭弹窗后，重置状态
+    if(activeBlockEl) activeBlockEl.classList.remove('active');
+    activeBlockEl = null;
+}
+
 function confirmReplace() {
     if (activeBlockEl && newDraftContent) {
         activeBlockEl.innerHTML = formatMD(newDraftContent);
@@ -250,13 +260,18 @@ function confirmReplace() {
 
 function copyAll() {
     const nodes = document.querySelectorAll('.block-node');
-    // 复制时还原为纯文本（带换行）
     const text = Array.from(nodes).map(e => e.innerText).join('\n\n');
     navigator.clipboard.writeText(text).then(() => alert("已复制"));
 }
 
+// 全局点击空白检测
 window.onclick = (e) => {
-    if (!e.target.closest('.block-node') && !e.target.closest('#floatingBar') && !e.target.closest('#apiModal')) {
+    // 如果点击的不是 block，也不是工具栏，也不是弹窗
+    if (!e.target.closest('.block-node') && 
+        !e.target.closest('#floatingBar') && 
+        !e.target.closest('#apiModal') &&
+        !e.target.closest('#compareModal')) {
+            
         if (activeBlockEl) activeBlockEl.classList.remove('active');
         document.getElementById('floatingBar').style.display = 'none';
         activeBlockEl = null;
