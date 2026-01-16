@@ -1,93 +1,55 @@
-/** * GZH AI Editor Core Logic
- * Author: Product Manager Team
- */
-
-// 1. 域名校验
+// 域名锁
 const ALLOWED = ['aibox6.com', 'www.aibox6.com', 'localhost', '127.0.0.1'];
 if (!ALLOWED.includes(window.location.hostname)) {
-    document.body.innerHTML = "<div style='padding:100px;text-align:center;'>Access Denied. Please visit aibox6.com</div>";
+    document.body.innerHTML = "<div style='padding:50px;text-align:center;'>Domain Denied.</div>";
 }
 
 let activeBlockEl = null;
 let newDraftContent = "";
 
-// 2. 初始化：读取 Key 并更新状态
 window.addEventListener('DOMContentLoaded', () => {
     const key = localStorage.getItem('ds_api_key_v1');
     if (key) {
         document.getElementById('apiKeyInput').value = key;
         updateApiLight(true);
-    } else {
-        updateApiLight(false);
     }
 });
 
-// 3. 基础 UI 交互
-function toggleApiModal(show) {
-    document.getElementById('apiModal').classList.toggle('hidden', !show);
-}
+function toggleApiModal(show) { document.getElementById('apiModal').classList.toggle('hidden', !show); }
 
 function updateApiLight(ok) {
     const dot = document.getElementById('statusDot');
-    dot.className = `w-3 h-3 rounded-full ${ok ? 'breathing-green' : 'breathing-red'}`;
+    if(dot) dot.className = `w-3 h-3 rounded-full ${ok ? 'breathing-green' : 'breathing-red'}`;
 }
 
-// 保存 API Key 逻辑 (修复保存无反应问题)
 function saveApiKey() {
-    const keyInput = document.getElementById('apiKeyInput');
-    const key = keyInput.value.trim();
-    
-    if (!key || !key.startsWith('sk-')) {
-        alert("请输入有效的 DeepSeek API Key (以 sk- 开头)");
-        return;
-    }
-
-    try {
-        localStorage.setItem('ds_api_key_v1', key);
-        updateApiLight(true);
-        toggleApiModal(false);
-        console.log("API Key saved successfully.");
-    } catch (e) {
-        alert("保存失败，请检查浏览器 LocalStorage 权限");
-    }
+    const key = document.getElementById('apiKeyInput').value.trim();
+    if (!key.startsWith('sk-')) return alert("无效的 Key");
+    localStorage.setItem('ds_api_key_v1', key);
+    updateApiLight(true);
+    toggleApiModal(false);
 }
 
-// 主题输入框焦点检查 (修复校验不及时问题)
 function checkKeyOnFocus() {
-    const key = localStorage.getItem('ds_api_key_v1');
-    if (!key) {
-        toggleApiModal(true);
-        // 给用户一个友好的提示
-        console.log("Prompting user for API key...");
-    }
+    if (!localStorage.getItem('ds_api_key_v1')) toggleApiModal(true);
 }
 
-// 素材字数统计
 function updateWordCount(textarea) {
     const count = textarea.value.length;
     const label = document.getElementById('charCount');
     label.innerText = `${count} / 150`;
-    if (count >= 150) {
-        label.classList.replace('text-red-400', 'text-green-500');
-        label.classList.add('font-bold');
-    } else {
-        label.classList.replace('text-green-500', 'text-red-400');
-        label.classList.remove('font-bold');
-    }
+    label.className = `text-xs ml-2 ${count >= 150 ? 'text-green-500 font-bold' : 'text-red-400'}`;
 }
 
-// 4. 原子化块逻辑
 function createAtomicBlock(content = "") {
     const div = document.createElement('div');
-    div.className = "block-node text-gray-800 leading-relaxed";
+    div.className = "block-node";
     div.innerText = content;
     div.onclick = (e) => {
         e.stopPropagation();
         if (activeBlockEl) activeBlockEl.classList.remove('active');
         activeBlockEl = div;
         activeBlockEl.classList.add('active');
-        
-        // 显示浮动菜单
         const bar = document.getElementById('floatingBar');
         bar.classList.remove('hidden');
         bar.style.top = `${div.offsetTop - 50}px`;
@@ -96,43 +58,35 @@ function createAtomicBlock(content = "") {
     return div;
 }
 
-// 5. 核心生成流程 (DeepSeek Stream)
 async function runGeneration() {
     const key = localStorage.getItem('ds_api_key_v1');
-    if (!key) {
-        toggleApiModal(true);
-        return;
-    }
+    if (!key) return toggleApiModal(true);
 
-    const material = document.getElementById('material').value;
-    if (material.length < 150) {
-        alert("写作素材不足150字，AI可能无法生成高质量内容。");
-        return;
-    }
+    const materialText = document.getElementById('material').value;
+    if (materialText.length < 150) return alert("素材不足150字");
 
     const btn = document.getElementById('genBtn');
     const view = document.getElementById('editorView');
-    
     btn.disabled = true;
-    btn.innerText = "DeepSeek 正在撰写中...";
-    view.innerHTML = ""; // 清空预览
+    btn.innerText = "生成中...";
+    view.innerHTML = "";
+
+    // 修正点：增加了防御性代码，防止读取 null
+    const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : "";
 
     const params = {
-        topic: document.getElementById('topic').value,
-        style: document.getElementById('style').value,
-        referenceStyle: document.getElementById('refStyle').value,
-        material: material,
-        taboos: document.getElementById('taboos').value,
-        lengthRange: document.getElementById('lengthRange').value
+        topic: getVal('topic'),
+        style: getVal('style'),
+        referenceStyle: getVal('refStyle'),
+        material: materialText,
+        taboos: getVal('taboos'),
+        lengthRange: getVal('lengthRange')
     };
 
     try {
         const response = await fetch("https://api.deepseek.com/chat/completions", {
             method: "POST",
-            headers: { 
-                "Content-Type": "application/json", 
-                "Authorization": `Bearer ${key}` 
-            },
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             body: JSON.stringify({
                 model: "deepseek-chat",
                 messages: [
@@ -143,8 +97,6 @@ async function runGeneration() {
             })
         });
 
-        if (!response.ok) throw new Error("API请求失败，请检查Key有效性");
-
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let currentBlock = createAtomicBlock("");
@@ -153,10 +105,8 @@ async function runGeneration() {
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-
             const chunk = decoder.decode(value);
             const lines = chunk.split('\n');
-            
             for (let line of lines) {
                 if (line.startsWith('data: ') && line !== 'data: [DONE]') {
                     try {
@@ -174,60 +124,43 @@ async function runGeneration() {
             }
         }
     } catch (err) {
-        view.innerHTML = `<div class='text-red-500 p-4 font-bold'>生成失败: ${err.message}</div>`;
+        view.innerHTML = `<div class='text-red-500'>生成失败: ${err.message}</div>`;
     } finally {
         btn.disabled = false;
-        btn.innerText = "重新生成全文";
+        btn.innerText = "重新生成";
     }
 }
 
-// 6. 块操作功能
+// 块编辑和对比弹窗逻辑保持不变...
 async function handleBlockAction(action) {
     if (!activeBlockEl) return;
     const key = localStorage.getItem('ds_api_key_v1');
     const original = activeBlockEl.innerText;
-    
-    activeBlockEl.classList.add('animate-pulse', 'bg-blue-50/50');
-    document.getElementById('floatingBar').classList.add('hidden');
-
+    activeBlockEl.classList.add('animate-pulse');
     try {
         const res = await fetch("https://api.deepseek.com/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             body: JSON.stringify({
                 model: "deepseek-chat",
-                messages: [
-                    { role: "system", content: GZH_PROMPTS.system },
-                    { role: "user", content: GZH_PROMPTS.blockAction(action, original, original) }
-                ]
+                messages: [{ role: "system", content: GZH_PROMPTS.system }, { role: "user", content: GZH_PROMPTS.blockAction(action, original, original) }]
             })
         });
         const data = await res.json();
         newDraftContent = data.choices[0].message.content;
-        
-        // 弹出对比弹窗
         document.getElementById('oldTextPreview').innerText = original;
         document.getElementById('newTextPreview').innerText = newDraftContent;
         document.getElementById('compareModal').classList.remove('hidden');
-    } catch (e) {
-        alert("微调失败，请重试");
-    } finally {
-        activeBlockEl.classList.remove('animate-pulse', 'bg-blue-50/50');
-    }
+    } catch (e) { alert("微调失败"); } finally { activeBlockEl.classList.remove('animate-pulse'); }
 }
-
 function closeCompareModal() { document.getElementById('compareModal').classList.add('hidden'); }
-function confirmReplace() {
-    if (activeBlockEl && newDraftContent) {
-        activeBlockEl.innerText = newDraftContent;
-    }
-    closeCompareModal();
+function confirmReplace() { if(activeBlockEl) activeBlockEl.innerText = newDraftContent; closeCompareModal(); }
+function copyAll() {
+    const text = Array.from(document.querySelectorAll('.block-node')).map(el => el.innerText).join('\n\n');
+    navigator.clipboard.writeText(text).then(() => alert("已复制"));
 }
-
-// 点击空白隐藏菜单
 window.onclick = (e) => {
-    if (!e.target.closest('.block-node') && !e.target.closest('#floatingBar') && !e.target.closest('#apiModal')) {
-        if (activeBlockEl) activeBlockEl.classList.remove('active');
+    if (!e.target.closest('.block-node') && !e.target.closest('#floatingBar')) {
         document.getElementById('floatingBar').classList.add('hidden');
     }
 };
