@@ -1,4 +1,4 @@
-/** GZH AI Editor v3.4 - Mobile Adaptation */
+/** GZH AI Editor v3.5 - Context Aware & Bug Fixes */
 
 const ALLOWED = ['aibox6.com', 'www.aibox6.com', 'localhost', '127.0.0.1'];
 if (!ALLOWED.includes(window.location.hostname)) document.body.innerHTML = "Domain Denied.";
@@ -6,6 +6,7 @@ if (!ALLOWED.includes(window.location.hostname)) document.body.innerHTML = "Doma
 let activeBlockEl = null;
 let newDraftContent = "";
 
+// 1. 初始化
 window.addEventListener('DOMContentLoaded', () => {
     const key = localStorage.getItem('ds_api_key_v1');
     if (key && document.getElementById('apiKeyInput')) {
@@ -13,9 +14,9 @@ window.addEventListener('DOMContentLoaded', () => {
         updateApiLight(true);
     }
     
-    // 监听滚动
     const view = document.getElementById('editorView');
     if(view) {
+        // 滚动监听
         view.addEventListener('scroll', () => {
             if(activeBlockEl) {
                 requestAnimationFrame(() => positionToolbar(activeBlockEl));
@@ -24,6 +25,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
         
+        // 点击监听
         view.addEventListener('click', (e) => {
             const block = e.target.closest('.block-node');
             if (block) {
@@ -34,6 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+/* Markdown 渲染 */
 function formatMD(text) {
     if (!text) return "";
     let html = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
@@ -68,7 +71,8 @@ function updateRefLimit(el) {
     document.getElementById('refCount').innerText = `${el.value.length}/1000`;
 }
 function updateTotalWords() {
-    const nodes = document.querySelectorAll('.block-node');
+    // 修复：只统计 editorView 内的块，不统计弹窗里的
+    const nodes = document.querySelectorAll('#editorView .block-node');
     let total = 0;
     nodes.forEach(n => total += n.innerText.trim().length);
     document.getElementById('totalWords').innerText = `预览 (${total}字)`;
@@ -100,7 +104,6 @@ function positionToolbar(el) {
     let top = elRect.bottom - shellRect.top + 8; 
     
     const barHeight = 45;
-    // 边界检测：因为底部 Padding 够大，理论上不会溢出，但保留此逻辑
     if (top + barHeight > shellRect.height) {
         top = elRect.top - shellRect.top - barHeight - 8;
         bar.className = 'arrow-up flex space-x-1'; 
@@ -128,7 +131,6 @@ async function runGeneration() {
     updateTotalWords();
 
     const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : "";
-    
     const params = {
         topic: getVal('topic'), 
         style: getVal('style'),
@@ -190,15 +192,33 @@ async function runGeneration() {
         view.innerHTML = `<div class='text-red-500 p-4'>Error: ${e.message}</div>`;
     } finally {
         btn.disabled = false;
-        btn.innerText = "开始创作";
+        // 改进 1：按钮文案变更
+        btn.innerText = "🔄 再写一遍";
     }
 }
 
+/* 块操作 (上下文感知版) */
 async function handleBlockAction(btn, action) {
     if (!activeBlockEl) return;
     const key = localStorage.getItem('ds_api_key_v1');
     const original = activeBlockEl.dataset.raw || activeBlockEl.innerText;
     
+    // 改进 3：获取上下文 (各取200字)
+    let prevText = "";
+    let nextText = "";
+    
+    if (activeBlockEl.previousElementSibling) {
+        prevText = activeBlockEl.previousElementSibling.innerText;
+        // 取末尾200字
+        if (prevText.length > 200) prevText = prevText.slice(-200);
+    }
+    
+    if (activeBlockEl.nextElementSibling) {
+        nextText = activeBlockEl.nextElementSibling.innerText;
+        // 取开头200字
+        if (nextText.length > 200) nextText = nextText.slice(0, 200);
+    }
+
     const oldText = btn.innerText;
     btn.innerHTML = `...`; 
     activeBlockEl.classList.add('scanning-effect');
@@ -209,7 +229,8 @@ async function handleBlockAction(btn, action) {
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             body: JSON.stringify({
                 model: "deepseek-chat",
-                messages: [{role:"system",content:GZH_PROMPTS.system},{role:"user",content:GZH_PROMPTS.blockAction(action, original, original)}]
+                // 传递 prevText 和 nextText 给 Prompt
+                messages: [{role:"system",content:GZH_PROMPTS.system},{role:"user",content:GZH_PROMPTS.blockAction(action, original, prevText, nextText)}]
             })
         });
         const data = await res.json();
@@ -243,7 +264,8 @@ function confirmReplace() {
 }
 
 function copyAll() {
-    const nodes = document.querySelectorAll('.block-node');
+    // 改进 2：只选择 editorView 内的块，排除 compareModal 内的块
+    const nodes = document.querySelectorAll('#editorView .block-node');
     const text = Array.from(nodes).map(e => e.innerText).join('\n\n');
     navigator.clipboard.writeText(text).then(() => alert("已复制全文"));
 }
