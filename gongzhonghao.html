@@ -3,108 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GZH Editor - v3.1 Perfect</title>
+    <title>GZH Editor - v3.2 Speed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --wx-green: #07C160; --bg-gray: #F5F5F5; }
+        :root { --wx-green: #07C160; }
 
-        /* 1. 仿真手机壳 (iPhone 15 Pro Max 比例) */
+        /* 1. 仿真手机壳 (iPhone 15 Pro Max) */
         .iphone-shell { 
-            width: 100%; max-width: 400px; height: 800px; 
+            width: 100%; max-width: 400px; height: 820px; 
             background: #fff; 
-            border: 14px solid #252525; 
+            border: 14px solid #202020; 
             border-radius: 60px; 
             position: relative; margin: 0 auto; 
-            box-shadow: 0 0 0 2px #4a4a4a, 0 40px 80px -20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 0 2px #333, 0 40px 80px -20px rgba(0,0,0,0.4);
             overflow: hidden;
             display: flex; flex-direction: column;
         }
         
-        /* 灵动岛 (不遮挡内容，仅作装饰) */
+        /* 灵动岛 */
         .notch {
             width: 120px; height: 32px; background: #000; 
             position: absolute; top: 12px; left: 50%; transform: translateX(-50%); 
             border-radius: 20px; z-index: 50; pointer-events: none;
         }
 
-        /* 微信顶部栏 (固定) */
-        .wechat-header {
-            height: 88px; /* 包含状态栏高度 */
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
-            border-bottom: 0.5px solid rgba(0,0,0,0.1); 
-            display: flex; align-items: flex-end; justify-content: center; 
-            padding-bottom: 12px;
-            font-size: 17px; font-weight: 600; color: #181818; 
-            z-index: 40; position: absolute; top: 0; width: 100%;
+        /* 顶部状态栏文字 (嵌入刘海下方) */
+        .status-bar-text {
+            position: absolute; top: 50px; left: 0; right: 0;
+            text-align: center; font-size: 13px; color: #666; font-weight: 500;
+            z-index: 40; pointer-events: none;
+            background: rgba(255,255,255,0.95);
+            padding-bottom: 10px; border-bottom: 0.5px solid rgba(0,0,0,0.05);
         }
 
         /* 滚动内容区 */
         .wechat-screen { 
             background: #fff; flex: 1; overflow-y: auto; 
-            padding: 100px 24px 40px 24px; /* Top padding 避开 Header */
-            scroll-behavior: smooth;
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            /* 上方留白给状态栏，下方留白给 Home 条 */
+            padding: 85px 24px 40px 24px; 
+            scroll-behavior: auto; /* 移除平滑滚动以提高JS计算响应速度 */
         }
         .wechat-screen::-webkit-scrollbar { width: 0px; }
 
-        /* 2. 内容块交互 (Markdown 样式适配) */
+        /* 2. 内容块交互 */
         .block-node { 
-            position: relative; padding: 6px 4px; margin-bottom: 20px; 
-            border-radius: 6px; border: 1.5px solid transparent; 
-            transition: all 0.2s; cursor: pointer; 
-            font-size: 16px; line-height: 1.7; color: #333; text-align: justify;
+            position: relative; padding: 10px 8px; margin-bottom: 12px; 
+            border-radius: 8px; border: 1.5px solid transparent; 
+            cursor: pointer; 
+            font-size: 16px; line-height: 1.75; color: #333; text-align: justify;
             word-wrap: break-word;
+            /* 移除 transition 避免点击时的视觉滞后感 */
         }
         /* Markdown 样式 */
-        .block-node b, .block-node strong { color: #000; font-weight: 700; background: linear-gradient(to top, rgba(7,193,96,0.1) 40%, transparent 40%); }
+        .block-node b { color: #000; font-weight: 700; background: linear-gradient(to top, rgba(7,193,96,0.15) 40%, transparent 40%); }
         .block-node ul { list-style: none; padding-left: 0; }
         
         .block-node:hover { background-color: rgba(0,0,0,0.02); }
-        .block-node.active { background-color: rgba(7, 193, 96, 0.04); border-color: rgba(7, 193, 96, 0.3); }
+        .block-node.active { background-color: rgba(7, 193, 96, 0.06); border-color: rgba(7, 193, 96, 0.4); }
 
-        /* 3. AI 工作时的“流光扫描”特效 */
-        .scanning-effect {
-            position: relative; overflow: hidden; border-color: var(--wx-green) !important;
-        }
+        /* AI 工作时的特效 */
+        .scanning-effect { position: relative; overflow: hidden; border-color: var(--wx-green) !important; background-color: #fff !important; }
         .scanning-effect::after {
             content: ''; position: absolute; top: 0; left: -100%;
             width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(7,193,96,0.1), transparent);
-            animation: scan 1.5s infinite;
+            background: linear-gradient(90deg, transparent, rgba(7,193,96,0.2), transparent);
+            animation: scan 1s infinite linear;
         }
         @keyframes scan { 100% { left: 150%; } }
 
-        /* 4. 智能浮动工具栏 */
+        /* 3. 浮动工具栏 (极速版) */
         #floatingBar { 
             position: absolute; display: none; z-index: 100; 
-            background: #1e1e1e; border-radius: 10px; padding: 6px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            background: #222; border-radius: 8px; padding: 5px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             transform: translateX(-50%); white-space: nowrap;
+            /* 关键：移除 transition 实现跟手 */
         }
-        /* 小箭头 (动态控制) */
-        .arrow-down::after {
-            content: ""; position: absolute; bottom: -6px; left: 50%; margin-left: -6px;
-            border-width: 6px 6px 0; border-style: solid; border-color: #1e1e1e transparent transparent transparent;
+        /* 小箭头 */
+        #floatingBar::after {
+            content: ""; position: absolute; left: 50%; margin-left: -6px;
+            border-style: solid; 
         }
-        .arrow-up::after {
-            content: ""; position: absolute; top: -6px; left: 50%; margin-left: -6px;
-            border-width: 0 6px 6px; border-style: solid; border-color: transparent transparent #1e1e1e transparent;
-        }
+        .arrow-down::after { bottom: -6px; border-width: 6px 6px 0; border-color: #222 transparent transparent transparent; }
+        .arrow-up::after { top: -6px; border-width: 0 6px 6px; border-color: transparent transparent #222 transparent; }
         
         .toolbar-btn { 
-            color: #fff; font-size: 13px; padding: 6px 14px; 
-            border-radius: 6px; font-weight: 500; transition: 0.2s; 
+            color: #fff; font-size: 13px; padding: 6px 12px; 
+            border-radius: 6px; font-weight: 600; 
             display: flex; items-center; gap: 4px;
         }
-        .toolbar-btn:hover { background: #333; }
-        .toolbar-btn:active { transform: scale(0.95); }
-
-        /* 通用动画 */
+        .toolbar-btn:hover { background: #444; }
+        
         .breathing-wx { background: var(--wx-green); box-shadow: 0 0 10px rgba(7,193,96,0.6); animation: b 2s infinite; }
         @keyframes b { 0%,100% {opacity:1} 50% {opacity:0.6} }
     </style>
 </head>
-<body class="bg-[#f0f2f5] text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
+<body class="bg-[#f2f2f2] text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
 
     <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center shrink-0 z-50">
         <div class="flex items-center space-x-2 font-bold text-xl text-[#07C160]">
@@ -112,7 +106,7 @@
         </div>
         <div class="flex items-center space-x-4">
             <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
-            <button onclick="toggleApiModal(true)" class="text-sm font-bold text-gray-500 hover:text-[#07C160] transition">API 设置</button>
+            <button onclick="toggleApiModal(true)" class="text-sm font-bold text-gray-500 hover:text-[#07C160]">API 设置</button>
         </div>
     </header>
 
@@ -128,14 +122,14 @@
                 <div class="grid grid-cols-2 gap-4">
                     <select id="style" class="p-4 bg-gray-50 rounded-xl outline-none border border-transparent focus:border-[#07C160]">
                         <option value="none">文风：自然无修饰</option>
-                        <option value="emotional">文风：情感共鸣 (走心)</option>
-                        <option value="dry_goods">文风：干货分享 (专业)</option>
-                        <option value="sharp">文风：犀利毒舌 (观点)</option>
+                        <option value="emotional">文风：情感共鸣</option>
+                        <option value="dry_goods">文风：干货分享</option>
+                        <option value="sharp">文风：犀利毒舌</option>
                     </select>
                     <select id="lengthRange" class="p-4 bg-gray-50 rounded-xl outline-none border border-transparent focus:border-[#07C160]">
-                        <option>800字 (短文)</option>
-                        <option>1500字 (标准)</option>
-                        <option>2500字 (深度)</option>
+                        <option>800字以内</option>
+                        <option>1500字以内</option>
+                        <option>2500字以上</option>
                     </select>
                 </div>
 
@@ -152,7 +146,7 @@
                         <label class="text-sm font-bold text-gray-700">核心素材</label>
                         <span id="charCount" class="text-xs text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">0 / 150</span>
                     </div>
-                    <textarea id="material" oninput="updateWordCount(this)" placeholder="输入事实、观点或故事背景，AI 将基于此扩展..." class="w-full h-48 p-4 bg-gray-50 rounded-xl outline-none text-sm leading-relaxed border border-transparent focus:border-[#07C160]"></textarea>
+                    <textarea id="material" oninput="updateWordCount(this)" placeholder="输入素材，AI 将基于此扩展..." class="w-full h-48 p-4 bg-gray-50 rounded-xl outline-none text-sm leading-relaxed border border-transparent focus:border-[#07C160]"></textarea>
                 </div>
 
                 <button id="genBtn" onclick="runGeneration()" class="w-full py-4 bg-[#07C160] text-white rounded-xl font-bold text-lg shadow-lg hover:bg-[#06ad56] active:scale-[0.99] transition-all">
@@ -164,18 +158,17 @@
         <section class="lg:col-span-5 flex flex-col items-center justify-center h-full relative">
             <div class="iphone-shell">
                 <div class="notch"></div>
-                
-                <div class="wechat-header">
-                    <span id="totalWords">公众号预览</span>
+                <div class="status-bar-text">
+                    <span id="totalWords">预览 (0字)</span>
                 </div>
 
                 <div id="editorView" class="wechat-screen">
                     <div class="h-full flex flex-col items-center justify-center text-gray-300">
-                        <p class="text-sm font-medium">内容生成区</p>
+                        <p class="text-sm">内容生成区</p>
                     </div>
                 </div>
 
-                <div id="floatingBar" class="flex space-x-1 arrow-down">
+                <div id="floatingBar" class="arrow-down">
                     <button onclick="handleBlockAction(this, 'rewrite')" class="toolbar-btn">✨ 重写</button>
                     <button onclick="handleBlockAction(this, 'polish')" class="toolbar-btn">🪄 润色</button>
                     <button onclick="handleBlockAction(this, 'compress')" class="toolbar-btn">✂️ 压缩</button>
@@ -184,7 +177,7 @@
             </div>
             
             <button onclick="copyAll()" class="mt-6 px-8 py-3 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-600 shadow-sm hover:text-[#07C160] hover:border-[#07C160] transition">
-                复制结果
+                复制全文到公众号
             </button>
         </section>
     </main>
