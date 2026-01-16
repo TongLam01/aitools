@@ -1,76 +1,83 @@
-// 域名限制逻辑
-const ALLOWED_DOMAINS = ['aibox6.com', 'www.aibox6.com', 'localhost'];
-if (!ALLOWED_DOMAINS.includes(window.location.hostname)) {
-    document.body.innerHTML = `<div style="padding:100px;text-align:center;font-family:sans-serif;">
-        <h2>域名未授权</h2><p>请访问 aibox6.com 使用正版工具。</p></div>`;
+// 域名锁
+if (!['aibox6.com', 'www.aibox6.com', 'localhost'].includes(window.location.hostname)) {
+    document.body.innerHTML = "Domain Denied.";
 }
 
-let activeBlockEl = null;
+let activeBlock = null;
+let newDraft = "";
 
-// 初始化检测 Key
-window.addEventListener('DOMContentLoaded', () => {
-    const savedKey = localStorage.getItem('ds_api_key');
-    if (savedKey) {
-        document.getElementById('apiKey').value = savedKey;
+// 实时字数统计
+function updateCount(el) {
+    const count = el.value.length;
+    const label = document.getElementById('charCount');
+    label.innerText = `${count} / 150`;
+    label.className = count >= 150 ? "text-xs font-bold ml-2 text-green-500" : "text-xs font-normal ml-2 text-red-400";
+}
+
+// 初始化
+window.onload = () => {
+    const key = localStorage.getItem('ds_key');
+    if (key) {
+        document.getElementById('apiKey').value = key;
         updateStatus(true);
     }
-});
+};
+
+function saveKey() {
+    const key = document.getElementById('apiKey').value;
+    localStorage.setItem('ds_key', key);
+    updateStatus(!!key);
+    document.getElementById('apiModal').classList.add('hidden');
+}
 
 function updateStatus(ok) {
-    const dot = document.getElementById('statusDot');
-    dot.className = ok ? "w-2.5 h-2.5 rounded-full breathing-green" : "w-2.5 h-2.5 rounded-full breathing-red";
+    document.getElementById('statusDot').className = `w-3 h-3 rounded-full ${ok ? 'breathing-green' : 'breathing-red'}`;
 }
 
-function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
-function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
-
-function saveSettings() {
-    const key = document.getElementById('apiKey').value;
-    if (key.startsWith('sk-')) {
-        localStorage.setItem('ds_api_key', key);
-        updateStatus(true);
-        closeSettings();
-    } else {
-        alert("请输入有效的 DeepSeek API Key");
-    }
-}
-
-// 原子化块渲染
-function createBlock(content) {
+// 块生成逻辑
+function renderBlock(content) {
     const div = document.createElement('div');
-    div.className = "block-hover";
+    div.className = "block-node text-gray-800 leading-relaxed";
     div.innerText = content;
+
+    // 点击/点击交互
     div.onclick = (e) => {
         e.stopPropagation();
-        activeBlockEl = div;
-        showMenu(e);
+        if (activeBlock) activeBlock.classList.remove('active');
+        activeBlock = div;
+        activeBlock.classList.add('active');
+        showToolbar(div);
     };
+
     return div;
 }
 
-function showMenu(e) {
-    const menu = document.getElementById('blockMenu');
-    menu.classList.remove('hidden');
-    menu.style.top = `${e.clientY - 50}px`;
-    menu.style.left = `${Math.min(e.clientX, window.innerWidth - 200)}px`;
+function showToolbar(el) {
+    const bar = document.getElementById('floatingBar');
+    const rect = el.getBoundingClientRect();
+    const shellRect = document.querySelector('.wechat-shell').getBoundingClientRect();
+    
+    bar.classList.remove('hidden');
+    // 定位在块的右上方
+    bar.style.top = `${el.offsetTop - 40}px`;
+    bar.style.right = `10px`;
 }
 
-// 核心生成功能
-async function runGeneration() {
+// 核心生成
+async function runGenerate() {
     const material = document.getElementById('material').value;
-    if (material.length < 200) return alert("素材字数不足200字，为了文章质量请补充内容。");
+    if (material.length < 150) return alert("素材不足150字！");
 
-    const key = localStorage.getItem('ds_api_key');
-    if (!key) return openSettings();
+    const key = localStorage.getItem('ds_key');
+    if (!key) return alert("请先设置 API Key");
 
     const btn = document.getElementById('genBtn');
-    const editor = document.getElementById('editorView');
-    
+    const view = document.getElementById('editorView');
     btn.disabled = true;
-    btn.innerText = "正在调遣 DeepSeek 深度撰稿...";
-    editor.innerHTML = ""; // 清空预览
+    btn.innerText = "撰写中...";
+    view.innerHTML = "";
 
-    const formData = {
+    const params = {
         topic: document.getElementById('topic').value,
         style: document.getElementById('style').value,
         referenceStyle: document.getElementById('refStyle').value,
@@ -80,96 +87,102 @@ async function runGeneration() {
     };
 
     try {
-        // 使用流式传输防止 Vercel 超时
         const response = await fetch("https://api.deepseek.com/chat/completions", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${key}`
-            },
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             body: JSON.stringify({
                 model: "deepseek-chat",
-                messages: [
-                    { role: "system", content: GZH_PROMPTS.system },
-                    { role: "user", content: GZH_PROMPTS.generate(formData) }
-                ],
-                stream: true // 开启流式
+                messages: [{role:"system", content: GZH_PROMPTS.system}, {role:"user", content: GZH_PROMPTS.generate(params)}],
+                stream: true
             })
         });
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let fullText = "";
-        let currentBlock = createBlock("");
-        editor.appendChild(currentBlock);
+        let currentBlock = renderBlock("");
+        view.appendChild(currentBlock);
 
         while (true) {
-            /* Vercel Heartbeat Comment: Keep Connection Alive */
-            const { done, value } = await reader.read();
+            /* Vercel Heartbeat */
+            const {done, value} = await reader.read();
             if (done) break;
-
             const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
-            
-            for (const line of lines) {
-                if (line.startsWith("data: ") && line !== "data: [DONE]") {
-                    const data = JSON.parse(line.substring(6));
-                    const delta = data.choices[0].delta.content || "";
-                    
-                    if (delta.includes("\n")) {
-                        currentBlock = createBlock("");
-                        editor.appendChild(currentBlock);
+            const lines = chunk.split('\n');
+            for(const line of lines) {
+                if(line.startsWith('data: ') && line !== 'data: [DONE]') {
+                    const json = JSON.parse(line.substring(6));
+                    const text = json.choices[0].delta.content || "";
+                    if (text.includes('\n')) {
+                        currentBlock = renderBlock("");
+                        view.appendChild(currentBlock);
                     } else {
-                        currentBlock.innerText += delta;
-                        // 自动滚动到底部
-                        editor.scrollTop = editor.scrollHeight;
+                        currentBlock.innerText += text;
+                        view.scrollTop = view.scrollHeight;
                     }
                 }
             }
         }
-    } catch (err) {
-        editor.innerHTML = `<p class="text-red-500">生成出错: ${err.message}</p>`;
+    } catch (e) {
+        alert("生成失败");
     } finally {
         btn.disabled = false;
         btn.innerText = "重新生成全文";
     }
 }
 
-// 块操作功能
-async function applyBlockAction(action) {
-    if (!activeBlockEl) return;
-    const key = localStorage.getItem('ds_api_key');
-    const menu = document.getElementById('blockMenu');
-    menu.classList.add('hidden');
-
-    const originalText = activeBlockEl.innerText;
-    activeBlockEl.classList.add('opacity-50', 'animate-pulse');
+// 块编辑操作
+async function handleAction(action) {
+    if (!activeBlock) return;
+    const key = localStorage.getItem('ds_key');
+    const original = activeBlock.innerText;
+    
+    // UI 反馈
+    activeBlock.classList.add('animate-pulse', 'bg-blue-50');
+    document.getElementById('floatingBar').classList.add('hidden');
 
     try {
-        const resp = await fetch("https://api.deepseek.com/chat/completions", {
+        const res = await fetch("https://api.deepseek.com/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             body: JSON.stringify({
                 model: "deepseek-chat",
                 messages: [
-                    { role: "system", content: GZH_PROMPTS.system },
-                    { role: "user", content: GZH_PROMPTS.blockAction(action, originalText, originalText) }
+                    {role:"system", content: GZH_PROMPTS.system},
+                    {role:"user", content: GZH_PROMPTS.blockAction(action, original, original)}
                 ]
             })
         });
-        const json = await resp.json();
-        activeBlockEl.innerText = json.choices[0].message.content;
+        const data = await res.json();
+        newDraft = data.choices[0].message.content;
+        
+        // 弹出对比弹窗
+        document.getElementById('oldText').innerText = original;
+        document.getElementById('newText').innerText = newDraft;
+        document.getElementById('compareModal').classList.remove('hidden');
+
     } catch (e) {
-        alert("局部重写失败，请重试");
+        alert("优化失败");
     } finally {
-        activeBlockEl.classList.remove('opacity-50', 'animate-pulse');
+        activeBlock.classList.remove('animate-pulse', 'bg-blue-50');
     }
 }
 
-function copyAll() {
-    const text = Array.from(document.querySelectorAll('.block-hover')).map(el => el.innerText).join('\n\n');
-    navigator.clipboard.writeText(text).then(() => alert("复制成功！可以直接粘贴到公众号后台。"));
+function closeCompare() {
+    document.getElementById('compareModal').classList.add('hidden');
+    newDraft = "";
 }
 
-// 点击空白隐藏菜单
-window.onclick = () => document.getElementById('blockMenu').classList.add('hidden');
+function acceptNew() {
+    if (activeBlock && newDraft) {
+        activeBlock.innerText = newDraft;
+    }
+    closeCompare();
+}
+
+// 点击空白隐藏
+window.onclick = (e) => {
+    if (!e.target.closest('.block-node') && !e.target.closest('#floatingBar')) {
+        if (activeBlock) activeBlock.classList.remove('active');
+        document.getElementById('floatingBar').classList.add('hidden');
+    }
+};
