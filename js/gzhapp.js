@@ -1,58 +1,72 @@
-/** * GZH AI Editor v2.2 - Final UX Polish
- */
+/** GZH AI Editor v2.3 Stable */
 
 const ALLOWED = ['aibox6.com', 'www.aibox6.com', 'localhost', '127.0.0.1'];
-if (!ALLOWED.includes(window.location.hostname)) {
-    document.body.innerHTML = "<div style='padding:100px;text-align:center;'>Domain Denied.</div>";
-}
+if (!ALLOWED.includes(window.location.hostname)) document.body.innerHTML = "Domain Denied.";
 
 let activeBlockEl = null;
 let newDraftContent = "";
 
-// 1. 初始化
+// 初始化
 window.addEventListener('DOMContentLoaded', () => {
     const key = localStorage.getItem('ds_api_key_v1');
     if (key && document.getElementById('apiKeyInput')) {
         document.getElementById('apiKeyInput').value = key;
         updateApiLight(true);
     }
+    
+    // 监听滚动，确保工具栏跟随
+    const view = document.getElementById('editorView');
+    if(view) {
+        view.addEventListener('scroll', () => {
+            if(activeBlockEl) positionToolbar(activeBlockEl);
+            else document.getElementById('floatingBar').style.display = 'none';
+        });
+    }
 });
 
-function toggleApiModal(show) { 
-    const m = document.getElementById('apiModal');
-    if(m) m.classList.toggle('hidden', !show); 
-}
-
+/* --- UI Helpers --- */
+function toggleApiModal(show) { document.getElementById('apiModal').classList.toggle('hidden', !show); }
 function updateApiLight(ok) {
     const dot = document.getElementById('statusDot');
     if(dot) dot.className = `w-3 h-3 rounded-full ${ok ? 'breathing-green' : 'breathing-red'}`;
 }
-
 function saveApiKey() {
-    const input = document.getElementById('apiKeyInput');
-    if (!input || !input.value.startsWith('sk-')) return alert("请输入有效密钥");
-    localStorage.setItem('ds_api_key_v1', input.value.trim());
+    const val = document.getElementById('apiKeyInput').value.trim();
+    if(!val.startsWith('sk-')) return alert('Key 无效');
+    localStorage.setItem('ds_api_key_v1', val);
     updateApiLight(true);
     toggleApiModal(false);
 }
+function checkKeyOnFocus() { if(!localStorage.getItem('ds_api_key_v1')) toggleApiModal(true); }
 
-function checkKeyOnFocus() {
-    if (!localStorage.getItem('ds_api_key_v1')) toggleApiModal(true);
-}
-
-function updateWordCount(textarea) {
-    const count = textarea.value.length;
+/* --- 字数统计逻辑 (新) --- */
+function updateWordCount(el) {
+    const len = el.value.length;
     const label = document.getElementById('charCount');
-    if(label) {
-        label.innerText = `${count} / 150`;
-        label.className = `text-xs ml-2 ${count >= 150 ? 'text-green-500 font-bold' : 'text-red-400'}`;
-    }
+    label.innerText = `${len} / 150`;
+    label.className = `text-xs font-bold ${len >= 150 ? 'text-green-500' : 'text-red-400'}`;
 }
 
-// 2. 块生成：带精准定位逻辑
+// 参考风格字数限制
+function updateRefLimit(el) {
+    if (el.value.length > 1000) {
+        el.value = el.value.substring(0, 1000); // 自动截断
+    }
+    document.getElementById('refCount').innerText = `${el.value.length}/1000`;
+}
+
+// 模拟器总字数统计
+function updateTotalWords() {
+    const nodes = document.querySelectorAll('.block-node');
+    let total = 0;
+    nodes.forEach(n => total += n.innerText.length);
+    document.getElementById('totalWords').innerText = `共 ${total} 字`;
+}
+
+/* --- 块生成与交互 --- */
 function createAtomicBlock(content = "") {
     const div = document.createElement('div');
-    div.className = "block-node text-slate-800 leading-relaxed";
+    div.className = "block-node text-justify";
     div.innerText = content;
     
     div.onclick = (e) => {
@@ -60,75 +74,64 @@ function createAtomicBlock(content = "") {
         if (activeBlockEl) activeBlockEl.classList.remove('active');
         activeBlockEl = div;
         activeBlockEl.classList.add('active');
-        
         positionToolbar(div);
     };
     return div;
 }
 
-// 核心：工具栏跟随选中块
+// 核心：工具栏定位算法
 function positionToolbar(el) {
     const bar = document.getElementById('floatingBar');
-    if(!bar) return;
-
-    // 获取块相对于父容器的位置
-    const elTop = el.offsetTop;
-    const elHeight = el.offsetHeight;
-    
-    // 定位：在块的正下方
-    bar.style.display = "flex";
-    bar.style.top = `${elTop + elHeight + 10}px`;
-    bar.style.left = "50%";
-    
-    // 自动滚动，确保工具栏可见
     const view = document.getElementById('editorView');
-    const scrollTarget = elTop + elHeight + 100;
-    if (scrollTarget > view.scrollTop + view.offsetHeight) {
-        view.scrollTo({ top: elTop - 50, behavior: 'smooth' });
+    
+    // 计算位置：块的 Top (相对容器) - 容器滚动距离 + 块高度 + 间距
+    // 注意：editorView 有 padding-top: 60px，需要修正
+    const relativeTop = el.offsetTop - view.scrollTop + el.offsetHeight + 10;
+    
+    // 边界检查：如果超出底部，就不显示了
+    if (relativeTop > view.offsetHeight || relativeTop < 60) {
+        bar.style.display = 'none';
+        return;
     }
+
+    bar.style.display = 'flex';
+    bar.style.top = `${relativeTop}px`;
+    bar.style.left = '50%'; // CSS transform handled centering
 }
 
-// 3. 全文生成
+/* --- 生成逻辑 --- */
 async function runGeneration() {
     const key = localStorage.getItem('ds_api_key_v1');
     if (!key) return toggleApiModal(true);
-
-    const materialEl = document.getElementById('material');
-    if (!materialEl || materialEl.value.length < 150) return alert("素材字数不足150字");
+    const mat = document.getElementById('material').value;
+    if (mat.length < 150) return alert("素材不足 150 字");
 
     const btn = document.getElementById('genBtn');
     const view = document.getElementById('editorView');
-    
     btn.disabled = true;
-    btn.innerText = "DeepSeek 写作中...";
-    view.innerHTML = ""; // 重置预览区
+    btn.innerText = "DeepSeek 正在思考...";
+    view.innerHTML = "";
+    updateTotalWords(); // Reset
 
     const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : "";
-
     const params = {
-        topic: getVal('topic'),
-        style: getVal('style'),
-        referenceStyle: getVal('refStyle'),
-        material: materialEl.value,
-        taboos: getVal('taboos'),
-        lengthRange: getVal('lengthRange')
+        topic: getVal('topic'), style: getVal('style'),
+        referenceStyle: getVal('refStyle'), material: mat,
+        taboos: getVal('taboos'), lengthRange: getVal('lengthRange')
     };
 
     try {
-        const response = await fetch("https://api.deepseek.com/chat/completions", {
+        const res = await fetch("https://api.deepseek.com/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             body: JSON.stringify({
                 model: "deepseek-chat",
-                messages: [
-                    { role: "system", content: GZH_PROMPTS.system },
-                    { role: "user", content: GZH_PROMPTS.generate(params) }
-                ],
+                messages: [{role:"system",content:GZH_PROMPTS.system},{role:"user",content:GZH_PROMPTS.generate(params)}],
                 stream: true
             })
         });
 
-        const reader = response.body.getReader();
+        const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let currentBlock = createAtomicBlock("");
         view.appendChild(currentBlock);
@@ -148,92 +151,72 @@ async function runGeneration() {
                             view.appendChild(currentBlock);
                         } else {
                             currentBlock.innerText += text;
-                            view.scrollTop = view.scrollHeight;
                         }
+                        // 每次有新字，更新滚动和统计
+                        view.scrollTop = view.scrollHeight;
+                        updateTotalWords();
                     } catch (e) {}
                 }
             }
         }
-    } catch (err) {
-        view.innerHTML = `<div class='text-red-500 p-4'>Error: ${err.message}</div>`;
+    } catch (e) {
+        view.innerHTML = `<div class='text-red-500 p-4'>Error: ${e.message}</div>`;
     } finally {
         btn.disabled = false;
-        btn.innerText = "重新生成全文";
+        btn.innerText = "✨ 开始创作";
     }
 }
 
-// 4. 块操作：带加载状态逻辑
+/* --- 块操作 (重写/润色) --- */
 async function handleBlockAction(btn, action) {
     if (!activeBlockEl) return;
     const key = localStorage.getItem('ds_api_key_v1');
-    const originalText = activeBlockEl.innerText;
+    const original = activeBlockEl.innerText;
     
-    // 状态 1：块进入加载动画
-    activeBlockEl.classList.add('block-processing');
-    
-    // 状态 2：按钮进入加载样式
-    const oldBtnText = btn.innerText;
-    btn.innerText = "思考中";
+    // UI Loading State
+    const oldText = btn.innerText;
+    btn.innerText = "...";
     btn.classList.add('btn-loading');
     
-    // 锁定工具栏所有按钮
-    const allBtns = document.querySelectorAll('#floatingBar button');
-    allBtns.forEach(b => b.disabled = true);
-
     try {
         const res = await fetch("https://api.deepseek.com/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             body: JSON.stringify({
                 model: "deepseek-chat",
-                messages: [
-                    { role: "system", content: GZH_PROMPTS.system },
-                    { role: "user", content: GZH_PROMPTS.blockAction(action, originalText, originalText) }
-                ]
+                messages: [{role:"system",content:GZH_PROMPTS.system},{role:"user",content:GZH_PROMPTS.blockAction(action, original, original)}]
             })
         });
         const data = await res.json();
         newDraftContent = data.choices[0].message.content;
         
-        // 弹出对比弹窗
-        document.getElementById('oldTextPreview').innerText = originalText;
+        document.getElementById('oldTextPreview').innerText = original;
         document.getElementById('newTextPreview').innerText = newDraftContent;
         document.getElementById('compareModal').classList.remove('hidden');
-
     } catch (e) {
-        alert("优化超时，请检查网络或Key余额");
+        alert("请求超时");
     } finally {
-        // 恢复状态
-        activeBlockEl.classList.remove('block-processing');
-        btn.innerText = oldBtnText;
+        btn.innerText = oldText;
         btn.classList.remove('btn-loading');
-        allBtns.forEach(b => b.disabled = false);
-        document.getElementById('floatingBar').style.display = "none";
+        document.getElementById('floatingBar').style.display = 'none';
     }
 }
 
 function closeCompareModal() { document.getElementById('compareModal').classList.add('hidden'); }
-
 function confirmReplace() {
     if (activeBlockEl && newDraftContent) {
         activeBlockEl.innerText = newDraftContent;
-        // 替换后重新定位一次工具栏
-        positionToolbar(activeBlockEl);
+        updateTotalWords(); // Update count after replace
     }
     closeCompareModal();
 }
-
 function copyAll() {
-    const nodes = document.querySelectorAll('.block-node');
-    const text = Array.from(nodes).map(el => el.innerText).join('\n\n');
-    navigator.clipboard.writeText(text).then(() => alert("全文已复制，可在公众号后台直接粘贴！"));
+    const text = Array.from(document.querySelectorAll('.block-node')).map(e => e.innerText).join('\n\n');
+    navigator.clipboard.writeText(text).then(() => alert("已复制"));
 }
-
-// 全局点击监听：点击空白处隐藏工具栏
 window.onclick = (e) => {
     if (!e.target.closest('.block-node') && !e.target.closest('#floatingBar') && !e.target.closest('#apiModal')) {
         if (activeBlockEl) activeBlockEl.classList.remove('active');
-        const bar = document.getElementById('floatingBar');
-        if(bar) bar.style.display = "none";
+        document.getElementById('floatingBar').style.display = 'none';
     }
 };
