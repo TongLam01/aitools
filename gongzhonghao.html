@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公众号文章写作助手 - v1.7 </title>
+    <title>公众号文章写作助手 - v1.8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --wx-green: #07C160; }
@@ -182,14 +182,12 @@
 
                 <div id="editorView" class="wechat-screen">
                     <div class="h-full flex flex-col items-center justify-center p-8 select-none opacity-90">
-                        <div class="mb-6 p-4 bg-[#07C160]/5 rounded-full">
-                            <svg class="w-12 h-12 text-[#07C160]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        <div class="mb-5 p-3 bg-[#07C160]/5 rounded-full">
+                            <svg class="w-8 h-8 text-[#07C160]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                         </div>
                         
-                        <div class="text-center space-y-4">
-                            <h3 class="text-gray-400 font-bold text-lg tracking-wider">创作准备就绪</h3>
-                            
-                            <div class="bg-[#07C160]/10 border border-[#07C160]/20 rounded-2xl p-5 shadow-sm transform transition hover:scale-105 duration-300">
+                        <div class="text-center">
+                            <div class="bg-[#07C160]/5 border border-[#07C160]/20 rounded-2xl p-5 shadow-sm">
                                 <div class="flex items-center justify-center gap-2 mb-3 text-[#07C160] font-bold text-sm">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
                                     使用指南
@@ -207,7 +205,7 @@
                             </div>
                         </div>
                     </div>
-                    </div>
+                </div>
 
                 <div id="floatingBar" class="arrow-down">
                     <button onclick="handleBlockAction(this, 'rewrite')" class="toolbar-btn">✨ 重写</button>
