@@ -1,4 +1,4 @@
-/** GZH AI Editor v3.3 - Final Polish */
+/** GZH AI Editor v3.4 - Mobile Adaptation */
 
 const ALLOWED = ['aibox6.com', 'www.aibox6.com', 'localhost', '127.0.0.1'];
 if (!ALLOWED.includes(window.location.hostname)) document.body.innerHTML = "Domain Denied.";
@@ -6,7 +6,6 @@ if (!ALLOWED.includes(window.location.hostname)) document.body.innerHTML = "Doma
 let activeBlockEl = null;
 let newDraftContent = "";
 
-// 1. 初始化
 window.addEventListener('DOMContentLoaded', () => {
     const key = localStorage.getItem('ds_api_key_v1');
     if (key && document.getElementById('apiKeyInput')) {
@@ -14,7 +13,7 @@ window.addEventListener('DOMContentLoaded', () => {
         updateApiLight(true);
     }
     
-    // 监听滚动：实时调整工具栏位置
+    // 监听滚动
     const view = document.getElementById('editorView');
     if(view) {
         view.addEventListener('scroll', () => {
@@ -25,7 +24,6 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // 事件委托处理点击
         view.addEventListener('click', (e) => {
             const block = e.target.closest('.block-node');
             if (block) {
@@ -36,7 +34,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/* --- Markdown 渲染 --- */
 function formatMD(text) {
     if (!text) return "";
     let html = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
@@ -45,7 +42,7 @@ function formatMD(text) {
     return html.replace(/\n/g, '<br>');
 }
 
-/* --- UI 辅助 --- */
+/* UI Helpers */
 function toggleApiModal(show) { document.getElementById('apiModal').classList.toggle('hidden', !show); }
 function updateApiLight(ok) {
     const dot = document.getElementById('statusDot');
@@ -74,11 +71,10 @@ function updateTotalWords() {
     const nodes = document.querySelectorAll('.block-node');
     let total = 0;
     nodes.forEach(n => total += n.innerText.trim().length);
-    // 更新灵动岛内的文字
     document.getElementById('totalWords').innerText = `预览 (${total}字)`;
 }
 
-/* --- 核心交互 --- */
+/* 核心交互 */
 function createAtomicBlock(rawText = "") {
     const div = document.createElement('div');
     div.className = "block-node";
@@ -94,7 +90,6 @@ function activateBlock(div) {
     positionToolbar(div);
 }
 
-// 物理级定位
 function positionToolbar(el) {
     const bar = document.getElementById('floatingBar');
     const shell = document.querySelector('.iphone-shell');
@@ -105,6 +100,7 @@ function positionToolbar(el) {
     let top = elRect.bottom - shellRect.top + 8; 
     
     const barHeight = 45;
+    // 边界检测：因为底部 Padding 够大，理论上不会溢出，但保留此逻辑
     if (top + barHeight > shellRect.height) {
         top = elRect.top - shellRect.top - barHeight - 8;
         bar.className = 'arrow-up flex space-x-1'; 
@@ -117,7 +113,7 @@ function positionToolbar(el) {
     bar.style.left = '50%'; 
 }
 
-/* --- 生成逻辑 --- */
+/* 生成逻辑 */
 async function runGeneration() {
     const key = localStorage.getItem('ds_api_key_v1');
     if (!key) return toggleApiModal(true);
@@ -133,13 +129,12 @@ async function runGeneration() {
 
     const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : "";
     
-    // 参数映射：确保 taboos 被传递
     const params = {
         topic: getVal('topic'), 
         style: getVal('style'),
         referenceStyle: getVal('refStyle'), 
         material: mat,
-        taboos: getVal('taboos'), // 获取补充要求
+        taboos: getVal('taboos'),
         lengthRange: getVal('lengthRange')
     };
 
@@ -199,7 +194,6 @@ async function runGeneration() {
     }
 }
 
-/* --- 块操作 --- */
 async function handleBlockAction(btn, action) {
     if (!activeBlockEl) return;
     const key = localStorage.getItem('ds_api_key_v1');
