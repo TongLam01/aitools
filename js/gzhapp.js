@@ -36,12 +36,47 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/* Markdown 渲染 */
+/* --- Markdown 渲染 (v3.6 智能标点版) --- */
 function formatMD(text) {
     if (!text) return "";
-    let html = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-    html = html.replace(/^\s*-\s+(.*)/gm, '• $1');
-    html = html.replace(/^#+\s+(.*)/gm, '<b>$1</b>');
+
+    // 1. 按行拆分
+    const lines = text.split('\n');
+    
+    const processedLines = lines.map(line => {
+        // 去除尾部空格
+        let trimLine = line.trim();
+        
+        // A. 跳过特殊格式：空行、标题(#)、列表(-/•)、引用(>)
+        if (!trimLine || trimLine.startsWith('#') || trimLine.startsWith('-') || trimLine.startsWith('•') || trimLine.startsWith('>')) {
+            return line;
+        }
+
+        // B. 标点检测正则：检测结尾是否已经有标点 (含中英文句号、问号、叹号、省略号、波浪号、右引号)
+        // 注意：这里包含了 ？ 和 ！，所以如果 AI 已经输出了问号，这里会返回 true，代码就不会乱加句号。
+        const hasPunctuation = /[。！？：；…~”"!.?:;~]$/.test(trimLine);
+        
+        // C. Emoji 检测正则：检测结尾是不是 Emoji (现代浏览器支持 \p{Emoji})
+        // 公众号常用 Emoji 结尾，此时不应加句号
+        const endsWithEmoji = /\p{Emoji_Presentation}$/u.test(trimLine);
+
+        // D. 只有当“没标点”且“不是Emoji”时，才补句号
+        if (!hasPunctuation && !endsWithEmoji) {
+            return line + "。";
+        }
+        
+        return line;
+    });
+
+    // 重新组合
+    let html = processedLines.join('\n');
+
+    // 2. 常规 Markdown 渲染
+    html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); // 加粗
+    html = html.replace(/^\s*-\s+(.*)/gm, '• $1');    // 列表
+    html = html.replace(/^#+\s+(.*)/gm, '<b>$1</b>'); // 标题
+    
+    // 3. 换行处理
     return html.replace(/\n/g, '<br>');
 }
 
