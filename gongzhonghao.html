@@ -3,162 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GZH Editor - WeChat Pro</title>
+    <title>GZH Editor - v3.1 Perfect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --wx-green: #07C160; --wx-bg: #EDEDED; }
-        
-        /* 1. 仿真手机壳 (iPhone Style) */
+        :root { --wx-green: #07C160; --bg-gray: #F5F5F5; }
+
+        /* 1. 仿真手机壳 (iPhone 15 Pro Max 比例) */
         .iphone-shell { 
-            width: 100%; max-width: 390px; height: 750px; 
+            width: 100%; max-width: 400px; height: 800px; 
             background: #fff; 
-            border: 12px solid #2c2c2c; 
-            border-radius: 55px; 
+            border: 14px solid #252525; 
+            border-radius: 60px; 
             position: relative; margin: 0 auto; 
-            box-shadow: 
-                0 0 0 2px #4a4a4a, /* 外框高光 */
-                0 30px 60px -12px rgba(0, 0, 0, 0.4), /* 投影 */
-                inset 0 0 20px rgba(0,0,0,0.05); /* 内阴影 */
+            box-shadow: 0 0 0 2px #4a4a4a, 0 40px 80px -20px rgba(0,0,0,0.5);
             overflow: hidden;
             display: flex; flex-direction: column;
         }
         
-        /* 灵动岛/听筒区域 */
-        .notch-area {
-            height: 30px; background: #fff; width: 100%; position: absolute; top: 0; z-index: 30;
-            display: flex; justify-content: center; align-items: end;
+        /* 灵动岛 (不遮挡内容，仅作装饰) */
+        .notch {
+            width: 120px; height: 32px; background: #000; 
+            position: absolute; top: 12px; left: 50%; transform: translateX(-50%); 
+            border-radius: 20px; z-index: 50; pointer-events: none;
         }
-        .notch-pill { width: 100px; height: 20px; background: #000; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; margin-bottom: 5px;}
 
-        /* 顶部状态栏 (仿微信) */
+        /* 微信顶部栏 (固定) */
         .wechat-header {
-            height: 50px; background: #EDEDED; border-bottom: 1px solid #dcdcdc; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 16px; font-weight: 600; color: #000; 
-            padding-top: 20px; /* 避让听筒 */
-            z-index: 20;
+            height: 88px; /* 包含状态栏高度 */
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            border-bottom: 0.5px solid rgba(0,0,0,0.1); 
+            display: flex; align-items: flex-end; justify-content: center; 
+            padding-bottom: 12px;
+            font-size: 17px; font-weight: 600; color: #181818; 
+            z-index: 40; position: absolute; top: 0; width: 100%;
         }
 
         /* 滚动内容区 */
         .wechat-screen { 
             background: #fff; flex: 1; overflow-y: auto; 
-            padding: 20px; scroll-behavior: smooth; 
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+            padding: 100px 24px 40px 24px; /* Top padding 避开 Header */
+            scroll-behavior: smooth;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
         }
-        .wechat-screen::-webkit-scrollbar { width: 4px; }
-        .wechat-screen::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
+        .wechat-screen::-webkit-scrollbar { width: 0px; }
 
-        /* 2. 内容块交互 (微信风格) */
+        /* 2. 内容块交互 (Markdown 样式适配) */
         .block-node { 
-            position: relative; padding: 4px 2px; margin-bottom: 16px; 
-            border-radius: 4px; border: 1px solid transparent; 
+            position: relative; padding: 6px 4px; margin-bottom: 20px; 
+            border-radius: 6px; border: 1.5px solid transparent; 
             transition: all 0.2s; cursor: pointer; 
-            font-size: 16px; line-height: 1.6; color: #333; text-align: justify;
+            font-size: 16px; line-height: 1.7; color: #333; text-align: justify;
+            word-wrap: break-word;
         }
-        .block-node:hover { background-color: rgba(7, 193, 96, 0.05); }
-        /* 选中态：微信绿边框 */
-        .block-node.active { background-color: rgba(7, 193, 96, 0.08); border-left: 3px solid var(--wx-green); border-radius: 2px; }
+        /* Markdown 样式 */
+        .block-node b, .block-node strong { color: #000; font-weight: 700; background: linear-gradient(to top, rgba(7,193,96,0.1) 40%, transparent 40%); }
+        .block-node ul { list-style: none; padding-left: 0; }
+        
+        .block-node:hover { background-color: rgba(0,0,0,0.02); }
+        .block-node.active { background-color: rgba(7, 193, 96, 0.04); border-color: rgba(7, 193, 96, 0.3); }
 
-        /* 3. 浮动工具栏 (黑底白字，更像原生菜单) */
+        /* 3. AI 工作时的“流光扫描”特效 */
+        .scanning-effect {
+            position: relative; overflow: hidden; border-color: var(--wx-green) !important;
+        }
+        .scanning-effect::after {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(7,193,96,0.1), transparent);
+            animation: scan 1.5s infinite;
+        }
+        @keyframes scan { 100% { left: 150%; } }
+
+        /* 4. 智能浮动工具栏 */
         #floatingBar { 
-            position: absolute; display: none; z-index: 50; 
-            background: #2c2c2c; border-radius: 8px; padding: 6px; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            transform: translateX(-50%);
-            /* 小三角 */
+            position: absolute; display: none; z-index: 100; 
+            background: #1e1e1e; border-radius: 10px; padding: 6px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            transform: translateX(-50%); white-space: nowrap;
         }
-        #floatingBar::after {
+        /* 小箭头 (动态控制) */
+        .arrow-down::after {
             content: ""; position: absolute; bottom: -6px; left: 50%; margin-left: -6px;
-            border-width: 6px 6px 0; border-style: solid; border-color: #2c2c2c transparent transparent transparent;
+            border-width: 6px 6px 0; border-style: solid; border-color: #1e1e1e transparent transparent transparent;
+        }
+        .arrow-up::after {
+            content: ""; position: absolute; top: -6px; left: 50%; margin-left: -6px;
+            border-width: 0 6px 6px; border-style: solid; border-color: transparent transparent #1e1e1e transparent;
         }
         
-        .toolbar-btn { color: #fff; font-size: 13px; padding: 4px 12px; border-radius: 4px; font-weight: 500; transition: 0.2s; }
-        .toolbar-btn:hover { background: #4a4a4a; }
+        .toolbar-btn { 
+            color: #fff; font-size: 13px; padding: 6px 14px; 
+            border-radius: 6px; font-weight: 500; transition: 0.2s; 
+            display: flex; items-center; gap: 4px;
+        }
+        .toolbar-btn:hover { background: #333; }
+        .toolbar-btn:active { transform: scale(0.95); }
 
-        /* 呼吸灯 */
-        .breathing-wx { background: var(--wx-green); box-shadow: 0 0 8px var(--wx-green); animation: b 2s infinite; }
+        /* 通用动画 */
+        .breathing-wx { background: var(--wx-green); box-shadow: 0 0 10px rgba(7,193,96,0.6); animation: b 2s infinite; }
         @keyframes b { 0%,100% {opacity:1} 50% {opacity:0.6} }
-        
-        .btn-loading { opacity: 0.5; cursor: wait; }
     </style>
 </head>
-<body class="bg-[#f0f2f5] text-slate-800 font-sans h-screen flex flex-col">
+<body class="bg-[#f0f2f5] text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
 
-    <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-[100] shrink-0">
+    <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center shrink-0 z-50">
         <div class="flex items-center space-x-2 font-bold text-xl text-[#07C160]">
             <span class="bg-[#07C160] text-white px-2 py-0.5 rounded text-lg">G</span><span class="text-slate-700">Editor</span>
         </div>
         <div class="flex items-center space-x-4">
-            <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+            <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
             <button onclick="toggleApiModal(true)" class="text-sm font-bold text-gray-500 hover:text-[#07C160] transition">API 设置</button>
         </div>
     </header>
 
-    <main class="max-w-[1400px] mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1 overflow-hidden">
+    <main class="max-w-[1500px] mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 h-full min-h-0">
         
-        <section class="lg:col-span-7 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-y-auto h-full custom-scroll">
-            <div class="space-y-6">
+        <section class="lg:col-span-7 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 overflow-y-auto custom-scroll h-full">
+            <div class="space-y-5">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">文章主题</label>
-                    <input id="topic" onfocus="checkKeyOnFocus()" type="text" placeholder="输入核心话题..." class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-[#07C160] transition border border-transparent focus:border-[#07C160]">
+                    <input id="topic" onfocus="checkKeyOnFocus()" type="text" placeholder="输入核心话题..." class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-[#07C160] transition border border-transparent">
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <select id="style" class="p-4 bg-gray-50 rounded-xl outline-none border border-transparent focus:border-[#07C160]">
-                        <option value="none">文风：无要求</option>
-                        <option value="emotional">文风：情感共鸣</option>
-                        <option value="dry_goods">文风：干货分享</option>
-                        <option value="sharp">文风：犀利毒舌</option>
+                        <option value="none">文风：自然无修饰</option>
+                        <option value="emotional">文风：情感共鸣 (走心)</option>
+                        <option value="dry_goods">文风：干货分享 (专业)</option>
+                        <option value="sharp">文风：犀利毒舌 (观点)</option>
                     </select>
                     <select id="lengthRange" class="p-4 bg-gray-50 rounded-xl outline-none border border-transparent focus:border-[#07C160]">
-                        <option>1000字以内</option>
-                        <option>1500字左右</option>
-                        <option>2000字以上</option>
+                        <option>800字 (短文)</option>
+                        <option>1500字 (标准)</option>
+                        <option>2500字 (深度)</option>
                     </select>
                 </div>
 
                 <div>
                     <div class="flex justify-between mb-2">
-                        <label class="text-sm font-bold text-gray-700">参考风格 (可选)</label>
+                        <label class="text-sm font-bold text-gray-700">参考风格</label>
                         <span id="refCount" class="text-xs text-gray-400 font-mono bg-gray-100 px-2 py-0.5 rounded">0/1000</span>
                     </div>
                     <textarea id="refStyle" oninput="updateRefLimit(this)" placeholder="粘贴你想模仿的文字片段..." class="w-full h-24 p-4 bg-gray-50 rounded-xl outline-none text-sm resize-none border border-transparent focus:border-[#07C160]"></textarea>
                 </div>
 
-                <div class="relative">
+                <div class="relative flex-1">
                     <div class="flex justify-between mb-2">
-                        <label class="text-sm font-bold text-gray-700">写作素材</label>
+                        <label class="text-sm font-bold text-gray-700">核心素材</label>
                         <span id="charCount" class="text-xs text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">0 / 150</span>
                     </div>
-                    <textarea id="material" oninput="updateWordCount(this)" placeholder="输入素材，AI 将基于此扩展..." class="w-full h-44 p-4 bg-gray-50 rounded-xl outline-none text-sm leading-relaxed border border-transparent focus:border-[#07C160]"></textarea>
+                    <textarea id="material" oninput="updateWordCount(this)" placeholder="输入事实、观点或故事背景，AI 将基于此扩展..." class="w-full h-48 p-4 bg-gray-50 rounded-xl outline-none text-sm leading-relaxed border border-transparent focus:border-[#07C160]"></textarea>
                 </div>
 
-                <div>
-                    <input id="taboos" type="text" placeholder="写作禁忌 (如：不提竞品)" class="w-full p-4 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-[#07C160]">
-                </div>
-
-                <button id="genBtn" onclick="runGeneration()" class="w-full py-4 bg-[#07C160] text-white rounded-xl font-bold text-lg shadow-lg hover:bg-[#06ad56] active:scale-[0.99] transition-all flex justify-center items-center">
+                <button id="genBtn" onclick="runGeneration()" class="w-full py-4 bg-[#07C160] text-white rounded-xl font-bold text-lg shadow-lg hover:bg-[#06ad56] active:scale-[0.99] transition-all">
                     开始创作
                 </button>
             </div>
         </section>
 
-        <section class="lg:col-span-5 flex flex-col items-center justify-center h-full">
+        <section class="lg:col-span-5 flex flex-col items-center justify-center h-full relative">
             <div class="iphone-shell">
-                <div class="notch-area"><div class="notch-pill"></div></div>
+                <div class="notch"></div>
                 
                 <div class="wechat-header">
-                    <span id="totalWords">公众号预览 (0字)</span>
+                    <span id="totalWords">公众号预览</span>
                 </div>
 
                 <div id="editorView" class="wechat-screen">
                     <div class="h-full flex flex-col items-center justify-center text-gray-300">
-                        <svg class="w-16 h-16 opacity-20 mb-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-                        <p class="text-sm font-medium">输入素材后点击创作</p>
+                        <p class="text-sm font-medium">内容生成区</p>
                     </div>
                 </div>
 
-                <div id="floatingBar" class="flex space-x-1">
+                <div id="floatingBar" class="flex space-x-1 arrow-down">
                     <button onclick="handleBlockAction(this, 'rewrite')" class="toolbar-btn">✨ 重写</button>
                     <button onclick="handleBlockAction(this, 'polish')" class="toolbar-btn">🪄 润色</button>
                     <button onclick="handleBlockAction(this, 'compress')" class="toolbar-btn">✂️ 压缩</button>
@@ -167,14 +184,14 @@
             </div>
             
             <button onclick="copyAll()" class="mt-6 px-8 py-3 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-600 shadow-sm hover:text-[#07C160] hover:border-[#07C160] transition">
-                复制全文到公众号
+                复制结果
             </button>
         </section>
     </main>
 
-    <div id="apiModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div id="apiModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl">
-            <h3 class="text-xl font-bold mb-4">DeepSeek API 设置</h3>
+            <h3 class="text-xl font-bold mb-4">API 设置</h3>
             <input id="apiKeyInput" type="password" placeholder="sk-..." class="w-full p-4 border border-gray-200 rounded-xl mb-6 outline-none focus:border-[#07C160]">
             <div class="flex space-x-3">
                 <button onclick="saveApiKey()" class="flex-1 bg-[#07C160] text-white py-3 rounded-xl font-bold">保存</button>
@@ -183,21 +200,21 @@
         </div>
     </div>
 
-    <div id="compareModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[210] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl">
-            <div class="grid grid-cols-1 md:grid-cols-2">
+    <div id="compareModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[210] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 overflow-y-auto">
                 <div class="p-8 border-r border-gray-100">
                     <span class="text-xs font-bold text-gray-400 uppercase mb-4 block">原文</span>
-                    <div id="oldTextPreview" class="text-sm text-gray-500 leading-relaxed"></div>
+                    <div id="oldTextPreview" class="text-sm text-gray-500 leading-relaxed block-node"></div>
                 </div>
                 <div class="p-8 bg-[#07C160]/5">
                     <span class="text-xs font-bold text-[#07C160] uppercase mb-4 block">优化后</span>
-                    <div id="newTextPreview" class="text-sm text-gray-800 font-medium leading-relaxed"></div>
+                    <div id="newTextPreview" class="text-sm text-gray-900 font-medium leading-relaxed block-node"></div>
                 </div>
             </div>
-            <div class="p-4 bg-gray-50 flex justify-end space-x-3">
-                <button onclick="closeCompareModal()" class="px-6 py-2 text-sm font-bold text-gray-500 hover:bg-gray-200 rounded-lg">保留原文</button>
-                <button onclick="confirmReplace()" class="px-8 py-2 bg-[#07C160] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#06ad56]">替换</button>
+            <div class="p-4 bg-gray-50 flex justify-end space-x-3 border-t">
+                <button onclick="closeCompareModal()" class="px-6 py-2 text-sm font-bold text-gray-500 hover:bg-gray-200 rounded-lg">放弃</button>
+                <button onclick="confirmReplace()" class="px-8 py-2 bg-[#07C160] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#06ad56]">替换内容</button>
             </div>
         </div>
     </div>
