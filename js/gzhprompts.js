@@ -1,22 +1,17 @@
-// 1. 权限锁定：只允许在你的域名下运行
-const ALLOWED_DOMAINS = ['aibox6.com', 'www.aibox6.com', 'localhost'];
-if (!ALLOWED_DOMAINS.includes(window.location.hostname)) {
-    console.error("Domain unauthorized. Please visit aibox6.com");
-}
-
 const GZH_PROMPTS = {
-    // 2. 核心人格：去AI味、公众号调性
+    // 1. 核心人格：去AI味、公众号调性
     system: `你是一位公众号资深主编。要求：
 1. 严禁使用'总之'、'综上所述'、'不仅...而且'等典型AI转折词。
 2. 采用短句，口语化，像真人一样思考。
-3. 拒绝说教，风格要自然、有穿透力。`,
+3. 拒绝说教，风格要自然、有穿透力。
+4. 排版友好，适当使用换行。`,
 
-    // 3. 全文生成逻辑
+    // 2. 全文生成逻辑
     generate: (data) => {
         let styleInstruction = "";
-        // 优先级：参考风格 > 选择风格
+        // 优先级：参考文风 > 选择风格
         if (data.referenceStyle && data.referenceStyle.trim() !== "") {
-            styleInstruction = `【核心要求】请深度模仿以下参考风格进行创作：\n${data.referenceStyle}`;
+            styleInstruction = `【核心要求】请深度模仿以下参考文风（语气、节奏、用词）：\n"${data.referenceStyle}"`;
         } else {
             const styleMap = {
                 'emotional': '文风：情感共鸣型（走心、温暖、老友交心）。',
@@ -30,22 +25,35 @@ const GZH_PROMPTS = {
         return `
 主题：${data.topic}
 ${styleInstruction}
-写作素材（字数不少于150字）：
+写作素材：
 ${data.material}
-写作禁忌：${data.taboos || "无"}
-生成篇幅：${data.lengthRange}
+补充要求（禁忌）：${data.taboos || "无"}
+篇幅要求：${data.lengthRange}
 
 请直接输出正文，不要任何开场白。`;
     },
 
-    // 4. 原子化块编辑逻辑 (核心交互)
-    blockAction: (action, context, originalContent) => {
+    // 3. 原子化块编辑逻辑 (含上下文感知)
+    blockAction: (action, originalContent, prevContext, nextContext) => {
         const actions = {
             'rewrite': '在不改变原意的前提下，换一种更生动、更自然的说法重写这段话。',
             'polish': '润色这段话，优化遣词造句，使其更有质感和感染力。',
             'compress': '精简这段话，删掉废话，保留最核心的干货信息。',
             'expand': '扩写这段话，增加细节描述或情感铺垫，使其更充实。'
         };
-        return `上下文背景：${context}\n\n当前这段话：${originalContent}\n\n你的任务：${actions[action]}\n注意：只返回修改后的文字，严禁废话。`;
+
+        return `你正在修改一篇文章的中间段落。为了保证连贯性，我提供了上下文供参考。
+
+【前文参考】：...${prevContext}
+【后文参考】：${nextContext}...
+
+【当前需要修改的段落】：
+"${originalContent}"
+
+【你的任务】：${actions[action]}
+
+注意：
+1. 必须根据上下文调整语气，确保与前后文衔接自然。
+2. 只返回修改后的【当前段落】，不要包含前后文，不要解释。`;
     }
 };
