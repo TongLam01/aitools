@@ -1,79 +1,121 @@
-// 1. 域名校验 (开发调试时允许 localhost)
-const ALLOWED_DOMAINS = ['aibox6.com', 'www.aibox6.com', 'localhost', '127.0.0.1'];
-if (!ALLOWED_DOMAINS.includes(window.location.hostname)) {
-    document.body.innerHTML = "<div style='padding:50px;text-align:center;'>域名未授权，请联系管理员。</div>";
+/** * GZH AI Editor Core Logic
+ * Author: Product Manager Team
+ */
+
+// 1. 域名校验
+const ALLOWED = ['aibox6.com', 'www.aibox6.com', 'localhost', '127.0.0.1'];
+if (!ALLOWED.includes(window.location.hostname)) {
+    document.body.innerHTML = "<div style='padding:100px;text-align:center;'>Access Denied. Please visit aibox6.com</div>";
 }
 
-let activeBlock = null;
-let newDraft = "";
+let activeBlockEl = null;
+let newDraftContent = "";
 
-// 初始化及状态管理
-window.onload = () => {
-    const key = localStorage.getItem('ds_key');
+// 2. 初始化：读取 Key 并更新状态
+window.addEventListener('DOMContentLoaded', () => {
+    const key = localStorage.getItem('ds_api_key_v1');
     if (key) {
-        document.getElementById('apiKey').value = key;
-        updateStatus(true);
+        document.getElementById('apiKeyInput').value = key;
+        updateApiLight(true);
+    } else {
+        updateApiLight(false);
     }
-};
+});
 
-function updateStatus(ok) {
+// 3. 基础 UI 交互
+function toggleApiModal(show) {
+    document.getElementById('apiModal').classList.toggle('hidden', !show);
+}
+
+function updateApiLight(ok) {
     const dot = document.getElementById('statusDot');
-    if (dot) dot.className = `w-3 h-3 rounded-full ${ok ? 'breathing-green' : 'breathing-red'}`;
+    dot.className = `w-3 h-3 rounded-full ${ok ? 'breathing-green' : 'breathing-red'}`;
 }
 
-function saveKey() {
-    const key = document.getElementById('apiKey').value.trim();
-    if (!key) return alert("请输入 Key");
-    localStorage.setItem('ds_key', key);
-    updateStatus(true);
-    document.getElementById('apiModal').classList.add('hidden');
+// 保存 API Key 逻辑 (修复保存无反应问题)
+function saveApiKey() {
+    const keyInput = document.getElementById('apiKeyInput');
+    const key = keyInput.value.trim();
+    
+    if (!key || !key.startsWith('sk-')) {
+        alert("请输入有效的 DeepSeek API Key (以 sk- 开头)");
+        return;
+    }
+
+    try {
+        localStorage.setItem('ds_api_key_v1', key);
+        updateApiLight(true);
+        toggleApiModal(false);
+        console.log("API Key saved successfully.");
+    } catch (e) {
+        alert("保存失败，请检查浏览器 LocalStorage 权限");
+    }
 }
 
-// 实时字数统计
-function updateCount(el) {
-    const count = el.value.length;
+// 主题输入框焦点检查 (修复校验不及时问题)
+function checkKeyOnFocus() {
+    const key = localStorage.getItem('ds_api_key_v1');
+    if (!key) {
+        toggleApiModal(true);
+        // 给用户一个友好的提示
+        console.log("Prompting user for API key...");
+    }
+}
+
+// 素材字数统计
+function updateWordCount(textarea) {
+    const count = textarea.value.length;
     const label = document.getElementById('charCount');
     label.innerText = `${count} / 150`;
-    label.className = count >= 150 ? "text-xs font-bold ml-2 text-green-500" : "text-xs font-normal ml-2 text-red-400";
+    if (count >= 150) {
+        label.classList.replace('text-red-400', 'text-green-500');
+        label.classList.add('font-bold');
+    } else {
+        label.classList.replace('text-green-500', 'text-red-400');
+        label.classList.remove('font-bold');
+    }
 }
 
-// 块生成渲染
-function renderBlock(content = "") {
+// 4. 原子化块逻辑
+function createAtomicBlock(content = "") {
     const div = document.createElement('div');
     div.className = "block-node text-gray-800 leading-relaxed";
     div.innerText = content;
     div.onclick = (e) => {
         e.stopPropagation();
-        if (activeBlock) activeBlock.classList.remove('active');
-        activeBlock = div;
-        activeBlock.classList.add('active');
-        showToolbar(div);
+        if (activeBlockEl) activeBlockEl.classList.remove('active');
+        activeBlockEl = div;
+        activeBlockEl.classList.add('active');
+        
+        // 显示浮动菜单
+        const bar = document.getElementById('floatingBar');
+        bar.classList.remove('hidden');
+        bar.style.top = `${div.offsetTop - 50}px`;
+        bar.style.right = `10px`;
     };
     return div;
 }
 
-function showToolbar(el) {
-    const bar = document.getElementById('floatingBar');
-    bar.classList.remove('hidden');
-    // 相对于容器定位
-    bar.style.top = `${el.offsetTop - 45}px`;
-    bar.style.right = `10px`;
-}
+// 5. 核心生成流程 (DeepSeek Stream)
+async function runGeneration() {
+    const key = localStorage.getItem('ds_api_key_v1');
+    if (!key) {
+        toggleApiModal(true);
+        return;
+    }
 
-// 核心生成函数 (修复流式解析)
-async function runGenerate() {
     const material = document.getElementById('material').value;
-    const key = localStorage.getItem('ds_key');
-    const view = document.getElementById('editorView');
+    if (material.length < 150) {
+        alert("写作素材不足150字，AI可能无法生成高质量内容。");
+        return;
+    }
+
     const btn = document.getElementById('genBtn');
-
-    if (material.length < 150) return alert("素材字数不足150字");
-    if (!key) return alert("请先点击右上角设置 API Key");
-
-    // UI 重置
+    const view = document.getElementById('editorView');
+    
     btn.disabled = true;
-    btn.innerText = "正在撰写中...";
-    view.innerHTML = ""; 
+    btn.innerText = "DeepSeek 正在撰写中...";
+    view.innerHTML = ""; // 清空预览
 
     const params = {
         topic: document.getElementById('topic').value,
@@ -101,14 +143,11 @@ async function runGenerate() {
             })
         });
 
-        if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error?.message || "请求失败");
-        }
+        if (!response.ok) throw new Error("API请求失败，请检查Key有效性");
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let currentBlock = renderBlock("");
+        let currentBlock = createAtomicBlock("");
         view.appendChild(currentBlock);
 
         while (true) {
@@ -116,50 +155,39 @@ async function runGenerate() {
             if (done) break;
 
             const chunk = decoder.decode(value);
-            // 关键修复：处理合并在一起的 data 块
             const lines = chunk.split('\n');
             
             for (let line of lines) {
-                line = line.trim();
-                if (!line || line === "data: [DONE]") continue;
-
-                if (line.startsWith("data: ")) {
+                if (line.startsWith('data: ') && line !== 'data: [DONE]') {
                     try {
                         const json = JSON.parse(line.substring(6));
                         const text = json.choices[0].delta.content || "";
-                        
                         if (text.includes('\n')) {
-                            // 遇到换行符，开启新块
-                            currentBlock = renderBlock("");
+                            currentBlock = createAtomicBlock("");
                             view.appendChild(currentBlock);
                         } else {
                             currentBlock.innerText += text;
                             view.scrollTop = view.scrollHeight;
                         }
-                    } catch (e) {
-                        console.warn("解析跳过:", line);
-                    }
+                    } catch (e) {}
                 }
             }
         }
     } catch (err) {
-        console.error(err);
-        view.innerHTML = `<div class='text-red-500 p-4 font-bold text-sm'>
-            生成中断：${err.message}<br>请检查 API Key 是否正确或网络是否通畅。
-        </div>`;
+        view.innerHTML = `<div class='text-red-500 p-4 font-bold'>生成失败: ${err.message}</div>`;
     } finally {
         btn.disabled = false;
         btn.innerText = "重新生成全文";
     }
 }
 
-// 块操作：重写/润色等
-async function handleAction(action) {
-    if (!activeBlock) return;
-    const key = localStorage.getItem('ds_key');
-    const original = activeBlock.innerText;
+// 6. 块操作功能
+async function handleBlockAction(action) {
+    if (!activeBlockEl) return;
+    const key = localStorage.getItem('ds_api_key_v1');
+    const original = activeBlockEl.innerText;
     
-    activeBlock.classList.add('animate-pulse', 'bg-blue-50');
+    activeBlockEl.classList.add('animate-pulse', 'bg-blue-50/50');
     document.getElementById('floatingBar').classList.add('hidden');
 
     try {
@@ -175,32 +203,31 @@ async function handleAction(action) {
             })
         });
         const data = await res.json();
-        newDraft = data.choices[0].message.content;
+        newDraftContent = data.choices[0].message.content;
         
-        document.getElementById('oldText').innerText = original;
-        document.getElementById('newText').innerText = newDraft;
+        // 弹出对比弹窗
+        document.getElementById('oldTextPreview').innerText = original;
+        document.getElementById('newTextPreview').innerText = newDraftContent;
         document.getElementById('compareModal').classList.remove('hidden');
     } catch (e) {
-        alert("优化请求失败");
+        alert("微调失败，请重试");
     } finally {
-        activeBlock.classList.remove('animate-pulse', 'bg-blue-50');
+        activeBlockEl.classList.remove('animate-pulse', 'bg-blue-50/50');
     }
 }
 
-function closeCompare() { document.getElementById('compareModal').classList.add('hidden'); }
-function acceptNew() {
-    if (activeBlock && newDraft) activeBlock.innerText = newDraft;
-    closeCompare();
+function closeCompareModal() { document.getElementById('compareModal').classList.add('hidden'); }
+function confirmReplace() {
+    if (activeBlockEl && newDraftContent) {
+        activeBlockEl.innerText = newDraftContent;
+    }
+    closeCompareModal();
 }
 
-function copyAll() {
-    const text = Array.from(document.querySelectorAll('.block-node')).map(el => el.innerText).join('\n\n');
-    navigator.clipboard.writeText(text).then(() => alert("已复制全文"));
-}
-
+// 点击空白隐藏菜单
 window.onclick = (e) => {
-    if (!e.target.closest('.block-node') && !e.target.closest('#floatingBar')) {
-        if (activeBlock) activeBlock.classList.remove('active');
+    if (!e.target.closest('.block-node') && !e.target.closest('#floatingBar') && !e.target.closest('#apiModal')) {
+        if (activeBlockEl) activeBlockEl.classList.remove('active');
         document.getElementById('floatingBar').classList.add('hidden');
     }
 };
