@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF 页面编辑 v2.5 </title>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
+    <style>
+        :root { 
+            --primary: #007aff; --primary-hover: #0063ce;
+            --danger: #ff3b30; --bg: #f5f5f7; --text: #1d1d1f; 
+            --radius-lg: 16px; --radius-md: 10px; --radius-sm: 6px;
+        }
+        
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); }
+        .container { max-width: 1200px; margin: 0 auto; display: flex; gap: 20px; }
+        
+        /* === 左侧控制面板 === */
+        .panel { 
+            background: white; padding: 24px; border-radius: var(--radius-lg); 
+            width: 320px; height: fit-content; position: sticky; top: 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); z-index: 100; 
+        }
+        
+        h2 { margin: 0 0 20px 0; font-size: 20px; font-weight: 700; }
+        h3 { font-size: 15px; font-weight: 600; margin: 0 0 12px 0; }
+
+        button, .btn-upload, input[type="number"] { border-radius: var(--radius-md); font-family: inherit; transition: all 0.2s ease; }
+
+        .btn-upload { 
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; padding: 14px; background: var(--primary); color: white; 
+            cursor: pointer; font-weight: 600; font-size: 15px; box-sizing: border-box; 
+            margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,122,255,0.2);
+        }
+        .btn-upload:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        .btn-download { background: #1c1c1e; color: white; width: 100%; padding: 14px; font-size: 15px; font-weight: 600; border: none; margin-top: 10px; }
+        .btn-download:hover { background: #333; }
+
+        .btn-undo { background: #e5e5ea; color: #333; width: 100%; margin-top: 15px; padding: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer;}
+        .btn-undo:hover { background: #d1d1d6; }
+        .btn-undo:disabled { opacity: 0.5; cursor: not-allowed; background: #f2f2f7; color: #999; }
+
+        .btn-danger { background: var(--danger); color: white; border:none; width: 100%; padding: 10px; font-weight: 600; font-size: 14px; cursor: pointer;}
+        .btn-danger:hover { background: #d63026; }
+
+        .section { margin-bottom: 20px; padding: 16px; background: #fbfbfd; border-radius: var(--radius-md); border: 1px solid #e5e5ea; }
+
+        input[type="number"] { width: 50px; padding: 6px; border: 1px solid #d1d1d6; text-align: center; background: white; }
+        input[type="number"]:focus { outline: 2px solid var(--primary); border-color: transparent; }
+
+        /* === 涂抹工具 === */
+        .color-picker { display: flex; gap: 12px; margin: 15px 0 5px 0; justify-content: center; }
+        .color-opt { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); cursor: pointer; position: relative; transition: transform 0.2s; }
+        .color-opt:hover { transform: scale(1.1); }
+        .color-opt.active { border-color: var(--primary); transform: scale(1.15); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+        .c-black { background: #2c2c2e; }
+        .c-white { background: #ffffff; }
+        .c-yellow { background: #ffe600; }
+
+        .switch-container { display: flex; align-items: center; justify-content: space-between; }
+        .switch { position: relative; display: inline-block; width: 42px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e5e5ea; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input:checked + .slider { background-color: #34c759; }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        /* === 预览区域 === */
+        .preview-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; background: white; padding: 30px; border-radius: var(--radius-lg); box-shadow: 0 4px 20px rgba(0,0,0,0.06); min-height: 85vh; align-content: start; }
+        
+        .page-item { position: relative; padding: 12px; border-radius: var(--radius-lg); background: #fff; border: 1px solid #f0f0f0; transition: box-shadow 0.2s, transform 0.2s; }
+        .page-item:hover { box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateY(-4px); border-color: transparent; }
+        
+        .canvas-wrapper { position: relative; width: 100%; background: #f2f2f7; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;}
+        canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+        
+        .quick-del { position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; line-height: 1; border: 3px solid white; z-index: 10; box-shadow: 0 4px 8px rgba(0,0,0,0.15); transition: transform 0.2s; }
+        .quick-del:hover { transform: scale(1.15); }
+
+        .page-tools { display: flex; justify-content: space-between; align-items: center; padding: 4px 2px 0 2px; }
+        .page-label { font-size: 12px; color: #8e8e93; font-weight: 600; }
+        
+        .rotate-group { display: flex; gap: 6px; }
+        .btn-icon { background: #f2f2f7; border: none; padding: 6px 10px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; color: #1c1c1e; }
+        .btn-icon:hover { background: #e5e5ea; color: var(--primary); }
+
+        #file-status { font-size: 12px; color: #8e8e93; margin-top: 12px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* === 全屏遮罩 Loading === */
+        #loading-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            align-items: center; justify-content: center;
+            flex-direction: column;
+            color: white; font-weight: 600;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <div id="loading-text">正在处理...</div>
+</div>
+
+<div class="container">
+    <div class="panel">
+        <h2>PDF 页面编辑</h2>
+        
+        <label class="btn-upload">
+            <span>📄 打开本地 PDF</span>
+            <input type="file" id="fileInput" accept="application/pdf" style="display:none" onchange="initPdf(this)">
+        </label>
+
+        <div class="section">
+            <div class="switch-container">
+                <div>
+                    <strong>涂抹 / 高亮</strong>
+                    <div style="font-size:11px; color:#8e8e93; margin-top:2px;">在页面按住鼠标拖放选择区域</div>
+                </div>
+                <label class="switch"><input type="checkbox" id="smudgeMode" checked><span class="slider"></span></label>
+            </div>
+            
+            <div class="color-picker">
+                <div class="color-opt c-black active" onclick="setBrush('#000000', this)" title="黑色遮盖 (不透明)"></div>
+                <div class="color-opt c-white" onclick="setBrush('#ffffff', this)" title="白色擦除 (不透明)"></div>
+                <div class="color-opt c-yellow" onclick="setBrush('#ffe600', this)" title="黄色高亮 (透明度30%)"></div>
+            </div>
+
+            <button id="undoBtn" class="btn-undo" onclick="undoAction()" disabled>↩️ 撤销上一步</button>
+        </div>
+
+        <div class="section">
+            <h3>批量删除</h3>
+            <div style="display:flex; align-items:center; gap: 8px; margin-bottom:12px; font-size: 14px; color: #333;">
+                <span>第</span><input type="number" id="startP" min="1" value="1">
+                <span>至</span><input type="number" id="endP" min="1" value="1">
+                <span>页</span>
+            </div>
+            <button class="btn-danger" onclick="handleRangeDelete()">🗑️ 删除选中范围</button>
+        </div>
+
+        <button class="btn-download" onclick="savePdf()">💾 保存并下载</button>
+        <p id="file-status"></p>
+    </div>
+
+    <div class="preview-grid" id="previewGrid">
+        <div style="grid-column: 1/-1; text-align: center; margin-top: 150px;">
+            <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
+            <div style="color: #8e8e93; font-weight: 500;">请打开 PDF 文档开始编辑</div>
+            <div style="font-size:12px; color:#c7c7cc; margin-top:8px">离线模式运行，保护隐私</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let mainPdfDoc = null;
+    let currentRenderDoc = null;
+    let historyStack = [];
+    let originalFileName = "edited_document";
+    let isDrawing = false;
+    let startX, startY;
+    let brushColor = '#000000';
+    let brushOpacity = 1.0; 
+
+    // 懒加载
+    let observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const canvas = entry.target;
+                const idx = parseInt(canvas.dataset.pageIndex);
+                if(idx) renderPageOnCanvas(canvas, idx);
+                observer.unobserve(canvas);
+            }
+        });
+    }, { rootMargin: "200px" });
+
+    function setBrush(color, el) {
+        brushColor = color;
+        brushOpacity = (color === '#ffe600') ? 0.3 : 1.0;
+        document.querySelectorAll('.color-opt').forEach(d => d.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    async function initPdf(input) {
+        const file = input.files[0];
+        if (!file) return;
+        originalFileName = file.name.replace(/\.pdf$/i, "");
+        document.getElementById('file-status').innerText = file.name;
+        
+        toggleLoading(true, "正在解析文档...");
+        historyStack = [];
+        updateUndoButton();
+
+        try {
+            const buffer = await file.arrayBuffer();
+            mainPdfDoc = await PDFLib.PDFDocument.load(buffer);
+            await updateRenderProxy(await mainPdfDoc.save());
+            await refreshGridUI();
+        } catch (e) { 
+            alert("文件解析错误: " + e.message); 
+            console.error(e); 
+        } finally {
+            toggleLoading(false);
+            input.value = "";
+        }
+    }
+
+    async function updateRenderProxy(pdfBytes) {
+        if (currentRenderDoc) {
+            try { currentRenderDoc.destroy(); } catch(e) {}
+        }
+        currentRenderDoc = await pdfjsLib.getDocument({data: pdfBytes}).promise;
+    }
+
+    async function refreshGridUI() {
+        const grid = document.getElementById('previewGrid');
+        grid.innerHTML = '';
+        const totalPages = currentRenderDoc.numPages;
+        updateLimits(totalPages);
+
+        if (totalPages === 0) return;
+
+        const fragment = document.createDocumentFragment();
+        for (let i = 1; i <= totalPages; i++) {
+            const page = await currentRenderDoc.getPage(i);
+            const viewport = page.getViewport({scale: 0.5});
+            
+            const item = document.createElement('div');
+            item.className = 'page-item';
+
+            const delBtn = document.createElement('div');
+            delBtn.className = 'quick-del';
+            delBtn.innerText = '×';
+            delBtn.onclick = (e) => deleteSinglePage(e, i - 1);
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'canvas-wrapper';
+            wrapper.style.aspectRatio = `${viewport.width} / ${viewport.height}`;
+
+            const canvas = document.createElement('canvas');
+            canvas.dataset.pageIndex = i;
+            attachCanvasEvents(canvas, i - 1);
+
+            const tools = document.createElement('div');
+            tools.className = 'page-tools';
+            tools.innerHTML = `
+                <div class="page-label">第 ${i} 页</div>
+                <div class="rotate-group">
+                    <button class="btn-icon" onclick="rotatePage(${i-1}, -90)" title="左转90°">↺</button>
+                    <button class="btn-icon" onclick="rotatePage(${i-1}, 90)" title="右转90°">↻</button>
+                </div>
+            `;
+
+            wrapper.appendChild(canvas);
+            item.appendChild(delBtn);
+            item.appendChild(wrapper);
+            item.appendChild(tools);
+            fragment.appendChild(item);
+            
+            observer.observe(canvas);
+        }
+        grid.appendChild(fragment);
+    }
+
+    async function renderPageOnCanvas(canvas, pageNum) {
+        if (!currentRenderDoc) return;
+        try {
+            const page = await currentRenderDoc.getPage(pageNum);
+            const wrapper = canvas.parentElement;
+            const wrapperWidth = wrapper.clientWidth || 300; 
+            const scale = wrapperWidth / page.getViewport({scale: 1}).width;
+            const viewport = page.getViewport({scale: scale * 2});
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            canvas.style.width = "100%";
+            
+            await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
+        } catch(e) {}
+    }
+
+    // 【核心修复】旋转逻辑归一化
+    async function rotatePage(pageIndex, degrees) {
+        try {
+            toggleLoading(true, "正在旋转页面...");
+            historyStack.push(await mainPdfDoc.save());
+            updateUndoButton();
+
+            const page = mainPdfDoc.getPage(pageIndex);
+            const currentRotation = page.getRotation().angle;
+            
+            // 算法：(当前角度 + 变化 + 360) % 360
+            // 确保结果永远是 0, 90, 180, 270 之一
+            let newAngle = (currentRotation + degrees) % 360;
+            if (newAngle < 0) newAngle += 360; 
+
+            // 使用 pdf-lib 的 degrees 辅助函数
+            page.setRotation(PDFLib.degrees(newAngle));
+
+            await updateRenderProxy(await mainPdfDoc.save());
+            await refreshGridUI();
+
+        } catch (e) {
+            console.error(e);
+            alert("旋转失败: " + e.message);
+            historyStack.pop(); 
+            updateUndoButton();
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
+    function attachCanvasEvents(canvas, pageIndex) {
+        canvas.onmousedown = (e) => {
+            if (!document.getElementById('smudgeMode').checked) return;
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            startX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            startY = (e.clientY - rect.top) * (canvas.height / rect.height);
+        };
+
+        canvas.onmouseup = async (e) => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            
+            const rect = canvas.getBoundingClientRect();
+            const endX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const endY = (e.clientY - rect.top) * (canvas.height / rect.height);
+            const w = Math.abs(endX - startX);
+            const h = Math.abs(endY - startY);
+            const x = Math.min(startX, endX);
+            const y = Math.min(startY, endY);
+
+            if (w < 5 || h < 5) return;
+
+            try {
+                if (historyStack.length > 10) historyStack.shift();
+                historyStack.push(await mainPdfDoc.save());
+                updateUndoButton();
+
+                const ctx = canvas.getContext('2d');
+                ctx.globalAlpha = brushOpacity; 
+                ctx.fillStyle = brushColor;
+                ctx.fillRect(x, y, w, h);
+                ctx.globalAlpha = 1.0;
+
+                const pdfPage = mainPdfDoc.getPage(pageIndex);
+                const { width: pW, height: pH } = pdfPage.getSize();
+                const sX = pW / canvas.width;
+                const sY = pH / canvas.height;
+
+                const r = parseInt(brushColor.slice(1, 3), 16) / 255;
+                const g = parseInt(brushColor.slice(3, 5), 16) / 255;
+                const b = parseInt(brushColor.slice(5, 7), 16) / 255;
+
+                pdfPage.drawRectangle({
+                    x: x * sX,
+                    y: pH - (y * sY) - (h * sY),
+                    width: w * sX,
+                    height: h * sY,
+                    color: PDFLib.rgb(r, g, b),
+                    opacity: brushOpacity,
+                });
+            } catch (e) {
+                alert("涂抹操作失败");
+            }
+        };
+    }
+
+    async function deleteSinglePage(e, index) {
+        e.stopPropagation();
+        if (mainPdfDoc.getPageCount() <= 1) return alert("文档至少保留一页");
+        
+        try {
+            toggleLoading(true, "正在删除页面...");
+            historyStack.push(await mainPdfDoc.save());
+            mainPdfDoc.removePage(index);
+            await updateRenderProxy(await mainPdfDoc.save());
+            await refreshGridUI();
+            updateUndoButton();
+        } catch (e) {
+            alert("删除失败: " + e.message);
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
+    async function handleRangeDelete() {
+        const s = parseInt(document.getElementById('startP').value);
+        const e = parseInt(document.getElementById('endP').value);
+        if (s > e) return;
+        
+        try {
+            toggleLoading(true, "正在批量删除...");
+            historyStack.push(await mainPdfDoc.save());
+            for (let i = e - 1; i >= s - 1; i--) mainPdfDoc.removePage(i);
+            await updateRenderProxy(await mainPdfDoc.save());
+            await refreshGridUI();
+            updateUndoButton();
+        } catch(e) {
+            alert("操作失败: " + e.message);
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
+    async function undoAction() {
+        if (!historyStack.length) return;
+        try {
+            toggleLoading(true, "正在恢复历史...");
+            const last = historyStack.pop();
+            mainPdfDoc = await PDFLib.PDFDocument.load(last);
+            await updateRenderProxy(last);
+            await refreshGridUI();
+            updateUndoButton();
+        } catch(e) {
+            alert("撤销失败");
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
+    async function savePdf() {
+        if (!mainPdfDoc) return;
+        try {
+            toggleLoading(true, "正在打包下载...");
+            const bytes = await mainPdfDoc.save();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(new Blob([bytes], {type: 'application/pdf'}));
+            link.download = `${originalFileName}_edited.pdf`;
+            link.click();
+        } catch(e) {
+            alert("保存失败");
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
+    function updateLimits(c) {
+        document.getElementById('startP').max = c;
+        document.getElementById('endP').max = c;
+        if(parseInt(document.getElementById('endP').value) > c) document.getElementById('endP').value = c;
+    }
+
+    function updateUndoButton() {
+        document.getElementById('undoBtn').disabled = !historyStack.length;
+    }
+
+    function toggleLoading(show, text="处理中...") {
+        const overlay = document.getElementById('loading-overlay');
+        const txt = document.getElementById('loading-text');
+        
+        if (show) {
+            txt.innerText = text;
+            overlay.style.display = 'flex';
+        } else {
+            overlay.style.display = 'none';
+        }
+    }
+</script>
+</body>
+</html>
