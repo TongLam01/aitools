@@ -11,7 +11,7 @@ let pinnedIds = JSON.parse(localStorage.getItem('pinnedToolsV7') || '[]');
 // --- 统计核心配置 ---
 // 提示：为了让代码看起来更像“系统配置”，变量名尽量专业化
 const SYSTEM_CONFIG = {
-    _start: '2025-01-01', // 锚点日期
+    _start: '2026-01-01', // 锚点日期
     _inc: 31,             // 日增长量
     _base: 500           // 基础数值
 };
@@ -103,4 +103,5 @@ function renderCards() {
 }
 
 // 启动
+
 init();
