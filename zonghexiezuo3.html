@@ -19,9 +19,11 @@
             --text-primary: #1e293b;
             --text-secondary: #64748b;
             --border-color: rgba(0,0,0,0.05);
-            --accent-color: #4f46e5;
+            /* 修改：调整为微信绿色系 #07c160 */
+            --accent-color: #07c160; 
         }
 
+        /* 删除 Dark 模式的具体定义，保持默认浅色 */
         .dark {
             --bg-primary: #0f172a;
             --bg-secondary: #1e293b;
@@ -279,7 +281,7 @@
             :class="isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white/60 border-slate-50'"
             style="backdrop-filter: blur(12px);">
         <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+            <div class="w-9 h-9 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                 <i class="fa-solid fa-pen-fancy text-sm"></i>
             </div>
             <div>
@@ -296,13 +298,6 @@
                     :class="isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-400'"
                     title="历史记录">
                 <i class="fa-solid fa-clock-rotate-left"></i>
-            </button>
-            
-            <button @click="toggleDark" 
-                    class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                    :class="isDark ? 'hover:bg-slate-700 text-yellow-400' : 'hover:bg-slate-100 text-slate-400'"
-                    title="切换主题">
-                <i :class="isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"></i>
             </button>
             
             <button @click="showConfig = true" 
@@ -534,13 +529,13 @@
                     <div>
                         <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block" :class="isDark ? 'text-slate-400' : 'text-slate-400'">DeepSeek API Key</label>
                         <div class="relative">
-                            <input v-model="config.apiKey" :type="showApiKey ? 'text' : 'password'" placeholder="sk-..." class="w-full p-4 pr-12 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" :class="isDark ? 'bg-slate-700 text-white placeholder-slate-500' : 'bg-slate-50 text-slate-800'">
+                            <input v-model="config.apiKey" :type="showApiKey ? 'text' : 'password'" placeholder="sk-..." class="w-full p-4 pr-12 rounded-xl outline-none focus:ring-2 focus:ring-green-500 transition-all" :class="isDark ? 'bg-slate-700 text-white placeholder-slate-500' : 'bg-slate-50 text-slate-800'">
                             <button @click="showApiKey = !showApiKey" class="absolute right-3 top-1/2 -translate-y-1/2 p-2" :class="isDark ? 'text-slate-400' : 'text-slate-400'"><i :class="showApiKey ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i></button>
                         </div>
                     </div>
                     <div>
                         <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block" :class="isDark ? 'text-slate-400' : 'text-slate-400'">模型选择</label>
-                        <select v-model="config.model" class="w-full p-4 rounded-xl outline-none font-medium focus:ring-2 focus:ring-indigo-500" :class="isDark ? 'bg-slate-700 text-white' : 'bg-slate-50 text-slate-800'">
+                        <select v-model="config.model" class="w-full p-4 rounded-xl outline-none font-medium focus:ring-2 focus:ring-green-500" :class="isDark ? 'bg-slate-700 text-white' : 'bg-slate-50 text-slate-800'">
                             <option value="deepseek-reasoner">DeepSeek R1 (深度思考，较慢)</option>
                             <option value="deepseek-chat">DeepSeek V3 (极速响应)</option>
                         </select>
@@ -559,7 +554,7 @@
                     </div>
                 </div>
                 <div class="p-6 border-t" :class="isDark ? 'border-slate-700' : 'border-slate-100'">
-                    <button @click="saveConfig" class="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all">保存设置</button>
+                    <button @click="saveConfig" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all">保存设置</button>
                 </div>
             </div>
         </div>
@@ -577,7 +572,7 @@
                     <div v-if="history.length === 0" class="text-center py-20"><i class="fa-solid fa-clock-rotate-left text-4xl mb-4" :class="isDark ? 'text-slate-600' : 'text-slate-200'"></i><p class="text-sm" :class="isDark ? 'text-slate-500' : 'text-slate-400'">暂无历史记录</p></div>
                     <div v-else class="space-y-2">
                         <div v-for="(item, idx) in history" :key="idx" @click="loadHistory(item)" class="history-item">
-                            <div class="flex items-center gap-2 mb-1"><span class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="isDark ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'">{{ item.toolName }}</span><span class="text-[10px]" :class="isDark ? 'text-slate-500' : 'text-slate-400'">{{ formatDate(item.time) }}</span></div>
+                            <div class="flex items-center gap-2 mb-1"><span class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="isDark ? 'bg-indigo-900 text-indigo-300' : 'bg-green-100 text-green-700'">{{ item.toolName }}</span><span class="text-[10px]" :class="isDark ? 'text-slate-500' : 'text-slate-400'">{{ formatDate(item.time) }}</span></div>
                             <p class="text-sm line-clamp-2" :class="isDark ? 'text-slate-300' : 'text-slate-600'">{{ item.input.substring(0, 100) }}...</p>
                         </div>
                     </div>
@@ -612,7 +607,8 @@ createApp({
         const scrollBox = ref(null);
         const toasts = ref([]);
         const errorMsg = ref('');
-        const isDark = ref(false);
+        // 修改：固定为 false，不再支持 Dark 模式切换
+        const isDark = ref(false); 
         const lastTool = ref(null);
         const isDesensitize = ref(false); 
         const showMapModal = ref(false);
@@ -904,7 +900,8 @@ createApp({
                     history.value = JSON.parse(savedHistory);
                 } catch (e) {}
             }
-            isDark.value = localStorage.getItem('knife_dark') === 'true';
+            // 修改：不再读取 Dark 模式设置，强制为 false
+            isDark.value = false;
             lastTool.value = localStorage.getItem('knife_last_tool');
             document.addEventListener('keydown', handleGlobalKeydown);
         });
@@ -928,10 +925,7 @@ createApp({
             setTimeout(() => { toasts.value = toasts.value.filter(t => t.id !== id); }, 3000);
         };
 
-        const toggleDark = () => {
-            isDark.value = !isDark.value;
-            localStorage.setItem('knife_dark', isDark.value);
-        };
+        // 修改：删除了 toggleDark 函数
 
         const saveConfig = () => { 
             localStorage.setItem('knife_cfg_v10', JSON.stringify(config.value)); 
@@ -1125,7 +1119,7 @@ createApp({
         return { 
             inputBody, outputBody, renderedOutput, isGenerating, tools, runTool, currentId, currentName, 
             generateImage, copyText, stopStream, showConfig, config, saveConfig, showApiKey,
-            scrollBox, toasts, errorMsg, isDark, toggleDark, showHistory, history, loadHistory, clearHistory, 
+            scrollBox, toasts, errorMsg, isDark, showHistory, history, loadHistory, clearHistory, 
             formatDate, handleKeydown, retryLast, exportData, clearAllData, lastTool,
             isDesensitize, showMapModal, mapList, removeMapping
         };
