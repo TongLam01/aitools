@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pawenzhang - 批量文章导出工具</title>
+    <title>网页文章导出工具 - 支持公众号文章导出</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { primary: '#3b82f6', success: '#10b981', error: '#ef4444' },
+                    colors: { 
+                        primary: '#07C160', /* 微信绿 */
+                        primaryHover: '#06AD56',
+                        success: '#07C160', 
+                        error: '#FA5151' 
+                    },
                     animation: {
                         'breathe-green': 'breatheGreen 3s infinite ease-in-out',
                         'breathe-red': 'breatheRed 3s infinite ease-in-out',
@@ -18,8 +23,8 @@
                         'slide-up': 'slideUp 0.2s ease-in forwards',
                     },
                     keyframes: {
-                        breatheGreen: { '0%, 100%': { boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.4)' }, '50%': { boxShadow: '0 0 0 6px rgba(16, 185, 129, 0.1)' } },
-                        breatheRed: { '0%, 100%': { boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.4)' }, '50%': { boxShadow: '0 0 0 6px rgba(239, 68, 68, 0.1)' } },
+                        breatheGreen: { '0%, 100%': { boxShadow: '0 0 0 0 rgba(7, 193, 96, 0.4)' }, '50%': { boxShadow: '0 0 0 6px rgba(7, 193, 96, 0.1)' } },
+                        breatheRed: { '0%, 100%': { boxShadow: '0 0 0 0 rgba(250, 81, 81, 0.4)' }, '50%': { boxShadow: '0 0 0 6px rgba(250, 81, 81, 0.1)' } },
                         slideDown: { '0%': { opacity: '0', transform: 'translateY(-10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
                         slideUp: { '0%': { opacity: '1', transform: 'translateY(0)' }, '100%': { opacity: '0', transform: 'translateY(-10px)' } }
                     }
@@ -28,72 +33,73 @@
         }
     </script>
     <style>
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
-        .prose img { max-width: 100%; height: auto; border-radius: 8px; margin: 1em 0; }
-        .prose p { margin-bottom: 1em; line-height: 1.7; text-align: justify; }
-        .active-tab { border-bottom: 2px solid #3b82f6; color: #3b82f6; background-color: #eff6ff; }
+        .glass-panel { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px); border: 1px solid rgba(0, 0, 0, 0.05); }
+        .prose img { max-width: 100%; height: auto; border-radius: 8px; margin: 1em 0; display: block; margin-left: auto; margin-right: auto;}
+        .prose p { margin-bottom: 1em; line-height: 1.8; text-align: justify; color: #333; }
+        .active-tab { border-bottom: 2px solid #07C160; color: #07C160; background-color: #f0fdf4; }
         .inactive-tab { border-bottom: 2px solid transparent; color: #6b7280; }
         .inactive-tab:hover { color: #374151; background-color: #f9fafb; }
-        
-        /* 自定义滚动条 */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(156, 163, 175, 0.5); border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(156, 163, 175, 0.3); border-radius: 20px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4 transition-colors duration-300 bg-[#f3f4f6]">
+<body class="min-h-screen flex flex-col items-center p-4 transition-colors duration-300 bg-[#ededed]">
 
-    <nav class="w-full max-w-4xl flex justify-between items-start mb-8 relative z-50">
+    <nav class="w-full max-w-4xl flex justify-between items-start mb-8 relative z-50 mt-4">
         <div class="space-y-1">
-            <h1 id="appTitle" class="text-3xl font-bold tracking-tight text-gray-900">Pawenzhang</h1>
-            <p id="appSubtitle" class="text-gray-500 text-sm"></p>
+            <h1 id="appTitle" class="text-3xl font-bold tracking-tight text-gray-900">网页文章导出工具</h1>
+            <p id="appSubtitle" class="text-gray-500 text-sm">支持公众号文章导出</p>
         </div>
 
         <div class="relative">
-            <button id="apiKeyBtn" class="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full shadow-sm hover:shadow-md transition-all border border-gray-100">
+            <button id="apiKeyBtn" class="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full shadow-sm hover:shadow-md transition-all border border-gray-200 group">
                 <span id="statusIndicator" class="w-2.5 h-2.5 rounded-full bg-red-500 animate-breathe-red"></span>
-                <span class="text-sm font-medium text-gray-600">API Key</span>
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                <span class="text-sm font-medium text-gray-600 group-hover:text-primary transition-colors">API Key</span>
+                <svg class="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
 
-            <div id="settingsDropdown" class="hidden absolute right-0 top-12 w-80 bg-white rounded-xl shadow-xl border border-gray-100 p-4 origin-top-right">
-                <h3 class="text-sm font-bold text-gray-700 mb-3">配置 API Key</h3>
+            <div id="settingsDropdown" class="hidden absolute right-0 top-12 w-80 bg-white rounded-xl shadow-xl border border-gray-100 p-5 origin-top-right">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-gray-800">配置 API Key</h3>
+                    <span class="text-xs text-gray-400">Metaso API</span>
+                </div>
                 <div class="space-y-3">
-                    <input type="password" id="apiKeyInput" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 outline-none text-sm transition-all" placeholder="sk-...">
+                    <input type="password" id="apiKeyInput" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none text-sm transition-all" placeholder="sk-...">
                     <div class="flex justify-between items-center">
-                        <a id="howToLink" href="#" target="_blank" class="text-xs text-primary hover:underline">如何获取?</a>
-                        <button id="saveKeyBtn" class="px-3 py-1.5 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-all">保存</button>
+                        <a id="howToLink" href="#" target="_blank" class="text-xs text-gray-500 hover:text-primary underline">如何获取?</a>
+                        <button id="saveKeyBtn" class="px-4 py-1.5 bg-primary text-white text-sm rounded-lg hover:bg-primaryHover transition-all shadow-md shadow-green-100">保存</button>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="w-full max-w-4xl space-y-6">
+    <main class="w-full max-w-4xl space-y-5">
         
-        <div class="bg-white rounded-2xl shadow-xl p-6 space-y-4 glass-panel transform transition-all">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4 glass-panel">
             <div class="relative">
                 <textarea id="urlInput" rows="3"
-                    class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-base focus:ring-2 focus:ring-primary/50 focus:bg-white transition-all outline-none resize-none custom-scrollbar" 
+                    class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-base focus:ring-2 focus:ring-primary/30 focus:bg-white transition-all outline-none resize-none custom-scrollbar placeholder-gray-400" 
                     placeholder="在此粘贴文章链接，每行一个 (最多支持 5 篇)..."></textarea>
-                <div class="absolute bottom-3 right-4 text-xs text-gray-400" id="lineCounter">0/5</div>
+                <div class="absolute bottom-3 right-4 text-xs text-gray-400 bg-white/80 px-1 rounded" id="lineCounter">0/5</div>
             </div>
             <button id="extractBtn" 
-                class="w-full py-3 bg-black text-white rounded-xl font-medium text-lg hover:bg-gray-800 active:scale-95 transition-all shadow-lg shadow-gray-200/50 flex justify-center items-center gap-2">
+                class="w-full py-3.5 bg-primary text-white rounded-xl font-medium text-lg hover:bg-primaryHover active:scale-[0.99] transition-all shadow-lg shadow-green-200/50 flex justify-center items-center gap-2">
                 <span>批量提取</span>
             </button>
         </div>
 
-        <div id="resultArea" class="hidden bg-white rounded-2xl shadow-lg glass-panel overflow-hidden flex flex-col h-[70vh]">
+        <div id="resultArea" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 glass-panel overflow-hidden flex flex-col h-[70vh]">
             
-            <div class="flex flex-col border-b border-gray-100 bg-gray-50/50">
+            <div class="flex flex-col border-b border-gray-100 bg-gray-50/30">
                 <div class="flex justify-between items-center p-4 pb-2">
-                    <span class="text-sm font-bold text-gray-500 uppercase tracking-wider">提取结果</span>
+                    <span class="text-sm font-bold text-gray-500 uppercase tracking-wider pl-2">预览与导出</span>
                     <div class="flex gap-2">
-                        <button id="exportCurrentBtn" class="hidden text-gray-600 hover:text-primary text-sm font-medium px-3 py-1.5 rounded-md hover:bg-white transition-colors border border-transparent hover:border-gray-200">
+                        <button id="exportCurrentBtn" class="hidden text-gray-600 hover:text-primary text-sm font-medium px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200">
                             导出当前
                         </button>
-                        <button id="exportAllBtn" class="bg-primary hover:bg-blue-600 text-white text-sm font-medium px-4 py-1.5 rounded-md shadow-md transition-colors flex items-center gap-1">
+                        <button id="exportAllBtn" class="bg-primary hover:bg-primaryHover text-white text-sm font-medium px-4 py-1.5 rounded-md shadow-md shadow-green-100 transition-colors flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             合并导出 Word
                         </button>
@@ -103,30 +109,33 @@
                     </div>
             </div>
 
-            <div id="articleContainer" class="flex-1 overflow-y-auto p-8 custom-scrollbar relative">
-                <div id="loadingState" class="hidden absolute inset-0 flex items-center justify-center bg-white/80 z-10">
-                    <span class="text-gray-500 animate-pulse">处理中...</span>
+            <div id="articleContainer" class="flex-1 overflow-y-auto p-8 custom-scrollbar relative bg-white">
+                <div id="loadingState" class="hidden absolute inset-0 flex items-center justify-center bg-white/90 z-20">
+                    <div class="flex flex-col items-center gap-3">
+                        <svg class="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span class="text-gray-500 text-sm font-medium">智能解析中...</span>
+                    </div>
                 </div>
                 
                 <div id="contentWrapper">
                     <header class="mb-8 text-center border-b border-gray-100 pb-6">
-                        <h1 id="articleTitle" class="text-2xl font-bold text-gray-900 mb-2"></h1>
+                        <h1 id="articleTitle" class="text-2xl font-bold text-gray-900 mb-3 leading-snug"></h1>
                         <div class="flex justify-center items-center gap-4 text-sm text-gray-500">
-                            <span id="articleAuthor"></span>
-                            <span id="articleDate"></span>
+                            <span id="articleAuthor" class="bg-gray-100 px-2 py-0.5 rounded text-xs text-gray-600"></span>
+                            <span id="articleDate" class="text-xs"></span>
                         </div>
                     </header>
                     <article id="renderedContent" class="prose max-w-none text-gray-800"></article>
                 </div>
 
-                <div id="emptyState" class="hidden h-full flex flex-col items-center justify-center text-gray-400">
-                    <svg class="w-16 h-16 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <p>请选择左上角的标签查看文章</p>
+                <div id="emptyState" class="hidden h-full flex flex-col items-center justify-center text-gray-300">
+                    <svg class="w-20 h-20 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <p class="text-sm">暂无内容，请开始提取</p>
                 </div>
             </div>
         </div>
     </main>
-
     <script type="module" src="/js/pawenzhang.js"></script>
+    <script src="common.js"></script>
 </body>
 </html>
