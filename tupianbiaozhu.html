@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>图片标注工具 v2.0 </title>
+    <title>图片标注工具 v2.1 (高清优化版)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
@@ -79,7 +79,7 @@
         
         .canvas-container { 
             background-color: transparent !important; 
-            box-shadow: none !important;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05) !important; /* 加点阴影更好看 */
             border: none !important;
         }
 
@@ -110,7 +110,6 @@
         
         .zoom-tip { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.5s; z-index: 50; }
 
-        /* 1. 新增：实时尺寸提示框 (Smart Tooltip) */
         #size-tooltip {
             position: absolute;
             background: rgba(33, 33, 33, 0.9);
@@ -124,7 +123,7 @@
             display: none;
             white-space: nowrap;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            font-variant-numeric: tabular-nums; /* 数字等宽，防止跳动 */
+            font-variant-numeric: tabular-nums;
         }
     </style>
 </head>
@@ -207,12 +206,14 @@
         selection: true, preserveObjectStacking: true 
     });
     
+    // 1. 修改：在 state 中增加 exportScale 属性，记录缩放比例
     const state = { 
         mode: 'select', subType: null, iconContent: null,
         color: '#FF0000', width: 3, opacity: 1, 
         isDrawing: false, startX: 0, startY: 0, 
         activeObj: null, history: [], historyProcessing: false, numberCount: 1,
-        textOpts: { stroke: false, shadow: false }
+        textOpts: { stroke: false, shadow: false },
+        exportScale: 1 // 新增：用于导出高清图
     };
 
     let cropper = null;
@@ -230,48 +231,27 @@
         icon: [ { id: 'check', label: '对号', content: '✔' }, { id: 'cross', label: '错号', content: '✖' }, { id: 'star', label: '星标', content: '★' }, { id: 'arrow', label: '指引', content: '➜' }, { id: 'warn', label: '注意', content: '▲' }, { id: 'dot', label: '圆点', content: '●' } ]
     };
 
-    // --- 2. 实时尺寸反馈逻辑 ---
     const tooltip = document.getElementById('size-tooltip');
 
-    // 监听缩放事件
     canvas.on('object:scaling', function(e) {
         const obj = e.target;
         if (!obj) return;
-
-        // 计算实际像素尺寸
         const w = Math.round(obj.width * obj.scaleX);
         const h = Math.round(obj.height * obj.scaleY);
-        
-        // 更新内容
         tooltip.innerHTML = `${w} x ${h}`;
         tooltip.style.display = 'block';
-
-        // 计算位置：跟随物体中心上方
-        // 获取物体在画布上的坐标
         const objCenter = obj.getCenterPoint();
-        // 转换为屏幕坐标 (考虑画布缩放和平移)
         const vpt = canvas.viewportTransform;
         const screenX = objCenter.x * vpt[0] + vpt[4];
-        const screenY = (objCenter.y - (obj.height * obj.scaleY)/2) * vpt[3] + vpt[5]; // 顶部
-
-        // 加上 canvas 容器的偏移
+        const screenY = (objCenter.y - (obj.height * obj.scaleY)/2) * vpt[3] + vpt[5]; 
         const canvasRect = canvas.upperCanvasEl.getBoundingClientRect();
-        
         tooltip.style.left = (canvasRect.left + screenX - tooltip.offsetWidth/2) + 'px';
-        tooltip.style.top = (canvasRect.top + screenY - 30) + 'px'; // 上浮30px
+        tooltip.style.top = (canvasRect.top + screenY - 30) + 'px';
     });
 
-    // 结束缩放隐藏
-    canvas.on('object:modified', function() {
-        tooltip.style.display = 'none';
-    });
-    // 鼠标抬起也隐藏，以防万一
-    canvas.on('mouse:up', function() {
-        tooltip.style.display = 'none';
-    });
+    canvas.on('object:modified', function() { tooltip.style.display = 'none'; });
+    canvas.on('mouse:up', function() { tooltip.style.display = 'none'; });
 
-
-    // --- 剪裁逻辑 ---
     document.getElementById('fileInput').onchange = function(e) {
         if(e.target.files && e.target.files[0]) {
             const reader = new FileReader();
@@ -297,6 +277,7 @@
         if(cropper) cropper.destroy();
     }
 
+    // 2. 修改：finishCrop 逻辑，让 Canvas 尺寸贴合图片实际显示尺寸，而非撑满屏幕
     function finishCrop() {
         if(!cropper) return;
         const croppedCanvas = cropper.getCroppedCanvas();
@@ -308,19 +289,30 @@
             const wrapper = document.getElementById('canvas-wrapper');
             const maxW = wrapper.clientWidth;
             const maxH = wrapper.clientHeight;
-            const scale = Math.min(maxW / img.width, maxH / img.height, 1) * 0.95;
             
-            canvas.setWidth(wrapper.clientWidth);
-            canvas.setHeight(wrapper.clientHeight);
+            // 计算适应屏幕的缩放比例
+            const scale = Math.min(maxW / img.width, maxH / img.height, 1) * 0.95;
+            state.exportScale = scale; // 记录比例，用于导出时还原
+
+            // 关键：Canvas 大小设为“缩放后的图片大小”，而不是容器大小
+            // 这样结合外层 Flex 布局，画布会自动居中，且没有多余空白
+            const canvasW = img.width * scale;
+            const canvasH = img.height * scale;
+            
+            canvas.setWidth(canvasW);
+            canvas.setHeight(canvasH);
             
             img.set({ 
                 originX: 'center', originY: 'center', scaleX: scale, scaleY: scale,
                 shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.15)', blur: 20, offsetX: 0, offsetY: 5 }) 
             });
             
+            // 图片在 Canvas 中心（现在 Canvas 刚好包住图片）
             canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-                top: wrapper.clientHeight / 2,
-                left: wrapper.clientWidth / 2,
+                top: canvasH / 2,
+                left: canvasW / 2,
+                originX: 'center',
+                originY: 'center',
                 scaleX: scale,
                 scaleY: scale
             });
@@ -602,14 +594,23 @@
         const active = canvas.getActiveObjects(); 
         if (active.length) { canvas.discardActiveObject(); active.forEach(o => canvas.remove(o)); saveHistory(); updateContextControls(); } 
     }
+    
+    // 3. 修改：saveImage 逻辑，利用记录的 scale 反向放大，导出高清图
     function saveImage() { 
         const transform = canvas.viewportTransform; canvas.setViewportTransform([1,0,0,1,0,0]);
         const bg = canvas.backgroundImage;
         const originalShadow = bg ? bg.shadow : null;
         if(bg) bg.shadow = null; 
         canvas.renderAll();
+        
         const link = document.createElement('a'); link.download = 'mark_' + Date.now() + '.png'; 
-        link.href = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 }); link.click(); 
+        
+        // 计算放大倍数：如果当初为了适应屏幕缩小到了 0.2，现在就放大 5 倍 (1/0.2)
+        const multiplier = state.exportScale ? (1 / state.exportScale) : 1;
+        
+        link.href = canvas.toDataURL({ format: 'png', quality: 1, multiplier: multiplier }); 
+        link.click(); 
+        
         if(bg) bg.shadow = originalShadow; 
         canvas.setViewportTransform(transform);
     }
@@ -623,4 +624,5 @@
 </script>
 <script src="common.js"></script>
 </body>
+
 </html>
