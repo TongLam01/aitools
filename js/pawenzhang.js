@@ -1,64 +1,49 @@
 /**
  * Pawenzhang 主程序
  * 路径: /js/pawenzhang.js
- * 包含: 1.配置/提示词 2.环境检查 3.业务逻辑
  */
 
-// ==========================================
-// PART 1: 提示词与配置 (CONFIG)
-// ==========================================
 const CONFIG = {
-    // 界面文本/提示词
     texts: {
         appTitle: "Pawenzhang",
-        appSubtitle: "网页文章转 Markdown 工具",
+        appSubtitle: "网页文章导出工具",
         inputPlaceholder: "在此粘贴文章链接 (如微信公众号, 知乎等)...",
         actionBtn: "立即提取",
         processing: "正在解析中...",
-        copySuccess: "Markdown 已复制到剪贴板",
-        copyFail: "复制失败，请手动复制",
-        errorTitle: "解析失败",
+        copySuccess: "已复制",
+        copyFail: "复制失败",
+        errorTitle: "操作失败",
         modalTitle: "配置 Metaso API Key",
         saveBtn: "保存连接",
         howToGet: "如何获取 API Key?",
         emptyUrl: "请输入有效的网址",
         missingKey: "请先点击右上角设置 API Key"
     },
-    // 外部链接
     links: {
         tutorial: "https://www.aibox6.com/jiaocheng.html"
     },
-    // 安全/限制配置
     security: {
         allowedDomains: ['aibox6.com', 'www.aibox6.com', 'localhost', '127.0.0.1']
     }
 };
 
-// ==========================================
-// PART 2: 环境安全检查
-// ==========================================
+// 域名检查
 (function checkDomain() {
     const currentDomain = window.location.hostname;
-    // 如果不在允许的域名列表中，给与警告或阻止运行
     if (!CONFIG.security.allowedDomains.includes(currentDomain)) {
-        console.warn(`Pawenzhang Warning: Domain [${currentDomain}] is not authorized.`);
-        // 严格模式下可取消下方注释以禁用页面：
-        // document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;"><h1>403 Forbidden: Invalid Domain</h1></div>';
+        console.warn(`Domain [${currentDomain}] is not authorized.`);
     }
 })();
 
-// ==========================================
-// PART 3: 核心业务逻辑 (App)
-// ==========================================
 class PawenzhangApp {
     constructor() {
         this.apiKey = localStorage.getItem('metaso_api_key') || '';
+        this.currentArticleData = null; // 存储当前文章数据用于导出
         this.initUI();
         this.bindEvents();
         this.updateStatus();
     }
 
-    // 初始化界面文本
     initUI() {
         document.getElementById('appTitle').textContent = CONFIG.texts.appTitle;
         document.getElementById('appSubtitle').textContent = CONFIG.texts.appSubtitle;
@@ -70,64 +55,65 @@ class PawenzhangApp {
         document.getElementById('saveKeyBtn').textContent = CONFIG.texts.saveBtn;
     }
 
-    // 绑定交互事件
     bindEvents() {
+        // Modal 逻辑
         const modal = document.getElementById('settingsModal');
         const modalContent = document.getElementById('modalContent');
-        const openModal = () => {
-            modal.classList.remove('hidden');
-            document.getElementById('apiKeyInput').value = this.apiKey;
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modalContent.classList.remove('scale-95');
-                modalContent.classList.add('scale-100');
-            }, 10);
-        };
-        const closeModal = () => {
-            modal.classList.add('opacity-0');
-            modalContent.classList.remove('scale-100');
-            modalContent.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 200);
+        const toggleModal = (show) => {
+            if (show) {
+                modal.classList.remove('hidden');
+                document.getElementById('apiKeyInput').value = this.apiKey;
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95');
+                    modalContent.classList.add('scale-100');
+                }, 10);
+            } else {
+                modal.classList.add('opacity-0');
+                modalContent.classList.remove('scale-100');
+                modalContent.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 200);
+            }
         };
 
-        // Modal 事件
-        document.getElementById('apiKeyBtn').addEventListener('click', openModal);
-        document.getElementById('cancelBtn').addEventListener('click', closeModal);
+        document.getElementById('apiKeyBtn').addEventListener('click', () => toggleModal(true));
+        document.getElementById('cancelBtn').addEventListener('click', () => toggleModal(false));
         document.getElementById('saveKeyBtn').addEventListener('click', () => {
             const val = document.getElementById('apiKeyInput').value.trim();
             if (val) {
                 this.apiKey = val;
                 localStorage.setItem('metaso_api_key', val);
                 this.updateStatus();
-                closeModal();
+                toggleModal(false);
             }
         });
 
-        // 核心功能事件
+        // 核心操作
         document.getElementById('extractBtn').addEventListener('click', () => this.handleExtract());
         
-        // 复制功能
+        // 复制 Markdown
         document.getElementById('copyBtn').addEventListener('click', async () => {
-            const text = document.getElementById('outputContent').textContent;
+            const rawText = document.getElementById('rawMarkdown').value;
+            if(!rawText) return;
             try {
-                await navigator.clipboard.writeText(text);
-                const originalText = CONFIG.texts.actionBtn; 
-                // 临时改变按钮文字提示成功
+                await navigator.clipboard.writeText(rawText);
                 const btn = document.getElementById('copyBtn');
                 const oldText = btn.textContent;
                 btn.textContent = CONFIG.texts.copySuccess;
-                btn.classList.add('text-green-600');
+                btn.classList.add('text-success', 'border-success');
                 setTimeout(() => {
                     btn.textContent = oldText;
-                    btn.classList.remove('text-green-600');
+                    btn.classList.remove('text-success', 'border-success');
                 }, 2000);
             } catch (err) {
                 alert(CONFIG.texts.copyFail);
             }
         });
+
+        // 导出 Word
+        document.getElementById('exportWordBtn').addEventListener('click', () => this.handleExportWord());
     }
 
-    // 更新呼吸灯状态
     updateStatus() {
         const indicator = document.getElementById('statusIndicator');
         if (this.apiKey) {
@@ -139,12 +125,10 @@ class PawenzhangApp {
         }
     }
 
-    // 处理提取请求
     async handleExtract() {
         const urlInput = document.getElementById('urlInput');
         const btn = document.getElementById('extractBtn');
         const resultArea = document.getElementById('resultArea');
-        const output = document.getElementById('outputContent');
         const url = urlInput.value.trim();
 
         if (!this.apiKey) {
@@ -157,17 +141,15 @@ class PawenzhangApp {
             return;
         }
 
-        // Loading 状态
+        // Loading UI
         const originalBtnText = btn.innerHTML;
         btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>${CONFIG.texts.processing}</span>`;
         btn.disabled = true;
         resultArea.classList.add('hidden');
-        output.textContent = '';
+        this.currentArticleData = null;
 
         try {
-            // 调用 Vercel Serverless Function 代理
-            // 这里包含心跳/超时逻辑是在后端处理的，前端只需等待结果
-            const response = await fetch('/api/pawenzhangproxy', {
+            const response = await fetch('/api/proxy', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -182,8 +164,19 @@ class PawenzhangApp {
             }
 
             const data = await response.json();
-            resultArea.classList.remove('hidden');
-            output.textContent = data.result || "未获取到内容";
+            
+            // 核心修复：解析返回的 JSON 字符串
+            // API 可能返回 { result: "{\"title\":\"...\"}" } 这种嵌套结构
+            let articleData;
+            try {
+                articleData = JSON.parse(data.result);
+            } catch (e) {
+                // 如果不是 JSON，可能是纯文本，做兼容处理
+                articleData = { title: '提取结果', author: 'Unknown', date: '', markdown: data.result, url: url };
+            }
+
+            this.currentArticleData = articleData;
+            this.renderResult(articleData);
             
         } catch (error) {
             console.error(error);
@@ -193,7 +186,77 @@ class PawenzhangApp {
             btn.disabled = false;
         }
     }
+
+    renderResult(data) {
+        const resultArea = document.getElementById('resultArea');
+        
+        // 填充元数据
+        document.getElementById('articleTitle').textContent = data.title || '无标题';
+        document.getElementById('articleAuthor').textContent = data.author ? `作者: ${data.author}` : '';
+        document.getElementById('articleDate').textContent = data.date || '';
+        document.getElementById('articleUrl').href = data.url || '#';
+        document.getElementById('rawMarkdown').value = data.markdown || '';
+
+        // 使用 Marked.js 渲染 Markdown
+        // 确保 marked 已在全局加载
+        if (typeof marked !== 'undefined') {
+            document.getElementById('renderedContent').innerHTML = marked.parse(data.markdown || '');
+        } else {
+            document.getElementById('renderedContent').textContent = data.markdown;
+        }
+
+        resultArea.classList.remove('hidden');
+    }
+
+    handleExportWord() {
+        if (!this.currentArticleData) return;
+
+        const { title, author, date, url } = this.currentArticleData;
+        const contentHtml = document.getElementById('renderedContent').innerHTML;
+
+        // 构建一个完整的 HTML 文档，模拟 Word 格式
+        // 增加 mso- 样式以优化 Word 中的显示
+        const wordTemplate = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+                <meta charset="utf-8">
+                <title>${title}</title>
+                <style>
+                    body { font-family: 'Microsoft YaHei', sans-serif; line-height: 1.6; }
+                    h1 { font-size: 24pt; color: #333; text-align: center; margin-bottom: 20px; }
+                    .meta { color: #888; text-align: center; font-size: 10pt; margin-bottom: 30px; }
+                    img { max-width: 100%; height: auto; }
+                    p { margin-bottom: 12pt; text-align: justify; }
+                </style>
+            </head>
+            <body>
+                <h1>${title}</h1>
+                <div class="meta">
+                    <p>作者：${author || '未知'} | 时间：${date || '未知'}</p>
+                    <p>来源：<a href="${url}">${url}</a></p>
+                </div>
+                <hr/>
+                <br/>
+                ${contentHtml}
+            </body>
+            </html>
+        `;
+
+        // 创建 Blob 并下载
+        const blob = new Blob([wordTemplate], { type: 'application/msword' });
+        const downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        
+        // 文件名处理，去除特殊字符
+        const safeTitle = (title || 'article').replace(/[\\/:*?"<>|]/g, '_');
+        link.href = downloadUrl;
+        link.download = `${safeTitle}.doc`; // 使用 .doc 兼容性最好，Word 会自动识别 HTML 内容
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
+    }
 }
 
-// 启动应用
 new PawenzhangApp();
