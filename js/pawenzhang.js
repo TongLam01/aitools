@@ -1,5 +1,5 @@
 /**
- * Pawenzhang 主程序 (调试增强版)
+ * Pawenzhang 主程序 (最终修正版)
  * 路径: /js/pawenzhang.js
  */
 
@@ -9,7 +9,7 @@ const CONFIG = {
         appSubtitle: "网页文章导出工具",
         inputPlaceholder: "在此粘贴文章链接 (如微信公众号, 知乎等)...",
         actionBtn: "立即提取",
-        processing: "正在解析中 (请稍候)...",
+        processing: "正在解析中...",
         copySuccess: "已复制",
         copyFail: "复制失败",
         errorTitle: "发生错误",
@@ -27,7 +27,6 @@ const CONFIG = {
     }
 };
 
-// 域名检查
 (function checkDomain() {
     const currentDomain = window.location.hostname;
     if (!CONFIG.security.allowedDomains.includes(currentDomain) && currentDomain !== '') {
@@ -56,7 +55,6 @@ class PawenzhangApp {
     }
 
     bindEvents() {
-        // Modal 逻辑
         const modal = document.getElementById('settingsModal');
         const modalContent = document.getElementById('modalContent');
         const toggleModal = (show) => {
@@ -138,21 +136,21 @@ class PawenzhangApp {
             return;
         }
 
-        // --- Loading UI Start ---
+        // --- Loading ---
         const originalBtnText = btn.innerHTML;
         btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>${CONFIG.texts.processing}</span>`;
         btn.disabled = true;
         resultArea.classList.add('hidden');
         this.currentArticleData = null;
 
-        // 设置前端强制超时 (18秒，给后端Vercel一点缓冲)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 18000);
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
 
         try {
-            console.log("正在请求 API...");
-            
-            const response = await fetch('/api/proxy', {
+            // ==========================================
+            // 修正点：这里的地址改为了 /api/pawenzhangproxy
+            // ==========================================
+            const response = await fetch('/api/pawenzhangproxy', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -162,57 +160,44 @@ class PawenzhangApp {
                 signal: controller.signal
             });
 
-            clearTimeout(timeoutId); // 清除超时计时器
+            clearTimeout(timeoutId);
 
-            console.log(`API 响应状态: ${response.status}`);
-
-            // 检查内容类型，防止解析 HTML 报错
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                const text = await response.text();
-                console.error("收到的非 JSON 响应:", text);
-                
-                if (response.status === 504) {
-                    throw new Error("Metaso 解析时间过长，Vercel 网关超时 (504)。请重试或更换文章。");
-                } else if (response.status === 404) {
-                    throw new Error("找不到后端接口 (/api/proxy)。如果你在本地测试，请使用 'vercel dev' 而不是直接打开 HTML。");
-                } else {
-                    throw new Error(`服务器返回了错误格式的数据 (Code ${response.status})`);
+            const rawText = await response.text();
+            let data;
+            
+            try {
+                data = JSON.parse(rawText);
+            } catch (e) {
+                console.error("Non-JSON Response from /api/pawenzhangproxy:", rawText);
+                if (response.status === 404) {
+                    throw new Error("找不到后端接口。请检查 api/pawenzhangproxy.js 文件是否存在且已部署。");
                 }
+                throw new Error(rawText.substring(0, 100) || `Server Error (${response.status})`);
             }
-
-            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.error || 'Network error');
             }
 
-            // 解析嵌套的 JSON 字符串
+            // 处理结果
             let articleData;
             try {
-                if (typeof data.result === 'object') {
-                    articleData = data.result;
-                } else {
-                    articleData = JSON.parse(data.result);
-                }
+                // 如果 result 是 JSON 对象或 JSON 字符串
+                articleData = (typeof data.result === 'object') ? data.result : JSON.parse(data.result);
             } catch (e) {
-                console.warn("JSON Parse warning, treating as text:", e);
+                // 如果 result 是纯 Markdown
                 articleData = { title: '提取结果', author: 'Unknown', date: '', markdown: data.result, url: url };
             }
 
-            console.log("解析成功:", articleData.title);
             this.currentArticleData = articleData;
             this.renderResult(articleData);
             
         } catch (error) {
-            console.error("提取流程出错:", error);
+            console.error("Extract Error:", error);
             let msg = error.message;
-            if (error.name === 'AbortError') {
-                msg = "请求超时。网页内容可能过多，导致解析时间超过了限制。";
-            }
+            if (error.name === 'AbortError') msg = "请求超时，请检查网络。";
             alert(`${CONFIG.texts.errorTitle}: ${msg}`);
         } finally {
-            // 无论成功失败，恢复按钮状态
             btn.innerHTML = originalBtnText;
             btn.disabled = false;
         }
@@ -220,7 +205,6 @@ class PawenzhangApp {
 
     renderResult(data) {
         const resultArea = document.getElementById('resultArea');
-        
         document.getElementById('articleTitle').textContent = data.title || '无标题';
         document.getElementById('articleAuthor').textContent = data.author ? `作者: ${data.author}` : '';
         document.getElementById('articleDate').textContent = data.date || '';
@@ -247,10 +231,10 @@ class PawenzhangApp {
                 <meta charset="utf-8">
                 <title>${title}</title>
                 <style>
-                    body { font-family: 'Microsoft YaHei', sans-serif; line-height: 1.6; }
-                    h1 { font-size: 24pt; color: #333; text-align: center; margin-bottom: 20px; }
-                    .meta { color: #888; text-align: center; font-size: 10pt; margin-bottom: 30px; }
-                    img { max-width: 100%; height: auto; }
+                    body { font-family: 'Microsoft YaHei', sans-serif; }
+                    h1 { text-align: center; margin-bottom: 20px; }
+                    .meta { color: #888; text-align: center; margin-bottom: 30px; }
+                    img { max-width: 100%; }
                 </style>
             </head>
             <body>
@@ -264,17 +248,13 @@ class PawenzhangApp {
             </body>
             </html>
         `;
-
         const blob = new Blob([wordTemplate], { type: 'application/msword' });
-        const downloadUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        const safeTitle = (title || 'article').replace(/[\\/:*?"<>|]/g, '_');
-        link.href = downloadUrl;
-        link.download = `${safeTitle}.doc`;
+        link.href = URL.createObjectURL(blob);
+        link.download = `${(title || 'article').replace(/[\\/:*?"<>|]/g, '_')}.doc`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        URL.revokeObjectURL(downloadUrl);
     }
 }
 
