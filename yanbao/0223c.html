@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 行业周报 (2026-02-23)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { 
+            font-family: 'Noto Sans SC', 'Inter', sans-serif; 
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .data-point {
+            background: linear-gradient(120deg, #dbeafe 0%, #dbeafe 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 40%;
+            background-position: 0 88%;
+            font-weight: 700;
+            color: #1e40af;
+        }
+        .risk-point {
+            background: linear-gradient(120deg, #fee2e2 0%, #fee2e2 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 40%;
+            background-position: 0 88%;
+            font-weight: 700;
+            color: #991b1b;
+        }
+        .opp-point {
+            background: linear-gradient(120deg, #dcfce7 0%, #dcfce7 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 40%;
+            background-position: 0 88%;
+            font-weight: 700;
+            color: #166534;
+        }
+        .tag-bullish { background: #dcfce7; color: #166534; }
+        .tag-bearish { background: #fee2e2; color: #991b1b; }
+        .tag-neutral { background: #fef3c7; color: #92400e; }
+        .tag-info { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body class="antialiased pb-20">
+<!-- 固定导航 -->
+<nav class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-200/80 px-4 py-3">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <i data-lucide="activity" class="w-5 h-5 text-blue-600"></i>
+            <span class="font-bold text-slate-900 text-sm">AI周报</span>
+        </div>
+        <div class="flex space-x-4 overflow-x-auto no-scrollbar text-xs font-medium">
+            <a href="#summary" class="text-slate-600 hover:text-blue-600 whitespace-nowrap">摘要</a>
+            <a href="#market" class="text-slate-600 hover:text-blue-600 whitespace-nowrap">市场</a>
+            <a href="#events" class="text-slate-600 hover:text-blue-600 whitespace-nowrap">事件</a>
+            <a href="#chains" class="text-slate-600 hover:text-blue-600 whitespace-nowrap">链条</a>
+            <a href="#strategy" class="text-slate-600 hover:text-blue-600 whitespace-nowrap">策略</a>
+            <a href="#radar" class="text-slate-600 hover:text-blue-600 whitespace-nowrap">雷达</a>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-3xl mx-auto px-4 pt-20 space-y-8">
+
+    <!-- 头部信息 -->
+    <header class="space-y-4" id="summary">
+        <div class="flex items-center space-x-2">
+            <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100">
+                2026-02-23 15:32
+            </span>
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold border border-slate-200">
+                偏防守
+            </span>
+        </div>
+        
+        <h1 class="text-2xl sm:text-3xl font-black leading-tight gradient-text">
+            AI 行业周报
+        </h1>
+        
+        <div class="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-blue-600">
+            <h2 class="text-lg font-bold text-slate-900 mb-3">英伟达财报是本周所有跨板块矛盾的汇聚点——算力军备竞赛继续，但"花了多少钱"与"赚回多少钱"的剪刀差正在撑大</h2>
+            <div class="bg-slate-50 rounded-lg p-4 border border-slate-100">
+                <p class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                    <i data-lucide="target" class="w-4 h-4 mr-2 text-blue-600"></i>
+                    本周研判：偏防守
+                </p>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    盈利验证窗口临近，持仓不动、不追高，仅持有英伟达(NVDA)核心仓等待财报定向；供应链Alpha方向用Semtech(SMTC)小仓位埋伏
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 市场温度 -->
+    <section id="market" class="space-y-4">
+        <h3 class="text-lg font-bold flex items-center text-slate-900">
+            <i data-lucide="thermometer" class="w-5 h-5 mr-2 text-orange-500"></i>
+            市场温度
+        </h3>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+            <div class="text-center mb-2">
+                <div class="text-sm text-slate-500 mb-1">当前状态</div>
+                <div class="text-xl font-bold text-slate-900">巡航转折的临界区</div>
+            </div>
+            
+            <div class="bg-slate-900 text-white rounded-xl p-4 space-y-3">
+                <div class="flex items-start space-x-3">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-emerald-400 mt-0.5 shrink-0"></i>
+                    <div>
+                        <div class="text-xs text-slate-400 mb-1">需求侧信号真实</div>
+                        <div class="text-sm">超大规模云厂商芯片采购订单持续落地，液冷基础设施物理约束加速硬件迭代周期</div>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-rose-400 mt-0.5 shrink-0"></i>
+                    <div>
+                        <div class="text-xs text-slate-400 mb-1">供给侧剪刀差扩大</div>
+                        <div class="text-sm">钱花出去了，收入还没跟上——英伟达股价历史高位横盘的真实原因</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-3 text-sm text-slate-700">
+                <p><span class="font-bold">核心矛盾：</span>上游算力需求（芯片采购订单可见性高）与中游盈利验证（AI投资ROI尚无硬数据）裂口扩大。<span class="font-bold">当前倾向于信上游需求侧</span>，因超大规模客户采购决策通常领先财务回报<span class="data-point">12-18个月</span>，且本周采购信号来自T1信源。</p>
+                
+                <p class="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <span class="font-semibold">关键节点：</span>英伟达2月25日财报是第一个硬数据节点，在此之前，任何方向性追仓都是在用确定性换取暴露度。
+                </p>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-slate-700">
+                <span class="font-bold text-amber-800">监管侧同步升温：</span>欧美执法均从立法期进入落地期，合规成本从预期转为实质支出，对Meta和苹果的压力比市场当前定价更具体。
+            </div>
+        </div>
+    </section>
+
+    <!-- Top 3 事件 -->
+    <section id="events" class="space-y-4">
+        <h3 class="text-lg font-bold flex items-center text-slate-900">
+            <span class="w-8 h-8 rounded-lg bg-red-500 text-white flex items-center justify-center text-sm mr-2 font-bold">Top 3</span>
+            本周重大事件
+        </h3>
+
+        <div class="space-y-3">
+            <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-red-500">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="px-2 py-1 bg-red-50 text-red-700 text-xs rounded font-bold">AI投融资与并购</span>
+                    <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">评分 7.0</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-lg mb-2">英伟达战略投资OpenAI</h4>
+                <p class="text-sm text-slate-600 leading-relaxed mb-2">
+                    这笔交易在三个板块同时改变了博弈结构：供应商变成了股东，算力采购从"商业谈判"变成了"内部分配"，对AMD等竞争对手形成的排他压力，比任何产品层面的竞争都更难打破。
+                </p>
+                <div class="flex gap-2 text-xs">
+                    <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">AI投融资</span>
+                    <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">算力芯片</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-orange-500">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="px-2 py-1 bg-orange-50 text-orange-700 text-xs rounded font-bold">数据中心与基础设施</span>
+                    <span class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded">评分 6.75</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-lg mb-2">Meta超大规模芯片采购落地</h4>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    这张采购订单不只是芯片需求确认，它同步触发了供电、液冷和光学互连的配套需求，是本周基础设施侧最确定的Alpha传导起点。
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-amber-500">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="px-2 py-1 bg-amber-50 text-amber-700 text-xs rounded font-bold">宏观与地缘政治</span>
+                    <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded">评分 6.75</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-lg mb-2">最高法院推翻原关税+特朗普补推15%临时关税</h4>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    关税从"会不会"变成"用哪条路径锁定"，叠加降息延迟，对台积电等亚洲代工环节形成双重成本压力，半导体采购预算存在实质性冻结窗口。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 产业链联动图谱 -->
+    <section id="chains" class="space-y-4">
+        <h3 class="text-lg font-bold flex items-center text-slate-900">
+            <i data-lucide="git-branch" class="w-5 h-5 mr-2 text-purple-600"></i>
+            产业链联动与三阶推演
+        </h3>
+
+        <!-- 链条1 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center space-x-2 mb-4">
+                <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">1</span>
+                <h4 class="font-bold text-slate-900">算力军备竞赛→战略投资者结构常态化→芯片供应商定价权被买方用股权换掉</h4>
+            </div>
+            
+            <div class="text-sm text-slate-700 space-y-3">
+                <p>英伟达投资OpenAI，表面是"供应商绑定客户"，实质是危险先例：当OpenAI将融资资金主要用于购买英伟达芯片时，这<span class="data-point">300亿美元</span>本质上是英伟达用股权换来的预付订单。</p>
+                
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 space-y-2">
+                    <p class="text-xs"><span class="font-bold">二阶影响：</span>若此模式被其他超大规模客户复制，英伟达未来议价权将因利益绑定而弱化——芯片涨价的市场机制将被"股东关系"扭曲。</p>
+                    <p class="text-xs"><span class="font-bold">三阶终局：</span>英伟达毛利率保护能力可能在未来<span class="data-point">2-3年</span>被"战略伙伴折扣"悄悄侵蚀，而这一变化不会体现在任何季报显眼位置。</p>
+                </div>
+
+                <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded-r-lg">
+                    <p class="text-xs font-bold text-emerald-900 mb-1">投资解读</p>
+                    <p class="text-xs text-slate-700">持有英伟达核心仓，但把<span class="opp-point">毛利率趋势而非营收增速</span>作为未来每季财报的核心监控指标。若毛利率连续两季低于预期，减仓。</p>
+                </div>
+                
+                <div class="bg-slate-100 border-l-4 border-slate-500 p-3 rounded-r-lg">
+                    <p class="text-xs font-bold text-slate-700 mb-1">暗流观察</p>
+                    <p class="text-xs text-slate-600">盯英伟达财报中"大客户集中度"与"平均售价(ASP)变化"——若ASP意外下滑而营收仍高，战略折扣假说将获得第一个验证点。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 链条2 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center space-x-2 mb-4">
+                <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold">2</span>
+                <h4 class="font-bold text-slate-900">欧美监管执法落地→Meta产品架构被迫改造→广告精准度下降触发预算重新分配</h4>
+            </div>
+
+            <div class="text-sm text-slate-700 space-y-3">
+                <p>DSA在德国法院获得强制执行效力，Meta内部文件已进入多州诉讼证据链。跨板块连接在于：Meta同期在激进扩张AI基础设施CapEx，但监管强制改造端到端加密的时间窗口正好与CapEx回报期重叠。</p>
+                
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 space-y-2">
+                    <p class="text-xs"><span class="font-bold">二阶影响：</span>若法院要求Meta修改加密架构，用户隐私数据可获取性下降，广告定向精准度直接受损，这是Meta广告业务毛利率的<span class="risk-point">结构性风险</span>，非一次性罚款风险。</p>
+                    <p class="text-xs"><span class="font-bold">三阶终局：</span>广告主将加速把预算迁移至数据质量未受监管冲击的平台（谷歌搜索广告、亚马逊电商广告），Meta广告市场份额可能在未来<span class="data-point">12-18个月</span>悄然流失。</p>
+                </div>
+
+                <div class="bg-rose-50 border-l-4 border-rose-500 p-3 rounded-r-lg">
+                    <p class="text-xs font-bold text-rose-900 mb-1">投资解读</p>
+                    <p class="text-xs text-slate-700"><span class="risk-point">规避Meta</span>，不等待"诉讼结果明朗"。诉讼结果本身不是最大风险，产品强制改造才是。</p>
+                </div>
+
+                <div class="bg-slate-100 border-l-4 border-slate-500 p-3 rounded-r-lg">
+                    <p class="text-xs font-bold text-slate-700 mb-1">暗流观察</p>
+                    <p class="text-xs text-slate-600">盯Meta每季财报中的"每用户平均广告收入(ARPU)"分地区数据——若欧洲ARPU相对美国的折价持续扩大，监管传导已开始反映在财务数字里。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 链条3 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center space-x-2 mb-4">
+                <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">3</span>
+                <h4 class="font-bold text-slate-900">机柜功率突破风冷物理上限→液冷成为CapEx强制选项→非芯片基础设施供应商获得定价权</h4>
+            </div>
+
+            <div class="text-sm text-slate-700 space-y-3">
+                <p>算力密度提升是既定趋势，不依赖任何单一厂商决策。跨板块视角：超大规模采购合同（如Meta采购英伟达芯片）每落地一张，就自动触发一笔液冷和电力基础设施采购——这是CapEx的<span class="data-point">"强制捆绑消费"</span>，不是可选配置。</p>
+                
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 space-y-2">
+                    <p class="text-xs"><span class="font-bold">二阶影响：</span>液冷供应商不像芯片厂商那样面临国家安全审查或关税冲击，采购壁垒更低、监管摩擦几乎为零，且供给集中度远低于芯片侧——这意味着<span class="opp-point">需求确定但竞争格局尚未固化</span>，是Alpha窗口而非Beta行情。</p>
+                    <p class="text-xs"><span class="font-bold">三阶终局：</span>若机柜功率在未来<span class="data-point">18个月</span>继续向50kW+演进，液冷渗透率将从当前的边际增量变成数据中心的标配基础设施，市场规模重估将触发估值重构。</p>
+                </div>
+
+                <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded-r-lg">
+                    <p class="text-xs font-bold text-emerald-900 mb-1">投资解读</p>
+                    <p class="text-xs text-slate-700">将Semtech(SMTC)作为<span class="opp-point">"巨头CapEx外溢的供应链机会"</span>埋伏；等待DesignCon 2026具体客户披露作为加仓触发信号。</p>
+                </div>
+
+                <div class="bg-slate-100 border-l-4 border-slate-500 p-3 rounded-r-lg">
+                    <p class="text-xs font-bold text-slate-700 mb-1">暗流观察</p>
+                    <p class="text-xs text-slate-600">盯超大规模云厂商的数据中心建设许可申请中"液冷基础设施配套"的比例变化——这是先于财务数字反映渗透率的超前指标。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 策略矩阵 -->
+    <section id="strategy" class="space-y-4">
+        <h3 class="text-lg font-bold flex items-center text-slate-900">
+            <i data-lucide="target" class="w-5 h-5 mr-2 text-red-600"></i>
+            策略矩阵
+        </h3>
+
+        <div class="space-y-3">
+            <!-- 总仓位建议 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-blue-500">
+                <div class="flex items-center space-x-2 mb-2">
+                    <i data-lucide="pie-chart" class="w-4 h-4 text-blue-600"></i>
+                    <h4 class="font-bold text-slate-900">本周总仓位建议</h4>
+                </div>
+                <p class="text-sm text-slate-600"><span class="font-bold">持仓不动，不追高</span>——财报验证窗口临近，英伟达2月25日财报是AI行业需求真实性的第一个硬数据节点，在指引数字落地前加仓等于用确定性换暴露度。</p>
+            </div>
+
+            <!-- 最大风险 -->
+            <div class="bg-red-50 rounded-xl p-4 shadow-sm border-l-4 border-red-500">
+                <div class="flex items-center space-x-2 mb-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600"></i>
+                    <h4 class="font-bold text-red-900">最大风险</h4>
+                </div>
+                <p class="text-sm text-slate-700">英伟达财报营收指引低于市场共识：若发生，将触发整个AI硬件需求周期的重新定价，AMD等二线供应商连带受压，估值修正幅度可能超过<span class="data-point">15%</span>；应对动作：财报后前<span class="data-point">48小时</span>不操作，等待机构评级调整完成后再决定是否减仓。</p>
+            </div>
+
+            <!-- 矛盾信号 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-orange-500">
+                <div class="flex items-center space-x-2 mb-2">
+                    <i data-lucide="git-compare" class="w-4 h-4 text-orange-600"></i>
+                    <h4 class="font-bold text-slate-900">本周矛盾信号</h4>
+                </div>
+                <p class="text-sm text-slate-600">上游采购订单可见性高（云厂商持续落地大额芯片采购）vs 中游AI投资ROI尚无财务验证；<span class="font-bold">选择信上游</span>，因为超大规模客户采购决策有约<span class="data-point">12-18个月</span>的领先性，但这一判断必须在英伟达财报后接受校准。</p>
+            </div>
+
+            <!-- 利好个股 -->
+            <div class="bg-emerald-50 rounded-xl p-4 shadow-sm border-l-4 border-emerald-500">
+                <div class="flex items-center space-x-2 mb-3">
+                    <i data-lucide="trending-up" class="w-4 h-4 text-emerald-600"></i>
+                    <h4 class="font-bold text-emerald-900">本周利好个股</h4>
+                </div>
+                <div class="space-y-2 text-sm text-slate-700">
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span>
+                        <p><span class="font-bold">英伟达(NVDA)</span> — 持有核心仓，财报后若指引超预期可加仓，重点监控毛利率而非营收增速</p>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span>
+                        <p><span class="font-bold">Semtech(SMTC)</span> — 小仓位埋伏，巨头CapEx外溢的供应链机会，等待DesignCon 2026客户披露后加仓</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 等待信号 -->
+            <div class="bg-amber-50 rounded-xl p-4 shadow-sm border-l-4 border-amber-500">
+                <div class="flex items-center space-x-2 mb-3">
+                    <i data-lucide="clock" class="w-4 h-4 text-amber-600"></i>
+                    <h4 class="font-bold text-amber-900">等待信号</h4>
+                </div>
+                <div class="space-y-2 text-sm text-slate-700">
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0"></span>
+                        <p><span class="font-bold">微软(MSFT)</span> — DOJ/FTC调查是否扩展至政府合同审查层面；条件满足时操作：调查未扩展则维持持有，若扩展至政府合同则减仓</p>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0"></span>
+                        <p><span class="font-bold">台积电(TSM)</span> — 等待关税豁免清单落地（当前概率估计不高于<span class="data-point">40%</span>），豁免明确后分批建仓</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 风险个股 -->
+            <div class="bg-rose-50 rounded-xl p-4 shadow-sm border-l-4 border-rose-500">
+                <div class="flex items-center space-x-2 mb-3">
+                    <i data-lucide="trending-down" class="w-4 h-4 text-rose-600"></i>
+                    <h4 class="font-bold text-rose-900">风险个股</h4>
+                </div>
+                <div class="space-y-2 text-sm text-slate-700">
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0"></span>
+                        <p><span class="font-bold">Meta(META)</span> — <span class="risk-point">回避</span>，内部文件已入证据链，广告架构改造风险被市场低估为"罚款风险"，实质是商业模式结构性损伤，重新关注条件：欧美诉讼全面和解且产品改造方案确定后</p>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0"></span>
+                        <p><span class="font-bold">苹果(AAPL)</span> — <span class="risk-point">回避</span>，iCloud CSAM诉讼辩护空间收窄（放弃扫描方案的历史决策已被引用为不作为证据），多州跟进起诉概率上升，重新关注条件：主要诉讼达成和解且合规改造成本量化后</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 详细板块分析 -->
+    <section class="space-y-6">
+        <h3 class="text-lg font-bold flex items-center border-b border-slate-200 pb-2 text-slate-900">
+            <i data-lucide="layers" class="w-5 h-5 mr-2 text-indigo-600"></i>
+            详细板块分析
+        </h3>
+
+        <!-- AI政策与监管 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-bold text-lg text-slate-900">AI政策与监管</h4>
+                <span class="px-3 py-1 bg-rose-100 text-rose-800 text-xs rounded-full font-bold">欧美双压加剧</span>
+            </div>
+            
+            <div class="space-y-3 text-sm text-slate-700">
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <p class="font-bold text-slate-900 mb-1">板块核心判断</p>
+                    <p class="text-slate-600">本周监管压力从两个方向同步收紧：欧盟以"工业加速器法案"推进"欧洲制造"本地化采购立法，同时德国法院首次援引《数字服务法案》(DSA)强制X提供选举数据，DSA执法先例正式落地。</p>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="bg-rose-50 p-3 rounded-lg border border-rose-100">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-slate-900">Meta与苹果面临儿童安全诉讼，Zuckerberg出庭</span>
+                            <span class="px-2 py-0.5 bg-rose-200 text-rose-800 text-xs rounded font-bold">6.75分</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-2">Meta内部文件显示，Messenger默认端到端加密后每年约<span class="risk-point">750万份</span>儿童性虐待材料报告将无法披露；西弗吉尼亚州2月19日起诉苹果；新墨西哥州诉Meta案已于2月9日开始庭审。</p>
+                        <p class="text-xs text-slate-700"><span class="font-bold">影响：</span>750万份这一数字由Meta内部文件自曝，将成为原告方在多州诉讼中反复援引的核心证据——Meta面临的法律风险不是"指控未经证实"而是"内部知情文件已进入证据链"，若败诉将触发产品设计强制修改与巨额和解，苹果iCloud合规改造成本同样不可忽视。</p>
+                    </div>
+
+                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-100">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-slate-900">微软否认ICE大规模监控，DOJ/FTC调查同步进行</span>
+                            <span class="px-2 py-0.5 bg-amber-200 text-amber-800 text-xs rounded font-bold">6.25分</span>
+                        </div>
+                        <p class="text-xs text-slate-600">ICE在微软Azure的数据存储量增加两倍；微软声明禁止技术用于大规模监控；DOJ与FTC同期对大型科技公司展开潜在垄断调查。</p>
+                    </div>
+
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-slate-900">德国法院援引DSA强制X开放选举数据，执法先例落地</span>
+                            <span class="px-2 py-0.5 bg-blue-200 text-blue-800 text-xs rounded font-bold">6.0分</span>
+                        </div>
+                        <p class="text-xs text-slate-600">2月18日裁决，法律依据为欧盟DSA，X不遵守将面临处罚，德国法院认定对此案拥有管辖权。</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mt-3">
+                    <div class="flex items-center justify-between p-2 bg-rose-50 rounded-lg border border-rose-100">
+                        <div>
+                            <span class="font-bold text-slate-900">Meta (META)</span>
+                            <span class="text-xs text-slate-600 block">利空 | 内部文件入证，加密产品改造不可逆</span>
+                        </div>
+                        <span class="px-2 py-1 bg-rose-200 text-rose-800 text-xs rounded font-bold">回避</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-rose-50 rounded-lg border border-rose-100">
+                        <div>
+                            <span class="font-bold text-slate-900">苹果 (AAPL)</span>
+                            <span class="text-xs text-slate-600 block">利空 | iCloud儿童安全诉讼触发合规改造成本</span>
+                        </div>
+                        <span class="px-2 py-1 bg-rose-200 text-rose-800 text-xs rounded font-bold">回避</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-200">
+                        <div>
+                            <span class="font-bold text-slate-900">微软 (MSFT)</span>
+                            <span class="text-xs text-slate-600 block">中性 | ICE争议属声誉风险，政府云基本面暂未受损</span>
+                        </div>
+                        <span class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded font-bold">持有</span>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-xl mt-3">
+                    <p class="font-bold text-blue-900 mb-1 flex items-center"><i data-lucide="zap" class="w-4 h-4 mr-1"></i>一句话策略</p>
+                    <p class="text-slate-700">欧美执法均已进入落地阶段，合规成本从预期转为实质，当前数据支持回避Meta(META)与苹果(AAPL)——Meta内部文件已入证据链，苹果iCloud诉讼刚起诉；微软(MSFT)ICE争议暂属声誉层面，可作为同板块内相对安全的持有标的，但需持续监控DOJ/FTC调查进展是否蔓延至政府合同审查。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 宏观与地缘政治 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-bold text-lg text-slate-900">宏观与地缘政治</h4>
+                <span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs rounded-full font-bold">关税权力真空</span>
+            </div>
+            
+            <div class="space-y-3 text-sm text-slate-700">
+                <p>最高法院裁定特朗普原有关税政策违宪后，美国平均关税从<span class="data-point">15.4%</span>骤降至<span class="data-point">8.3%</span>。特朗普随即绕道推出为期<span class="data-point">150天</span>、税率<span class="data-point">15%</span>的全球临时关税（依据更新后的政策路径，税率已从初始10%上调），半导体供应链豁免条款尚未明确。</p>
+                
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <p class="text-xs text-slate-700">这一"裁决-补税"的政策循环意味着：关税不是在松，而是在换一种方式锁定。与此同时，路透社报道特朗普拟于<span class="data-point">3月底至4月初</span>访华，贸易休战窗口若开启，将为科技脱钩提供<span class="data-point">6-8周</span>的喘息空间——但协议内容为零、博弈结果未定，当前只能作为尾部风险缓释信号而非趋势反转依据。</p>
+                </div>
+                
+                <ul class="space-y-2 ml-4 list-disc text-slate-600 text-xs">
+                    <li>达拉斯联储主席Logan明确警告，AI驱动的商业投资热潮可能使需求持续超越供给，令美联储在当前<span class="font-bold text-slate-900">3.50%-3.75%</span>利率区间维持观望；降息预期被推后，直接拉长数据中心基建融资成本压力周期</li>
+                    <li>GDP预期从<span class="font-bold text-slate-900">4.4%</span>放缓至<span class="font-bold text-slate-900">3.0%</span>、K型复苏加剧，低收入消费者受压，消费电子终端需求将先于半导体供给侧承压</li>
+                </ul>
+
+                <div class="flex items-center justify-between p-3 bg-rose-50 rounded-xl border border-rose-200 mt-3">
+                    <div>
+                        <div class="font-bold text-rose-800 text-sm">台积电 (TSM)</div>
+                        <div class="text-xs text-rose-600 mt-1">长期利好/短期承压 | 中期</div>
+                    </div>
+                    <span class="px-2 py-1 bg-rose-200 text-rose-800 text-xs rounded font-bold">关税叠加豁免不确定，代工涨价谈判提前</span>
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-xl">
+                    <p class="font-bold text-blue-900 mb-1 flex items-center"><i data-lucide="zap" class="w-4 h-4 mr-1"></i>一句话策略</p>
+                    <p class="text-slate-700">关税路径已从"会不会"转向"怎么变"，在豁免清单明确前回避半导体代工直接采购敞口；台积电(TSM)短期承压但议价权随供给紧张上升，可在关税细则落地后分批建仓。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据中心与基础设施 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-bold text-lg text-slate-900">数据中心与基础设施</h4>
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-bold">液冷转型加速</span>
+            </div>
+            
+            <div class="space-y-3 text-sm text-slate-700">
+                <p>受云厂商CapEx激增驱动，本周最具结构性意义的信号来自冷却端：数据中心机柜功率已普遍突破<span class="data-point">30kW</span>，传统风冷的物理上限正在成为算力扩张的硬约束。格兰富报告显示，直接到芯片冷却与浸没式冷却可将数据中心综合能效提升高达<span class="data-point">15%</span>，而冷却本身已消耗数据中心总电力的<span class="data-point">30%-50%</span>。</p>
+                
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <p class="text-xs text-slate-700">Meta扩大与英伟达合作、采购<span class="opp-point">数百万颗</span>AI数据中心芯片（具体型号与金额待财报确认）一事，与其说是芯片采购新闻，不如说是一张建设工单——配套的供电与冷却基础设施、以及光学收发器（用于高速数据传输的网络硬件）升级需求同步落地。</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 my-3">
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-center">
+                        <div class="data-point text-xl">107亿美元</div>
+                        <div class="text-xs text-slate-600 mt-1">CaaS市场2033年规模</div>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-center">
+                        <div class="data-point text-xl">14.2%</div>
+                        <div class="text-xs text-slate-600 mt-1">年复合增长率</div>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mt-3">
+                    <div class="flex items-center justify-between p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                        <div>
+                            <span class="font-bold text-slate-900">英伟达 (NVDA)</span>
+                            <span class="text-xs text-slate-600 block">利好 | Meta超大规模采购确认订单可见性</span>
+                        </div>
+                        <span class="px-2 py-1 bg-emerald-200 text-emerald-800 text-xs rounded font-bold">持有</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                        <div>
+                            <span class="font-bold text-slate-900">Meta (META)</span>
+                            <span class="text-xs text-slate-600 block">长期利好/短期承压 | CapEx加速压制现金流，基建积累中期兑现</span>
+                        </div>
+                        <span class="px-2 py-1 bg-emerald-200 text-emerald-800 text-xs rounded font-bold">多空博弈</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                        <div>
+                            <span class="font-bold text-slate-900">Semtech (SMTC)</span>
+                            <span class="text-xs text-slate-600 block">利好 | 光模块互连卡位超大规模数据中心需求链</span>
+                        </div>
+                        <span class="px-2 py-1 bg-emerald-200 text-emerald-800 text-xs rounded font-bold">埋伏</span>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-xl">
+                    <p class="font-bold text-blue-900 mb-1 flex items-center"><i data-lucide="zap" class="w-4 h-4 mr-1"></i>一句话策略</p>
+                    <p class="text-slate-700">液冷与互连是CapEx热潮中最具结构性的细分卡位，等待DesignCon 2026出现具体客户披露前，可将 Semtech (SMTC) 作为观察方向；等待期间，英伟达 (NVDA) 的Meta采购订单可见性提供更高确定性的持仓依据。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 算力芯片与硬件 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-bold text-lg text-slate-900">算力芯片与硬件</h4>
+                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full font-bold">财报压力测试</span>
+            </div>
+            
+            <div class="space-y-3 text-sm text-slate-700">
+                <p>英伟达将于<span class="data-point">2026年2月25日</span>发布季度财报，这是AI大建设周期以来市场首次带着真正的质疑进入财报季——问题不再是"增长多快"，而是"钱花出去了有没有赚回来"。股价自2026年初以来的横盘本身就是一个信号：买方已将AI投资回报（ROI）的不确定性定价进去，但尚未得出结论。</p>
+                
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <p class="text-xs text-slate-700">此外，英伟达接近敲定对OpenAI约<span class="data-point">300亿美元</span>的战略投资，意在以股权绑定最大算力采购方，短期强化营收确定性。</p>
+                </div>
+
+                <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+                    <p class="text-xs text-red-700"><span class="font-bold">主要风险：</span>若财报季度营收增速或前瞻指引低于当前共识预期，将触发市场对整个AI硬件需求周期的重新定价，AMD等竞争对手短期亦难独善其身。</p>
+                </div>
+
+                <div class="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
+                    <div>
+                        <div class="font-bold text-amber-800 text-sm">英伟达 (NVDA)</div>
+                        <div class="text-xs text-amber-600 mt-1">中性 | 短期</div>
+                    </div>
+                    <span class="px-2 py-1 bg-amber-200 text-amber-800 text-xs rounded font-bold">财报前多空均衡，等待指引数据定向</span>
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-xl">
+                    <p class="font-bold text-blue-900 mb-1 flex items-center"><i data-lucide="zap" class="w-4 h-4 mr-1"></i>一句话策略</p>
+                    <p class="text-slate-700">财报落地前，英伟达不宜方向性追仓；等待期间可关注AMD——无论英伟达财报结果如何，当前AI算力需求若获确认，AMD作为第二供应商的替代价值将同步被重估。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 其他动态 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-bold text-lg text-slate-900">其他动态</h4>
+                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs rounded-full font-bold">资本绑定新范式</span>
+            </div>
+            
+            <div class="space-y-3 text-sm text-slate-700">
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-600">英伟达投资OpenAI</span>
+                        <span class="data-point text-lg">300亿美元</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-600">OpenAI本轮总融资</span>
+                        <span class="font-bold text-slate-900">逾千亿美元</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-600">OpenAI投前估值</span>
+                        <span class="data-point text-lg">7300亿美元</span>
+                    </div>
+                </div>
+                
+                <ul class="space-y-2 ml-4 list-disc text-slate-600 text-xs">
+                    <li>此笔投资独立于双方此前基础设施协议，且不附带任何部署里程碑</li>
+                    <li>关键解读：英伟达买的不是合同锁定，而是在最大单一算力客户的股权表中占据一席，<span class="font-bold text-slate-900">本质是用资本把OpenAI的扩张需求与英伟达的GPU供应链深度绑定</span></li>
+                    <li>苹果方面，西弗吉尼亚州对iCloud的CSAM（儿童性虐待材料）诉讼是本周被市场低估的尾部风险：诉讼结果难以预判，但监管扩散效应值得警惕</li>
+                    <li>CaPo多智能体框架在学术层面验证了LLM驱动具身智能体的协作可行性，是具身AI硬件需求的早期信号</li>
+                </ul>
+
+                <div class="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-slate-900">英伟达 (NVDA)</span>
+                        <span class="px-2 py-1 bg-amber-200 text-amber-800 text-xs rounded font-bold">短期利好/长期存疑</span>
+                    </div>
+                    <p class="text-xs text-slate-700">战略绑定OpenAI锁定算力订单闭环</p>
+                </div>
+
+                <div class="bg-rose-50 p-3 rounded-lg border border-rose-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-slate-900">苹果 (AAPL)</span>
+                        <span class="px-2 py-1 bg-rose-200 text-rose-800 text-xs rounded font-bold">利空</span>
+                    </div>
+                    <p class="text-xs text-slate-700">CSAM诉讼或触发多州跟进，服务业务合规成本上升</p>
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-xl">
+                    <p class="font-bold text-blue-900 mb-1 flex items-center"><i data-lucide="zap" class="w-4 h-4 mr-1"></i>一句话策略</p>
+                    <p class="text-slate-700">英伟达供应商+股东双重身份绑定OpenAI，算力订单闭环逻辑成立，当前数据支持持有英伟达(NVDA)；财报前不追高，财报后若指引超预期可加仓；风险个股：苹果(AAPL)，CSAM诉讼辩护空间收窄，等待后续法庭文件披露前规避iCloud相关监管风险敞口。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 本周焦点公司 -->
+    <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+        <h3 class="text-lg font-bold mb-4 flex items-center text-slate-900">
+            <i data-lucide="focus" class="w-5 h-5 mr-2 text-purple-600"></i>
+            本周焦点公司
+        </h3>
+        <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                <div>
+                    <div class="font-bold text-slate-900">英伟达 (NVDA)</div>
+                    <div class="text-xs text-slate-600 mt-1">涉及4个板块，7篇报道，均分 6.5，综合信号：利好</div>
+                </div>
+                <span class="px-3 py-1 bg-emerald-200 text-emerald-800 text-xs rounded-full font-bold">利好</span>
+            </div>
+            <ul class="space-y-2 text-sm text-slate-600 ml-4">
+                <li class="list-disc"><span class="font-medium text-slate-900">【AI投融资与并购】</span>NVIDIA潜在投资额高达300亿美元</li>
+                <li class="list-disc"><span class="font-medium text-slate-900">【数据中心与基础设施】</span>Meta将利用数百万颗NVIDIA AI数据中心芯片</li>
+                <li class="list-disc"><span class="font-medium text-slate-900">【算力芯片与硬件】</span>Nvidia财报发布日期为下周周三（2026-02-25）</li>
+            </ul>
+
+            <div class="flex items-center justify-between p-3 bg-rose-50 rounded-xl border border-rose-200 mt-4">
+                <div>
+                    <div class="font-bold text-slate-900">Meta (META)</div>
+                    <div class="text-xs text-slate-600 mt-1">涉及3个板块，4篇报道，均分 6.6，综合信号：利空</div>
+                </div>
+                <span class="px-3 py-1 bg-rose-200 text-rose-800 text-xs rounded-full font-bold">利空</span>
+            </div>
+            <ul class="space-y-2 text-sm text-slate-600 ml-4">
+                <li class="list-disc"><span class="font-medium text-slate-900">【大模型与AI产品】</span>这一财务战略的转变可能影响AI领域的竞争格局，尤其是对微软、谷歌和Meta等同样在AI和云服务领域大力投资的主要参与者</li>
+                <li class="list-disc"><span class="font-medium text-slate-900">【数据中心与基础设施】</span>Meta将利用数百万颗NVIDIA AI数据中心芯片</li>
+                <li class="list-disc"><span class="font-medium text-slate-900">【AI政策与监管】</span>Meta内部文件提及，Messenger默认加密后，每年约750万份儿童性虐待材料报告将无法披露</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 综合投资雷达 -->
+    <section id="radar" class="space-y-4">
+        <h3 class="text-lg font-bold flex items-center text-slate-900">
+            <i data-lucide="radar" class="w-5 h-5 mr-2 text-cyan-600"></i>
+            本周综合投资雷达
+        </h3>
+
+        <div class="space-y-3">
+            <!-- Semtech -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-bold text-slate-900">Semtech (SMTC)</span>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded font-bold">利好</span>
+                        </div>
+                        <div class="text-xs text-slate-600">光模块互连卡位超大规模数据中心需求链</div>
+                    </div>
+                    <div class="flex space-x-1 mt-1">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded inline-block">数据中心与基础设施</div>
+            </div>
+
+            <!-- 英伟达 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex-1 pr-2">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-bold text-slate-900">英伟达 (NVDA)</span>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded font-bold">利好</span>
+                        </div>
+                        <div class="text-xs text-slate-600 leading-relaxed">Meta超大规模采购确认订单可见性（短期不确定性：战略绑定OpenAI锁定算力订单闭环）</div>
+                    </div>
+                    <div class="flex space-x-1 mt-1 shrink-0">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                    </div>
+                </div>
+                <div class="flex gap-1 flex-wrap">
+                    <span class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">数据中心</span>
+                    <span class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">算力芯片</span>
+                    <span class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">其他动态</span>
+                </div>
+            </div>
+
+            <!-- 微软 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-bold text-slate-900">微软 (MSFT)</span>
+                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">中性/观望</span>
+                        </div>
+                        <div class="text-xs text-slate-600">ICE争议属声誉风险，政府云基本面暂未受损</div>
+                    </div>
+                    <div class="flex space-x-1 mt-1">
+                        <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded inline-block">AI政策与监管</div>
+            </div>
+
+            <!-- 台积电 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-bold text-slate-900">台积电 (TSM)</span>
+                            <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-xs rounded font-bold">短期承压</span>
+                        </div>
+                        <div class="text-xs text-slate-600">关税叠加豁免不确定，代工涨价谈判提前</div>
+                    </div>
+                    <div class="flex space-x-1 mt-1">
+                        <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded inline-block">宏观与地缘政治</div>
+            </div>
+
+            <!-- Meta -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-bold text-slate-900">Meta (META)</span>
+                            <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-xs rounded font-bold">利空</span>
+                        </div>
+                        <div class="text-xs text-slate-600">内部文件入证，加密产品改造不可逆</div>
+                    </div>
+                    <div class="flex space-x-1 mt-1">
+                        <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                    </div>
+                </div>
+                <div class="flex gap-1">
+                    <span class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">AI政策监管</span>
+                    <span class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">数据中心</span>
+                </div>
+            </div>
+
+            <!-- 苹果 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-bold text-slate-900">苹果 (AAPL)</span>
+                            <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-xs rounded font-bold">利空</span>
+                        </div>
+                        <div class="text-xs text-slate-600">iCloud儿童安全诉讼触发合规改造成本</div>
+                    </div>
+                    <div class="flex space-x-1 mt-1">
+                        <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                    </div>
+                </div>
+                <div class="flex gap-1">
+                    <span class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">AI政策监管</span>
+                    <span class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">其他动态</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 方法论说明 -->
+    <section class="bg-slate-50 rounded-2xl p-5 shadow-sm border border-slate-200">
+        <h3 class="text-lg font-bold mb-4 flex items-center text-slate-900">
+            <i data-lucide="clipboard-list" class="w-5 h-5 mr-2 text-slate-600"></i>
+            方法论说明
+        </h3>
+        
+        <div class="space-y-4 text-xs text-slate-600">
+            <div>
+                <h4 class="font-bold text-slate-900 mb-2">信源分级</h4>
+                <ul class="space-y-1 ml-4 list-disc">
+                    <li><span class="font-bold">Tier 1 (T1)</span>：Bloomberg、Reuters、WSJ、FT、CNBC、SEC.gov、公司官方公告、Nature/Science</li>
+                    <li><span class="font-bold">Tier 2 (T2)</span>：The Information、TechCrunch、SemiAnalysis、IEEE Spectrum、专业行业媒体</li>
+                    <li><span class="font-bold">Tier 3 (T3)</span>：聚合网站、个人博客、社交媒体、未署名分析</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-slate-900 mb-2">事件评分 (0-10分)</h4>
+                <ul class="space-y-1 ml-4 list-disc">
+                    <li><span class="font-bold">7-8分</span>：重大突破/并购/政策转折 (+信源加成)</li>
+                    <li><span class="font-bold">5-6分</span>：有数据支撑的产品发布/行业分析</li>
+                    <li><span class="font-bold">3-4分</span>：常规更新/缺乏独立验证的报道</li>
+                    <li>非Tier 1且非High可信度文章，得分上限为7.5分</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-slate-900 mb-2">综合雷达评级</h4>
+                <ul class="space-y-1 ml-4 list-disc">
+                    <li><span class="font-bold">强力看多/利好/谨慎看多</span>：多板块一致正面信号</li>
+                    <li><span class="font-bold">多空博弈</span>：不同板块给出矛盾信号</li>
+                    <li><span class="font-bold">短期承压/利空</span>：负面信号主导</li>
+                    <li><span class="font-bold">中性/观望</span>：信号不足以支撑方向性判断</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="text-center text-xs text-slate-400 pt-8 pb-4">
+        <p>AI 行业周报 (2026-02-23 15:32)</p>
+    </footer>
+
+</main>
+
+<script>
+    lucide.createIcons();
+    
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+</body>
+</html>
