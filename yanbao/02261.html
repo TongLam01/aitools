@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 行业周报 · 2026-02-26</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #f0f3fa;
+    --surface3: #e8edf7;
+    --accent: #3b5bdb;
+    --accent2: #7950f2;
+    --accent-light: #eef2ff;
+    --green: #0ca678;
+    --green-light: #e6f8f3;
+    --red: #e03131;
+    --red-light: #fff0f0;
+    --yellow: #e67700;
+    --yellow-light: #fff8e6;
+    --orange: #d9480f;
+    --orange-light: #fff4ee;
+    --text: #1a1f36;
+    --text-muted: #4a5272;
+    --text-dim: #8892b0;
+    --border: #e2e8f4;
+    --border-strong: #c8d3ea;
+    --card-shadow: 0 2px 12px rgba(59,91,219,0.07);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    padding-bottom: 60px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #3b5bdb 0%, #5a3fcf 100%);
+    padding: 32px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -50px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -20px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .header h1 em {
+    font-style: normal;
+    background: rgba(255,255,255,0.22);
+    border-radius: 4px;
+    padding: 0 4px;
+  }
+  .header-meta {
+    color: rgba(255,255,255,0.72);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .temp-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.13);
+    border-radius: 10px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+  }
+  .temp-label { font-size: 12px; color: rgba(255,255,255,0.75); flex-shrink: 0; }
+  .temp-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+  .pill-green { background: rgba(12,166,120,0.25); color: #52e3be; border: 1px solid rgba(82,227,190,0.35); }
+  .pill-red { background: rgba(255,255,255,0.15); color: #ffb3b3; border: 1px solid rgba(255,179,179,0.3); }
+  .pill-yellow { background: rgba(255,255,255,0.12); color: #ffd87a; border: 1px solid rgba(255,216,122,0.3); }
+
+  /* ── Container ── */
+  .container { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+
+  /* ── Section ── */
+  .section { margin-top: 28px; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-strong);
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .card-body { font-size: 13.5px; color: var(--text-muted); line-height: 1.75; }
+
+  /* ── Verdict ── */
+  .verdict {
+    background: linear-gradient(135deg, var(--accent-light), #f3eeff);
+    border: 1.5px solid #c5d0ff;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+  .verdict-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .verdict-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ── Event cards ── */
+  .event-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    border-left: 4px solid;
+    box-shadow: var(--card-shadow);
+    position: relative;
+  }
+  .event-score {
+    position: absolute;
+    top: 14px; right: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+  }
+  .event-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .event-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    padding-right: 50px;
+    line-height: 1.45;
+  }
+  .event-body { font-size: 13px; color: var(--text-muted); line-height: 1.72; }
+
+  /* ── Chain / Three-stage ── */
+  .chain {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
+  }
+  .chain-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chain-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .chain-step-content {
+    flex: 1;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+  .chain-step-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .chain-step-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .chain-arrow {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 20px;
+    padding: 6px 0;
+    line-height: 1;
+    font-weight: 700;
+  }
+  .chain-insight {
+    margin-top: 14px;
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+  .chain-insight strong { color: var(--accent); }
+
+  /* ── Strategy matrix ── */
+  .matrix-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 10px;
+    box-shadow: var(--card-shadow);
+  }
+  .matrix-row {
+    display: flex;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .matrix-row:last-child { border-bottom: none; }
+  .matrix-key {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-width: 72px;
+    flex-shrink: 0;
+    padding-top: 1px;
+    line-height: 1.5;
+  }
+  .matrix-val { font-size: 13px; color: var(--text-muted); line-height: 1.7; flex: 1; }
+  .matrix-val strong { color: var(--text); }
+
+  /* ── Direction Guide ── */
+  .guide-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 10px;
+    box-shadow: var(--card-shadow);
+  }
+  .guide-header {
+    background: var(--surface2);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .guide-title { font-size: 13px; font-weight: 700; color: var(--text); }
+  .guide-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+  .badge-green { background: var(--green-light); color: var(--green); border: 1px solid rgba(12,166,120,0.2); }
+  .badge-yellow { background: var(--yellow-light); color: var(--yellow); border: 1px solid rgba(230,119,0,0.2); }
+  .badge-red { background: var(--red-light); color: var(--red); border: 1px solid rgba(224,49,49,0.2); }
+  .badge-neutral { background: var(--surface3); color: var(--text-dim); border: 1px solid var(--border); }
+  
+  .guide-body {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.75;
+  }
+  .guide-meta {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* ── Detail sections ── */
+  .detail-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .detail-header {
+    background: var(--surface2);
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-header-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    display: block;
+  }
+  .detail-header h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .detail-body { padding: 16px 18px; }
+
+  /* ── Sub events ── */
+  .sub-event {
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 12px;
+    background: var(--surface2);
+    border-left: 3px solid;
+  }
+  .sub-event:last-of-type { margin-bottom: 0; }
+  .sub-event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .sub-event-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+    padding-right: 8px;
+    line-height: 1.45;
+  }
+  .sub-event-score {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .sub-event-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.72;
+  }
+
+  /* ── Signal strength ── */
+  .signal-dots {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border-strong);
+  }
+  .dot.active { background: var(--accent); }
+  .dot.green { background: var(--green); }
+  .dot.yellow { background: var(--yellow); }
+  .dot.red { background: var(--red); }
+
+  /* ── Collapsible ── */
+  details { margin-bottom: 10px; }
+  details summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    user-select: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after {
+    content: '＋';
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  details[open] summary::after { content: '－'; }
+  details[open] summary {
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    border-bottom-color: transparent;
+  }
+  .details-body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.78;
+  }
+
+  /* ── Nav ── */
+  .nav-anchor {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+  }
+  .nav-chip {
+    font-size: 11px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: 0 1px 4px rgba(59,91,219,0.06);
+  }
+
+  /* ── Highlight utils ── */
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-yellow { color: var(--yellow); font-weight: 600; }
+  .strong { color: var(--text); font-weight: 600; }
+
+  /* ── Legend ── */
+  .legend-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  /* ── Methodology ── */
+  .method-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 480px) {
+    body { font-size: 14px; }
+    .header h1 { font-size: 17px; }
+    .legend-grid { grid-template-columns: 1fr; }
+    .matrix-key { min-width: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="header">
+  <div class="header-tag">AI 行业周报 · 2026-02-26</div>
+  <h1>"卖铲子"逻辑获最强确认，<em>定价权</em>正从一家独占走向两家分享</h1>
+  <div class="header-meta">
+    <span>📅 2026-02-26 12:58</span>
+    <span>基建大干快上、应用刚开始砍成本</span>
+  </div>
+  <div class="temp-bar">
+    <span class="temp-label">市场温度</span>
+    <div class="temp-pills">
+      <span class="pill pill-green">▲ 利好 26%</span>
+      <span class="pill pill-red">▼ 利空 22%</span>
+      <span class="pill pill-yellow">⏳ 多空分化</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── NAV ── -->
+  <div class="nav-anchor">
+    <span class="nav-chip" onclick="document.getElementById('verdict').scrollIntoView({behavior:'smooth'})">📍 本周研判</span>
+    <span class="nav-chip" onclick="document.getElementById('signals').scrollIntoView({behavior:'smooth'})">🔥 三大信号</span>
+    <span class="nav-chip" onclick="document.getElementById('chains').scrollIntoView({behavior:'smooth'})">🔗 传导推演</span>
+    <span class="nav-chip" onclick="document.getElementById('matrix').scrollIntoView({behavior:'smooth'})">🎯 方向总览</span>
+    <span class="nav-chip" onclick="document.getElementById('guides').scrollIntoView({behavior:'smooth'})">📋 赛道指引</span>
+    <span class="nav-chip" onclick="document.getElementById('details').scrollIntoView({behavior:'smooth'})">📊 板块分析</span>
+  </div>
+
+  <!-- ══════════ VERDICT ══════════ -->
+  <div id="verdict" class="section">
+    <div class="section-title">本周研判</div>
+
+    <div class="verdict">
+      <div class="verdict-label">🎯 核心判断</div>
+      <div class="verdict-text">AI产业处于<span class="hl">"基建大干快上、应用刚开始砍成本"</span>的阶段。上游卖铲子的确定性最高，但铲子供应商从一家变成两家，定价权开始松动。投资者应把注意力从"谁的芯片最强"转向<span class="hl">"芯片之外谁在卡脖子"</span>——电力、散热、内存正成为新的紧约束。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">产业全景 · 上热下冷结构</div>
+      <div class="card-body">
+        上游基建端有<span class="strong">6500亿美元</span>年度资本开支（CapEx，即花在建设和设备上的钱）和<span class="strong">10吉瓦级</span>电力签约负荷做支撑，订单能见度极高；下游应用端的价值兑现路径却是"裁掉更多人"——WiseTech一次性裁员29%、印度IT板块单月蒸发686亿美元市值。<br><br>
+        这种<span class="hl-yellow">"建设确定、回报待验"</span>的格局，与2000年前后电信运营商大规模铺光纤的阶段高度相似：铺设环节的公司赚到了真金白银，但最终谁能靠光纤赚钱，花了好几年才见分晓。
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TOP 3 SIGNALS ══════════ -->
+  <div id="signals" class="section">
+    <div class="section-title">本周三大趋势信号</div>
+
+    <div class="event-card" style="border-left-color:var(--green);">
+      <div class="event-score">信号强度：强</div>
+      <div class="event-tag" style="color:var(--green);">算力供需与竞争格局</div>
+      <div class="event-title">AI芯片"双供应商"格局正式成立</div>
+      <div class="event-body">
+        AMD一个月内连拿OpenAI和Meta两份超大单，总潜在价值超千亿美元，意味着下游巨头正在主动打破英伟达的独占局面。<br><br>
+        <span class="strong">投资含义：</span>AMD进入份额爬坡期值得关注，而英伟达的业绩虽强但股价弹性将更多取决于竞争格局而非单纯超预期。
+      </div>
+    </div>
+
+    <div class="event-card" style="border-left-color:var(--accent);">
+      <div class="event-score">信号强度：强</div>
+      <div class="event-tag" style="color:var(--accent);">产能瓶颈与供应链重构</div>
+      <div class="event-title">产业瓶颈从"造芯片"扩散到"给芯片供电和散热"</div>
+      <div class="event-body">
+        南方公司10吉瓦签约负荷、亚马逊120亿美元数据中心投资、液冷市场<span class="strong">14.2%</span>复合增长率——这些数据共同指向：电力和散热正在成为比芯片本身更紧迫的约束。<br><br>
+        <span class="strong">投资含义：</span>这是容易被忽略的间接受益方向，确定性高于多数芯片环节。
+      </div>
+    </div>
+
+    <div class="event-card" style="border-left-color:var(--yellow);">
+      <div class="event-score">信号强度：中</div>
+      <div class="event-tag" style="color:var(--yellow);">AI商业化落地与价值验证</div>
+      <div class="event-title">AI商业化的第一波价值兑现是"替代人力"而非"创造收入"</div>
+      <div class="event-body">
+        企业级AI Agent和流程自动化工具是这一趋势的直接受益赛道，传统IT外包则面临结构性压力。OpenAI与四大咨询巨头组建联盟加速企业渗透，验证了需求端正在从试点转向规模化部署。
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ CHAINS ══════════ -->
+  <div id="chains" class="section">
+    <div class="section-title">🌟 产业链传导与前瞻推演</div>
+
+    <!-- Chain 1 -->
+    <div class="chain">
+      <div class="chain-title">
+        <span style="background:var(--accent-light);color:var(--accent);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">1</span>
+        链条一：双供应商格局确立 → 芯片端定价权松动 → 封装和内存环节议价能力反升
+      </div>
+
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:var(--accent-light);color:var(--accent);">①</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">一阶 · 直接</div>
+          AMD连拿OpenAI、Meta两大订单，从"备选方案"升级为战略平级供应商，打破英伟达独占格局
+        </div>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:#f3eeff;color:var(--accent2);">②</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">二阶 · 传导</div>
+          英伟达在下一代产品上的提价空间将被压缩；AMD的EPYC（服务器CPU产品线）和定制芯片业务也将获得交叉销售机会
+        </div>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:var(--yellow-light);color:var(--yellow);">③</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">三阶 · 终局</div>
+          两家GPU厂商同时扩产，意味着对先进封装和HBM（高带宽内存，AI芯片高速运算时必需的配套存储芯片）的总需求只增不减，这两个环节的供应商议价能力反而增强
+        </div>
+      </div>
+
+      <div class="chain-insight">
+        <strong>💡 通俗解读：</strong>以前餐厅只有一家食材供应商，想涨价就涨价；现在有了第二家，餐厅能压价了。但两家供应商同时扩产，都需要更多的包装盒和冷链运输——这些配套环节反而变得更紧俏、更有定价权。
+      </div>
+    </div>
+
+    <!-- Chain 2 -->
+    <div class="chain">
+      <div class="chain-title">
+        <span style="background:var(--red-light);color:var(--red);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">2</span>
+        链条二：芯片散热难度上升（BPDN工艺挑战） → 数据中心液冷渗透加速 → 电力基建投资周期拉长
+      </div>
+
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:var(--red-light);color:var(--red);">①</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">一阶 · 直接</div>
+          2纳米节点的BPDN（背面供电网络，一种将供电线路移到芯片背面以提升性能的新工艺）带来对准精度和散热难题，成为未来两到三年先进芯片量产的实际卡点
+        </div>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:var(--yellow-light);color:var(--yellow);">②</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">二阶 · 传导</div>
+          新一代芯片像一台越来越烫的发动机，光靠风扇已经不够，需要水冷系统。冷却能耗占数据中心总用电的30%-50%，液冷及CaaS（冷却即服务，按需提供数据中心散热解决方案的商业模式）市场预计到2033年达107亿美元
+        </div>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:#f3eeff;color:var(--accent2);">③</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">三阶 · 终局</div>
+          而水冷系统本身也要用电，数据中心的总用电量因此进一步飙升，电力公司不得不持续加码投资。这是一条从芯片技术难题传导到公用事业投资的跨行业链条
+        </div>
+      </div>
+
+      <div class="chain-insight">
+        <strong>📈 投资解读：</strong>数据中心电力基建是当前AI产业链中订单确定性最高的环节；液冷散热弹性最大但格局分散，需精选。
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ STRATEGY MATRIX ══════════ -->
+  <div id="matrix" class="section">
+    <div class="section-title">投资方向总览</div>
+
+    <div class="matrix-card">
+      <div class="matrix-row" style="background:var(--green-light);">
+        <div class="matrix-key" style="color:var(--green);">看好的方向</div>
+        <div class="matrix-val">
+          <strong>1) 数据中心电力与散热</strong> — 10吉瓦级订单锁定，最不依赖AI应用兑现的环节<br>
+          <strong>2) AMD GPU及定制芯片</strong> — 份额拐点确认，600亿美元级长单提供营收能见度<br>
+          <strong>3) 企业级AI Agent与自动化工具</strong> — AI替代人力的第一波受益方向，渗透率正从试点转向规模化
+        </div>
+      </div>
+      <div class="matrix-row" style="background:var(--red-light);">
+        <div class="matrix-key" style="color:var(--red);">需谨慎的方向</div>
+        <div class="matrix-val">
+          <strong>1) 高杠杆传统软件公司</strong> — AI替代威胁叠加融资成本上升形成双杀，违约率可能上升3%-5%<br>
+          <strong>2) 对华AI芯片出口敞口</strong> — 执行层实质阻断，3月底中美峰会前宜回避
+        </div>
+      </div>
+      <div class="matrix-row" style="background:var(--yellow-light);">
+        <div class="matrix-key" style="color:var(--yellow);">本周关键矛盾</div>
+        <div class="matrix-val">
+          英伟达业绩超预期 vs. 定价权被稀释。站AMD受益侧——下游客户培育第二供应源是不可逆的战略选择，总量增长会掩盖份额流失但利润率压力将逐步显现。
+        </div>
+      </div>
+      <div class="matrix-row">
+        <div class="matrix-key">微弱但重要的<br>早期信号</div>
+        <div class="matrix-val">
+          1) 英伟达拟300亿美元入股OpenAI：芯片商变身客户股东，若落地意味AI生态走向封闭垂直整合，独立AI公司融资空间将被挤压<br>
+          2) 中国AI技术栈出海：能源成本优势正转化为部署成本优势，新兴市场渗透可能被严重低估，关注东南亚和中东部署数据
+        </div>
+      </div>
+    </div>
+
+    <!-- Future Catalysts -->
+    <div class="card">
+      <div class="card-title">⏰ 未来2-4周关注窗口</div>
+      <div class="card-body" style="font-size:13px;">
+        <div style="margin-bottom:8px;"><span class="strong" style="color:var(--red);">3月中旬</span> — 中美峰会行程及议题确认 — 若半导体被列入议程则对华敞口标的存在修复窗口</div>
+        <div style="margin-bottom:8px;"><span class="strong" style="color:var(--yellow);">3月底至4月初</span> — 印度IT巨头季度指引 — 若订单未实质下滑则686亿美元市值蒸发存在反弹机会</div>
+        <div><span class="strong" style="color:var(--accent);">4月FOMC会议</span> — 通胀措辞变化 — 若暗示年内不降息则AI成长股估值承压加剧</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SECTOR GUIDES ══════════ -->
+  <div id="guides" class="section">
+    <div class="section-title">本周综合方向指引（赛道/方向级）</div>
+    
+    <div class="guide-card">
+      <div class="guide-header">
+        <div class="guide-title">AI数据中心基础设施（电力+建设）</div>
+        <div class="guide-badge badge-green">看好</div>
+      </div>
+      <div class="guide-body">
+        <div style="margin-bottom:8px;"><span class="hl">信号强度：</span>●●●●</div>
+        <div style="margin-bottom:8px;"><span class="hl">核心逻辑：</span>10吉瓦级签约负荷已落地，订单可见度高，但利润兑现滞后</div>
+        <div><span class="hl">验证节点：</span>头部云厂商下季财报是否单独披露散热相关资本开支</div>
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-header">
+        <div class="guide-title">半导体设备（EUV）</div>
+        <div class="guide-badge badge-green">看好</div>
+      </div>
+      <div class="guide-body">
+        <div style="margin-bottom:8px;"><span class="hl">信号强度：</span>●●●●</div>
+        <div style="margin-bottom:8px;"><span class="hl">核心逻辑：</span>ASML公布EUV光源关键突破（光源功率从600瓦提升至1000瓦），预计到2030年单台设备晶圆处理量从每小时220片升至330片，产量最高提升50%。长期产能扩张的核心受益环节</div>
+        <div><span class="hl">时间窗口：</span>1年以上（最早受益窗口在2028年之后）</div>
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-header">
+        <div class="guide-title">AMD GPU及定制芯片</div>
+        <div class="guide-badge badge-green">看好</div>
+      </div>
+      <div class="guide-body">
+        <div style="margin-bottom:8px;"><span class="hl">信号强度：</span>●●●●</div>
+        <div style="margin-bottom:8px;"><span class="hl">核心逻辑：</span>两份超大单锁定长期营收可见性，市场份额拐点已确认。与Meta达成五年期协议，潜在价值高达600亿美元，Meta可认购AMD最多10%股份，并包含定制CPU采购条款</div>
+        <div><span class="hl">验证节点：</span>AMD 2026年下半年数据中心收入是否出现跳跃式增长</div>
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-header">
+        <div class="guide-title">AI Agent与企业工具链</div>
+        <div class="guide-badge badge-green">看好</div>
+      </div>
+      <div class="guide-body">
+        <div style="margin-bottom:8px;"><span class="hl">信号强度：</span>●●●●</div>
+        <div style="margin-bottom:8px;"><span class="hl">核心逻辑：</span>企业AI预算正从人力外包转向工具采购，OpenAI与BCG、麦肯锡、埃森哲、凯捷四大咨询巨头组建"前沿联盟"，将工程师直接嵌入咨询团队</div>
+        <div><span class="hl">受损方：</span>传统IT外包服务商（TCS、Infosys等）</div>
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-header">
+        <div class="guide-title">HBM内存</div>
+        <div class="guide-badge badge-green">看好</div>
+      </div>
+      <div class="guide-body">
+        <div style="margin-bottom:8px;"><span class="hl">信号强度：</span>●●●●</div>
+        <div style="margin-bottom:8px;"><span class="hl">核心逻辑：</span>双供应商扩产叠加内存短缺预警，供需缺口可能超预期持续。HBM内存和先进封装是"双供应商"格局下确定性受益的环节，需求只增不减</div>
+        <div><span class="hl">时间窗口：</span>6-12个月</div>
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-header">
+        <div class="guide-title">英伟达AI训练芯片</div>
+        <div class="guide-badge badge-yellow">谨慎乐观</div>
+      </div>
+      <div class="guide-body">
+        <div style="margin-bottom:8px;"><span class="hl">信号强度：</span>●●●○</div>
+        <div style="margin-bottom:8px;"><span class="hl">核心逻辑：</span>需求强劲但定价权开始被稀释，业绩共识化后股价弹性收窄。财报超预期并给出乐观指引，但期权市场隐含的财报后波动率仅5.6%，为三年最低</div>
+        <div><span class="hl">风险：</span>若Blackwell Ultra架构性能未拉开代际差距，客户可能回归单一供应商路径</div>
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-header">
+        <div class="guide-title">美国本土算力基建</div>
+        <div class="guide-badge badge-yellow">谨慎乐观</div>
+      </div>
+      <div class="guide-body">
+        <div style="margin-bottom:8px;"><span class="hl">信号强度：</span>●●●○</div>
+        <div style="margin-bottom:8px;"><span class="hl">核心逻辑：</span>关税推高进口设备成本，但政策鼓励本土化建设，两力对冲</div>
+        <div><span class="hl">代表标的：</span>英特尔(INTC)</div>
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-header">
+        <div class="guide-title">对华AI芯片出口与营收敞口</div>
+        <div class="guide-badge badge-red">回避</div>
+      </div>
+      <div class="guide-body">
+        <div style="margin-bottom:8px;"><span class="hl">信号强度：</span>●</div>
+        <div style="margin-bottom:8px;"><span class="hl">核心逻辑：</span>执行层安全审查形成实质阻断，合规渠道短期无法打通。美国商务部官员直接证实，英伟达(NVDA)迄今未向中国客户交付任何一颗H200芯片——尽管特朗普政府此前已原则上批准有条件销售</div>
+        <div><span class="hl">时间窗口：</span>6-12个月（2026年下半年前大概率维持封闭）</div>
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-header">
+        <div class="guide-title">高杠杆传统软件公司</div>
+        <div class="guide-badge badge-red">回避</div>
+      </div>
+      <div class="guide-body">
+        <div style="margin-bottom:8px;"><span class="hl">信号强度：</span>●</div>
+        <div style="margin-bottom:8px;"><span class="hl">核心逻辑：</span>AI替代威胁叠加融资成本上升，违约风险实质性上行。瑞银预测AI冲击可能导致杠杆贷款市场违约率在未来两年内增加3%至5%</div>
+        <div><span class="hl">观察指标：</span>Qualtrics计划筹集的53亿美元融资被市场视为当前情绪的试金石</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ DETAIL SECTIONS ══════════ -->
+  <div id="details" class="section">
+    <div class="section-title">详细板块分析</div>
+
+    <!-- ── Macro ── -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--red);">🌐 宏观与地缘政治</span>
+        <h2>关税与司法博弈叠加，AI投资的外部环境进入"顺风减弱、逆风增多"阶段</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--red);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">特朗普将全球关税上调至15%</div>
+            <div class="sub-event-score">T1</div>
+          </div>
+          <div class="sub-event-body">
+            最高法院裁定其此前关税政策违法（美国平均关税从15.4%降至8.3%）后，特朗普通过行政手段重新锁定15%关税基线（150天期限，豁免航空航天与药品）。本质上是用行政手段对冲司法约束。
+          </div>
+        </div>
+
+        <div class="sub-event" style="border-left-color:var(--yellow);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">3月底访华博弈与货币政策微妙警示</div>
+            <div class="sub-event-score">T1</div>
+          </div>
+          <div class="sub-event-body">
+            特朗普计划3月31日至4月2日访华，半导体供应链和芯片出口管制预计是核心议题。达拉斯联储主席Logan指出：AI驱动的商业投资虽然是积极因素，但可能导致需求超过供给，使通胀控制复杂化。前纽约联储主席Dudley警告AI生产率预期不构成提前降息的理由。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Supply Chain ── -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--accent);">🏭 产能瓶颈与供应链重构</span>
+        <h2>AI芯片制造的"远期松绑"与"近期卡脖子"同时浮现</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--green);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">ASML公布EUV光源关键突破</div>
+            <div class="sub-event-score">8.5 · T1</div>
+          </div>
+          <div class="sub-event-body">
+            光源功率从600瓦提升至1000瓦，预计到2030年单台设备晶圆处理量从每小时220片升至330片，产量最高提升50%。趋势含义：先进制程的设备端产能天花板被实质性抬高，但从技术公告到量产落地仍需经历工程化验证和良率爬坡，最早受益窗口在2028年之后。
+          </div>
+        </div>
+
+        <div class="sub-event" style="border-left-color:var(--accent);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">背面供电网络成为2纳米节点新瓶颈</div>
+            <div class="sub-event-score">6.5 · T2</div>
+          </div>
+          <div class="sub-event-body">
+            核心数据：纳米硅通孔与正面晶体管对准容差约3纳米，硅衬底减薄后散热路径受阻。英特尔(INTC)、三星、台积电(TSM)均面临该工艺挑战，2纳米产能爬坡节奏大概率慢于市场预期，减薄设备和新型散热材料成为隐性需求增量。
+          </div>
+        </div>
+
+        <div class="sub-event" style="border-left-color:var(--green);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">南方公司上调五年资本开支至810亿美元</div>
+            <div class="sub-event-score">7.5 · T1</div>
+          </div>
+          <div class="sub-event-body">
+            资本开支上调7%至约810亿美元，已与谷歌、Meta、微软签约合计10吉瓦大型负荷。趋势含义：AI算力需求已穿透芯片层直接冲击电网，公用事业公司进入"高投入、利润滞后"的重资本周期，短期盈利承压但长期订单可见度极高。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Competition ── -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--green);">⚔️ 算力供需与竞争格局</span>
+        <h2>AI芯片市场从"一超独霸"正式进入"双供应商"时代</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--green);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">AMD与Meta达成五年期AI芯片供应协议</div>
+            <div class="sub-event-score">8.5 · T1</div>
+          </div>
+          <div class="sub-event-body">
+            协议潜在价值高达600亿美元，Meta可认购AMD最多10%股份，并包含定制CPU（中央处理器）采购条款。这是继OpenAI之后第二家顶级AI客户将AMD提升至主力供应商地位。股权绑定条款意味着这不是一次性采购，而是长期战略押注——下游客户正在主动培育第二供应源以制衡英伟达的议价能力。
+          </div>
+        </div>
+
+        <div class="sub-event" style="border-left-color:var(--yellow);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">英伟达拟向OpenAI投资约300亿美元</div>
+            <div class="sub-event-score">早期信号</div>
+          </div>
+          <div class="sub-event-body">
+            芯片供应商变身客户股东，是一种全新的生态绑定模式。如果这一交易落地，意味着英伟达正试图用资本纽带锁定关键客户，对冲AMD在商业合同层面的突破。若交易落地，OpenAI估值将达7300亿美元。需关注微软和谷歌是否采取对等反应。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Commercialization ── -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--orange);">💼 AI商业化落地与价值验证</span>
+        <h2>AI替代效应正从"市场恐慌"转向"企业行动"</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--red);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">WiseTech Global宣布裁员约2000人</div>
+            <div class="sub-event-score">T1</div>
+          </div>
+          <div class="sub-event-body">
+            占全球员工的29%，裁员覆盖产品、开发和客户服务三大部门，战略重心全面转向AI自动化——这是迄今澳大利亚规模最大的AI相关裁员。
+          </div>
+        </div>
+
+        <div class="sub-event" style="border-left-color:var(--red);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">印度IT板块单月蒸发686亿美元</div>
+            <div class="sub-event-score">T1</div>
+          </div>
+          <div class="sub-event-body">
+            Nifty IT指数走向近23年最差月度表现，市场正在对AI压缩项目周期、颠覆人力外包模式进行预期定价。主要风险：如果印度IT巨头（TCS、Infosys等）下季度业绩指引并未出现订单或人员规模的实质性下滑，当前市值蒸发可能被证明是过度恐慌，板块存在反弹可能。
+          </div>
+        </div>
+
+        <div class="sub-event" style="border-left-color:var(--green);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">OpenAI与四大咨询巨头组建"前沿联盟"</div>
+            <div class="sub-event-score">T1</div>
+          </div>
+          <div class="sub-event-body">
+            与BCG、麦肯锡、埃森哲、凯捷合作，将工程师直接嵌入咨询团队，目标是帮助企业把AI从实验项目推进到核心业务流程。这一模式如果跑通，最直接的受益方是企业级AI Agent（智能代理，能自动执行复杂任务的AI工具）平台和流程自动化工具。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Regulation ── -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--red);">⚖️ 监管演进与合规风险</span>
+        <h2>对华芯片出口管制从"政策松动"走向"执行锁死"</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--red);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">对华AI芯片出口实质阻断</div>
+            <div class="sub-event-score">T1</div>
+          </div>
+          <div class="sub-event-body">
+            路透社援引美国商务部官员直接证实，英伟达(NVDA)迄今未向中国客户交付任何一颗H200芯片——尽管特朗普政府此前已原则上批准有条件销售。安全审查机制构成了事实上的发货封锁，同时芯片走私已被列为重点执法方向。对于英伟达而言，中国曾贡献其约20%的数据中心收入，这一渠道的持续封闭将迫使其更加依赖美国及盟国市场的增量需求来消化产能。
+          </div>
+        </div>
+
+        <div class="sub-event" style="border-left-color:var(--yellow);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">Meta与苹果儿童安全诉讼进入关键阶段</div>
+            <div class="sub-event-score">6.75 · T1</div>
+          </div>
+          <div class="sub-event-body">
+            Meta内部文件显示Messenger默认加密（E2EE，即信息在发送和接收端之间全程加密、平台本身也无法读取的技术）后，每年约750万份儿童性虐待材料报告将无法披露；西弗吉尼亚州2月19日起诉苹果；扎克伯格已出庭作证。这类诉讼的实质影响不在罚款金额，而在于可能迫使平台在加密架构设计上做出妥协，推高产品合规成本。
+          </div>
+        </div>
+
+        <div class="sub-event" style="border-left-color:var(--yellow);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">全球监管"合围"云平台</div>
+            <div class="sub-event-score">T1</div>
+          </div>
+          <div class="sub-event-body">
+            日本公平交易委员会突击检查微软日本，调查Azure云平台是否通过合同条款限制企业客户使用竞品服务；加州总检察长正寻求对亚马逊(AMZN)发出初步禁令。英国CMA、欧盟及美国监管机构也在同期审查云计算市场——全球监管对科技巨头平台权力的审视已从"各自为政"进入"多线并进"阶段。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Model Evolution ── -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--accent2);">🧠 模型能力演进与范式转移</span>
+        <h2>规模定律仍在主导，但"全栈化"方向开始分流资源</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--accent);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">OpenAI将2030年资本开支目标修订至约6000亿美元</div>
+            <div class="sub-event-score">T1</div>
+          </div>
+          <div class="sub-event-body">
+            这一数字隐含的假设是：Scaling Law（规模定律，即模型越大、数据越多、AI越聪明的经验规律）至少在未来五年内不会失效，否则不可能押注如此体量的资金。
+          </div>
+        </div>
+
+        <div class="sub-event" style="border-left-color:var(--yellow);">
+          <div class="sub-event-header">
+            <div class="sub-event-title">哈佛大学全栈综述显示系统性瓶颈</div>
+            <div class="sub-event-score">T2</div>
+          </div>
+          <div class="sub-event-body">
+            覆盖275篇以上论文的综述显示，生成式AI的应用已从软件层延伸到芯片物理设计层，但也暴露出五大系统性瓶颈，包括反馈循环危机和隐性知识难以编码等问题。这意味着：单纯"堆算力"的粗放路线正在遇到工程复杂度的天花板，未来的突破越来越依赖软硬件协同设计能力。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Niche Opportunities ── -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--green);">💡 冷门机会提示</span>
+        <h2>液冷散热系统：间接受益方向的确定性</h2>
+      </div>
+      <div class="detail-body" style="font-size:13px; color:var(--text-muted); line-height:1.75;">
+        液冷散热系统是本周数据中一个容易被忽略的间接受益方向。冷却能耗占数据中心总用电的30%-50%，而2纳米BPDN工艺带来的散热挑战正在从芯片端倒逼散热方案升级。<br><br>
+        市场预计液冷及CaaS（冷却即服务）到2033年达107亿美元，复合增长率14.2%。这个赛道不在AI主叙事的聚光灯下，但受益逻辑清晰且不依赖AI应用端的收入兑现——属于<span class="strong">"不管谁挖到金子，卖水的人都能赚钱"</span>的位置。<br><br>
+        <span class="hl">主要风险：</span>行业格局较分散，需关注头部云厂商下季财报是否单独披露散热开支。
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ METHODOLOGY ══════════ -->
+  <div class="section">
+    <div class="section-title">方法论说明</div>
+    <div class="method-card">
+      <div style="font-weight:700; margin-bottom:8px; color:var(--text);">信源分级</div>
+      <div style="margin-bottom:12px;">
+        <span class="strong">Tier 1 (T1)：</span>Bloomberg、Reuters、WSJ、FT、CNBC、SEC.gov、公司官方公告、Nature/Science<br>
+        <span class="strong">Tier 2 (T2)：</span>The Information、TechCrunch、SemiAnalysis、IEEE Spectrum、专业行业媒体<br>
+        <span class="strong">Tier 3 (T3)：</span>聚合网站、个人博客、社交媒体、未署名分析
+      </div>
+      
+      <div style="font-weight:700; margin-bottom:8px; color:var(--text);">事件评分（0-10分）</div>
+      <div style="margin-bottom:12px;">
+        7-8分：重大突破/并购/政策转折（+信源加成）<br>
+        5-6分：有数据支撑的产品发布/行业分析<br>
+        3-4分：常规更新/缺乏独立验证的报道<br>
+        非Tier 1且非高可信度文章，得分上限为7.5分
+      </div>
+
+      <div style="font-weight:700; margin-bottom:8px; color:var(--text);">综合方向指引评级</div>
+      <div>
+        看好/谨慎乐观：多个趋势主题的数据一致指向正面方向<br>
+        中性观望：信号不足或方向不明确<br>
+        谨慎/回避：负面信号主导或风险收益比不佳<br>
+        <em>注：方向指引中提及的具体公司仅作为该方向的代表性参考，不构成买入建议。</em>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div style="margin-top:40px;padding:24px 20px;text-align:center;border-top:1px solid var(--border);background:var(--surface);">
+  <div style="font-size:11px;color:var(--text-dim);line-height:2;">
+    AI 行业周报 · 2026-02-26 <br>
+    <span style="color:var(--accent);font-weight:600;">关键节点：3月底中美峰会 · 4月FOMC会议 · Q2财报季</span>
+  </div>
+</div>
+
+</body>
+</html>
