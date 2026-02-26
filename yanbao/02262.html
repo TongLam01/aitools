@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 行业周报 · 2026-02-26</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #f0f3fa;
+    --surface3: #e8edf7;
+    --accent: #3b5bdb;
+    --accent2: #7950f2;
+    --accent-light: #eef2ff;
+    --green: #0ca678;
+    --green-light: #e6f8f3;
+    --red: #e03131;
+    --red-light: #fff0f0;
+    --yellow: #e67700;
+    --yellow-light: #fff8e6;
+    --orange: #d9480f;
+    --orange-light: #fff4ee;
+    --text: #1a1f36;
+    --text-muted: #4a5272;
+    --text-dim: #8892b0;
+    --border: #e2e8f4;
+    --border-strong: #c8d3ea;
+    --card-shadow: 0 2px 12px rgba(59,91,219,0.07);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    padding-bottom: 60px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #1a2a6c 0%, #3b5bdb 100%);
+    padding: 32px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -50px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -20px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .header h1 em {
+    font-style: normal;
+    background: rgba(255,255,255,0.22);
+    border-radius: 4px;
+    padding: 0 4px;
+  }
+  .header-meta {
+    color: rgba(255,255,255,0.72);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .temp-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.13);
+    border-radius: 10px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+  }
+  .temp-label { font-size: 12px; color: rgba(255,255,255,0.75); flex-shrink: 0; }
+  .temp-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+  .pill-green { background: rgba(12,166,120,0.25); color: #52e3be; border: 1px solid rgba(82,227,190,0.35); }
+  .pill-red { background: rgba(255,255,255,0.15); color: #ffb3b3; border: 1px solid rgba(255,179,179,0.3); }
+
+  /* ── Container ── */
+  .container { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+
+  /* ── Nav ── */
+  .nav-anchor {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+  }
+  .nav-chip {
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 1px 4px rgba(59,91,219,0.06);
+  }
+
+  /* ── Section ── */
+  .section { margin-top: 28px; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-strong);
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .card-body { font-size: 13.5px; color: var(--text-muted); line-height: 1.75; }
+
+  /* ── Verdict ── */
+  .verdict {
+    background: linear-gradient(135deg, var(--accent-light), #f3eeff);
+    border: 1.5px solid #c5d0ff;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+  .verdict-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .verdict-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ── Event cards ── */
+  .event-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    border-left: 4px solid;
+    box-shadow: var(--card-shadow);
+    position: relative;
+  }
+  .event-score {
+    position: absolute;
+    top: 14px; right: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+  }
+  .event-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .event-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    padding-right: 50px;
+    line-height: 1.45;
+  }
+  .event-body { font-size: 13px; color: var(--text-muted); line-height: 1.72; }
+
+  /* ── Chain / Three-stage ── */
+  .chain {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
+  }
+  .chain-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chain-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .chain-step-content {
+    flex: 1;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+  .chain-step-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .chain-step-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .chain-arrow {
+    width: 28px; /* 严格锁定图标宽度以实现垂直居中 */
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 16px;
+    margin: 4px 0;
+    line-height: 1;
+  }
+  .chain-insight {
+    margin-top: 14px;
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  /* ── Flow (Transmission) ── */
+  .flow {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .flow-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .flow-step {
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+  .flow-arrow {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 16px;
+    padding: 3px 0;
+    line-height: 1;
+  }
+
+  /* ── Strategy Matrix (Inline versions) ── */
+  .sub-matrix {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-top: 14px;
+    overflow: hidden;
+  }
+  .sub-matrix-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .sub-matrix-row:last-child { border-bottom: none; }
+  .matrix-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 6px; border-radius: 4px;
+    flex-shrink: 0; margin-top: 2px;
+    white-space: nowrap;
+  }
+  .bg-bull { background: #d3f9ed; color: #0ca678; }
+  .bg-bear { background: #ffe3e3; color: #e03131; }
+  .bg-neu { background: #e2e8f4; color: #4a5272; }
+  .bg-cau { background: #fff3d6; color: #e67700; }
+
+  /* ── Radar (Track focused) ── */
+  .radar-section {
+    background: linear-gradient(160deg, #1a2a6c 0%, #2d1b8e 50%, #1a3a5c 100%);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 24px rgba(59,91,219,0.18);
+  }
+  .radar-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #a8bfff;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .radar-group-label {
+    padding: 12px 18px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .radar-item {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 8px;
+  }
+  .radar-item:last-child { border-bottom: none; }
+  .radar-track-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .radar-track-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+  .radar-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .badge-bull { background: rgba(12,166,120,0.25); color: #52e3be; border: 1px solid rgba(82,227,190,0.3); }
+  .badge-bear { background: rgba(224,49,49,0.25); color: #ffa0a0; border: 1px solid rgba(255,160,160,0.3); }
+  .badge-neutral { background: rgba(255,255,255,0.1); color: #a0aec0; border: 1px solid rgba(160,174,192,0.2); }
+  .badge-mixed { background: rgba(230,119,0,0.25); color: #ffd06e; border: 1px solid rgba(255,208,110,0.3); }
+  .radar-logic { font-size: 13px; color: rgba(200,210,240,0.85); line-height: 1.6; }
+  .radar-meta {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-top: 2px; gap: 10px; flex-wrap: wrap;
+  }
+  .radar-targets { font-size: 11.5px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+  .radar-targets strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+  .radar-dots { font-size: 11px; letter-spacing: 1.5px; flex-shrink: 0; margin-top: 1px;}
+  .dots-strong { color: #52e3be; }
+  .dots-medium { color: #ffd06e; }
+  .dots-weak { color: #ffa0a0; }
+
+  /* ── Alpha box ── */
+  .alpha-box {
+    background: linear-gradient(135deg, var(--green-light), #f0fdf8);
+    border: 1.5px solid #a7f0d8;
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+  .alpha-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .alpha-text { font-size: 13.5px; color: var(--text-muted); line-height: 1.75; }
+  .alpha-text strong { color: var(--green); }
+
+  /* ── Detail sections ── */
+  .detail-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .detail-header {
+    background: var(--surface2);
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-header-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    display: block;
+  }
+  .detail-header h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .detail-body { padding: 16px 18px; }
+
+  /* ── Sub events ── */
+  .sub-event {
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 12px;
+    background: var(--surface2);
+    border-left: 3px solid;
+  }
+  .sub-event:last-of-type { margin-bottom: 0; }
+  .sub-event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .sub-event-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+    padding-right: 8px;
+    line-height: 1.45;
+  }
+  .sub-event-score {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .sub-event-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.72;
+  }
+
+  /* ── Focal companies ── */
+  .focal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--card-shadow);
+  }
+  .focal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .focal-name { font-size: 16px; font-weight: 800; color: var(--text); }
+  .focal-signal { font-size: 12px; margin-top: 2px; font-weight: 600; }
+  .focal-meta { font-size: 11px; color: var(--text-dim); text-align: right; line-height: 1.6; }
+  .focal-items { list-style: none; }
+  .focal-items li {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.55;
+  }
+  .focal-items li:last-child { border-bottom: none; }
+  .focal-items li::before {
+    content: '›';
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── Stats row ── */
+  .stats-row {
+    display: flex;
+    gap: 8px;
+    margin: 14px 0;
+  }
+  .stat-block {
+    flex: 1;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .callout-num {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+  .callout-label { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
+
+  /* ── Highlight utils ── */
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-yellow { color: var(--yellow); font-weight: 600; }
+  .strong { color: var(--text); font-weight: 600; }
+
+  @media (max-width: 480px) {
+    body { font-size: 14px; }
+    .header h1 { font-size: 17px; }
+    .stats-row { flex-direction: column; }
+    .radar-meta { flex-direction: column; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="header">
+  <div class="header-tag">AI 行业周报 · 2026-02-26</div>
+  <h1>AI产业链的"卖铲子"逻辑获得最强确认，但定价权正从<em>一家独占</em>走向<em>两家分享</em></h1>
+  <div class="header-meta">
+    <span>📅 2026-02-26 12:58</span>
+    <span>基建大干快上，应用开始砍成本</span>
+  </div>
+  <div class="temp-bar">
+    <span class="temp-label">市场温度</span>
+    <div class="temp-pills">
+      <span class="pill pill-green">▲ 利好 26%</span>
+      <span class="pill pill-red">▼ 利空 22%</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── NAV ── -->
+  <div class="nav-anchor">
+    <span class="nav-chip" onclick="document.getElementById('verdict').scrollIntoView({behavior:'smooth'})">📍 本周研判</span>
+    <span class="nav-chip" onclick="document.getElementById('top3').scrollIntoView({behavior:'smooth'})">🔥 核心信号</span>
+    <span class="nav-chip" onclick="document.getElementById('chains').scrollIntoView({behavior:'smooth'})">🔗 产业链传导</span>
+    <span class="nav-chip" onclick="document.getElementById('radar').scrollIntoView({behavior:'smooth'})">📡 赛道雷达</span>
+    <span class="nav-chip" onclick="document.getElementById('details').scrollIntoView({behavior:'smooth'})">📋 八大板块深度解析</span>
+  </div>
+
+  <!-- ══════════ VERDICT ══════════ -->
+  <div id="verdict" class="section">
+    <div class="section-title">本周研判 & 产业全景</div>
+
+    <div class="verdict">
+      <div class="verdict-label">⚔️ 研判核心</div>
+      <div class="verdict-text">注意力应从"谁的芯片最强"转向"芯片之外<span class="hl">谁在卡脖子</span>"——电力、散热、内存正成为新的紧约束。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">上下游温差极大的"上热下冷"结构</div>
+      <div class="card-body">
+        <span class="strong">上游基建端</span>：能见度极高，拥有 <span class="hl-green">6500亿美元</span> 年度资本开支和 10吉瓦级电力签约负荷做支撑。<br><br>
+        <span class="strong">下游应用端</span>：AI商业化的第一刀切的是 <span class="hl-red">人力成本</span>，而非创造新收入。WiseTech一次性裁员29%、印度IT板块单月蒸发686亿美元市值，印证了"建设确定、回报待验"的格局。当前最安全的位置仍在"卖铲子"一侧，但需警惕铲子利润正被竞争稀释。
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TOP 3 ══════════ -->
+  <div id="top3" class="section">
+    <div class="section-title">本周最重要 3 个趋势信号</div>
+
+    <div class="event-card" style="border-left-color:#3b5bdb;">
+      <div class="event-score">信号强度：强</div>
+      <div class="event-tag" style="color:#3b5bdb;">双供应商格局成立</div>
+      <div class="event-title">AMD连拿OpenAI和Meta两份超大单</div>
+      <div class="event-body">总潜在价值<span class="strong">超千亿美元</span>。这意味着下游巨头正主动打破英伟达的独占局面。AMD进入份额爬坡期值得关注，而英伟达的业绩虽强，但股价弹性将更多取决于竞争格局而非单纯的超预期。</div>
+    </div>
+
+    <div class="event-card" style="border-left-color:#0ca678;">
+      <div class="event-score">信号强度：强</div>
+      <div class="event-tag" style="color:#0ca678;">供电和散热紧约束</div>
+      <div class="event-title">产业瓶颈从"造芯片"扩散到"基建配套"</div>
+      <div class="event-body">南方公司10吉瓦签约负荷、亚马逊120亿美元数据中心投资、液冷市场<span class="strong">14.2%复合增长率</span>。这些数据共同指向：电力和散热正在成为比芯片本身更紧迫的约束。这是确定性高于多数芯片环节的间接受益方向。</div>
+    </div>
+
+    <div class="event-card" style="border-left-color:#e03131;">
+      <div class="event-score">信号强度：中</div>
+      <div class="event-tag" style="color:#e03131;">AI 替代效应兑现</div>
+      <div class="event-title">第一波价值兑现是"替代人力"而非创收</div>
+      <div class="event-body">企业级AI Agent和自动化工具是这一趋势的直接受益赛道，传统IT外包则面临结构性压力。OpenAI与四大咨询巨头组建联盟，验证了需求端正从试点转向<span class="strong">规模化部署</span>。</div>
+    </div>
+  </div>
+
+  <!-- ══════════ THREE-STAGE CHAINS ══════════ -->
+  <div id="chains" class="section">
+    <div class="section-title">🌟 产业链传导与前瞻推演</div>
+
+    <!-- Chain 1 -->
+    <div class="chain">
+      <div class="chain-title">
+        <span style="background:var(--accent-light);color:var(--accent);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">1</span>
+        链条一：双供应商确立 → 芯片定价权松动 → 封装内存议价反升
+      </div>
+
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:var(--accent-light);color:var(--accent);">①</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">一阶 · 竞争加剧</div>
+          AMD 签下两份超大单，算力芯片供应商从一家独占正式变为两家分享。
+        </div>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:#f3eeff;color:var(--accent2);">②</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">二阶 · 定价权松动</div>
+          下游云厂商（Hyperscaler）重获议价能力，英伟达等头部厂商提价空间受压。
+        </div>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:var(--yellow-light);color:var(--yellow);">③</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">三阶 · 配套受益</div>
+          两家同时拼命扩产，导致 <span class="strong">HBM内存和先进封装</span> 环节反而变得更紧俏、更有定价权。
+        </div>
+      </div>
+    </div>
+
+    <!-- Chain 2 -->
+    <div class="chain">
+      <div class="chain-title">
+        <span style="background:var(--red-light);color:var(--red);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">2</span>
+        链条二：散热难度上升 → 液冷加速渗透 → 电力投资周期拉长
+      </div>
+
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:var(--red-light);color:var(--red);">①</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">一阶 · 技术壁垒</div>
+          2纳米 BPDN（背面供电网络）等先进工艺带来了严峻的晶体管对准与<span class="strong">散热难题</span>。
+        </div>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:var(--yellow-light);color:var(--yellow);">②</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">二阶 · 倒逼升级</div>
+          数据中心液冷及 CaaS（冷却即服务）系统渗透加速，散热从风扇级步入水冷级。
+        </div>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step">
+        <div class="chain-step-icon" style="background:#f3eeff;color:var(--accent2);">③</div>
+        <div class="chain-step-content">
+          <div class="chain-step-label">三阶 · 跨行业传导</div>
+          冷却能耗推升数据中心总用电量，电力公司不得不持续加码，<span class="hl-green">公用事业基建投资周期被进一步拉长</span>。
+        </div>
+      </div>
+    </div>
+
+    <!-- Alpha -->
+    <div class="alpha-box" style="margin-top: 16px;">
+      <div class="alpha-label">⚡ 冷门机会提示：液冷散热系统</div>
+      <div class="alpha-text">
+        冷却能耗占数据中心总用电的 30%-50%，而 2纳米 BPDN 工艺正从芯片端倒逼散热方案升级。市场预计液冷及 CaaS（冷却即服务）到 2033 年将达 <span class="hl-green">107亿美元</span>，复合增长率 <span class="strong">14.2%</span>。这个赛道不在 AI 主叙事的聚光灯下，但属于"不管谁挖到金子，卖水的人都能赚钱"的位置。代表性参考：<strong>Vertiv(VRT)</strong>。
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ RADAR (Direction Guide) ══════════ -->
+  <div id="radar" class="section">
+    <div class="section-title">全景策略：本周赛道方向指引雷达</div>
+    
+    <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
+      注：此雷达区整合了原研报中信息密度最高的《本周综合方向指引》模块，将 16 个细分赛道按评级进行了全景化重构。雷达中所列“参考标的”仅为该赛道逻辑的映射，不构成买入建议。
+    </div>
+
+    <div class="radar-section">
+      
+      <!-- Bull Track -->
+      <div class="radar-group-label" style="color:#52e3be;">▲ 核心看好 (多数据一致向好)</div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">AI数据中心基础设施（电力+建设）</span>
+          <span class="radar-badge badge-bull">看好</span>
+        </div>
+        <div class="radar-logic">10吉瓦级签约负荷已落地，6500亿Capex直接拉动长周期订单，订单可见度极高，但利润兑现可能滞后。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-strong">强度：●●●●</span>
+          <span class="radar-targets">参考：<strong>南方公司(SO)</strong>, <strong>Vertiv(VRT)</strong>, Constellation(CEG)</span>
+        </div>
+      </div>
+      
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">半导体设备（EUV）</span>
+          <span class="radar-badge badge-bull">看好</span>
+        </div>
+        <div class="radar-logic">光源突破稳固技术垄断，长期产能扩张的核心受益环节。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-strong">强度：●●●●</span>
+          <span class="radar-targets">参考：<strong>ASML</strong></span>
+        </div>
+      </div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">AMD GPU 及定制芯片</span>
+          <span class="radar-badge badge-bull">看好</span>
+        </div>
+        <div class="radar-logic">两份超大单锁定长期营收可见性，双供应商市场份额拐点已确认。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-strong">强度：●●●●</span>
+          <span class="radar-targets">参考：<strong>AMD</strong></span>
+        </div>
+      </div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">企业级 AI Agent 与工具链</span>
+          <span class="radar-badge badge-bull">看好</span>
+        </div>
+        <div class="radar-logic">企业AI预算正从人力外包实质性转向工具采购，OpenAI联盟模式加速行业渗透。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-strong">强度：●●●●</span>
+          <span class="radar-targets"></span>
+        </div>
+      </div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">HBM 内存</span>
+          <span class="radar-badge badge-bull">看好</span>
+        </div>
+        <div class="radar-logic">双供应商扩产叠加内存短缺预警，供需缺口可能超预期持续。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-strong">强度：●●●●</span>
+          <span class="radar-targets">参考：<strong>美光(MU)</strong></span>
+        </div>
+      </div>
+
+      <!-- Cautious Optimistic Track -->
+      <div class="radar-group-label" style="color:#a8bfff;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px;">▲ 谨慎乐观 (景气度高但存变量)</div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">英伟达 AI 训练芯片</span>
+          <span class="radar-badge badge-bull" style="background:rgba(168,191,255,0.2);color:#a8bfff;border-color:rgba(168,191,255,0.3);">谨慎乐观</span>
+        </div>
+        <div class="radar-logic">终端需求依然强劲，但独占定价权开始被稀释，业绩高度共识化后股价弹性面临收窄。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-strong" style="color:#a8bfff;">强度：●●●○</span>
+          <span class="radar-targets">参考：<strong>英伟达(NVDA)</strong></span>
+        </div>
+      </div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">美国本土算力基建</span>
+          <span class="radar-badge badge-bull" style="background:rgba(168,191,255,0.2);color:#a8bfff;border-color:rgba(168,191,255,0.3);">谨慎乐观</span>
+        </div>
+        <div class="radar-logic">关税推高进口设备成本，但政策鼓励本土化建设，两股力量形成对冲。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-strong" style="color:#a8bfff;">强度：●●●○</span>
+          <span class="radar-targets">参考：<strong>英特尔(INTC)</strong></span>
+        </div>
+      </div>
+
+      <!-- Neutral Track -->
+      <div class="radar-group-label" style="color:#ffd06e;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px;">⏳ 中性观望 (信号博弈中)</div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">AI 相关科技股整体估值</span>
+          <span class="radar-badge badge-neutral">中性观望</span>
+        </div>
+        <div class="radar-logic">利率维持高位+联储官员明确不因AI预期降息，估值天花板持续受压。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-medium">强度：●●●</span>
+        </div>
+      </div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">先进制程晶圆代工</span>
+          <span class="radar-badge badge-neutral">中性观望</span>
+        </div>
+        <div class="radar-logic">2纳米 BPDN 工艺卡点短期制约产能爬坡，需等待真实良率数据验证。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-medium">强度：●●●</span>
+          <span class="radar-targets">参考：<strong>台积电(TSM)</strong></span>
+        </div>
+      </div>
+
+      <!-- Bear / Avoid Track -->
+      <div class="radar-group-label" style="color:#ffa0a0;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px;">▼ 回避 / 谨慎 (负面逻辑主导)</div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">对华 AI 芯片出口与设备敞口</span>
+          <span class="radar-badge badge-bear">回避</span>
+        </div>
+        <div class="radar-logic">执行层安全审查形成实质性阻断，合规渠道短期无法打通。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-weak">强度：●</span>
+          <span class="radar-targets">参考：<strong>应用材料(AMAT)</strong>, <strong>英伟达(NVDA)</strong></span>
+        </div>
+      </div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">高杠杆传统软件公司</span>
+          <span class="radar-badge badge-bear">回避</span>
+        </div>
+        <div class="radar-logic">AI替代威胁叠加资金链融资成本上升，违约风险实质性上行。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-weak">强度：●</span>
+        </div>
+      </div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">传统 IT 外包服务</span>
+          <span class="radar-badge badge-bear">回避</span>
+        </div>
+        <div class="radar-logic">AI压缩项目周期，人头计费模式面临结构性挑战，待下季财报验证深度。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-weak">强度：●</span>
+        </div>
+      </div>
+
+      <div class="radar-item">
+        <div class="radar-track-header">
+          <span class="radar-track-name">科技平台监管与合规成本</span>
+          <span class="radar-badge badge-bear">回避 / 谨慎</span>
+        </div>
+        <div class="radar-logic">多州诉讼可能迫使加密架构妥协，多法域反垄断联动，推高合规与研发成本。</div>
+        <div class="radar-meta">
+          <span class="radar-dots dots-weak">强度：● / ●●</span>
+          <span class="radar-targets">参考：<strong>Meta</strong>, <strong>苹果(AAPL)</strong>, <strong>微软(MSFT)</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ DETAIL SECTIONS (8 Blocks) ══════════ -->
+  <div id="details" class="section">
+    <div class="section-title">八大板块深度解析</div>
+
+    <!-- 1. Macro -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--red);">1. 宏观环境与政策风向</span>
+        <h2>关税与司法博弈叠加，AI投资环境进入"逆风增多"阶段</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--red);">
+          <div class="sub-event-body">
+            <strong>关税反转博弈：</strong>最高法院裁定关税违法使平均关税降至 8.3%，但特朗普随即对全球征收为期 150 天的 <span class="strong">10% 临时关税</span>（半导体未获豁免）。叠加 3月底访华行程，这导致短期关税压力上升，但中期方向高度依赖中美峰会谈判结果。<br><br>
+            <strong>货币政策挤压：</strong>达拉斯联储主席 Logan 与前纽约联储主席 Dudley 明确指出，AI 生产率预期不构成提前降息理由。联邦基金利率维持在 3.50%-3.75%，且美国 GDP 呈 K 型复苏，"利率更高更久"的基准情景仍在强化，对依赖低资金成本扩张的基建构成持续压力。
+          </div>
+        </div>
+
+        <!-- Inline Sub-matrix -->
+        <div class="sub-matrix">
+          <div class="sub-matrix-row">
+            <span class="matrix-badge bg-cau">谨慎</span>
+            <div><strong>对华敞口大的设备商：</strong>关税叠加出口管制，峰会前承压。(参: AMAT, ASML)</div>
+          </div>
+          <div class="sub-matrix-row">
+            <span class="matrix-badge bg-neu">中性</span>
+            <div><strong>科技股整体估值：</strong>明确不因AI预期降息，估值天花板受压。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Supply Chain -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--green);">2. 产能瓶颈与供应链重构</span>
+        <h2>远期松绑与近期卡脖子同现，瓶颈向"电力与散热"扩散</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--green);">
+          <div class="sub-event-body">
+            <strong>设备端远期松绑：</strong>ASML 公布 EUV 光源关键突破（功率提升至1000瓦），预计到 2030 年晶圆处理量最高提升 50%。<br><br>
+            <strong>制程端近期卡点：</strong>2纳米节点 BPDN（背面供电网络）带来严苛的对准精度与散热难题，台积电、三星均面临该工艺挑战，产能爬坡节奏大概率慢于市场预期。<br><br>
+            <strong>瓶颈向外扩散：</strong>南方公司上调五年资本开支至 810 亿美元，已签下 <span class="hl-green">10吉瓦</span> 大型负荷。算力需求已穿透芯片层直接冲击电网。
+          </div>
+        </div>
+
+        <div class="sub-matrix">
+          <div class="sub-matrix-row">
+            <span class="matrix-badge bg-bull">看好</span>
+            <div><strong>数据中心电力基建：</strong>10吉瓦级订单落地，可见度极高。(参: 南方公司 SO)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Compute -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--accent);">3. 算力供需与竞争格局</span>
+        <h2>市场从"一超独霸"进入"双供应商"时代</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--accent);">
+          <div class="sub-event-body">
+            AMD 在一个月内连拿 OpenAI 和 Meta 两份超大单（潜在价值高达 600 亿美元并含认购股份条款），从“备选方案”晋升为战略平级供应商。<br><br>
+            英伟达财报持续超预期，但期权市场隐含波动率降至三年最低（5.6%），说明业绩已被高度共识化。其股价弹性未来将受制于竞争格局导致的定价权稀释。为了反制，英伟达拟投资约 300 亿美元入股 OpenAI，试图通过资本纽带锁定客户。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Capital -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--accent2);">4. 资本流向与估值逻辑</span>
+        <h2>聪明钱加速涌入硬件基建，软件层信用风险暴露</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--accent2);">
+          <div class="sub-event-body">
+            资金分化加速：一方面，Alphabet、亚马逊、Meta、微软四大巨头 2026 年基建 CapEx 预计合计达 <span class="hl">6500 亿美元</span>（同比激增 58%），为硬件层提供多年订单能见度。<br><br>
+            另一方面，传统软件公司信用恶化，瑞银预测 AI 冲击可能导致杠杆贷款市场违约率在未来两年内增加 3% 至 5%。资金正从“可能被颠覆的公司”撤出。
+          </div>
+        </div>
+
+        <div class="sub-matrix">
+          <div class="sub-matrix-row">
+            <span class="matrix-badge bg-bear">回避</span>
+            <div><strong>高杠杆传统软件：</strong>AI替代威胁+融资成本上升形成双杀。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Commercialization -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--orange);">5. AI商业化落地与价值验证</span>
+        <h2>第一波价值兑现是"砍人力成本"，劳动力重组开启</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--orange);">
+          <div class="sub-event-body">
+            澳洲物流软件 WiseTech 宣布裁员 2000 人（占全球 29%），全面转向 AI 自动化；同时印度 IT 服务板块在 2 月市值蒸发 <span class="hl-red">686 亿美元</span>。这证明 AI 商业化兑现路径不是"卖更多软件"，而是直接削减人头费用。<br><br>
+            OpenAI 与 BCG、麦肯锡等组建“前沿联盟”，摩根大通 CEO 戴蒙制定“大规模重新部署”策略，企业端部署正从孤立试点进入核心业务重组阶段。
+          </div>
+        </div>
+
+        <div class="sub-matrix">
+          <div class="sub-matrix-row">
+            <span class="matrix-badge bg-bull">看好</span>
+            <div><strong>企业级AI Agent：</strong>预算正从人力外包向工具采购转移。</div>
+          </div>
+          <div class="sub-matrix-row">
+            <span class="matrix-badge bg-bear">回避</span>
+            <div><strong>传统IT外包服务：</strong>人头计费模式面临结构性被替代挑战。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Regulation -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--red);">6. 监管演进与合规风险</span>
+        <h2>对华出口阻断，平台合规成本全线上升</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--red);">
+          <div class="sub-event-body">
+            <strong>出口实质阻断：</strong>美国商务部官员证实，英伟达迄今未向中国交付任何 H200 芯片。安全审查机制构成了事实上的发货封锁，中国市场收入缺口将持续。<br><br>
+            <strong>平台多重合规：</strong>Meta 因端到端加密导致每年 750 万份儿童性虐待材料无法披露而遭起诉；苹果同样面临违规内容传播的监管压力。微软云则面临 ICE 监控相关的伦理调查。合规成本正成为大模型估值中的摩擦项。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Model Paradigm -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--text-dim);">7. 模型能力演进与范式转移</span>
+        <h2>规模定律仍在主导，但"全栈化"开始分流资源</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--text-dim);">
+          <div class="sub-event-body">
+            OpenAI 设立 6000 亿基建目标，证实 Scaling Law 短期内未被推翻。但哈佛大学 275 篇论文的综述显示，生成式 AI 带来了隐性知识难以编码等五大系统性瓶颈。<br><br>
+            单纯“堆算力”的粗放路线正遇到工程复杂度的天花板。未来的突破越来越依赖软硬件协同设计能力，AI 工具链和 EDA 正在成为新的刚需卡点。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Edge Signals -->
+    <div class="detail-section">
+      <div class="detail-header">
+        <span class="detail-header-tag" style="color:var(--yellow);">8. 其他信号与边缘观察</span>
+        <h2>全球反垄断合围，中国 AI 技术栈出海潜能显现</h2>
+      </div>
+      <div class="detail-body">
+        <div class="sub-event" style="border-left-color:var(--yellow);">
+          <div class="sub-event-body">
+            <strong>全球反垄断：</strong>日本突击检查微软云合同，加州对亚马逊发出初步禁令。全球针对超大规模云平台的执法进入多线并进阶段，侵蚀利润率。<br><br>
+            <strong>出海潜力被低估：</strong>中国过去四年新增发电装机远超美国，能源成本优势正转化为 AI 部署成本优势。在亚非拉等新兴中低端市场，中国开源模型（如阿里 Qwen）的渗透率可能超预期。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Focal companies ── -->
+    <div class="section-title" style="margin-top:28px;">本周焦点公司总结</div>
+
+    <div class="focal-card">
+      <div class="focal-header">
+        <div>
+          <div class="focal-name">英伟达 NVDA</div>
+          <div class="focal-signal" style="color:var(--green);">综合信号：偏利好 (均分 6.8)</div>
+        </div>
+        <div class="focal-meta">涉及 7 个板块 · 13 篇报道</div>
+      </div>
+      <ul class="focal-items">
+        <li>【竞争】季度财报超预期，但面临 AMD 双供应商破局压力</li>
+        <li>【资本】潜在投资 OpenAI 额高达 300 亿美元，试图生态绑定</li>
+        <li>【监管】商务部证实 H200 对华出口在执行层面受到实质阻断</li>
+      </ul>
+    </div>
+
+    <div class="focal-card">
+      <div class="focal-header">
+        <div>
+          <div class="focal-name">Meta META</div>
+          <div class="focal-signal" style="color:var(--yellow);">综合信号：多空交织 (均分 7.0)</div>
+        </div>
+        <div class="focal-meta">涉及 5 个板块 · 8 篇报道</div>
+      </div>
+      <ul class="focal-items">
+        <li>【算力】计划采购 AMD 定制 CPU，成为拉动基建投资核心力量</li>
+        <li>【瓶颈】签约包含 10 吉瓦大型电力负荷配套，加剧供电侧紧张</li>
+        <li>【合规】遭遇儿童安全诉讼，端到端加密架构面临研发合规挑战</li>
+      </ul>
+    </div>
+
+    <div class="focal-card">
+      <div class="focal-header">
+        <div>
+          <div class="focal-name">OpenAI</div>
+          <div class="focal-signal" style="color:var(--green);">综合信号：偏利好 (均分 7.0)</div>
+        </div>
+        <div class="focal-meta">涉及 4 个板块 · 7 篇报道</div>
+      </div>
+      <ul class="focal-items">
+        <li>【竞争】向 AMD 签下第二笔大规模 AI 芯片供应单</li>
+        <li>【商业】与四大咨询巨头结盟，加速企业级 Agent 落地替换人力</li>
+        <li>【远景】坚守规模定律，到 2030 年资本支出目标达 6000 亿美元</li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div style="margin-top:40px;padding:24px 20px;text-align:center;border-top:1px solid var(--border);background:var(--surface);">
+  <div style="font-size:11px;color:var(--text-dim);line-height:2;">
+    AI 行业周报 · 2026-02-26 · 仅供参考，不构成投资建议<br>
+    <span style="color:var(--accent);font-weight:600;">下期关注：中美峰会行程 · 印度 IT 巨头业绩验证 · 4月 FOMC 决议</span>
+  </div>
+</div>
+
+</body>
+</html>
