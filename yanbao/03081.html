@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 行业深度研报 (2026-03-08)</title>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-light: rgba(59, 130, 246, 0.1);
+            --success-color: #22c55e;
+            --success-light: rgba(34, 197, 94, 0.1);
+            --warning-color: #f59e0b;
+            --warning-light: rgba(245, 158, 11, 0.1);
+            --danger-color: #ef4444;
+            --danger-light: rgba(239, 68, 68, 0.1);
+            --neutral-color: #6b7280;
+            --neutral-light: rgba(107, 114, 128, 0.1);
+            --signal-color: #8b5cf6;
+            --signal-light: rgba(139, 92, 246, 0.1);
+            --border-radius: 16px;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            font-size: 15px;
+            line-height: 1.75;
+            color: #1e2a3a;
+            background-color: #f8fafc;
+            padding-bottom: 32px;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            padding: 32px 20px;
+            margin-bottom: 24px;
+            border-radius: 0 0 24px 24px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 16px;
+            opacity: 0.85;
+        }
+
+        .temperature {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: rgba(255, 255, 255, 0.15);
+            margin-top: 8px;
+        }
+
+        .nav-chips {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-chip {
+            flex: 0 0 auto;
+            padding: 6px 12px;
+            background-color: white;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            color: var(--primary-color);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .module {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+            padding: 28px 24px;
+            position: relative;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .module-capital {
+            background-color: var(--primary-light);
+        }
+
+        .module-supply {
+            background-color: var(--success-light);
+        }
+
+        .module-computing {
+            background-color: var(--warning-light);
+        }
+
+        .module-regulation {
+            background-color: var(--danger-light);
+        }
+
+        .module-macro {
+            background-color: rgba(244, 63, 94, 0.05);
+        }
+
+        .module-business {
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        .module-model {
+            background-color: var(--signal-light);
+        }
+
+        .module-edge {
+            background-color: var(--neutral-light);
+        }
+
+        .module-number {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            font-size: 48px;
+            font-weight: 700;
+            opacity: 0.12;
+            color: #000;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 24px 0 16px;
+        }
+
+        p {
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-primary {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .badge-success {
+            background-color: var(--success-light);
+            color: var(--success-color);
+        }
+
+        .badge-warning {
+            background-color: var(--warning-light);
+            color: var(--warning-color);
+        }
+
+        .badge-danger {
+            background-color: var(--danger-light);
+            color: var(--danger-color);
+        }
+
+        .badge-neutral {
+            background-color: var(--neutral-light);
+            color: var(--neutral-color);
+        }
+
+        .badge-signal {
+            background-color: var(--signal-light);
+            color: var(--signal-color);
+        }
+
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .stat-card {
+            flex: 1 1 calc(33.333% - 8px);
+            min-width: calc(33.333% - 8px);
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 600;
+            margin: 6px 0;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--neutral-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .positive {
+            color: var(--success-color);
+        }
+
+        .negative {
+            color: var(--danger-color);
+        }
+
+        .neutral {
+            color: var(--primary-color);
+        }
+
+        .warning {
+            color: var(--warning-color);
+        }
+
+        .key-numbers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .key-number {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .key-number-value {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .key-number-label {
+            font-size: 11px;
+            color: var(--neutral-color);
+        }
+
+        .direction-card {
+            margin-bottom: 16px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid;
+            position: relative;
+        }
+
+        .direction-card-positive {
+            border-left-color: var(--success-color);
+        }
+
+        .direction-card-warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .direction-card-negative {
+            border-left-color: var(--danger-color);
+        }
+
+        .direction-card-neutral {
+            border-left-color: var(--neutral-color);
+        }
+
+        .direction-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            padding-right: 80px;
+        }
+
+        .direction-rating {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .strength-dots {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot-filled {
+            background-color: currentColor;
+        }
+
+        .dot-empty {
+            border: 1px solid currentColor;
+        }
+
+        .callout {
+            border-left: 4px solid;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .callout-fact {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+        }
+
+        .callout-strategy {
+            background-color: var(--warning-light);
+            border-color: var(--warning-color);
+        }
+
+        .callout-risk {
+            background-color: var(--danger-light);
+            border-color: var(--danger-color);
+        }
+
+        .callout-signal {
+            background-color: var(--signal-light);
+            border-color: var(--signal-color);
+        }
+
+        .callout-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: inherit;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .transmission-chain {
+            margin: 24px 0;
+        }
+
+        .chain-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 4px;
+        }
+
+        .chain-number {
+            flex: 0 0 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .chain-number-1 {
+            background-color: #3b82f6;
+        }
+
+        .chain-number-2 {
+            background-color: #06b6d4;
+        }
+
+        .chain-number-3 {
+            background-color: #8b5cf6;
+        }
+
+        .chain-content {
+            flex: 1;
+            padding-top: 6px;
+        }
+
+        .chain-arrow {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            padding: 4px 0 16px;
+        }
+
+        .chain-arrow svg {
+            height: 20px;
+            color: #94a3b8;
+        }
+
+        .analogy {
+            background-color: var(--signal-light);
+            border: 1px solid var(--signal-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        details {
+            margin: 16px 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        summary {
+            padding: 12px 16px;
+            background-color: rgba(0, 0, 0, 0.025);
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        details[open] summary {
+            border-radius: 8px 8px 0 0;
+        }
+
+        details[open] .details-content {
+            padding: 16px;
+            background-color: rgba(0, 0, 0, 0.02);
+            border-radius: 0 0 8px 8px;
+        }
+
+        .hl {
+            background-color: rgba(139, 92, 246, 0.15);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .direction-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (min-width: 640px) {
+            .direction-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .signal-strength {
+            display: flex;
+            gap: 2px;
+            margin-top: 8px;
+        }
+
+        .dot-strong {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+        }
+
+        .dot-empty-strong {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid currentColor;
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>AI 行业深度研报</h1>
+            <div class="header-meta">
+                <div>2026-03-08 16:32</div>
+                <div>发布: March 8, 2026</div>
+            </div>
+            <div class="temperature">🌡️ 市场温度：多空分化（利好29% / 利空47%）</div>
+            
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-label">英伟达季度营收</div>
+                    <div class="stat-value positive">$681亿</div>
+                    <div class="stat-label">环比+19.5%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">企业AI采用率</div>
+                    <div class="stat-value neutral">88%</div>
+                    <div class="stat-label">仅6%实现高ROI</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">布伦特原油</div>
+                    <div class="stat-value negative">$81.4</div>
+                    <div class="stat-label">压制数据中心利润</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="nav-chips">
+            <a href="#verdict" class="nav-chip">研判</a>
+            <a href="#capital" class="nav-chip">资本流向</a>
+            <a href="#macro" class="nav-chip">宏观环境</a>
+            <a href="#supply" class="nav-chip">产能瓶颈</a>
+            <a href="#regulation" class="nav-chip">监管合规</a>
+            <a href="#business" class="nav-chip">商业化落地</a>
+            <a href="#computing" class="nav-chip">算力供需</a>
+            <a href="#edge" class="nav-chip">边缘信号</a>
+            <a href="#directions" class="nav-chip">投资方向</a>
+        </div>
+        
+        <div id="verdict" class="module">
+            <h2>核心研判</h2>
+            <p><strong>AI产业链进入"信仰测试期"</strong> — 巨头资本开支持续加码，但市场开始要求回报证据，资金沿产业链向上游确定性环节加速迁移</p>
+            
+            <div class="callout callout-strategy">
+                <span class="callout-label">本周研判</span>
+                <p>AI产业仍处于大规模基础设施建设的中段，"卖铲子的人"依然最赚钱，但买铲子的人开始被追问"挖到金子了没有"。投资者此刻应聚焦产业链上游——光互连、先进封装和定制芯片这三个供需缺口最明确的环节。未来1-3个月的关键变量是：下次FOMC会议纪要是否将AI资本开支纳入利率讨论框架，以及霍尔木兹海峡局势能否在4月前降温——这两个外部变量将决定上游硬件环节的估值修复空间。</p>
+            </div>
+            
+            <div class="key-numbers">
+                <div class="key-number">
+                    <div class="key-number-value positive">40亿美元</div>
+                    <div class="key-number-label">英伟达锁定光子学供应链投资</div>
+                </div>
+                <div class="key-number">
+                    <div class="key-number-value negative">6%</div>
+                    <div class="key-number-label">企业AI部署中实现高ROI比例</div>
+                </div>
+                <div class="key-number">
+                    <div class="key-number-value warning">+1%</div>
+                    <div class="key-number-label">增速下滑导致MongoDB暴跌27%</div>
+                </div>
+                <div class="key-number">
+                    <div class="key-number-value neutral">$81.4</div>
+                    <div class="key-number-label">布伦特原油价格美元/桶</div>
+                </div>
+            </div>
+            
+            <h3>本周3个最重要的趋势信号</h3>
+            
+            <div class="direction-card direction-card-positive">
+                <div class="direction-title">英伟达40亿美元绑定光子产能——供应链控制权争夺进入"预付锁定"阶段</div>
+                <div class="direction-rating">
+                    <span class="badge badge-success">强信号</span>
+                </div>
+                <p>AI硬件栈的瓶颈正从"芯片算得够快"转向"芯片之间数据搬得够快"。英伟达用资本而非技术手段锁定稀缺产能，意味着光互连不再是配件而是战略资源，该环节的议价权将结构性上升。</p>
+            </div>
+            
+            <div class="direction-card direction-card-negative">
+                <div class="direction-title">出口管制从"定向围堵"升级为"全球审批"——合规成本正从边际变量变为结构性约束</div>
+                <div class="direction-rating">
+                    <span class="badge badge-success">强信号</span>
+                </div>
+                <p>美国商务部拟要求AI芯片出口至全球任意目的地均须审批，这不是简单的对华封锁升级，而是管制逻辑的根本转变。英伟达、AMD的国际业务收入确认节奏面临不确定性，同时催生出口合规工具这一新需求方向。</p>
+            </div>
+            
+            <div class="direction-card direction-card-warning">
+                <div class="direction-title">债券与股票市场对AI估值的定价分歧持续扩大——跨资产负反馈机制从讨论走向定价</div>
+                <div class="direction-rating">
+                    <span class="badge badge-warning">中等信号</span>
+                </div>
+                <p>债券投资者公开警告AI泡沫，美联储内部将AI CapEx纳入利率讨论，而一级市场仍以600亿美元估值Anduril。这种分歧本身是信号：如果负反馈机制被纳入政策框架，高PE标的面临的不只是业绩压力而是折现率本身的抬升。</p>
+            </div>
+        </div>
+        
+        <div id="transmission" class="module">
+            <h2>产业链传导与前瞻推演</h2>
+            
+            <div class="transmission-chain">
+                <h3>链条1：光互连产能锁定 → 竞争对手采购空间收窄 → CPO技术路径加速颠覆分立式光模块</h3>
+                
+                <div class="chain-step">
+                    <div class="chain-number chain-number-1">1</div>
+                    <div class="chain-content">英伟达40亿美元绑定Lumentum和Coherent产能</div>
+                </div>
+                
+                <div class="chain-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </div>
+                
+                <div class="chain-step">
+                    <div class="chain-number chain-number-2">2</div>
+                    <div class="chain-content">AMD、谷歌等自研芯片方案的光模块采购面临供给挤压，被迫加速自建光子供应链或转向替代供应商</div>
+                </div>
+                
+                <div class="chain-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </div>
+                
+                <div class="chain-step">
+                    <div class="chain-number chain-number-3">3</div>
+                    <div class="chain-content">若英伟达CPO技术在12-18个月内进入量产验证，传统分立式光模块将从独立产品变为封装内嵌组件，当前光模块厂商的商业模式面临重构</div>
+                </div>
+            </div>
+            
+            <div class="analogy">
+                <p><strong>💡 通俗理解：</strong>这就像航空公司提前包下所有航油产能——短期内其他航空公司要么高价抢油，要么自建炼油厂。长期看，如果电动飞机（CPO）成熟，传统航油商的整个生意模式都会改变。</p>
+            </div>
+            
+            <div class="callout callout-strategy">
+                <span class="callout-label">投资含义</span>
+                <p>光通信环节短期受益于稀缺性溢价，但需区分"被英伟达绑定的供应商"（确定性更高）和"依赖分立式产品的独立光模块商"（面临技术路径风险）。</p>
+            </div>
+            
+            <div class="transmission-chain">
+                <h3>链条2：能源地缘冲击 × 电力基建瓶颈 → 数据中心建设延期 → 算力供给增速被"非芯片因素"反向压制</h3>
+                
+                <div class="chain-step">
+                    <div class="chain-number chain-number-1">1</div>
+                    <div class="chain-content">霍尔木兹海峡冲突推高布伦特至81.4美元，天然气价格随之攀升</div>
+                </div>
+                
+                <div class="chain-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </div>
+                
+                <div class="chain-step">
+                    <div class="chain-number chain-number-2">2</div>
+                    <div class="chain-content">叠加燃气轮机供应紧张（已在拉长数据中心建设周期），电力侧形成"成本上升+交付延迟"双重夹击</div>
+                </div>
+                
+                <div class="chain-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </div>
+                
+                <div class="chain-step">
+                    <div class="chain-number chain-number-3">3</div>
+                    <div class="chain-content">如果油价持续高于85美元且燃气轮机瓶颈未缓解，云厂商可能被迫延缓新数据中心上线节奏，算力供给增速将不是被芯片产能决定，而是被电力供给"卡脖子"</div>
+                </div>
+            </div>
+            
+            <div class="analogy">
+                <p><strong>💡 通俗理解：</strong>芯片工厂（台积电）造得再快，如果数据中心没电开机，芯片就堆在仓库里。现在的情况是：发电厂的建设速度跟不上数据中心的扩张速度，油价上涨又让已有电厂的运营成本飙升。</p>
+            </div>
+        </div>
+
+        <div id="directions" class="module">
+            <h2>投资方向总览</h2>
+            
+            <div class="callout callout-fact">
+                <span class="callout-label">产业周期判断</span>
+                <p>AI产业当前处于"商业化验证期的中段"——基础设施建设仍在加速，但市场已从"为愿景付费"切换到"为现金流付费"，这意味着能拿出订单和收入数据的环节最受资金青睐</p>
+            </div>
+            
+            <div class="direction-grid">
+                <div class="direction-card direction-card-positive">
+                    <div class="direction-title">光通信与网络设备</div>
+                    <div class="direction-rating">
+                        <span class="badge badge-success">看好</span>
+                    </div>
+                    <p>英伟达40亿美元产能绑定确认该环节为核心瓶颈，CPO技术加速。</p>
+                    <div class="strength-dots">
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                    </div>
+                    <div class="stat-label">LITE, COHR, 联发科</div>
+                </div>
+                
+                <div class="direction-card direction-card-positive">
+                    <div class="direction-title">定制芯片/ASIC设计</div>
+                    <div class="direction-rating">
+                        <span class="badge badge-success">看好</span>
+                    </div>
+                    <p>博通AI收入同比翻倍至84亿美元，ASIC从概念进入规模营收期。</p>
+                    <div class="strength-dots">
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                    </div>
+                    <div class="stat-label">博通(AVGO)</div>
+                </div>
+                
+                <div class="direction-card direction-card-positive">
+                    <div class="direction-title">AI训练芯片龙头</div>
+                    <div class="direction-rating">
+                        <span class="badge badge-success">看好</span>
+                    </div>
+                    <p>英伟达下季度指引760-795亿美元超预期，训练侧需求未见拐点。</p>
+                    <div class="strength-dots">
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                    </div>
+                    <div class="stat-label">英伟达(NVDA)</div>
+                </div>
+                
+                <div class="direction-card direction-card-positive">
+                    <div class="direction-title">先进封装与减薄设备</div>
+                    <div class="direction-rating">
+                        <span class="badge badge-success">看好</span>
+                    </div>
+                    <p>ASML战略进入+台积电33%资本开支强度共同验证封装设备长期需求。</p>
+                    <div class="strength-dots">
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-filled positive"></div>
+                        <div class="dot dot-empty positive"></div>
+                    </div>
+                    <div class="stat-label">阿斯麦(ASML)</div>
+                </div>
+                
+                <div class="direction-card direction-card-warning">
+                    <div class="direction-title">数据中心电力基建</div>
+                    <div class="direction-rating">
+                        <span class="badge badge-warning">谨慎乐观</span>
+                    </div>
+                    <p>长期需求逻辑不变，但能源价格上涨短期压缩运营利润率，需观察油价是否突破85美元/桶持续。</p>
+                    <div class="strength-dots">
+                        <div class="dot dot-filled warning"></div>
+                        <div class="dot dot-filled warning"></div>
+                        <div class="dot dot-filled warning"></div>
+                        <div class="dot dot-empty warning"></div>
+                    </div>
+                    <div class="stat-label">Constellation Energy(CEG)</div>
+                </div>
+                
+                <div class="direction-card direction-card-warning">
+                    <div class="direction-title">半导体设备（光刻）</div>
+                    <div class="direction-rating">
+                        <span class="badge badge-warning">谨慎乐观</span>
+                    </div>
+                    <p>ASMI指引超预期确认设备端需求传导有效，但ASML本周跌10.9%反映宏观估值压力短期压制股价。</p>
+                    <div class="strength-dots">
+                        <div class="dot dot-filled warning"></div>
+                        <div class="dot dot-filled warning"></div>
+                        <div class="dot dot-filled warning"></div>
+                        <div class="dot dot-empty warning"></div>
+                    </div>
+                    <div class="stat-label">ASMI, ASML</div>
+                </div>
+            </div>
+            
+            <div class="direction-grid">
+                <div class="direction-card direction-card-negative">
+                    <div class="direction-title">传统软件/高杠杆SaaS</div>
+                    <div class="direction-rating">
+                        <span class="badge badge-danger">回避</span>
+                    </div>
+                    <p>利率上修预期+AI原生工具替代双重挤压，MongoDB增速降1个百分点即暴跌27%。</p>
+                    <div class="strength-dots">
+                        <div class="dot dot-filled negative"></div>
+                        <div class="dot dot-empty negative"></div>
+                        <div class="dot dot-empty negative"></div>
+                        <div class="dot dot-empty negative"></div>
+                    </div>
+                </div>
+                
+                <div class="direction-card direction-card-negative">
+                    <div class="direction-title">对华AI芯片出口</div>
+                    <div class="direction-rating">
+                        <span class="badge badge-danger">谨慎</span>
+                    </div>
+                    <p>管制逻辑从定向围堵升级为全球审批制，政策方向不可逆。</p>
+                    <div class="strength-dots">
+                        <div class="dot dot-filled negative"></div>
+                        <div class="dot dot-filled negative"></div>
+                        <div class="dot dot-empty negative"></div>
+                        <div class="dot dot-empty negative"></div>
+                    </div>
+                    <div class="stat-label">NVDA, AMD</div>
+                </div>
+            </div>
+            
+            <div class="callout callout-signal">
+                <span class="callout-label">本周关键矛盾</span>
+                <p>上游硬件基本面强劲（ASMI指引超预期、英伟达营收创纪录）vs 股价普遍下跌（ASML跌10.9%、台积电跌9.5%、美光跌10.2%）。这一矛盾的根源不在产业逻辑而在宏观估值压缩。<span class="hl">站在产业侧——基本面与股价的背离在利率预期企稳后可能构成反向配置机会</span>，但需等待油价和FOMC两个外部变量明朗化。</p>
+            </div>
+            
+            <div class="callout callout-signal">
+                <span class="callout-label">微弱但重要的早期信号</span>
+                <p>1) 美联储内部将AI CapEx热度纳入中性利率上修框架的讨论持续发酵，若下次FOMC会议纪要出现正式措辞，将意味着"AI越繁荣利率越高估值越承压"的负反馈机制进入政策框架，这是与AI基本面完全解耦的系统性估值风险</p>
+                <p>2) Cursor ARR三个月翻倍至20亿美元，若后续季度企业客户占比和客单价持续攀升，可能标志AI开发者工具从辅助工具向自主代理（Agentic）的临界点已至</p>
+            </div>
+        </div>
+
+        <div id="opportunities" class="module">
+            <h2>寻找"冷门"机会</h2>
+            
+            <div class="direction-card direction-card-neutral">
+                <div class="direction-title">AI合规与出口管控工具</div>
+                <p>美国AI芯片出口管制从定向升级为全球审批制，英伟达和AMD的国际销售每一笔都需政府批准。这催生了一个被主流叙事忽略的需求方向——出口合规自动化工具和许可证管理系统。当前该赛道尚无上市龙头，但合规成本的结构性上升意味着这是一个由政策驱动、需求确定性高的细分机会。<span class="hl">值得关注垂直于半导体出口合规的SaaS公司是否在未来1-2个季度获得融资或被并购。</span></p>
+            </div>
+            
+            <div class="direction-card direction-card-neutral">
+                <div class="direction-title">数据中心特种气体供应</div>
+                <p>韩国官员本周警告中东冲突可能阻碍芯片制造关键材料（如氦气）流动。虽然目前为预警而非实际断供，但半导体制造对高纯度特种气体的依赖是一个长期被低估的供应链脆弱点。<span class="hl">若霍尔木兹局势持续超一个季度，相关特气现货价格异动将是交叉验证信号。</span>这一方向远离AI主线叙事，但恰因如此可能被市场忽略定价。</p>
+            </div>
+        </div>
+
+        </div>
+
+<!-- Add the new section title here -->
+<div class="module" style="text-align: center;">
+    <h2>各板块详细分析</h2>
+    <p>(Detailed Sector Analysis)</p>
+</div>
+
+<div id="capital" class="module module-capital">
+
+        <div id="capital" class="module module-capital">
+            <div class="module-number">1</div>
+            <h2>资本流向与估值逻辑</h2>
+            <span class="badge badge-primary">板块分析</span>
+            
+            <h3>趋势研判</h3>
+            <p><strong>AI资本开支周期进入"信仰测试期"</strong>——巨头持续加码投资，但市场不再无条件买单，开始要求可量化的回报时间表。这一转折在多个资产类别同步显现：美股科技板块PE（市盈率）压缩、中国科技股累计蒸发约6000亿美元市值、债券投资者公开发出泡沫预警、全球资金从韩台AI核心市场加速流出。资金正沿产业链向上迁移——远离回报不确定的应用层，流向订单能见度更高的半导体设备和先进封装环节。</p>
+            
+            <div class="callout callout-fact">
+                <span class="callout-label">关键数据</span>
+                <p><strong>亚马逊AI资本开支拖累股价创多年最差月度表现</strong>（得分: 7.0）<br>
+                AMZN（亚马逊）2月股价跌12%，创2022年12月以来最差单月；最新季度CapEx（资本开支）达395亿美元，占营收19%</p>
+                
+                <p><strong>ASM International Q1营收指引超预期</strong>（得分: 7.0）<br>
+                ASMI（ASM国际，荷兰半导体设备制造商）预计Q1营收约8.3亿欧元，超分析师预期，下半年预期进一步增长</p>
+                
+                <p><strong>全球资金从亚洲AI核心市场撤出</strong>（得分: 6.5）<br>
+                油价通胀担忧叠加AI估值重估，全球基金平仓韩台市场AI头寸</p>
+            </div>
+            
+            <h3>产业链传导</h3>
+            <ul>
+                <li><strong>资金向上迁移</strong>：下游应用层ROI不达预期 → 二级市场投资者收紧对"概念型"AI资产的估值容忍度 → 资金转向现金流可见性更高的上游环节。ASMI指引超预期与AMZN股价承压同步发生，正是这一迁移的缩影。</li>
+                
+                <li><strong>跨资产估值压力</strong>：债券市场投资者对AI泡沫的公开担忧，与美联储可能将AI CapEx热度纳入中性利率上修框架的讨论形成呼应。若利率预期上修，高PE成长股首先承压——AMD当前PE 80.5倍、博通PE 73.9倍，均需持续高增长消化估值。</li>
+            </ul>
+            
+            <div class="callout callout-strategy">
+                <span class="callout-label">方向判断</span>
+                <p>未来3-6个月，AI产业链的估值分化将进一步加剧。上游半导体设备环节拥有订单能见度优势，是当前资本迁移的主要受益方向，但需警惕宏观利率上修带来的系统性估值压缩。</p>
+                <p><span class="hl">ASML基本面与股价的背离值得持续观察，若后续季度指引兑现且利率预期企稳，背离可能构成反向配置机会。</span></p>
+            </div>
+            
+            <details>
+                <summary>查看详细方向指引（4条）</summary>
+                <div class="details-content">
+                    <div class="direction-card direction-card-warning">
+                        <div class="direction-title">半导体设备（光刻）</div>
+                        <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                        <p><strong>核心逻辑：</strong>ASMI指引超预期确认设备端需求传导有效，但ASML本周跌10.9%反映宏观估值压力短期压制股价</p>
+                        <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：⚠️ 基本面与股价走势不一致</p>
+                        <p><strong>参考标的：</strong>ASM国际(ASMI)、阿斯麦(ASML)</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-negative">
+                        <div class="direction-title">云推理与中间件服务</div>
+                        <div class="direction-rating"><span class="badge badge-danger">回避</span></div>
+                        <p><strong>核心逻辑：</strong>AMZN CapEx占营收19%但市场不再为投入买单，88% vs 6%的ROI剪刀差令下游变现逻辑承压</p>
+                        <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-neutral">
+                        <div class="direction-title">AI模型公司一级市场</div>
+                        <div class="direction-rating"><span class="badge badge-neutral">中性观望</span></div>
+                        <p><strong>核心逻辑：</strong>Anduril 40亿美元融资与Reflection AI大额融资显示一级市场定价仍在扩张，但溢价能否在IPO时兑现存疑</p>
+                        <p><strong>时间窗口：</strong>6-12个月</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-negative">
+                        <div class="direction-title">传统软件/高杠杆SaaS</div>
+                        <div class="direction-rating"><span class="badge badge-danger">回避</span></div>
+                        <p><strong>核心逻辑：</strong>利率上修预期+债券市场泡沫警告双重压制高PE软件股，资金持续流出</p>
+                        <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+                    </div>
+                </div>
+            </details>
+        </div>
+        
+        <div id="macro" class="module module-macro">
+            <div class="module-number">2</div>
+            <h2>宏观环境与政策风向</h2>
+            <span class="badge badge-danger">外部风险增加</span>
+            
+            <h3>趋势研判</h3>
+            <p><strong>AI产业的外部投资环境正从中性转向逆风</strong>，两股力量同时收紧：一是霍尔木兹海峡冲突推高能源价格，通过电力成本和通胀预期双路径挤压AI板块；二是美联储内部围绕AI对中性利率影响的讨论升温，可能催生一个罕见的负反馈机制——AI产业越繁荣，越可能推高利率、压制自身估值。</p>
+            
+            <div class="callout callout-fact">
+                <span class="callout-label">关键数据</span>
+                <p><strong>中东冲突升级推高油价</strong>（得分: 7.0）<br>
+                布伦特原油涨至81.40美元/桶，单日涨幅近5%，为2025年1月以来最高；伊拉克日减产150万桶</p>
+                
+                <p><strong>美联储内部对AI经济影响存分歧</strong>（得分: 6.0）<br>
+                美联储主席提名人Kevin Warsh主张AI具有通缩效应、支持降息；另一派官员援引Block(SQ)整合AI后裁员40%为鹰派论据</p>
+                
+                <p><strong>地缘冲突威胁中东关键材料供应</strong>（得分: 5.0）<br>
+                韩国官员警告冲突可能阻碍芯片制造关键材料（如用于热管理的氦气）流动</p>
+            </div>
+            
+            <h3>产业链传导</h3>
+            <ul>
+                <li><strong>能源→数据中心→运营商利润率</strong>：布伦特若持续高于85美元/桶，数据中心电力采购成本将显著上升。当前亚马逊(AMZN)CapEx占营收19%、谷歌(GOOGL)达24%，能源成本叠加高资本强度，将压缩云基础设施运营商的利润空间</li>
+                
+                <li><strong>通胀预期→利率→高PE板块承压</strong>：能源冲击推升通胀预期，叠加美联储内部对AI推高中性利率的讨论，资金可能从高PE成长股向防御性资产迁移</li>
+            </ul>
+            
+            <div class="callout callout-strategy">
+                <span class="callout-label">方向判断</span>
+                <p>未来3-6个月，AI产业外部环境以逆风为主。最需警惕的是"AI繁荣反噬自身估值"的负反馈机制——科技巨头CapEx越高，美联储上修中性利率的可能性越大，进而压制整个板块估值。</p>
+                <p><span class="hl">关键观察窗口：下次FOMC会议纪要中是否出现"AI投资"相关措辞，以及布伦特原油是否突破并站稳90美元/桶。</span></p>
+            </div>
+            
+            <details>
+                <summary>查看详细方向指引（4条）</summary>
+                <div class="details-content">
+                    <div class="direction-card direction-card-warning">
+                        <div class="direction-title">数据中心电力基建</div>
+                        <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                        <p><strong>核心逻辑：</strong>长期需求逻辑不变，但能源价格上涨短期压缩运营利润率，需观察油价是否突破85美元/桶持续</p>
+                        <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：⚠️ 基本面与股价走势不一致</p>
+                        <p><strong>参考标的：</strong>Constellation Energy(CEG)</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-positive">
+                        <div class="direction-title">AI训练芯片龙头</div>
+                        <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                        <p><strong>核心逻辑：</strong>基本面仍强（NVDA季度营收681亿美元，环比+19.5%），但宏观逆风压制估值，PE回落至37.7倍反映利率担忧而非需求恶化</p>
+                        <p><strong>时间窗口：</strong>6-12个月 | <strong>背离状态</strong>：⚠️ 基本面与股价走势不一致</p>
+                        <p><strong>参考标的：</strong>英伟达(NVDA)</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-negative">
+                        <div class="direction-title">传统软件/高杠杆SaaS</div>
+                        <div class="direction-rating"><span class="badge badge-danger">回避</span></div>
+                        <p><strong>核心逻辑：</strong>利率上修预期+能源通胀双重挤压高倍数估值，资金流出方向最明确</p>
+                        <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-warning">
+                        <div class="direction-title">云推理与中间件服务</div>
+                        <div class="direction-rating"><span class="badge badge-warning">谨慎</span></div>
+                        <p><strong>核心逻辑：</strong>CapEx强度极高叠加能源成本上行，利润率承压；MSFT距高点回撤26.4%，GOOGL月跌13.1%</p>
+                        <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+                    </div>
+                </div>
+            </details>
+        </div>
+        
+        <div id="supply" class="module module-supply">
+            <div class="module-number">3</div>
+            <h2>产能瓶颈与供应链重构</h2>
+            <span class="badge badge-success">上游加速</span>
+            
+            <h3>趋势研判</h3>
+            <p><strong>AI供应链的瓶颈正在从芯片制造本身向两端延伸</strong>——上游的光互连和更上游的电力基建同时收紧。英伟达以40亿美元绑定光子学产能，ASML将先进封装列为下一个十年战略增长极，两大信号共同指向同一结论：先进封装与光互连的供需缺口不是在缓解，而是在被产业巨头以资本手段提前"预订"。</p>
+            
+            <div class="callout callout-fact">
+                <span class="callout-label">关键数据</span>
+                <p><strong>英伟达40亿美元锁定光子学供应链</strong>（得分: 8.5）<br>
+                向Lumentum（LITE）和Coherent（COHR）各投20亿美元，协议含产能权利与采购承诺</p>
+                
+                <p><strong>ASML战略扩展至先进封装设备</strong>（得分: 6.5）<br>
+                规划10-15年周期，目标覆盖CoWoS封装中HBM4集成所需的键合与互联工具</p>
+                
+                <p><strong>美国首个SMR建设获批 + 加州重新审视核能禁令</strong>（得分: 6.5）<br>
+                TerraPower获批在怀俄明州建设345兆瓦钠冷SMR，预计2030年代初运营</p>
+            </div>
+            
+            <h3>产业链传导</h3>
+            <ul>
+                <li><strong>光互连环节价值跃升</strong>：英伟达用资本锁定产能的行为本身就是稀缺性的最强证明。CPO（共封装光学）从规划走向实施，光模块厂商从"配件供应商"升级为"战略级合作伙伴"，议价权结构性提升</li>
+                
+                <li><strong>先进封装成为设备商的兵家必争之地</strong>：ASML从光刻跨界进入封装设备，与现有封装设备龙头Besi、K&S形成竞争。台积电CapEx占营收高达33%，其中相当比例投向CoWoS扩产，上游设备需求逻辑持续强化</li>
+            </ul>
+            
+            <div class="callout callout-strategy">
+                <span class="callout-label">方向判断</span>
+                <p>未来3-6个月，AI供应链瓶颈将维持"芯片侧紧平衡、电力侧持续收紧"的格局。最值得关注的细分环节是光互连（CPO技术落地进度）和先进封装设备（台积电CoWoS扩产订单释放节奏）。</p>
+                <p><span class="hl">主要风险：如果燃气轮机供应紧张持续恶化，且核能替代方案未能加速，数据中心建设延期将从电力端反向压制芯片需求增速。</span></p>
+            </div>
+            
+            <details>
+                <summary>查看详细方向指引（4条）</summary>
+                <div class="details-content">
+                    <div class="direction-card direction-card-positive">
+                        <div class="direction-title">光通信与网络设备</div>
+                        <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                        <p><strong>核心逻辑：</strong>英伟达40亿美元绑定协议确认光互连为核心瓶颈，CPO技术路线加速</p>
+                        <p><strong>时间窗口：</strong>6-12个月</p>
+                        <p><strong>参考标的：</strong>Lumentum(LITE), Coherent(COHR)</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-positive">
+                        <div class="direction-title">先进封装与减薄设备</div>
+                        <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                        <p><strong>核心逻辑：</strong>ASML战略进入+台积电33%资本开支强度共同验证封装设备长期需求</p>
+                        <p><strong>时间窗口：</strong>6-12个月 | <strong>背离状态</strong>：⚠️ 基本面与股价走势不一致</p>
+                        <p><strong>参考标的：</strong>阿斯麦(ASML)</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-warning">
+                        <div class="direction-title">数据中心电力基建</div>
+                        <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                        <p><strong>核心逻辑：</strong>核能政策方向明确但兑现需5年+；燃气轮机短缺构成中期实质制约</p>
+                        <p><strong>时间窗口：</strong>1年以上 | <strong>背离状态</strong>：⚠️ 基本面与股价走势不一致</p>
+                        <p><strong>参考标的：</strong>Constellation Energy(CEG)</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-warning">
+                        <div class="direction-title">半导体设备（光刻）</div>
+                        <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                        <p><strong>核心逻辑：</strong>ASML营收强劲但封装新业务商业化周期10-15年，短期贡献有限</p>
+                        <p><strong>时间窗口：</strong>6-12个月 | <strong>背离状态</strong>：⚠️ 基本面与股价走势不一致</p>
+                        <p><strong>参考标的：</strong>阿斯麦(ASML)</p>
+                    </div>
+                </div>
+            </details>
+        </div>
+        
+        <div id="regulation" class="module module-regulation">
+            <div class="module-number">4</div>
+            <h2>监管演进与合规风险</h2>
+            <span class="badge badge-danger">全球管控升级</span>
+            
+            <h3>趋势研判</h3>
+            <p><strong>美国AI芯片出口管制从"定向围堵"升级为"全球审批"</strong>，管制逻辑发生根本性转变。美国商务部正在起草新规，要求英伟达(NVDA)、AMD(AMD)等公司的AI芯片出口至全球任意目的地均须事先获得美国政府审批，管制范围从针对中国等特定国家扩展为普遍性许可制度。</p>
+            <p>这一转变意味着合规成本和业务不确定性将急剧上升——英伟达本季营收681亿美元（环比+19.5%），其中国际业务占比显著，若审批流程导致出货延迟，将直接冲击收入确认节奏；AMD本季营收103亿美元（环比+11.1%），PE高达80.5倍，市场已在定价风险（本周跌3.9%，距高点回撤28%）。</p>
+            
+            <div class="callout callout-risk">
+                <span class="callout-label">风险警示</span>
+                <p>美国新规草案一旦落地，英伟达和AMD的国际销售业务将面临审批延迟和不确定性风险，这对高PE的AMD（80.5倍）估值压力尤为显著。同时催生了出口合规工具这一新需求方向，相关SaaS企业可能出现并购整合机会。</p>
+            </div>
+            
+            <div class="direction-card direction-card-negative">
+                <div class="direction-title">对华AI芯片出口</div>
+                <div class="direction-rating"><span class="badge badge-danger">谨慎</span></div>
+                <p><strong>核心逻辑：</strong>管制从定向转为普遍审批，政策方向不可逆，出货不确定性加大</p>
+                <p><strong>时间窗口：</strong>6-12个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+                <p><strong>参考标的：</strong>英伟达(NVDA)、AMD(AMD)</p>
+            </div>
+            
+            <div class="direction-card direction-card-warning">
+                <div class="direction-title">AI合规科技与风控工具</div>
+                <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                <p><strong>核心逻辑：</strong>全球管制趋严催生出口合规与版权合规工具需求</p>
+                <p><strong>时间窗口：</strong>6-12个月</p>
+            </div>
+        </div>
+        
+        <div id="business" class="module module-business">
+            <div class="module-number">5</div>
+            <h2>AI商业化落地与价值验证</h2>
+            <span class="badge badge-warning">原生AI产品提速</span>
+            
+            <h3>趋势研判</h3>
+            <p><strong>AI应用层商业化正在分化加速。</strong>最具说服力的数据来自Cursor（AI编程辅助工具开发商）：其ARR（年化经常性收入）于2026年2月突破20亿美元，三个月内翻倍。这一增速远超传统SaaS行业基准，表明AI开发者工具已从早期渗透进入规模扩张期，企业及个人开发者的付费意愿正被充分验证。</p>
+            <p>与此同时，SAP（全球最大企业管理软件商）CEO重组领导层、将精力转向AI开发，折射出传统企业软件巨头面临客户流失和替代威胁的紧迫感。Salesforce本季营收112亿美元（环比+9.2%），增速虽稳健但PE仅27倍且距高点回撤超30%，说明市场对传统软件厂商AI转型的定价仍趋保守。</p>
+            
+            <div class="callout callout-fact">
+                <span class="callout-label">关键数据</span>
+                <p><strong>AI Agent商业化落地：88%采用率 vs 6%高ROI</strong>（得分: 6.5）<br>
+                Azumo报告显示全球88%企业已采用AI，但仅6%实现高ROI（投资回报率）</p>
+                
+                <p><strong>Cursor ARR三个月翻倍至20亿美元</strong>（得分: 7.0）<br>
+                AI开发者工具从早期渗透进入规模扩张期，付费转化率持续提升</p>
+                
+                <p><strong>SAP重组领导层应对AI冲击</strong>（得分: 6.5）<br>
+                全球最大企业管理软件商CEO战略转向，承认面临替代威胁</p>
+            </div>
+            
+            <div class="direction-card direction-card-warning">
+                <div class="direction-title">企业流程自动化/AI工作流</div>
+                <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                <p><strong>核心逻辑：</strong>Cursor等原生AI工具验证需求端强劲，但传统厂商转型效果待财报确认</p>
+                <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：⚠️ 基本面与股价走势不一致</p>
+                <p><strong>参考标的：</strong>Salesforce(CRM)</p>
+            </div>
+            
+            <div class="direction-card direction-card-negative">
+                <div class="direction-title">传统软件/高杠杆SaaS</div>
+                <div class="direction-rating"><span class="badge badge-danger">回避</span></div>
+                <p><strong>核心逻辑：</strong>SAP被迫重组应对AI冲击，客户迁移威胁加剧，高PE标的承压</p>
+                <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+            </div>
+            
+            <div class="callout callout-signal">
+                <span class="callout-label">趋势判断</span>
+                <p>AI原生开发者工具商业化验证超预期，传统企业软件面临的替代压力从战略层面已被管理层确认，两条路径的估值分化将持续扩大。</p>
+                <p><span class="hl">主要风险：如果Cursor等新兴工具的客户留存率在规模扩大后显著下滑，当前的非线性增长叙事将被证伪。</span></p>
+            </div>
+        </div>
+        
+        <div id="computing" class="module module-computing">
+            <div class="module-number">6</div>
+            <h2>算力供需与竞争格局</h2>
+            <span class="badge badge-warning">训练侧强势持续</span>
+            
+            <h3>趋势研判</h3>
+            <p><strong>英伟达训练芯片的统治地位进一步巩固。</strong>其最新季度营收681亿美元（环比+19.5%），下季度指引760亿至795亿美元超出市场预期，毛利率维持75%高位——超大规模云厂商的CapEx（资本开支）扩张仍在加速喂养这条主线。</p>
+            <p>与此同时，英特尔CEO正重新考虑将18A先进制程对外开放代工，驱动力是良率改善，但具体数据未披露。英特尔当前季度营收137亿美元（环比仅+0.2%），CapEx强度高达26%，PE为负，市场情绪偏空（周跌4.8%）——战略意图明确，但从信号到订单落地仍有较长距离。</p>
+            
+            <div class="callout callout-fact">
+                <span class="callout-label">关键数据</span>
+                <p><strong>英伟达下季度指引760-795亿美元再超预期</strong>（得分: 7.5）<br>
+                本季度营收681亿美元（环比+19.5%），毛利率维持75%高位</p>
+                
+                <p><strong>英特尔CEO考虑将18A先进制程对外开放代工</strong>（得分: 6.5）<br>
+                驱动力是良率改善，但具体数据未披露；当前季度营收137亿美元（环比仅+0.2%）</p>
+                
+                <p><strong>博通AI收入指引102亿美元，CEO预测2027年超1000亿美元</strong>（得分: 7.5）<br>
+                最新季度AI相关收入84亿美元同比翻倍，定制芯片路线商业化加速</p>
+            </div>
+            
+            <div class="direction-card direction-card-positive">
+                <div class="direction-title">AI训练芯片龙头</div>
+                <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                <p><strong>核心逻辑：</strong>英伟达指引超预期，训练侧需求未见拐点</p>
+                <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+                <p><strong>参考标的：</strong>英伟达(NVDA)</p>
+            </div>
+            
+            <div class="direction-card direction-card-positive">
+                <div class="direction-title">定制芯片/ASIC设计</div>
+                <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                <p><strong>核心逻辑：</strong>大客户自研芯片持续推进，推理侧成本优势验证中</p>
+                <p><strong>时间窗口：</strong>6-12个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+                <p><strong>参考标的：</strong>博通(AVGO)</p>
+            </div>
+            
+            <div class="direction-card direction-card-neutral">
+                <div class="direction-title">晶圆代工</div>
+                <div class="direction-rating"><span class="badge badge-neutral">中性观望</span></div>
+                <p><strong>核心逻辑：</strong>英特尔18A开放代工为方向信号，但良率数据和客户订单未落地</p>
+                <p><strong>时间窗口：</strong>6-12个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+                <p><strong>参考标的：</strong>英特尔(INTC)</p>
+            </div>
+            
+            <div class="callout callout-strategy">
+                <span class="callout-label">趋势判断</span>
+                <p>算力竞争格局短期未发生权力转移，英伟达训练侧优势再确认；定制芯片蚕食通用GPU份额的中期趋势延续；英特尔代工破局需等待良率数据和首批外部客户订单落地，建议关注2026年下半年进展。</p>
+            </div>
+        </div>
+        
+        <div id="edge" class="module module-edge">
+            <div class="module-number">7</div>
+            <h2>其他信号与边缘观察</h2>
+            <span class="badge badge-neutral">多条微弱信号交汇</span>
+            
+            <h3>趋势研判</h3>
+            <p><strong>AI产业链的"去中心化"正在多条非主流路径上同时推进。</strong>最值得关注的结构性变化并非来自主流算力叙事，而是三条边缘信号的交汇：</p>
+            <ul>
+                <li>硅光子互连技术获得产业资本实质性押注</li>
+                <li>霍尔木兹海峡地缘危机可能通过能源成本间接侵蚀数据中心利润率</li>
+                <li>MongoDB（数据库厂商）式的成长股估值重置正在从传统软件向AI基础设施数据层蔓延</li>
+            </ul>
+            
+            <div class="callout callout-fact">
+                <span class="callout-label">关键数据</span>
+                <p><strong>Ayar Labs完成5亿美元融资，估值38亿美元</strong>（得分: 6.5）<br>
+                联发科与卡塔尔投资局领投，聚焦CPO（共封装光学）技术</p>
+                
+                <p><strong>霍尔木兹海峡冲突推高全球能源价格</strong>（得分: 7.5）<br>
+                该区域供应全球约三分之一石油和五分之一天然气；伊拉克考虑大幅减产</p>
+                
+                <p><strong>MongoDB财报后单日暴跌27%</strong>（得分: 7.0）<br>
+                Atlas增速从30%降至29%叠加FY27指引下调</p>
+            </div>
+            
+            <h3>产业链传导</h3>
+            <ul>
+                <li><strong>互连瓶颈上移</strong>：当单芯片算力逼近物理极限，芯片间数据传输速度成为系统性能的新天花板。Ayar Labs融资信号表明，硅光子CPO可能在2027-2028年进入规模商用窗口，光通信与封装环节的价值权重将持续上升。</li>
+                
+                <li><strong>能源成本非线性传导</strong>：霍尔木兹危机若持续，天然气价格攀升将首先冲击欧洲数据中心运营商，其次通过PJM（美国最大电网运营商）等电力市场传导至美国东部数据中心集群。</li>
+                
+                <li><strong>估值脆弱性扩散</strong>：MongoDB的暴跌并非孤例，而是高PE成长股在利率预期上移环境下的系统性脆弱性表现。博通当前PE 73.9倍，若后续季度AI收入增速未达隐含预期，同样面临类似的估值重置风险。</li>
+            </ul>
+            
+            <details>
+                <summary>查看详细方向指引（4条）</summary>
+                <div class="details-content">
+                    <div class="direction-card direction-card-positive">
+                        <div class="direction-title">光通信与网络设备</div>
+                        <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                        <p><strong>核心逻辑：</strong>Ayar Labs融资确认硅光子CPO技术路线获产业资本认可，互连瓶颈上移提升该环节战略价值</p>
+                        <p><strong>时间窗口：</strong>6-12个月</p>
+                        <p><strong>参考标的：</strong>联发科(2454.TW)</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-positive">
+                        <div class="direction-title">定制芯片/ASIC设计</div>
+                        <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                        <p><strong>核心逻辑：</strong>博通AI收入同比翻倍+102亿指引，ASIC商业化从概念转入规模兑现</p>
+                        <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：⚠️ 基本面强劲但PE 73.9倍且距高点-20.3%，市场定价中已包含对高估值的犹豫</p>
+                        <p><strong>参考标的：</strong>博通(AVGO)</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-negative">
+                        <div class="direction-title">传统软件/高杠杆SaaS</div>
+                        <div class="direction-rating"><span class="badge badge-danger">回避</span></div>
+                        <p><strong>核心逻辑：</strong>MongoDB增速仅降1pct即触发27%暴跌，高PE成长股估值惩罚模式在利率预期上移环境下将持续</p>
+                        <p><strong>时间窗口：</strong>3-6个月 | <strong>背离状态</strong>：✅ 市场共振</p>
+                    </div>
+                    
+                    <div class="direction-card direction-card-warning">
+                        <div class="direction-title">数据中心电力基建</div>
+                        <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                        <p><strong>核心逻辑：</strong>霍尔木兹危机推高能源价格，短期压缩数据中心利润率，但中期加速电力基建自主化与核电/可再生能源替代投资</p>
+                        <p><strong>时间窗口：</strong>6-12个月</p>
+                    </div>
+                </div>
+            </details>
+            
+            <div class="callout callout-signal">
+                <span class="callout-label">微弱但重要的早期信号</span>
+                <p>欧盟《工业加速器法案》（IAA）拟对钢铁、铝、风电设备等设定本地含量要求，目标2035年制造业占GDP达20%。虽然法案仍在谈判阶段且条款已较初版缩水，但若最终落地，将重塑全球工业供应链格局，对在欧运营的半导体设备与数据中心硬件供应商产生间接影响。</p>
+            </div>
+        </div>
+
+        <div id="focus" class="module">
+            <h2>本周焦点公司</h2>
+            <p>以下公司因处于AI产业链的关键位置，在多个趋势主题中被频繁提及。</p>
+            
+            <div class="direction-card">
+                <div class="direction-title">英伟达 (NVDA)</div>
+                <p><strong>涉及板块：</strong>6个 | <strong>报道数量：</strong>14篇 | <strong>均分：</strong>6.4 | <strong>综合信号：</strong>偏利好</p>
+                <ul>
+                    <li>【监管演进】美国商务部正在起草新规，要求AI芯片出口至全球任何目的地均须获美国政府批准</li>
+                    <li>【产能瓶颈】向Lumentum和Coherent两家光子学公司各投资20亿美元，合计40亿美元</li>
+                    <li>【资本流向】黄仁勋表示，此次300亿美元投资可能是OpenAI预期IPO前的最后一笔外部投资</li>
+                </ul>
+            </div>
+            
+            <div class="direction-card">
+                <div class="direction-title">OpenAI</div>
+                <p><strong>涉及板块：</strong>5个 | <strong>报道数量：</strong>7篇 | <strong>均分：</strong>6.4 | <strong>综合信号：</strong>多空交织</p>
+                <ul>
+                    <li>【资本流向】在此轮融资中的估值达到1100亿美元</li>
+                    <li>【模型能力】2026年初的年化收入已超过250亿美元，较上年增长约17%</li>
+                    <li>【商业化落地】内部AI数据代理由两名工程师在三个月内开发完成，其中70%的代码由AI生成</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="summary" class="module">
+            <h2>本周综合方向指引</h2>
+            <p>以下是本周各趋势主题中识别出的投资方向信号，按信号强度排序。</p>
+            
+            <div class="direction-grid">
+                <div class="direction-card direction-card-positive">
+                    <div class="direction-title">AI训练芯片龙头</div>
+                    <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>英伟达下季度指引760-795亿美元超预期，训练侧需求未见拐点</p>
+                    <p><strong>参考标的：</strong>英伟达(NVDA)</p>
+                </div>
+                
+                <div class="direction-card direction-card-positive">
+                    <div class="direction-title">光通信与网络设备</div>
+                    <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>英伟达40亿美元绑定协议确认光互连为核心瓶颈，CPO技术路线加速</p>
+                    <p><strong>参考标的：</strong>LITE, COHR、联发科(2454.TW)</p>
+                </div>
+                
+                <div class="direction-card direction-card-positive">
+                    <div class="direction-title">定制芯片/ASIC设计</div>
+                    <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>博通AI收入同比翻倍+102亿指引，ASIC商业化从概念转入规模兑现</p>
+                    <p><strong>参考标的：</strong>AVGO</p>
+                </div>
+                
+                <div class="direction-card direction-card-positive">
+                    <div class="direction-title">先进封装与减薄设备</div>
+                    <div class="direction-rating"><span class="badge badge-success">看好</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-strong positive"></div>
+                        <div class="dot-empty-strong positive"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>ASML战略进入+台积电33%资本开支强度共同验证封装设备长期需求</p>
+                    <p><strong>参考标的：</strong>ASML</p>
+                </div>
+            </div>
+            
+            <div class="direction-grid">
+                <div class="direction-card direction-card-warning">
+                    <div class="direction-title">数据中心电力基建</div>
+                    <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong warning"></div>
+                        <div class="dot-strong warning"></div>
+                        <div class="dot-strong warning"></div>
+                        <div class="dot-empty-strong warning"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>长期需求逻辑不变，但能源价格上涨短期压缩运营利润率</p>
+                    <p><strong>参考标的：</strong>Constellation Energy(CEG)</p>
+                </div>
+                
+                <div class="direction-card direction-card-warning">
+                    <div class="direction-title">半导体设备（光刻）</div>
+                    <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong warning"></div>
+                        <div class="dot-strong warning"></div>
+                        <div class="dot-strong warning"></div>
+                        <div class="dot-empty-strong warning"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>ASMI指引超预期确认设备端需求传导有效，但ASML本周跌10.9%反映宏观估值压力短期压制股价</p>
+                    <p><strong>参考标的：</strong>ASM国际(ASMI)、阿斯麦(ASML)</p>
+                </div>
+            </div>
+            
+            <div class="direction-grid">
+                <div class="direction-card direction-card-warning">
+                    <div class="direction-title">企业流程自动化/AI工作流</div>
+                    <div class="direction-rating"><span class="badge badge-warning">谨慎乐观</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong warning"></div>
+                        <div class="dot-strong warning"></div>
+                        <div class="dot-strong warning"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>Cursor等原生AI工具验证需求强劲，但传统厂商转型效果待财报确认</p>
+                    <p><strong>参考标的：</strong>Salesforce(CRM)</p>
+                </div>
+                
+                <div class="direction-card direction-card-neutral">
+                    <div class="direction-title">晶圆代工</div>
+                    <div class="direction-rating"><span class="badge badge-neutral">中性观望</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong neutral"></div>
+                        <div class="dot-strong neutral"></div>
+                        <div class="dot-strong neutral"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>英特尔18A对外开放为方向信号，但良率数据和外部订单均未落地</p>
+                    <p><strong>参考标的：</strong>INTC</p>
+                </div>
+            </div>
+            
+            <div class="direction-grid">
+                <div class="direction-card direction-card-negative">
+                    <div class="direction-title">对华AI芯片出口</div>
+                    <div class="direction-rating"><span class="badge badge-danger">谨慎</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong negative"></div>
+                        <div class="dot-strong negative"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>管制从定向转为普遍审批，政策方向不可逆</p>
+                    <p><strong>参考标的：</strong>英伟达(NVDA)、AMD(AMD)</p>
+                </div>
+                
+                <div class="direction-card direction-card-negative">
+                    <div class="direction-title">云推理与中间件服务</div>
+                    <div class="direction-rating"><span class="badge badge-danger">谨慎</span></div>
+                    <div class="signal-strength">
+                        <div class="dot-strong negative"></div>
+                        <div class="dot-strong negative"></div>
+                    </div>
+                    <p><strong>核心逻辑：</strong>CapEx强度极高叠加能源成本上行压缩利润率</p>
+                </div>
+            </div>
+            
+            <div class="direction-card direction-card-negative">
+                <div class="direction-title">传统软件/高杠杆SaaS</div>
+                <div class="direction-rating"><span class="badge badge-danger">回避</span></div>
+                <div class="signal-strength">
+                    <div class="dot-strong negative"></div>
+                </div>
+                <p><strong>核心逻辑：</strong>利率上修预期与能源通胀双重挤压高倍数估值</p>
+                <p><strong>来源：</strong>宏观环境与政策风向、AI商业化落地与价值验证、其他信号与边缘观察</p>
+            </div>
+        </div>
+        
+        <div id="methodology" class="module">
+            <h2>📋 方法论说明</h2>
+            
+            <details>
+                <summary>信源分级</summary>
+                <div class="details-content">
+                    <ul>
+                        <li><strong>Tier 1 (T1)</strong>：Bloomberg、Reuters、WSJ、FT、CNBC、SEC.gov、公司官方公告、Nature/Science</li>
+                        <li><strong>Tier 2 (T2)</strong>：The Information、TechCrunch、SemiAnalysis、IEEE Spectrum、专业行业媒体</li>
+                        <li><strong>Tier 3 (T3)</strong>：聚合网站、个人博客、社交媒体、未署名分析</li>
+                    </ul>
+                </div>
+            </details>
+            
+            <details>
+                <summary>事件评分（0-10分）</summary>
+                <div class="details-content">
+                    <ul>
+                        <li><strong>7-8分</strong>：重大突破/并购/政策转折（+信源加成）</li>
+                        <li><strong>5-6分</strong>：有数据支撑的产品发布/行业分析</li>
+                        <li><strong>3-4分</strong>：常规更新/缺乏独立验证的报道</li>
+                        <li>非Tier 1且非High可信度的文章，得分上限为7.5分</li>
+                    </ul>
+                </div>
+            </details>
+            
+            <details>
+                <summary>信号强度图标说明</summary>
+                <div class="details-content">
+                    <ul>
+                        <li><strong>●●●●（强信号）</strong>：评级为"看好"且在2个以上趋势主题中被独立验证</li>
+                        <li><strong>●●●○（较强信号）</strong>：评级为"看好"但仅单一主题支撑，或"谨慎乐观"且多主题验证</li>
+                        <li><strong>●●●（中等信号）</strong>："谨慎乐观"（单主题）或"中性观望"</li>
+                        <li><strong>●●（弱信号）</strong>："谨慎"——负面信号主导但强度有限</li>
+                        <li><strong>●（警示信号）</strong>："回避"——明确的负面信号</li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+    </div>
+</body>
+</html>
