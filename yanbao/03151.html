@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI 行业周报 | 2026-03-15</title>
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --white: #ffffff;
+    --surface: #ffffff;
+    --surface-alt: #f0f2f8;
+    --surface-warm: #faf8f5;
+    --border: #e2e5ef;
+    --border-light: #eef0f6;
+    --text: #1e2a3a;
+    --text-secondary: #4a5568;
+    --text-dim: #7a8599;
+    --text-muted: #a0aab8;
+    
+    --accent-blue: #2563eb;
+    --accent-cyan: #0891b2;
+    --accent-green: #059669;
+    --accent-amber: #d97706;
+    --accent-red: #dc2626;
+    --accent-purple: #7c3aed;
+    --accent-orange: #ea580c;
+    
+    --bull: #059669;
+    --bull-bg: #ecfdf5;
+    --bull-border: #a7f3d0;
+    --bear: #dc2626;
+    --bear-bg: #fef2f2;
+    --bear-border: #fecaca;
+    --caution-bg: #fffbeb;
+    --caution-border: #fde68a;
+    --neutral-bg: #f3f4f6;
+    --neutral-border: #d1d5db;
+    --fact-bg: #eff6ff;
+    --fact-border: #93c5fd;
+    --strategy-bg: #fffbeb;
+    --strategy-border: #fcd34d;
+    --risk-bg: #fef2f2;
+    --risk-border: #fca5a5;
+    --signal-bg: #f5f3ff;
+    --signal-border: #c4b5fd;
+    
+    --section-cap: #eef2ff;
+    --section-macro: #fef2f2;
+    --section-supply: #ecfeff;
+    --section-reg: #f3f4f6;
+    --section-biz: #ecfdf5;
+    --section-chip: #fffbeb;
+    --section-edge: #f5f3ff;
+  }
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  
+  .container { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+  
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #3b82f6 100%);
+    padding: 52px 0 40px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .header-label {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    backdrop-filter: blur(4px);
+  }
+  
+  .header h1 {
+    font-size: 23px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+  
+  .header .subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  
+  .header-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 24px;
+  }
+  
+  .header-stat {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  
+  .header-stat .value {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  
+  .header-stat .label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.3;
+  }
+  
+  /* Nav Chips */
+  .nav-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 20px 0;
+    margin-bottom: 8px;
+  }
+  
+  .nav-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  
+  .nav-chip:hover {
+    background: var(--surface-alt);
+    color: var(--accent-blue);
+  }
+  
+  /* Modules */
+  .module {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin: 16px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+    border: 1px solid var(--border-light);
+  }
+  
+  .section-label {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-blue);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+  
+  .section-subtitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 24px 0 12px;
+    padding-left: 12px;
+    border-left: 3px solid var(--accent-blue);
+  }
+  
+  p { margin-bottom: 14px; }
+  strong { color: var(--text); font-weight: 600; }
+  
+  /* Verdict */
+  .verdict {
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    border: 1px solid #c7d2fe;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  
+  .verdict-icon { font-size: 22px; margin-bottom: 6px; }
+  .verdict p { font-size: 15px; line-height: 1.8; margin-bottom: 0; }
+  
+  /* Key Numbers */
+  .key-numbers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 20px 0; }
+  .key-num {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .key-num .value { font-size: 26px; font-weight: 800; line-height: 1.2; }
+  .key-num .value.green { color: var(--accent-green); }
+  .key-num .value.red { color: var(--accent-red); }
+  .key-num .value.blue { color: var(--accent-blue); }
+  .key-num .value.amber { color: var(--accent-amber); }
+  .key-num .label { font-size: 11px; color: var(--text-dim); margin-top: 6px; line-height: 1.4; }
+  
+  /* Callout */
+  .callout { border-radius: 12px; padding: 16px 18px; margin: 14px 0; border-left: 4px solid; }
+  .callout-fact { background: var(--fact-bg); border-color: var(--fact-border); }
+  .callout-strategy { background: var(--strategy-bg); border-color: var(--strategy-border); }
+  .callout-risk { background: var(--risk-bg); border-color: var(--risk-border); }
+  .callout-signal { background: var(--signal-bg); border-color: var(--signal-border); }
+  .callout .callout-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout-fact .callout-label { color: var(--accent-blue); }
+  .callout-strategy .callout-label { color: var(--accent-amber); }
+  .callout-risk .callout-label { color: var(--accent-red); }
+  .callout-signal .callout-label { color: var(--accent-purple); }
+  .callout p:last-child { margin-bottom: 0; }
+  
+  /* Signal cards */
+  .signal-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin: 14px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+  
+  .signal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .signal-badge { font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .badge-strong { background: #dcfce7; color: #166534; }
+  .badge-medium { background: #fef3c7; color: #92400e; }
+  .signal-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  
+  /* Chain / Transmission */
+  .chain-container { margin: 20px 0; }
+  .chain-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent-blue);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  
+  .chain-step { display: flex; align-items: flex-start; gap: 14px; }
+  .chain-num {
+    flex-shrink: 0;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #fff;
+  }
+  .chain-num.c1 { background: var(--accent-blue); }
+  .chain-num.c2 { background: var(--accent-cyan); }
+  .chain-num.c3 { background: var(--accent-purple); }
+  
+  .chain-text { flex: 1; font-size: 14px; line-height: 1.7; padding-top: 5px; }
+  .chain-text strong { display: block; margin-bottom: 2px; color: var(--text); }
+  
+  .chain-arrow-wrap { 
+    display: flex; 
+    justify-content: center; 
+    width: 100%; 
+    padding: 8px 0; 
+  }
+  .chain-arrow-wrap svg { width: 18px; height: 18px; }
+  
+  /* Direction cards */
+  .direction-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  
+  .direction-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+  .direction-card.bull::before { background: var(--bull); }
+  .direction-card.bear::before { background: var(--bear); }
+  .direction-card.caution::before { background: var(--accent-amber); }
+  .direction-card.neutral::before { background: #9ca3af; }
+  
+  .dir-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap; }
+  .dir-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .dir-rating { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .rating-bull { background: #dcfce7; color: #166534; }
+  .rating-caution { background: #fef3c7; color: #92400e; }
+  .rating-bear { background: #fee2e2; color: #991b1b; }
+  .rating-neutral { background: #f3f4f6; color: #4b5563; }
+  
+  .dir-meta { display: flex; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+  .dir-meta span { font-size: 12px; color: var(--text-dim); }
+  
+  .dir-logic { font-size: 13px; line-height: 1.65; color: var(--text-secondary); margin-bottom: 0; }
+  .dir-ticker { margin-top: 8px; font-size: 12px; color: var(--text-dim); }
+  .dir-ticker strong { color: var(--text-secondary); }
+  
+  .dir-dots { display: flex; gap: 3px; align-items: center; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .dot.filled { background: var(--accent-blue); }
+  .dot.empty { background: var(--border); }
+  
+  /* Compare items */
+  .compare-grid { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+  .compare-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 14px;
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+  }
+  .compare-icon {
+    flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .ci-keep { background: #dcfce7; }
+  .ci-new { background: #dbeafe; }
+  .ci-down { background: #fee2e2; }
+  .ci-warn { background: #fef3c7; }
+  .ci-track { background: #ede9fe; }
+  .compare-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  
+  /* Analogy */
+  .analogy {
+    background: #faf5ff;
+    border: 1px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin: 14px 0;
+    font-size: 14px; line-height: 1.7;
+  }
+  .analogy::before { content: '💡 通俗理解'; display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--accent-purple); margin-bottom: 6px; }
+  
+  /* Timeline */
+  .timeline { margin: 16px 0; }
+  .timeline-item { display: flex; gap: 14px; padding-bottom: 16px; position: relative; }
+  .timeline-item:not(:last-child)::after {
+    content: ''; position: absolute; left: 15px; top: 34px; bottom: 0; width: 2px; background: var(--border);
+  }
+  .timeline-dot {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+    background: #eef2ff; border: 2px solid var(--accent-blue);
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .timeline-content { flex: 1; padding-top: 4px; }
+  .timeline-date { font-size: 12px; font-weight: 700; color: var(--accent-blue); margin-bottom: 2px; }
+  .timeline-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  
+  /* Cold Opportunity */
+  .cold-opp {
+    background: linear-gradient(135deg, #faf5ff 0%, #eef2ff 100%);
+    border: 1px solid #e9d5ff;
+    border-radius: 14px;
+    padding: 22px;
+  }
+  .cold-opp-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--accent-purple); margin-bottom: 8px; }
+  
+  /* Board Sections */
+  .board-module {
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin: 16px 0;
+    border: 1px solid var(--border-light);
+  }
+  
+  .board-number {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+    opacity: 0.12;
+  }
+  
+  .board-tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 4px; margin-bottom: 8px;
+  }
+  
+  .board-tag.macro { background: #fee2e2; color: #991b1b; }
+  .board-tag.cap { background: #dbeafe; color: #1e40af; }
+  .board-tag.biz { background: #dcfce7; color: #166534; }
+  .board-tag.supply { background: #cffafe; color: #155e75; }
+  .board-tag.reg { background: #f3f4f6; color: #4b5563; }
+  .board-tag.edge { background: #ede9fe; color: #5b21b6; }
+  
+  .board-title { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.4; margin-bottom: 4px; }
+  .board-subtitle { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 16px; }
+  
+  /* Collapsible */
+  details { margin: 12px 0; }
+  details summary {
+    cursor: pointer; font-size: 14px; font-weight: 600;
+    color: var(--accent-blue);
+    padding: 12px 16px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    list-style: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.15s;
+  }
+  details summary:hover { background: #e8ecf5; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before { content: '▸'; transition: transform 0.2s; display: inline-block; }
+  details[open] summary::before { transform: rotate(90deg); }
+  details[open] summary { border-radius: 10px 10px 0 0; border-bottom: none; }
+  details .detail-content {
+    padding: 16px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+  }
+  
+  /* Event cards */
+  .event-card {
+    background: var(--white);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 10px 0;
+  }
+  .event-score { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-bottom: 6px; }
+  .score-high { background: #dcfce7; color: #166534; }
+  .score-mid { background: #dbeafe; color: #1e40af; }
+  .event-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; line-height: 1.45; }
+  .event-data { font-size: 13px; color: var(--text-secondary); padding-left: 12px; border-left: 2px solid var(--border); line-height: 1.6; }
+  
+  /* Focus company */
+  .focus-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin: 10px 0;
+  }
+  .focus-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .focus-meta { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
+  .focus-snippet { font-size: 13px; color: var(--text-secondary); padding-left: 12px; border-left: 2px solid var(--accent-cyan); line-height: 1.65; }
+  
+  /* Scenario Table Alternative */
+  .scenario-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 10px 0;
+  }
+  .scenario-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .scenario-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .scenario-tag.baseline { background: #fef3c7; color: #92400e; }
+  .scenario-tag.ease { background: #dcfce7; color: #166534; }
+  .scenario-tag.worsen { background: #fee2e2; color: #991b1b; }
+  .scenario-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .scenario-content { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  
+  /* Utility */
+  .mt-sm { margin-top: 10px; } .mt-md { margin-top: 18px; }
+  .mb-sm { margin-bottom: 10px; } .mb-md { margin-bottom: 18px; }
+  .text-sm { font-size: 13px; } .text-xs { font-size: 12px; }
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+  .text-center { text-align: center; }
+  .hl { background: linear-gradient(transparent 60%, rgba(37,99,235,0.15) 60%); padding: 0 2px; }
+  
+  /* Footer */
+  .footer { padding: 32px 0; text-align: center; }
+  .footer p { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="container">
+    <div class="header-label">AI Industry Weekly</div>
+    <h1>油价飙升叠加内存长约，外部传导全面激活</h1>
+    <p class="subtitle">AI产业处于"大规模建基础设施"中段，成本压力测试实质化</p>
+    
+    <div class="header-stats">
+      <div class="header-stat">
+        <div class="value" style="color: #f87171;">$103.1</div>
+        <div class="label">布伦特原油<br>超均线40%</div>
+      </div>
+      <div class="header-stat">
+        <div class="value" style="color: #34d399;">$146亿</div>
+        <div class="label">Nscale估值<br>资本向基建聚集</div>
+      </div>
+      <div class="header-stat">
+        <div class="value" style="color: #fbbf24;">27.19</div>
+        <div class="label">VIX恐慌指数<br>偏悲观转调</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="nav-chips">
+    <a href="#verdict" class="nav-chip">本周研判</a>
+    <a href="#chains" class="nav-chip">传导推演</a>
+    <a href="#directions" class="nav-chip">方向总览</a>
+    <a href="#sectors" class="nav-chip">板块解析</a>
+    <a href="#radar" class="nav-chip">投资雷达</a>
+  </div>
+</div>
+
+<main class="container">
+
+<div class="module" id="verdict">
+  <div class="section-label">本周研判</div>
+  <div class="verdict">
+    <div class="verdict-icon">🎯</div>
+    <p>AI产业仍处于<span class="hl">"大规模建基础设施"的中段</span>——供应链上游（HBM存储、先进封装、定制芯片）的订单已锁定到2028年，确定性极高。但"挖金子"的应用层还没拿出足够的收入数据来证明其估值。与此同时，<span class="hl">油价飙升至103美元正通过电力、汇率、利率三条路径同时给整条产业链施加压力</span>。</p>
+  </div>
+  
+  <div class="callout callout-risk">
+    <div class="callout-label">关键变量 · 1-3个月</div>
+    <p>未来决定这轮AI投资叙事能否从"基建确定"延伸到"应用兑现"的两个关键变量：<span class="hl">微软下季财报中Copilot付费用户数据</span>，以及<span class="hl">油价能否回落至90美元以下</span>。</p>
+  </div>
+  
+  <div class="callout callout-fact">
+    <div class="callout-label">市场温度</div>
+    <p>基调从"多空分化"转向"偏悲观"（利好仅17%，利空61%），VIX从正常区间升至27.19，油价飙升是主要推手。</p>
+  </div>
+</div>
+
+<div class="module">
+  <div class="section-label">与上期对比</div>
+  <div class="section-title">信号追踪与方向变化</div>
+  
+  <div class="compare-grid">
+    <div class="compare-item">
+      <div class="compare-icon ci-keep">🔄</div>
+      <div class="compare-text"><strong>持续看好（连续2期）：</strong>先进封装与减薄设备、定制芯片/ASIC设计——产能瓶颈逻辑不受市场情绪影响，信号持续强化。</div>
+    </div>
+    <div class="compare-item">
+      <div class="compare-icon ci-new">🆕</div>
+      <div class="compare-text"><strong>新增看好：</strong>AI基建估值与资本退出（Nscale 146亿美元融资）、HBM与高端存储（多年长约锁定至2028年，卖方市场确立）。</div>
+    </div>
+    <div class="compare-item">
+      <div class="compare-icon ci-warn">⚠️</div>
+      <div class="compare-text"><strong>新增谨慎乐观：</strong>云推理与中间件服务、企业级AI助手/Copilot产品、AI合规科技与风控工具、数据中心电力基建。</div>
+    </div>
+    <div class="compare-item">
+      <div class="compare-icon ci-down">⬇️</div>
+      <div class="compare-text"><strong>移出/评级下调：</strong>英伟达移出独立看好（核心逻辑已被HBM等上游吸收）；对华AI芯片出口及半导体进口依赖型环节降至"回避"。</div>
+    </div>
+    <div class="compare-item">
+      <div class="compare-icon ci-track">📡</div>
+      <div class="compare-text"><strong>微弱信号追踪：</strong>「Warsh将AI定性为通缩力量」→ 仍处预期博弈阶段，油价飙升客观压缩了短期兑现空间；「CPO共封装光学」→ 本周无新增规格公告，继续监控。</div>
+    </div>
+  </div>
+</div>
+
+<div class="module">
+  <div class="section-label">产业全景</div>
+  <div class="section-title">基建确定性创新高，但外部成本跃升</div>
+  
+  <p><strong>AI产业链正呈现"上游锁单、下游存疑、外部施压"的三层格局。</strong></p>
+  <p>上游确定性达到新高，美光（MU）季度营收136亿美元、环比增长21%，<span class="hl">供应合同已锁定至2028年</span>。中游资本继续向基建层聚集，欧洲Nscale两年内估值达146亿美元。但下游出现裂缝：《金融时报》将其定性为"幻灭期"，仅19%企业实际使用多Agent系统。</p>
+  <p>更关键的变量是，布伦特原油103美元正挤压云厂商利润率（微软CapEx占营收37%）和亚太半导体的进口成本（韩元1494.7走弱）。简单说：<span class="hl">铲子订单确定，但挖金回报未知，且铲子的制造成本正在快速上升。</span></p>
+  
+  <div class="key-numbers mt-md">
+    <div class="key-num"><div class="value blue">2028年</div><div class="label">HBM与AI芯片<br>供应合同锁定年限</div></div>
+    <div class="key-num"><div class="value red">+50%</div><div class="label">布伦特103美元<br>远超200日均线67美元</div></div>
+    <div class="key-num"><div class="value green">$146亿</div><div class="label">Nscale最新估值<br>资本向基建层聚集</div></div>
+    <div class="key-num"><div class="value amber">19%</div><div class="label">多Agent系统<br>企业实际采用率低迷</div></div>
+  </div>
+</div>
+
+<div class="module" id="signals">
+  <div class="section-label">本周三大趋势信号</div>
+  <div class="section-title">对未来投资方向影响最大的变化</div>
+
+  <div class="signal-card">
+    <div class="signal-header">
+      <span class="signal-badge badge-strong">信号强</span>
+      <span class="signal-title">内存产业从周期性行业变为结构性卖方市场</span>
+    </div>
+    <p class="text-sm">多年期供应合同锁定至2028年，意味着HBM定价权从买方转移到卖方。这是AI产业链中罕见的<span class="hl">"需求确定性跨越经济周期"的硬证据</span>，对HBM和先进封装构成最坚实的看多基础。</p>
+  </div>
+
+  <div class="signal-card">
+    <div class="signal-header">
+      <span class="signal-badge badge-strong">信号强</span>
+      <span class="signal-title">资本从应用层向基建层的迁移完成"价格确认"</span>
+    </div>
+    <p class="text-sm">Nscale 146亿美元估值与Adobe CEO卸任形成鲜明对照——一级市场愿为算力基建支付极高溢价，而<span class="hl">应用层龙头的管理层信心正在松动</span>。</p>
+  </div>
+
+  <div class="signal-card">
+    <div class="signal-header">
+      <span class="signal-badge badge-medium">信号中</span>
+      <span class="signal-title">油价脱离均线40%以上，成本传导进入实价阶段</span>
+    </div>
+    <p class="text-sm">布伦特103美元不仅推高电力成本，更通过汇率渠道传导至HBM和先进封装成本端。若超110美元一个季度，将从<span class="hl">"挤压利润率"升级为"延缓采购"</span>。</p>
+  </div>
+</div>
+
+<div class="module" id="chains">
+  <div class="section-label">产业链传导与前瞻推演</div>
+  <div class="section-title">两核心跨板块传导链</div>
+
+  <div class="chain-container">
+    <div class="chain-title">🔗 链条一：HBM长约锁定 → 封装产能争夺加剧 → 云厂商CapEx结构被动重塑</div>
+    
+    <div class="chain-step">
+      <div class="chain-num c1">1</div>
+      <div class="chain-text">
+        <strong>起点：供应合同锁定至2028年</strong>
+        英伟达与AMD的HBM需求叠加加剧先进封装竞争，一阶影响为HBM持续供不应求。
+      </div>
+    </div>
+    <div class="chain-arrow-wrap">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M4 10l4 4 4-4" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    
+    <div class="chain-step">
+      <div class="chain-num c2">2</div>
+      <div class="chain-text">
+        <strong>二阶传导：云厂商CapEx结构变异</strong>
+        当内存和封装价格因长约失去弹性时，云厂商CapEx将从"按需采购"变为"预付锁仓"模式，资本支出的灵活性大幅下降。
+      </div>
+    </div>
+    <div class="chain-arrow-wrap">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M4 10l4 4 4-4" stroke="#0891b2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    
+    <div class="chain-step">
+      <div class="chain-num c3">3</div>
+      <div class="chain-text">
+        <strong>三阶可能：资产负债表新型压力</strong>
+        若经济环境恶化（如IT预算收缩），长约机制使云厂商无法快速缩减采购，这反向保护了上游厂商的收入稳定性，但给下游带来利润剧痛。
+      </div>
+    </div>
+    
+    <div class="analogy" style="margin-top:14px;">这就像航空公司提前三年锁定燃油合同——油价上涨时赚到，但客流突然下降时，锁定的成本就成了刚性负担。而卖油（卖内存）的人钱已落袋为安。</div>
+    
+    <div class="callout callout-strategy" style="margin-top:10px;">
+      <div class="callout-label">方向含义</div>
+      <p>这条链条进一步加固HBM和先进封装的看多逻辑，但同时意味着云厂商的利润率弹性可能在未来2-3个季度收窄——需重点关注下季财报中"承诺性支出"占比披露。</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="chain-container">
+    <div class="chain-title">🔗 链条二：霍尔木兹海峡风险激活 → 能源/汇率/航运同步传导 → AI供应链成本+物流双重压力</div>
+    
+    <div class="chain-step">
+      <div class="chain-num c1">1</div>
+      <div class="chain-text">
+        <strong>起点：布伦特原油飙升至103美元</strong>
+        无人机袭击频发推高油价，不仅推升数据中心电力成本，更直接打压能源进口国本币汇率。
+      </div>
+    </div>
+    <div class="chain-arrow-wrap">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M4 10l4 4 4-4" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    
+    <div class="chain-step">
+      <div class="chain-num c2">2</div>
+      <div class="chain-text">
+        <strong>二阶传导：粮食-能源复合推高亚太制造成本</strong>
+        韩元（1494.7）和日元（159.7）均处弱势区间，韩台日面临双重进口通胀，以美元计价的半导体制造成本将被迫上行。
+      </div>
+    </div>
+    <div class="chain-arrow-wrap">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M4 10l4 4 4-4" stroke="#0891b2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    
+    <div class="chain-step">
+      <div class="chain-num c3">3</div>
+      <div class="chain-text">
+        <strong>三阶推演：供应链物理中断评估</strong>
+        原材料（氦、溴）高度依赖海运。若航运保险飙升导致运力收缩，6-8周库存耗尽后交付将延迟，ASML极紫外光刻设备海运受阻更会拖后台积电扩产。
+      </div>
+    </div>
+    
+    <div class="callout callout-fact" style="margin-top:14px;">
+      <div class="callout-label">验证节点</div>
+      <p class="text-sm">未来2-4周重点关注航运保险溢价变化（Lloyd's List）、亚太汇率走势（韩元是否突破1500关口），以及FOMC会议纪要对能源通胀的措辞。</p>
+    </div>
+    
+    <div class="section-subtitle" style="color:var(--accent-amber); margin-top: 20px;">三情景压力测试</div>
+    
+    <div class="scenario-card">
+      <div class="scenario-header">
+        <span class="scenario-tag ease">缓和</span>
+        <span class="scenario-title">海峡冲突降级，油价回落至75-85美元</span>
+      </div>
+      <div class="scenario-content">
+        韩日汇率企稳，被压制的数据中心电力方向快速反弹，微软和亚马逊迎超跌修复，VIX回落，高PE股估值压制缓解。
+      </div>
+    </div>
+    
+    <div class="scenario-card">
+      <div class="scenario-header">
+        <span class="scenario-tag baseline">基准（当前）</span>
+        <span class="scenario-title">维持当前烈度 (95-110美元)</span>
+      </div>
+      <div class="scenario-content">
+        电力成本跳升10-15%，云利润率收窄1-3个百分点。下季HBM和封装报价可能上调5-10%，上游反而受益，但高PE AI应用层估值压缩持续。
+      </div>
+    </div>
+    
+    <div class="scenario-card">
+      <div class="scenario-header">
+        <span class="scenario-tag worsen">恶化</span>
+        <span class="scenario-title">实质性封锁，突破120-130美元持续4周以上</span>
+      </div>
+      <div class="scenario-content">
+        航运保险翻倍，半导体关键物料海运受阻。半导体进口依赖型环节需升级为"警示"。先进封装短期承压，部分在建数据中心电力项目暂缓。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="module" id="directions">
+  <div class="section-label">投资方向总览</div>
+  <div class="section-title">本周方向指引</div>
+  
+  <div class="callout callout-fact" style="margin-bottom:20px;">
+    <div class="callout-label">周期判断</div>
+    <p>AI产业处于<span class="hl">"基建加速投入期的中段"</span>。上游订单确定性达历史高位，但下游应用收入回报仍处验证早期。铲子已预售三年，但金矿出金量未验证。当前策略倾向站在上游确定性一侧，因长约机制保护了上游免受短期波动影响。</p>
+  </div>
+
+  <div class="section-subtitle" style="color:var(--accent-green);">🟢 看好的方向</div>
+  
+  <div class="direction-card bull">
+    <div class="dir-top">
+      <span class="dir-name">HBM与高端存储</span>
+      <span class="dir-rating rating-bull">看好</span>
+    </div>
+    <p class="dir-logic">多年长约锁定卖方定价权，亚太汇率走弱可能推动报价超预期上行。产能、宏观、边缘信号三板块共振。</p>
+    <div class="dir-ticker"><strong>参考：</strong>美光(MU)，单季营收136亿，环比+21%</div>
+  </div>
+  
+  <div class="direction-card bull">
+    <div class="dir-top">
+      <span class="dir-name">先进封装与减薄设备</span>
+      <span class="dir-rating rating-bull">看好</span>
+    </div>
+    <p class="dir-logic">ASIC与HBM双向拉动封装需求，瓶颈未缓解，连续两期看好。</p>
+    <div class="dir-ticker"><strong>参考：</strong>台积电(TSM)，PE 28.5，CapEx占营收33%</div>
+  </div>
+  
+  <div class="direction-card bull">
+    <div class="dir-top">
+      <span class="dir-name">AI基建估值与资本退出</span>
+      <span class="dir-rating rating-bull">看好</span>
+    </div>
+    <p class="dir-logic">Nscale 146亿美元融资印证一级市场算力基建估值持续膨胀，英伟达生态绑定加速。</p>
+    <div class="dir-ticker"><strong>参考：</strong>英伟达(NVDA)</div>
+  </div>
+
+  <div class="direction-card bull">
+    <div class="dir-top">
+      <span class="dir-name">定制芯片/ASIC设计</span>
+      <span class="dir-rating rating-bull">看好</span>
+    </div>
+    <p class="dir-logic">大厂自研加速，博通确认多年供应意愿，但短期PE偏高待消化。</p>
+    <div class="dir-ticker"><strong>参考：</strong>博通(AVGO)，PE 73.9</div>
+  </div>
+
+  <div class="section-subtitle" style="color:var(--accent-amber); margin-top:24px;">🟡 谨慎乐观</div>
+  
+  <div class="direction-card caution">
+    <div class="dir-top">
+      <span class="dir-name">云推理与中间件服务</span>
+      <span class="dir-rating rating-caution">谨慎乐观</span>
+    </div>
+    <p class="dir-logic">营收增长稳健但能源成本攀升挤压利润率，微软CapEx占营收37%创新高。</p>
+    <div class="dir-ticker"><strong>参考：</strong>微软(MSFT)</div>
+  </div>
+
+  <div class="direction-card caution">
+    <div class="dir-top">
+      <span class="dir-name">企业级AI助手/Copilot产品</span>
+      <span class="dir-rating rating-caution">谨慎乐观</span>
+    </div>
+    <p class="dir-logic">微软E7定价99美元确立锚点，但规模化采用待验证，需下季企业迁移率数据支撑。</p>
+  </div>
+  
+  <div class="direction-card caution">
+    <div class="dir-top">
+      <span class="dir-name">数据中心电力基建</span>
+      <span class="dir-rating rating-caution">谨慎乐观</span>
+    </div>
+    <p class="dir-logic">长期需求刚性未变，但油价103美元令电力成本压力实质化，短期利润率承压。</p>
+  </div>
+  
+  <div class="direction-card caution">
+    <div class="dir-top">
+      <span class="dir-name">AI合规科技与风控工具</span>
+      <span class="dir-rating rating-caution">谨慎乐观</span>
+    </div>
+    <p class="dir-logic">NIST报告确认执行缺口，欧盟AI法案时间表驱动，需求结构性扩大。</p>
+  </div>
+
+  <div class="section-subtitle" style="color:var(--accent-red); margin-top:24px;">🔴 需要谨慎 / 回避</div>
+  
+  <div class="direction-card bear">
+    <div class="dir-top">
+      <span class="dir-name">对华AI芯片出口</span>
+      <span class="dir-rating rating-bear">回避</span>
+    </div>
+    <p class="dir-logic">301调查加码，供应链脱钩长期方向不变，仅峰会释放明确缓和信号时可博弈。</p>
+  </div>
+  
+  <div class="direction-card bear">
+    <div class="dir-top">
+      <span class="dir-name">半导体进口依赖型环节</span>
+      <span class="dir-rating rating-bear">回避</span>
+    </div>
+    <p class="dir-logic">亚太三币走弱推升进口成本，霍尔木兹航运风险叠加，成本物流双重承压。</p>
+  </div>
+  
+  <div class="direction-card bear">
+    <div class="dir-top">
+      <span class="dir-name">传统软件/高杠杆SaaS</span>
+      <span class="dir-rating rating-bear">回避</span>
+    </div>
+    <p class="dir-logic">AI幻灭期叙事+审核成本上升，缺乏AI能力的玩家生存空间被严重挤压。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-subtitle" style="margin-top:20px;">⏰ 未来2-4周关注窗口</div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot">📅</div>
+      <div class="timeline-content">
+        <div class="timeline-date">4-5月财报季</div>
+        <div class="timeline-text"><strong>云厂商与Copilot表现：</strong>若微软付费用户数和AI收入增速超预期，应用层悲观叙事将被修正。</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">📅</div>
+      <div class="timeline-content">
+        <div class="timeline-date">持续监控</div>
+        <div class="timeline-text"><strong>油价走势：</strong>若布伦特回落至90美元以下，成本压力大幅缓解；若突破120美元持续2周，需立即重新审视看好方向的下游敞口。</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">📅</div>
+      <div class="timeline-content">
+        <div class="timeline-date">3月会议纪要</div>
+        <div class="timeline-text"><strong>FOMC风向：</strong>关注对能源通胀的措辞及是否提及AI对生产力的影响，关系到降息叙事兑现表。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-subtitle" style="color:var(--accent-purple); margin-top:24px;">⚡ 微弱但重要的早期信号</div>
+  <div class="callout callout-signal">
+    <p class="text-sm"><strong>1. 乌克兰机构化开放战场数据：</strong>若形成标准化军事交易框架，国防AI数据标注可能成为独立增长极——关注北约相关预算变化。</p>
+    <p class="text-sm mt-sm"><strong>2. 航运保险溢价攀升：</strong>霍尔木兹无人机袭击若持续，可能触发半导体物料海运路线系统性重定价。</p>
+  </div>
+</div>
+
+<div class="module">
+  <div class="section-label">冷门机会</div>
+  <div class="cold-opp">
+    <div class="cold-opp-label">💎 被忽略的珍珠</div>
+    <p style="font-weight:600;font-size:15px;">液冷散热与数据中心能效优化</p>
+    <p class="text-sm mt-sm">主流分析聚焦芯片供需，但油价飙升正悄然重新定价"每瓦算力成本"。当电力占数据中心运营成本30-40%且电价被推高时，降低能耗的方案从"锦上添花"变为"刚需"。<span class="hl">Vertiv（VRT）本周涨7.1%、月涨28.2%</span>，价格信号已明显领先于叙事。</p>
+    
+    <div class="divider" style="margin:16px 0; opacity:0.3;"></div>
+    
+    <p style="font-weight:600;font-size:15px;">航运保险与半导体物流再保险</p>
+    <p class="text-sm mt-sm">霍尔木兹无人机袭击频发正推高海运保险溢价。AI供应链的物理运输高度集中于波斯湾-马六甲航线，航运再保险公司可能是地缘风险的隐性受益方。目前信号极早期，但若烈度上升，涨幅可能超预期。</p>
+  </div>
+</div>
+
+<div class="module text-center" style="background:var(--surface-alt);margin-top:32px;" id="sectors">
+  <div class="section-label">DEEP DIVE</div>
+  <div class="section-title" style="margin-bottom:4px;">细分板块深度解析</div>
+  <p class="text-sm" style="color:var(--text-dim);">核心逻辑链条与事件解读 · 点击展开关键事件</p>
+</div>
+
+<div class="board-module" style="background:var(--section-macro);">
+  <div class="board-number" style="color:var(--accent-red);">01</div>
+  <div class="board-tag macro">宏观环境与政策风向</div>
+  <div class="board-title">地缘多线施压，能源价格飙升</div>
+  <div class="board-subtitle">投资外部环境从"中性"转向"逆风加大"</div>
+
+  <p><strong>中美贸易摩擦与中东地缘冲突同步升级。</strong>布伦特原油报103.14美元/桶，远超200日均线67.23美元，VIX报27.19。美国启动针对中国等国的301条款贸易调查，供应链脱钩方向未变。</p>
+  
+  <p><strong>核心逻辑链条：</strong>能源推高通胀压制降息（高PE估值承压）+ 成本跳升挤压数据中心利润率（影响CapEx节奏）+ 韩日货币走弱（韩元1494.7）推升亚太制造成本。</p>
+
+  <details>
+    <summary>查看关键事件</summary>
+    <div class="detail-content">
+      <div class="event-card"><span class="event-score score-mid">Tier 1</span><div class="event-title">美国启动301条款贸易调查</div><div class="event-data">聚焦中国产能过剩和强迫劳动，半导体脱钩压力加剧，叠加北京峰会前夕施压。</div></div>
+      <div class="event-card"><span class="event-score score-mid">Tier 2</span><div class="event-title">AWS中东数据中心受袭</div><div class="event-data">伊朗冲突导致针对性攻击，企业考虑将基建转移至北欧/东南亚。</div></div>
+    </div>
+  </details>
+
+  <div class="callout callout-strategy mt-md">
+    <div class="callout-label">趋势研判</div>
+    <p class="text-sm">外部环境逆风加大，能源与地缘多线施压正通过"通胀→利率→估值"和"成本→利润率→CapEx节奏"两条路径向AI传导。云服务方向基本面稳健但市场情绪偏空。若油价持续超110美元一季度，即使英伟达75%高毛利也将面临下游预算收紧风险。</p>
+  </div>
+</div>
+
+<div class="board-module" style="background:var(--section-cap);">
+  <div class="board-number" style="color:var(--accent-blue);">02</div>
+  <div class="board-tag cap">资本流向与估值逻辑</div>
+  <div class="board-title">基建层吸金加速，应用层信心松动</div>
+  <div class="board-subtitle">资本配置沿"确定性梯度"剧烈分化</div>
+
+  <p><strong>资金正从"回报待验证"的应用层向"现金流确定"的基建层迁移。</strong>Nscale（欧洲AI数据中心）完成20亿美元融资，估值达146亿，英伟达入局，印证一级市场对算力基建的极高溢价。反观应用层，Adobe CEO卸任，微软CapEx占营收37%但营收增速仍处个位数。</p>
+  
+  <p><strong>核心逻辑链条：</strong>资本加速追逐非美稀缺算力节点（主权算力重定价）+ 应用层遭《金融时报》"幻灭期"定性（仅19%企业采用多Agent）→ 导致高PE应用层估值倍数持续被压缩。</p>
+
+  <div class="callout callout-strategy mt-md">
+    <div class="callout-label">趋势研判</div>
+    <p class="text-sm">资本沿确定性梯度迁移的趋势进一步确认。优先关注有稳定CapEx订单支撑的算力基建；对缺乏真实商业验证的应用层保持谨慎。下一轮财报季云厂商AI收入增速若超预期，悲观叙事才有望反转。</p>
+  </div>
+</div>
+
+<div class="board-module" style="background:var(--section-biz);">
+  <div class="board-number" style="color:var(--accent-green);">03</div>
+  <div class="board-tag biz">AI商业化落地与价值验证</div>
+  <div class="board-title">订阅定价确立锚点，负外部性发酵</div>
+  <div class="board-subtitle">从"免费试用"向"高价捆绑"切换</div>
+  
+  <p><strong>企业AI货币化进入验证期。</strong>微软Microsoft 365 E7订阅定价99美元/月，内置Copilot与AI Agent，较E5溢价40%，这是回收千亿基建投资的核心路径。同时，Digg因AI垃圾信息失控被迫关闭，暴露出AI推高内容审核成本的致命"负外部性"。</p>
+  
+  <p><strong>核心逻辑链条：</strong>微软基建重金投入（季度299亿）必须通过E7高价回收 + AI生成泛滥导致UGC平台审核成本飙升 → 缺乏盈利验证的SaaS应用（如Palantir PE 259）估值持续承压。</p>
+
+  <div class="callout callout-strategy mt-md">
+    <div class="callout-label">趋势研判</div>
+    <p class="text-sm">AI应用层商业化正进入"定价验证期"，方向正确但转化率未知。若企业采用率低，或油价103美元导致IT预算收缩，应用层估值可能进一步下修，挤压缺乏护城河的传统SaaS生存空间。</p>
+  </div>
+</div>
+
+<div class="board-module" style="background:var(--section-supply);">
+  <div class="board-number" style="color:var(--accent-cyan);">04</div>
+  <div class="board-tag supply">产能瓶颈与供应链重构</div>
+  <div class="board-title">HBM内存长约锁定至2028年</div>
+  <div class="board-subtitle">需求打破周期律，卖方市场确立</div>
+  
+  <p><strong>AI需求改写供应链定价规则。</strong>美光（MU）、SK海力士等头部厂商已与芯片制造商签订延续至2028年的多年供应合同。美光本季营收136.4亿美元（环比大增20.6%），CapEx强度达40%，市场用真金白银（周涨15%）确认了这一结构性转变。</p>
+  
+  <p><strong>核心逻辑链条：</strong>长约锁定使得HBM定价权向卖方转移 + 韩国韩元弱势（1494.7）及高油价推高进口成本 → 报价具备超预期上行可能，进一步增厚上游厂商利润。</p>
+
+  <div class="callout callout-strategy mt-md">
+    <div class="callout-label">趋势研判</div>
+    <p class="text-sm">内存产业从周期性行业变为结构性卖方市场，HBM与先进封装仍是产业链最紧约束环节，维持看好。产能瓶颈的结构性逻辑不受VIX恐慌指数（27.2）短期波动影响。</p>
+  </div>
+</div>
+
+<div class="board-module" style="background:var(--section-reg);">
+  <div class="board-number" style="color:var(--text-muted);">05</div>
+  <div class="board-tag reg">监管演进与合规风险</div>
+  <div class="board-title">301调查施压叠加AI执行缺口</div>
+  <div class="board-subtitle">监管成本上行趋势已确认落地</div>
+  
+  <p><strong>脱钩成本与合规成本双重攀升。</strong>美国启动针对中国等国的贸易调查，半导体供应链面临额外脱钩压力。同时，NIST发布报告揭示AI部署的六大类执行缺口，与欧盟AI法案强制时间表共振。</p>
+  
+  <p><strong>核心逻辑链条：</strong>贸易施压不可逆 + 监管执行缺口暴露 → AI合规科技赛道获结构性需求支撑，但大型云服务商（微软/谷歌等）的合规运营成本将实质上升，利润率承压节奏加快。</p>
+
+  <div class="callout callout-strategy mt-md">
+    <div class="callout-label">趋势研判</div>
+    <p class="text-sm">合规成本上行趋势已从政策框架进入执行缺口暴露期，合规工具供应商受益；对华脱钩政策维持趋严惯性，在方向明朗前建议控制相关敞口。</p>
+  </div>
+</div>
+
+<div class="board-module" style="background:var(--section-edge);">
+  <div class="board-number" style="color:var(--accent-purple);">06</div>
+  <div class="board-tag edge">其他信号与边缘观察</div>
+  <div class="board-title">霍尔木兹危机引爆成本传导</div>
+  <div class="board-subtitle">从叙事层面跃迁至价格实盘层面</div>
+  
+  <p><strong>地缘能源尾部风险已成事实。</strong>海湾油轮遭无人机袭击，布伦特原油飙升至103.14美元，远超半年均线。这不是短期扰动，而是能源成本结构的阶段性跃升。</p>
+  
+  <p><strong>核心逻辑链条：</strong>能源成本跳涨直接挤压数据中心利润（电力占运营30-40%） + 亚太能源进口国货币贬值推高HBM成本 + 航运险溢价可能阻断稀有材料供应 → 全链路利润测试。</p>
+
+  <div class="callout callout-strategy mt-md">
+    <div class="callout-label">趋势研判</div>
+    <p class="text-sm">霍尔木兹海峡风险已从叙事层面进入价格实盘阶段。后续需重点监控油价能否在90-115美元区间企稳。若油价突破120美元并持续，数据中心电力基建及企业AI预算将面临实质性收缩风险。</p>
+  </div>
+</div>
+
+
+<div class="module" id="radar">
+  <div class="section-label">综合方向指引</div>
+  <div class="section-title">本周全景雷达</div>
+  <p class="text-sm" style="color:var(--text-dim);margin-bottom:16px;">按信号强度排序</p>
+
+  <div class="radar-group-label" style="color:var(--accent-green);">🟢 看好</div>
+  
+  <div class="direction-card bull">
+    <div class="dir-top">
+      <span class="dir-name">HBM与高端存储</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div>
+    </div>
+    <p class="dir-logic text-sm">多年长约锁定供需格局，卖方定价权显著增强，亚太汇率走弱或推高报价</p>
+    <div class="dir-meta"><span>✅共振</span><span>美光(MU)</span></div>
+  </div>
+
+  <div class="direction-card bull">
+    <div class="dir-top">
+      <span class="dir-name">先进封装与减薄设备</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div>
+    </div>
+    <p class="dir-logic text-sm">ASIC+HBM双向拉动封装需求，产能瓶颈未见缓解</p>
+    <div class="dir-meta"><span>✅共振</span><span>台积电(TSM)</span></div>
+  </div>
+  
+  <div class="direction-card bull">
+    <div class="dir-top">
+      <span class="dir-name">AI基建估值与资本退出</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot empty"></div></div>
+    </div>
+    <p class="dir-logic text-sm">Nscale 146亿融资印证一级市场估值膨胀，英伟达生态绑定加速</p>
+    <div class="dir-meta"><span>—</span><span>英伟达(NVDA)</span></div>
+  </div>
+  
+  <div class="direction-card bull">
+    <div class="dir-top">
+      <span class="dir-name">定制芯片/ASIC设计</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot empty"></div></div>
+    </div>
+    <p class="dir-logic text-sm">大厂自研加速，博通确认多年供应协议意愿，但短期估值偏高需消化</p>
+    <div class="dir-meta"><span>⚠️背离</span><span>博通(AVGO)</span></div>
+  </div>
+
+  <div class="radar-group-label" style="color:var(--accent-amber);">🟡 谨慎乐观</div>
+  
+  <div class="direction-card caution">
+    <div class="dir-top">
+      <span class="dir-name">云推理与中间件服务</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot empty"></div></div>
+    </div>
+    <p class="dir-logic text-sm">营收增长稳健但能源与安全成本攀升挤压利润率，CapEx节奏面临放缓风险</p>
+    <div class="dir-meta"><span>⚠️背离</span><span>亚马逊(AMZN), 微软(MSFT)</span></div>
+  </div>
+  
+  <div class="direction-card caution">
+    <div class="dir-top">
+      <span class="dir-name">企业级AI助手/Copilot产品</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot empty"></div></div>
+    </div>
+    <p class="dir-logic text-sm">E7定价锚点确立但规模化采用待验证，需观察下季企业迁移率数据</p>
+    <div class="dir-meta"><span>⚠️背离</span><span>微软(MSFT)</span></div>
+  </div>
+
+  <div class="direction-card caution">
+    <div class="dir-top">
+      <span class="dir-name">AI合规科技与风控工具</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot empty"></div></div>
+    </div>
+    <p class="dir-logic text-sm">NIST报告确认执行缺口叠加欧盟AI法案强制合规时间表，需求结构性扩大</p>
+    <div class="dir-meta"><span>—</span></div>
+  </div>
+  
+  <div class="direction-card caution">
+    <div class="dir-top">
+      <span class="dir-name">数据中心电力基建</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot empty"></div></div>
+    </div>
+    <p class="dir-logic text-sm">油价103美元叠加VIX 27，电力成本上升压力实质化，但长期需求刚性未变</p>
+    <div class="dir-meta"><span>—</span></div>
+  </div>
+
+  <div class="radar-group-label" style="color:var(--accent-red);">🔴 回避</div>
+  
+  <div class="direction-card bear">
+    <div class="dir-top">
+      <span class="dir-name">对华AI芯片出口</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div></div>
+    </div>
+    <p class="dir-logic text-sm">301调查加码施压，供应链脱钩长期方向不变，短期存在峰会缓和窗口</p>
+  </div>
+  
+  <div class="direction-card bear">
+    <div class="dir-top">
+      <span class="dir-name">半导体进口依赖型环节</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div></div>
+    </div>
+    <p class="dir-logic text-sm">亚太三币走弱推升进口成本，中东材料供应物理断供风险叠加</p>
+  </div>
+
+  <div class="direction-card bear">
+    <div class="dir-top">
+      <span class="dir-name">传统软件/高杠杆SaaS</span>
+      <div class="dir-dots"><div class="dot filled"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div></div>
+    </div>
+    <p class="dir-logic text-sm">Adobe CEO更迭叠加AI幻灭期叙事，应用层商业回报兑现面临中期极大压力</p>
+  </div>
+</div>
+
+<div class="module">
+  <div class="section-label">术语速查</div>
+  <div class="section-title">本报告涉及的专业名词简释</div>
+  <div class="glossary-grid">
+    <div class="glossary-item"><span class="glossary-term">1.CapEx</span><span class="glossary-def">资本开支，公司用于升级和维护实物资产的巨额支出</span></div>
+    <div class="glossary-item"><span class="glossary-term">2.VIX</span><span class="glossary-def">恐慌指数，衡量市场对未来波动的预期，越高越恐慌</span></div>
+    <div class="glossary-item"><span class="glossary-term">3.HBM</span><span class="glossary-def">高带宽存储器，AI芯片运算时不可或缺的高速内存配件</span></div>
+    <div class="glossary-item"><span class="glossary-term">4.ASIC</span><span class="glossary-def">定制芯片，为大厂特定AI工作负载量身设计的专属芯片</span></div>
+    <div class="glossary-item"><span class="glossary-term">5.Copilot</span><span class="glossary-def">微软等企业推出的AI助手产品，按月订阅收费</span></div>
+  </div>
+</div>
+
+<div class="module" style="background:var(--surface-alt);">
+  <div class="section-label">方法论与说明</div>
+  <details>
+    <summary>查看信源分级与评分标准</summary>
+    <div class="detail-content">
+      <div class="method-grid">
+        <div class="method-card">
+          <h4>信源分级</h4>
+          <ul>
+            <li><strong>Tier 1：</strong>Bloomberg, FT, WSJ, 官方财报等</li>
+            <li><strong>Tier 2：</strong>专业行业媒体, 调研机构等</li>
+             <li><strong>Tier 3：</strong>自媒体、博客等</li>
+          </ul>
+        </div>
+        <div class="method-card">
+          <h4>信号强度图标</h4>
+          <ul>
+            <li>●●●● 强信号：看好且2个以上板块独立验证</li>
+            <li>●●●○ 较强：看好单板块或谨慎乐观多板块</li>
+            <li>●●● 中等信号：谨慎乐观（单主题）</li>
+            <li>● 警示：回避</li>
+          </ul>
+        </div>
+        <div class="method-card">
+          <h4>市场验证标注</h4>
+          <ul>
+            <li>✅共振：产业趋势判断与近期市场价格走势方向一致</li>
+            <li>⚠️背离：趋势判断与市场走势相反，可能市场尚未定价</li>
+            <li>—：无显著市场情绪数据</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<footer class="footer">
+  <p>本报告基于PDF周报压缩</p>
+  <p>标的映射仅作方向参考</p>
+  <p style="margin-top:8px;color:var(--text-muted);">AI Industry Weekly Report · 2026-03-15</p>
+</footer>
+
+</main>
+</body>
+</html>
