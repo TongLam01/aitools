@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A股每日投研环境报告 | 2026-03-16</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --accent-yellow: #fbbf24;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --accent-purple: #a78bfa;
+            --accent-orange: #fb923c;
+            --border: #475569;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            line-height: 1.7;
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        /* ══════════ HEADER ══════════ */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%);
+            border-radius: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .date-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 15px;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .temp-badge {
+            background: linear-gradient(135deg, var(--accent-yellow), #f59e0b);
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+        }
+
+        /* ══════════ CARDS ══════════ */
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-purple));
+            opacity: 0.7;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+        }
+
+        .icon {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        /* ══════════ SUMMARY BOX ══════════ */
+        .summary-box {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(167, 139, 250, 0.15));
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 17px;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .hl {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ══════════ CONTRADICTION CARDS ══════════ */
+        .contradiction-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+            border-left: 4px solid var(--accent-orange);
+        }
+
+        .contradiction-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--accent-orange);
+        }
+
+        .signal-tag {
+            display: inline-block;
+            background: rgba(251, 146, 60, 0.2);
+            color: var(--accent-orange);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+
+        .signal-section {
+            margin-bottom: 12px;
+        }
+
+        .signal-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .signal-content {
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.7;
+            padding-left: 12px;
+            border-left: 2px solid var(--border);
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            background: rgba(52, 211, 153, 0.2);
+            color: var(--accent-green);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        /* ══════════ TEMPERATURE GRID ══════════ */
+        .temp-analysis {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .temp-item-detailed {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .temp-info-left {
+            flex: 1;
+        }
+
+        .temp-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .temp-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .temp-score {
+            font-size: 28px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 8px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .temp-score.high { 
+            background: rgba(52, 211, 153, 0.2);
+            color: var(--accent-green);
+        }
+        .temp-score.medium { 
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--accent-yellow);
+        }
+        .temp-score.low { 
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--accent-red);
+        }
+
+        /* ══════════ THEME TRACKING ══════════ */
+        .theme-card {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .theme-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .theme-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .theme-stage {
+            background: rgba(56, 189, 248, 0.2);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .theme-content {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .theme-content strong {
+            color: var(--accent);
+        }
+
+        /* ══════════ CAPITAL FLOW ══════════ */
+        .flow-comparison {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .flow-side {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .flow-side.north {
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .flow-side.domestic {
+            border-left: 4px solid var(--accent-orange);
+        }
+
+        .flow-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flow-title.north { color: var(--accent-green); }
+        .flow-title.domestic { color: var(--accent-orange); }
+
+        /* ══════════ NEWS IMPACT ══════════ */
+        .news-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .news-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .impact-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .impact-row {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .impact-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .impact-content {
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* ══════════ STRATEGY CONDITIONS ══════════ */
+        .condition-card {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(52, 211, 153, 0.05));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .condition-number {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--accent);
+            color: #000;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .condition-header {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 12px;
+            margin-top: 8px;
+        }
+
+        .condition-body {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .condition-body strong {
+            color: var(--text-primary);
+        }
+
+        .then-highlight {
+            background: rgba(52, 211, 153, 0.2);
+            color: var(--accent-green);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        /* ══════════ RISK CARDS ══════════ */
+        .risk-card {
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.1), rgba(245, 158, 11, 0.05));
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--accent-red);
+        }
+
+        .risk-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-red);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .risk-content {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ══════════ STRATEGY BOX ══════════ */
+        .strategy-highlight {
+            background: linear-gradient(135deg, var(--accent-green), #059669);
+            color: #000;
+            padding: 24px;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(52, 211, 153, 0.3);
+        }
+
+        .strategy-highlight .hl {
+            color: #064e3b;
+            font-weight: 800;
+        }
+
+        .strategy-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .strategy-content {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .key-metrics {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* ══════════ FOOTER ══════════ */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        .footer-brand {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        /* ══════════ RESPONSIVE ══════════ */
+        @media (max-width: 480px) {
+            .report-title {
+                font-size: 24px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .temp-item-detailed {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .temp-score {
+                width: 100%;
+            }
+        }
+
+        /* ══════════ ANIMATIONS ══════════ */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ══════════ HEADER ══════════ -->
+        <div class="header">
+            <h1 class="report-title">A股每日投研环境报告</h1>
+            <div class="meta-info">
+                <span class="date-badge">📅 2026-03-16</span>
+                <span class="temp-badge">🌡️ 温度: 51/100 🟡 中性</span>
+            </div>
+        </div>
+
+        <!-- ══════════ 一句话判断 ══════════ -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">📊</span>
+                一句话判断
+            </div>
+            <div class="summary-box">
+                市场正处于典型的<span class="hl">"权重搭台、题材唱戏"</span>的震荡分化期，指数层面的调整（上证跌）被结构性的赚钱效应（创业板涨、涨停多）所掩盖，这暗示当前并非系统性风险，而是存量资金在政策预期与业绩现实间进行快速轮动和调仓。
+            </div>
+        </div>
+
+        <!-- ══════════ 关键矛盾与信号 ══════════ -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">🔍</span>
+                关键矛盾与信号
+            </div>
+
+            <!-- 矛盾一 -->
+            <div class="contradiction-card">
+                <div class="contradiction-header">
+                    <span>⚡</span>
+                    矛盾一：指数缩量下跌 vs. 个股赚钱效应强劲
+                    <span class="signal-tag">核心矛盾</span>
+                </div>
+                <div class="signal-section">
+                    <div class="signal-label">📌 现象</div>
+                    <div class="signal-content">
+                        上证指数下跌0.26%，但全市场成交额环比缩量2.5%，同时上涨家数（<span class="hl">2843</span>）多于下跌家数（<span class="hl">2494</span>），涨停家数（<span class="hl">60</span>）是跌停家数（10）的6倍。
+                    </div>
+                </div>
+                <div class="signal-section">
+                    <div class="signal-label">💡 解读</div>
+                    <div class="signal-content">
+                        典型的<span class="hl">"指数虚跌"</span>信号。缩量下跌意味着抛压不重，资金并未离场，而是从权重板块流出，流入中小盘和题材股。<span class="hl">市场整体风险不大，但内部结构正在剧烈切换，操作难度加大。</span>
+                        <div class="confidence-badge">置信度：高</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 矛盾二 -->
+            <div class="contradiction-card">
+                <div class="contradiction-header">
+                    <span>⚡</span>
+                    矛盾二：北向资金持续流入 vs. 内资主导的指数疲软
+                </div>
+                <div class="signal-section">
+                    <div class="signal-label">📌 现象</div>
+                    <div class="signal-content">
+                        北向资金今日净流入<span class="hl">30.3亿</span>，近5日累计流入近<span class="hl">150亿</span>，但上证指数连续调整，今日收在近期低点附近。
+                    </div>
+                </div>
+                <div class="signal-section">
+                    <div class="signal-label">💡 解读</div>
+                    <div class="signal-content">
+                        内外资出现明显分歧。北向的持续流入表明其对A股中长期估值的认可。这种分歧通常出现在<span class="hl">市场方向选择的关键节点</span>。若内资信心恢复形成合力，市场有望向上突破；若北向流入衰竭，指数可能进一步探底。
+                        <div class="confidence-badge" style="background: rgba(251, 191, 36, 0.2); color: var(--accent-yellow);">置信度：中</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 矛盾三 -->
+            <div class="contradiction-card">
+                <div class="contradiction-header">
+                    <span>⚡</span>
+                    矛盾三：龙虎榜缺乏清晰的板块合力
+                    <span class="signal-tag">异常信号</span>
+                </div>
+                <div class="signal-section">
+                    <div class="signal-label">📌 现象</div>
+                    <div class="signal-content">
+                        今日龙虎榜上榜个股行业分散，涵盖存储芯片（德明利）、化工（金牛化工、赤天化）、电力（金开新能）、金融（中油资本）、基建（中国电建）等，且多为个股行情或事件驱动。
+                    </div>
+                </div>
+                <div class="signal-section">
+                    <div class="signal-label">💡 解读</div>
+                    <div class="signal-content">
+                        市场处于快速轮动状态，缺乏能够持续吸引大资金攻击的明确主线。资金在多个低位或题材板块中试盘，但无法形成共识。<span class="hl">按照主线判断标准（同一板块连续2日以上多股上榜），今日均为"一日游热点"或个股行为。</span>
+                        <div class="confidence-badge">置信度：高</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ 市场温度解读 ══════════ -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">🌡️</span>
+                市场温度解读（51分 中性）
+            </div>
+            
+            <div class="temp-analysis">
+                <div class="temp-item-detailed">
+                    <div class="temp-info-left">
+                        <div class="temp-name">赚钱效应 vs 成交量</div>
+                        <div class="temp-desc">68分 vs 48分 | 市场活跃度集中在局部，存量博弈特征明显，钱不够但炒作热情高</div>
+                    </div>
+                    <div class="temp-score high">68</div>
+                </div>
+                
+                <div class="temp-item-detailed">
+                    <div class="temp-info-left">
+                        <div class="temp-name">趋势项极度低迷</div>
+                        <div class="temp-desc">20分 | 上证指数跌破短期均线（MA5），权重股和传统周期板块趋势走弱</div>
+                    </div>
+                    <div class="temp-score low">20</div>
+                </div>
+                
+                <div class="temp-item-detailed">
+                    <div class="temp-info-left">
+                        <div class="temp-name">北向资金 & 市场宽度</div>
+                        <div class="temp-desc">57分 & 52分 | 阻止市场温度滑向冰冷，基础未崩塌，仍有托底力量</div>
+                    </div>
+                    <div class="temp-score medium">57</div>
+                </div>
+            </div>
+
+            <div class="summary-box" style="margin-top: 16px; border-left-color: var(--accent-yellow);">
+                <strong>综合含义：</strong>市场处于<span class="hl">"结构性温暖，趋势性寒冷"</span>的纠结状态。温度计提示<span class="hl">"震荡分化，控仓5成"</span>是当前最合理的策略，既不过度悲观，也不盲目乐观。
+            </div>
+        </div>
+
+        <!-- ══════════ 主线追踪 ══════════ -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">📈</span>
+                主线追踪
+            </div>
+            
+            <div class="theme-card">
+                <div class="theme-header">
+                    <div class="theme-name">数字经济/人工智能</div>
+                    <div class="theme-stage">预热期</div>
+                </div>
+                <div class="theme-content">
+                    催化剂明确（英伟达GTC大会、工信部超前布局智算），创业板指和科创50的强势（分别<span class="hl">+1.41%</span>、<span class="hl">+0.83%</span>）提供了侧面证据。<br><br>
+                    <strong>确认条件：</strong>如果后续龙虎榜上能连续出现该板块内多只个股（如算力、AI应用、数据要素）获机构席位大额买入，则可确认其成为阶段性主线。否则，目前仍属于受事件驱动的脉冲式行情。
+                </div>
+            </div>
+
+            <div class="theme-card" style="border-left-color: var(--accent-purple); background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(139, 92, 246, 0.05));">
+                <div class="theme-header">
+                    <div class="theme-name">低空经济</div>
+                    <div class="theme-stage" style="background: rgba(167, 139, 250, 0.2); color: var(--accent-purple);">观察期</div>
+                </div>
+                <div class="theme-content">
+                    政策落地向业绩验证过渡期。新闻层面利好不断（项目落地、业绩预告向好），但尚未在龙虎榜等资金面上形成板块性攻击。<br><br>
+                    <strong>关键点：</strong>其持续性取决于后续订单和财报数据的兑现强度。目前更多是研报和新闻驱动，而非盘面资金驱动的主线。
+                </div>
+            </div>
+
+            <div class="signal-content" style="margin-top: 12px; color: var(--text-secondary); font-size: 14px;">
+                <strong style="color: var(--accent-red);">结论：</strong>当前市场无明确持续性主线，处于热点快速轮动的"混沌期"。房地产、化工等仅为单日新闻或价格波动刺激，不具备主线特征。
+            </div>
+        </div>
+
+        <!-- ══════════ 资金博弈图谱 ══════════ -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">💰</span>
+                资金博弈图谱
+            </div>
+
+            <div class="flow-comparison">
+                <div class="flow-side north">
+                    <div class="flow-title north">🌍 北向资金：稳定器与左侧布局者</div>
+                    <div class="signal-content" style="border-left: none; padding-left: 0;">
+                        连续净流入表明其在当前点位认为A股具备配置价值，可能在买入调整充分的蓝筹或成长白马。其行为与内资的谨慎形成对冲。
+                    </div>
+                </div>
+
+                <div class="flow-side domestic">
+                    <div class="flow-title domestic">🏠 内资机构：调仓换股</div>
+                    <div class="signal-content" style="border-left: none; padding-left: 0;">
+                        呈现"卖高买低"特征。从中国电建（-10%）跌停上榜可推测，部分内资在撤离传统基建等权重板块。同时，机构席位出现在德明利（存储芯片）等科技股买盘中，显示调仓方向可能偏向科技成长。
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box" style="margin-top: 16px;">
+                <strong>博弈逻辑：</strong><span class="hl">内外资在"市场风格"上博弈</span>。北向可能偏向价值修复，内资机构尝试切换至科技成长，游资则四处点火题材。这种博弈导致市场无法形成合力，指数呈现震荡。
+            </div>
+        </div>
+
+        <!-- ══════════ 新闻的真实影响 ══════════ -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">📰</span>
+                新闻的真实影响
+            </div>
+
+            <div class="news-card">
+                <div class="news-title">🏛️ 金融监管总局会议及上海购房政策调整</div>
+                <div class="impact-grid">
+                    <div class="impact-row">
+                        <div class="impact-label">改变什么</div>
+                        <div class="impact-content">改变了房地产行业<span class="hl">"风险无限蔓延"</span>的极端悲观预期，政策从"救项目"向"建制度"和"稳需求"微调。</div>
+                    </div>
+                    <div class="impact-row">
+                        <div class="impact-label">改变多大</div>
+                        <div class="impact-content"><span class="hl">情绪影响大于实质影响</span>。能暂时缓解板块下行压力，但不足以扭转行业基本面趋势。影响评级：低至中度。</div>
+                    </div>
+                    <div class="impact-row">
+                        <div class="impact-label">持续多久</div>
+                        <div class="impact-content">政策脉冲效果通常持续<span class="hl">1-3个交易日</span>，之后重回基本面定价。除非后续有更大力度的全国性需求端政策。</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="news-card">
+                <div class="news-title">📡 工信部强调适度超前布局5G、智算</div>
+                <div class="impact-grid">
+                    <div class="impact-row">
+                        <div class="impact-label">改变什么</div>
+                        <div class="impact-content">强化了数字经济基础设施建设的政策确定性，为相关板块提供了长期叙事支撑。</div>
+                    </div>
+                    <div class="impact-row" style="border-left-color: var(--accent-green);">
+                        <div class="impact-label" style="color: var(--accent-green);">改变多大</div>
+                        <div class="impact-content">为科技成长股（尤其是算力、通信设备）提供了<span class="hl">关键的催化借口和买入理由</span>。在市场缺乏主线时，此类新闻容易引发资金共鸣。</div>
+                    </div>
+                    <div class="impact-row">
+                        <div class="impact-label">持续多久</div>
+                        <div class="impact-content">属于中长期产业趋势确认，短期对板块热度的影响取决于资金是否跟进。结合今日创业板强势，其短期影响力为中度。</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="news-card">
+                <div class="news-title">🤖 英伟达GTC大会</div>
+                <div class="impact-grid">
+                    <div class="impact-row" style="border-left-color: var(--accent-purple);">
+                        <div class="impact-label" style="color: var(--accent-purple);">改变多大</div>
+                        <div class="impact-content">是<span class="hl">最强的短期题材催化剂</span>。可能决定数字经济/AI板块能否从"预热"走向"主线"。</div>
+                    </div>
+                    <div class="impact-row">
+                        <div class="impact-label">持续多久</div>
+                        <div class="impact-content">大会期间（通常3-5天）热度最高，会后需观察是否有超预期产品或合作落地。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ 明日操作环境 ══════════ -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">🎯</span>
+                明日操作环境
+            </div>
+
+            <div class="strategy-highlight">
+                <div class="strategy-title">总体仓位建议：维持5成中性仓位</div>
+                <div class="strategy-content">
+                    进可攻，退可守。在当前无明确主线、内外资博弈、指数震荡的环境下，保持灵活性比盲目押注更重要。
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; font-weight: 700; font-size: 16px; color: var(--text-secondary); margin-bottom: 12px;">
+                条件分支与观察关键：
+            </div>
+
+            <div class="condition-card">
+                <div class="condition-number">1</div>
+                <div class="condition-header">如果明日市场成交额能有效放大（回升至2.5万亿以上）</div>
+                <div class="condition-body">
+                    且创业板指/科创50继续领涨，<span class="then-highlight">则</span>可视为资金尝试聚焦科技成长，可考虑将仓位向该方向倾斜（<span class="hl">+1至2成</span>）。
+                </div>
+            </div>
+
+            <div class="condition-card" style="background: linear-gradient(135deg, rgba(248, 113, 113, 0.1), rgba(245, 158, 11, 0.05));">
+                <div class="condition-number" style="background: var(--accent-red);">2</div>
+                <div class="condition-header" style="color: var(--accent-red);">如果市场继续缩量（低于2.3万亿）</div>
+                <div class="condition-body">
+                    且上证指数跌破今日低点（4085），<span class="then-highlight" style="background: rgba(248, 113, 113, 0.3); color: var(--accent-red);">则</span>需警惕震荡区间下破风险，应降至防御仓位（<span class="hl">4成或以下</span>），观察权重股能否止跌。
+                </div>
+            </div>
+
+            <div class="condition-card" style="background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(139, 92, 246, 0.05));">
+                <div class="condition-number" style="background: var(--accent-purple);">3</div>
+                <div class="condition-header" style="color: var(--accent-purple);">主线确认条件</div>
+                <div class="condition-body">
+                    如果市场出现清晰的主线板块（符合龙虎榜标准），<span class="then-highlight" style="background: rgba(167, 139, 250, 0.3); color: var(--accent-purple);">则</span>围绕主线核心品种操作；如果继续快速轮动，<span class="then-highlight" style="background: rgba(251, 191, 36, 0.3); color: var(--accent-yellow);">则</span>减少追高，以低吸潜伏为主。
+                </div>
+            </div>
+
+            <div class="key-metrics">
+                🔍 <strong>关键观察指标：</strong><br>
+                1. 成交量（能否放大至2.5万亿以上）<br>
+                2. 北向资金流向（是否持续净流入）<br>
+                3. 龙虎榜机构买入方向（是否集中）
+            </div>
+        </div>
+
+        <!-- ══════════ 最大风险 ══════════ -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">⚠️</span>
+                最大风险
+            </div>
+
+            <div class="risk-card">
+                <div class="risk-title">
+                    <span>📉</span>
+                    权重股趋势破位风险
+                    <span style="margin-left: auto; font-size: 12px; opacity: 0.8;">置信度：中</span>
+                </div>
+                <div class="risk-content">
+                    上证指数已贴近近期震荡区间下沿，若金融、地产、基建等权重板块因业绩或经济数据担忧继续下跌，可能带动指数破位，引发系统性风险释放和情绪降温。今日中国电建的跌停是一个需要警惕的信号。
+                </div>
+            </div>
+
+            <div class="risk-card">
+                <div class="risk-title">
+                    <span>🔥</span>
+                    热点轮动过快导致的"多杀多"风险
+                    <span style="margin-left: auto; font-size: 12px; opacity: 0.8;">置信度：中</span>
+                </div>
+                <div class="risk-content">
+                    当前题材炒作缺乏持续性，一旦最活跃的短线资金接力失败，容易出现多个热点同时退潮，导致跌停家数骤增，破坏现有的赚钱效应，使市场迅速转冷。
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ FOOTER ══════════ -->
+        <div class="footer">
+            <div class="footer-brand">🤖 自动生成 by n8n + TuShare + Perplexity + DeepSeek</div>
+            <div>⏰ 2026-03-17T04:02:15.614Z</div>
+            <div style="margin-top: 12px; opacity: 0.7;">
+                仅供参考。
+            </div>
+        </div>
+    </div>
+</body>
+</html>
