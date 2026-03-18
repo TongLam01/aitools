@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A股每日投研环境报告 - 2026-03-17</title>
+    <style>
+        :root {
+            --bg-primary: #f0f4f8;
+            --bg-card: #ffffff;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-tertiary: #718096;
+            --accent-blue: #3182ce;
+            --accent-light-blue: #ebf8ff;
+            --accent-ice: #63b3ed;
+            --accent-red: #e53e3e;
+            --accent-green: #38a169;
+            --accent-orange: #dd6b20;
+            --accent-yellow: #d69e2e;
+            --accent-purple: #805ad5;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.75;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* 头部区域 - 冰点主题 */
+        .header {
+            background: linear-gradient(135deg, #2b6cb0 0%, #4299e1 100%);
+            color: white;
+            padding: 32px 20px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '❄️';
+            position: absolute;
+            top: -10px;
+            right: -20px;
+            font-size: 120px;
+            opacity: 0.15;
+            transform: rotate(-15deg);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .report-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .meta-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .date-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .temp-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .temp-icon {
+            font-size: 18px;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 100%;
+            padding: 16px;
+            padding-bottom: 32px;
+        }
+
+        /* 卡片基础样式 */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:active {
+            transform: scale(0.995);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-light-blue);
+            border-radius: 10px;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex: 1;
+            letter-spacing: -0.3px;
+        }
+
+        /* 一句话判断 */
+        .summary-box {
+            background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%);
+            border-left: 4px solid var(--accent-blue);
+            padding: 18px;
+            border-radius: 0 12px 12px 0;
+            font-size: 15px;
+            line-height: 1.85;
+            color: var(--text-primary);
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .highlight {
+            color: var(--accent-blue);
+            font-weight: 700;
+            background: linear-gradient(120deg, rgba(49,130,206,0.1) 0%, rgba(49,130,206,0.1) 100%);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .highlight-red {
+            color: var(--accent-red);
+            font-weight: 700;
+            background: rgba(229,62,62,0.08);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .highlight-green {
+            color: var(--accent-green);
+            font-weight: 700;
+            background: rgba(56,161,105,0.08);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .highlight-orange {
+            color: var(--accent-orange);
+            font-weight: 700;
+            background: rgba(221,107,32,0.08);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        /* 关键矛盾部分 */
+        .contradiction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .contradiction-item {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .contradiction-header {
+            background: linear-gradient(to right, #f7fafc, #ffffff);
+            padding: 16px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contradiction-num {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .contradiction-body {
+            padding: 18px;
+        }
+
+        .sub-section {
+            margin-bottom: 14px;
+        }
+
+        .sub-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .sub-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sub-content {
+            font-size: 14.5px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 8px;
+            margin-right: 6px;
+        }
+
+        .tag-confidence {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .tag-risk {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .tag-info {
+            background: #bee3f8;
+            color: #2a4365;
+        }
+
+        /* 市场暗线 */
+        .dark-line-item {
+            background: linear-gradient(to bottom, #ffffff, #f7fafc);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dark-line-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #805ad5, #667eea);
+        }
+
+        .dark-line-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dark-line-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .keyword {
+            background: #edf2f7;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* 板块轮动图谱 */
+        .zone-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .zone-card {
+            border-radius: 12px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .zone-risk {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            border: 1px solid #fed7d7;
+        }
+
+        .zone-observe {
+            background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);
+            border: 1px solid #feebc8;
+        }
+
+        .zone-opportunity {
+            background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+            border: 1px solid #c6f6d5;
+        }
+
+        .zone-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .zone-title {
+            font-weight: 800;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zone-risk .zone-title { color: #c53030; }
+        .zone-observe .zone-title { color: #c05621; }
+        .zone-opportunity .zone-title { color: #276749; }
+
+        .zone-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .zone-risk .zone-badge { background: #fed7d7; color: #c53030; }
+        .zone-observe .zone-badge { background: #feebc8; color: #c05621; }
+        .zone-opportunity .zone-badge { background: #c6f6d5; color: #276749; }
+
+        .zone-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .zone-item {
+            background: rgba(255,255,255,0.6);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .zone-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .item-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        /* 预判部分 */
+        .prediction-box {
+            background: linear-gradient(135deg, #ebf8ff 0%, #ffffff 100%);
+            border: 1px solid #90cdf4;
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 16px;
+        }
+
+        .prediction-title {
+            font-weight: 800;
+            color: #2b6cb0;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .prediction-item {
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .prediction-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .prediction-item::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+            font-weight: 700;
+        }
+
+        /* 市场温度解读 */
+        .temp-analysis-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .temp-metric {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 16px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .temp-metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .temp-metric-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .temp-metric-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent-blue);
+        }
+
+        .temp-metric-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* 资金博弈 */
+        .capital-item {
+            background: linear-gradient(to right, #ffffff, #f7fafc);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 14px;
+        }
+
+        .capital-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--accent-light-blue);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .capital-content {
+            flex: 1;
+        }
+
+        .capital-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .capital-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .consensus-box {
+            background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+            border: 1px solid #9ae6b4;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            text-align: center;
+            font-weight: 600;
+            color: #276749;
+            font-size: 15px;
+        }
+
+        /* 新闻影响 */
+        .news-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .news-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            position: relative;
+            padding-left: 52px;
+        }
+
+        .news-icon {
+            position: absolute;
+            left: 16px;
+            top: 18px;
+            width: 28px;
+            height: 28px;
+            background: var(--accent-light-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .news-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .news-section {
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .news-label {
+            color: var(--text-tertiary);
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .news-content {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .impact-high { border-left: 4px solid var(--accent-red); }
+        .impact-medium { border-left: 4px solid var(--accent-orange); }
+        .impact-info { border-left: 4px solid var(--accent-blue); }
+
+        /* 操作环境 */
+        .strategy-alert {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            border: 1px solid #fed7d7;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .strategy-title {
+            font-weight: 800;
+            color: #c53030;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .strategy-content {
+            color: #742a2a;
+            font-size: 15px;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        .indicator-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .indicator-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .indicator-num {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .indicator-body {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .branch-strategy {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 3px solid var(--accent-blue);
+            font-size: 13px;
+        }
+
+        .signal-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .signal-buy { background: #c6f6d5; color: #22543d; }
+        .signal-sell { background: #fed7d7; color: #742a2a; }
+        .signal-risk { background: #feebc8; color: #744210; }
+
+        /* 风险警告 */
+        .risk-section {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            border: 1px solid #fc8181;
+            border-radius: 16px;
+            padding: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .risk-section::before {
+            content: '⚠️';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 100px;
+            opacity: 0.08;
+        }
+
+        .risk-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #c53030;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .risk-item {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid #fed7d7;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .risk-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .risk-title {
+            font-weight: 700;
+            color: #742a2a;
+            margin-bottom: 8px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .risk-content {
+            font-size: 14px;
+            color: #9b2c2c;
+            line-height: 1.8;
+        }
+
+        .risk-solution {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #fc8181;
+            font-size: 13px;
+            color: #c53030;
+            font-weight: 600;
+        }
+
+        /* 页脚 */
+        .footer {
+            margin-top: 24px;
+            padding: 24px 20px;
+            background: #2d3748;
+            color: #a0aec0;
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.9;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .footer strong {
+            color: #e2e8f0;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+            margin: 20px 0;
+        }
+
+        /* 文本样式 */
+        p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        /* 响应式微调 */
+        @media (max-width: 380px) {
+            .card { padding: 18px; }
+            .header { padding: 24px 16px 20px; }
+            .report-title { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 头部信息 -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="report-title">📊 A股每日投研环境报告</h1>
+            <div class="meta-bar">
+                <span class="date-badge">📅 2026-03-17</span>
+                <span class="temp-badge">
+                    <span class="temp-icon">❄️</span>
+                    温度: 27/100 冰点
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- 一句话判断 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">💡</div>
+                <div class="card-title">一句话判断</div>
+            </div>
+            <div class="summary-box">
+                市场处于<span class="highlight-red">冰点恐慌下的结构性分化</span>，机构资金正从前期热门的科技成长板块（通信、军工、半导体）向<span class="highlight">金融（券商、银行、保险）</span>和部分新能源细分领域（光伏电池、风电）进行<span class="highlight-orange">防御性切换</span>，但指数缩量下跌表明切换过程伴随整体风险释放，短期市场风格偏向<span class="highlight">低估值、高股息和产业政策托底方向</span>。
+            </div>
+        </div>
+
+        <!-- 关键矛盾 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">⚡</div>
+                <div class="card-title">关键矛盾</div>
+            </div>
+
+            <div class="contradiction-list">
+                <!-- 矛盾1 -->
+                <div class="contradiction-item">
+                    <div class="contradiction-header">
+                        <div class="contradiction-num">1</div>
+                        <div>指数普跌与金融板块逆势吸金的矛盾</div>
+                    </div>
+                    <div class="contradiction-body">
+                        <div class="sub-section">
+                            <div class="sub-label">📉 现象</div>
+                            <div class="sub-content">
+                                三大指数跌幅均超0.85%，创业板、科创50跌幅超2.2%，市场呈现普跌格局（上涨家数仅16%）。然而，主力资金却逆势大幅流入<span class="highlight">非银金融（+35.95亿）</span>、<span class="highlight">证券（+32.57亿）</span>、<span class="highlight">银行（+14.50亿）</span>等板块。
+                            </div>
+                        </div>
+                        <div class="sub-section">
+                            <div class="sub-label">🔍 解读</div>
+                            <div class="sub-content">
+                                这揭示了<strong>机构资金在系统性下跌中，并非全面撤退，而是进行了明确的防御性调仓</strong>。矛盾指向：恐慌情绪由中小盘和科技成长股主导，权重金融板块成为"避风港"和潜在的护盘工具。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 矛盾2 -->
+                <div class="contradiction-item">
+                    <div class="contradiction-header">
+                        <div class="contradiction-num">2</div>
+                        <div>ETF深度回调与板块内部分化的矛盾</div>
+                    </div>
+                    <div class="contradiction-body">
+                        <div class="sub-section">
+                            <div class="sub-label">📊 现象</div>
+                            <div class="sub-content">
+                                通信ETF（-5.2%）、军工ETF（-2.67%）、半导体/芯片ETF（-2.8%左右）今日领跌，且近6日累计跌幅巨大（通信-6.84%，军工-8.95%）。但板块资金流数据显示，同为科技成长范畴的<span class="highlight-green">"光伏电池组件"板块却获得18.17亿主力净流入并上涨1.35%</span>。
+                            </div>
+                        </div>
+                        <div class="sub-section">
+                            <div class="sub-label">🔍 解读</div>
+                            <div class="sub-content">
+                                这矛盾表明，<strong>"科技成长"内部正在经历残酷的优胜劣汰和细分赛道切换</strong>，资金从通信、军工等板块流出，但流入了有政策催化和业绩预期的光伏制造端。这并非简单的板块轮动，而是产业链内部的<span class="highlight-red">"幸存者选择"</span>。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 矛盾3 -->
+                <div class="contradiction-item">
+                    <div class="contradiction-header">
+                        <div class="contradiction-num">3</div>
+                        <div>市场温度"冰点"与杠杆资金逆势加仓的矛盾</div>
+                    </div>
+                    <div class="contradiction-body">
+                        <div class="sub-section">
+                            <div class="sub-label">🌡️ 现象</div>
+                            <div class="sub-content">
+                                市场温度仅27/100，处于"极度恐慌"区间。然而，<span class="highlight-green">融资资金今日净买入84亿元</span>，为近5日最高值，且融资余额维持高位。
+                            </div>
+                        </div>
+                        <div class="sub-section">
+                            <div class="sub-label">🔍 解读</div>
+                            <div class="sub-content">
+                                这表明<strong>高风险偏好的杠杆资金并未被恐慌情绪吓退，反而在下跌中进行了"抄底"或"调仓"</strong>。矛盾在于：杠杆资金的行为与市场整体情绪背离，其加仓方向（数据未拆分）是否与主力资金流入的金融、新能源方向一致，将决定反弹的成色。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 市场暗线 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🔮</div>
+                <div class="card-title">市场暗线</div>
+            </div>
+
+            <div class="dark-line-item">
+                <div class="dark-line-title">🛡️ "稳市机制"从口号到行动，金融股成为制度套利标的</div>
+                <div class="dark-line-content">
+                    今日新闻核心是"完善中国特色稳市机制"从应急工具转向常态化制度。这并非空话，主力资金用真金白银投票，集中涌入券商、银行、保险。暗线逻辑是：<span class="keyword">稳市机制的核心是稳定指数和流动性，金融权重股是直接工具</span>；理财公司监管评级强化行业规范，利好头部机构；化解融资平台债务风险，降低银行资产质量隐忧。这三重政策利好形成共振，使金融板块在下跌市中获得了独特的<span class="highlight">"政策期权"价值</span>。
+                </div>
+            </div>
+
+            <div class="dark-line-item">
+                <div class="dark-line-title">📉 ETF数据揭示：高景气赛道正在经历"杀逻辑"与"杀估值"的分化</div>
+                <div class="dark-line-content">
+                    <p style="margin-bottom: 10px;">近6日累计跌幅榜（军工-8.95%、通信-6.84%、人工智能-4.92%、半导体/芯片-4.0%）显示，这些曾经的高景气赛道正在被集体抛售。但暗线在于，它们的下跌节奏不同：</p>
+                    <ul style="margin: 0; padding-left: 18px;">
+                        <li style="margin-bottom: 8px;"><strong>军工、通信</strong>属于"阴跌+加速跌"模式（军工ETF近6日仅1日小幅反弹），可能面临逻辑松动或订单预期下修的风险。</li>
+                        <li><strong>半导体、人工智能</strong>则呈现"大跌-反弹-再大跌"的剧烈震荡模式，这更像是<span class="highlight-red">获利盘与抄底盘的激烈博弈</span>，反弹无力后筹码再次松动。</li>
+                    </ul>
+                    <div style="margin-top: 12px; padding: 10px; background: rgba(49,130,206,0.08); border-radius: 8px; font-size: 13px;">
+                        <strong>关键验证：</strong>融资资金今日净买入84亿，但上述科技ETF普遍大跌，说明杠杆资金要么抄底在了"半山腰"，要么其加仓方向完全避开了这些板块，转向了金融或新能源。后者可能性更大。
+                    </div>
+                </div>
+            </div>
+
+            <div class="dark-line-item">
+                <div class="dark-line-title">⚠️ "资金流与涨跌背离"信号指向散户接盘与机构派发</div>
+                <div class="dark-line-content">
+                    <span class="highlight-orange">氮肥板块（涨2.3%但主力净流出2.8亿）</span>和<span class="highlight-orange">金融控股板块（涨1.03%但主力净流出4.0亿）</span>是典型例子。这明确揭示了<strong>在部分上涨板块中，推动力量是散户跟风或游资接力，而机构资金正在借上涨悄然撤离</strong>。这种背离是短期见顶的领先指标，尤其需要警惕那些累计涨幅已大但出现该信号的板块。
+                </div>
+            </div>
+        </div>
+
+        <!-- 板块轮动图谱 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🔄</div>
+                <div class="card-title">板块轮动图谱</div>
+            </div>
+            
+            <div class="sub-content" style="margin-bottom: 16px; font-size: 14px;">
+                基于ETF近6日累计涨跌幅，我们可以清晰绘制当前的轮动位置图：
+            </div>
+
+            <div class="zone-grid">
+                <!-- 风险区 -->
+                <div class="zone-card zone-risk">
+                    <div class="zone-header">
+                        <div class="zone-title">🚨 高位震荡/利好兑现区（风险区）</div>
+                        <span class="zone-badge">规避</span>
+                    </div>
+                    <div class="zone-content">
+                        <div class="zone-item">
+                            <div class="item-title">银行ETF（+3.15%）</div>
+                            已<strong>连续上涨6日</strong>，累计涨幅居首。今日虽获主力流入，但ETF涨幅（0.83%）已小于前几日，呈现疲态。板块进入利好兑现阶段，短期追高风险极高。<br>
+                            <span class="tag tag-risk">预判：未来1-2个交易日内大概率出现回调或横盘，消化获利盘。</span>
+                        </div>
+                        <div class="zone-item">
+                            <div class="item-title">消费ETF（+2.23%）</div>
+                            近6日走势为"跌-涨-涨-涨-大涨-微跌"，今日冲高回落（-0.14%）。显示在连续上涨后，上行动能衰减，面临短线压力。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 观察区 -->
+                <div class="zone-card zone-observe">
+                    <div class="zone-header">
+                        <div class="zone-title">👀 中位盘整/方向选择区（观察区）</div>
+                        <span class="zone-badge">关注</span>
+                    </div>
+                    <div class="zone-content">
+                        <div class="zone-item">
+                            <div class="item-title">券商ETF（-0.22%）</div>
+                            近6日走势震荡，今日大涨（+1%）但累计涨幅仍为负。今日主力资金巨幅流入（证券板块合计超65亿），与ETF走势形成<span class="highlight">"资金底背离"</span>。<br>
+                            <span class="tag tag-info">预判：券商板块处于"跌出来的机会"阶段，机构大举流入可能预示着一次具有持续性的反弹，是值得重点跟踪的轮动潜在启动点。</span>
+                        </div>
+                        <div class="zone-item">
+                            <div class="item-title">医药/机器人/新能源ETF</div>
+                            累计跌幅不大，但走势较弱。需要新的催化剂才能摆脱盘整。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 机会区 -->
+                <div class="zone-card zone-opportunity">
+                    <div class="zone-header">
+                        <div class="zone-title">💎 深度回调/超跌反弹潜在区（机会区）</div>
+                        <span class="zone-badge">博弈</span>
+                    </div>
+                    <div class="zone-content">
+                        <div class="zone-item">
+                            <div class="item-title">光伏/芯片/人工智能ETF</div>
+                            已深度回调，但日内波动剧烈，显示多空分歧巨大。<span class="tag tag-info">预判：属于"跌多了但筹码结构仍乱"的区域，短期可能有技术性反抽，但形成反转需要强有力的基本面催化或市场风险偏好整体回升。</span>
+                        </div>
+                        <div class="zone-item">
+                            <div class="item-title">通信ETF（-6.84%）/ 军工ETF（-8.95%）</div>
+                            <strong>处于超跌区间</strong>。尤其是军工ETF，近6日几乎单边下跌。从轮动规律看，当市场恐慌情绪释放后，跌幅最大的板块往往具备最强的技术性反弹动能。<br>
+                            <span class="tag tag-confidence">预判：它们是市场情绪的"极端温度计"，一旦市场企稳，它们可能成为弹性最大的反弹先锋，但行情的持续性可能最差。</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prediction-box">
+                <div class="prediction-title">🎯 下一个轮动方向预判</div>
+                <div class="prediction-item">
+                    <strong>高置信度方向（中）：金融（券商 > 银行）</strong><br>
+                    逻辑：政策托底明确 + 今日主力资金逆势大幅流入 + 券商ETF位置相对较低。若市场企稳，券商板块的弹性和人气带动作用将凸显。
+                </div>
+                <div class="prediction-item">
+                    <strong>中置信度方向（中）：超跌科技（军工/通信）的战术性反弹</strong><br>
+                    逻辑：轮动规律上，极致超跌后有反抽需求。但需注意，这仅是"跌深反弹"逻辑，除非有强力新闻催化，否则空间有限。
+                </div>
+                <div class="prediction-item">
+                    <strong>产业链轮动方向（中）：新能源内部从设备向电池组件切换</strong><br>
+                    逻辑：今日"光伏电池组件"获主力流入而"光伏设备"主力流出，显示资金在新能源内部进行细分切换，偏好更接近终端需求或技术迭代环节。
+                </div>
+            </div>
+        </div>
+
+        <!-- 市场温度解读 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🌡️</div>
+                <div class="card-title">市场温度解读</div>
+            </div>
+            
+            <div class="sub-content" style="margin-bottom: 16px;">
+                市场温度<strong>27分</strong>确认为<span class="highlight-red">"冰点"</span>，但内部结构值得深究：
+            </div>
+
+            <div class="temp-analysis-grid">
+                <div class="temp-metric" style="border-left-color: #e53e3e;">
+                    <div class="temp-metric-header">
+                        <span class="temp-metric-title">赚钱效应 & 宽度</span>
+                        <span class="temp-metric-value" style="color: #e53e3e;">10/16</span>
+                    </div>
+                    <div class="temp-metric-desc">
+                        与全市仅16%个股上涨吻合，说明是典型的亏钱市，操作难度极大。
+                    </div>
+                </div>
+
+                <div class="temp-metric" style="border-left-color: #38a169;">
+                    <div class="temp-metric-header">
+                        <span class="temp-metric-title">北向资金</span>
+                        <span class="temp-metric-value" style="color: #38a169;">57</span>
+                    </div>
+                    <div class="temp-metric-desc">
+                        今日净流入28.5亿，连续5日净流入累计148.3亿。<strong>北向资金在下跌中持续流入，是一个重要的背离信号</strong>，表明外资从中期视角可能认为当前位置具备价值。
+                    </div>
+                </div>
+
+                <div class="temp-metric" style="border-left-color: #dd6b20;">
+                    <div class="temp-metric-header">
+                        <span class="temp-metric-title">成交量 vs 趋势</span>
+                        <span class="temp-metric-value" style="color: #dd6b20;">46/19</span>
+                    </div>
+                    <div class="temp-metric-desc">
+                        指数缩量下跌（量比0.92），通常解读为空头力量减弱。但趋势分极低，说明下降趋势强劲。<span class="highlight-orange">这个矛盾组合（缩量跌+趋势弱）常出现在下跌末段或中继平台破位初期</span>，需要接下来1-2个交易日确认是"下跌衰竭"还是"下跌中继"。若明日继续缩量收窄跌幅或收星，则偏向衰竭；若放量下跌，则趋势将继续恶化。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 资金博弈图谱 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">💰</div>
+                <div class="card-title">资金博弈图谱</div>
+            </div>
+
+            <div class="capital-item">
+                <div class="capital-icon">🏦</div>
+                <div class="capital-content">
+                    <div class="capital-title">金融板块（券商/银行/保险）</div>
+                    <div class="capital-desc">
+                        <span class="highlight-green">北向（整体流入）+ 主力（大幅流入）+ ETF（券商涨，银行涨）</span>。三维度高度一致，形成<strong>高置信度</strong>的做多共识。这是今日市场最清晰的资金合力方向。
+                    </div>
+                </div>
+            </div>
+
+            <div class="capital-item">
+                <div class="capital-icon">💻</div>
+                <div class="capital-content">
+                    <div class="capital-title">科技成长板块（半导体/人工智能）</div>
+                    <div class="capital-desc">
+                        北向（整体流入，但无行业数据）+ <span class="highlight-red">主力（整体应为流出）+ ETF（大跌）</span>。主力与ETF指向一致（流出/下跌），与北向整体行为矛盾。<strong>判断</strong>：要么北向流入的不是这些板块，要么北向的流入规模不敌内资机构的抛压。结果指向板块弱势。
+                    </div>
+                </div>
+            </div>
+
+            <div class="capital-item">
+                <div class="capital-icon">⚡</div>
+                <div class="capital-content">
+                    <div class="capital-title">新能源板块（光伏）</div>
+                    <div class="capital-desc">
+                        出现内部分化。<strong>光伏电池组件</strong>：主力（大幅流入）+ ETF（光伏ETF跌-1.78%）。存在矛盾，说明主力流入集中在少数龙头组件公司，但光伏ETF包含的上游设备等个股大跌，拖累了ETF表现。<strong>光伏设备</strong>：主力（净流出4.1亿）+ ETF（下跌）。一致指向弱势。
+                    </div>
+                </div>
+            </div>
+
+            <div class="capital-item" style="margin-bottom: 0;">
+                <div class="capital-icon">📈</div>
+                <div class="capital-content">
+                    <div class="capital-title">杠杆资金</div>
+                    <div class="capital-desc">
+                        今日净买入84亿，方向不明。但与市场普跌结合看，其买入对象很可能与主力资金重合（金融），或是在抄底部分超跌板块。其行为增加了市场复杂性，但未形成主导力量。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关键新闻的真实影响 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">📰</div>
+                <div class="card-title">关键新闻的真实影响</div>
+            </div>
+
+            <div class="news-timeline">
+                <div class="news-item impact-high">
+                    <div class="news-icon">📋</div>
+                    <div class="news-title">理财公司监管评级办法出台</div>
+                    <div class="news-section">
+                        <div class="news-label">改变什么</div>
+                        <div class="news-content">改变了理财行业的游戏规则，从规模导向转向合规与能力导向。</div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-label">影响多大</div>
+                        <div class="news-content">中长期重大利好行业头部化、规范化，短期对银行/理财子公司股价有情绪提振。<span class="highlight-red">影响程度：中高</span>。</div>
+                    </div>
+                    <div class="news-section" style="margin-bottom: 0;">
+                        <div class="news-label">影响多久</div>
+                        <div class="news-content">是持续性制度红利，影响以年计。</div>
+                    </div>
+                </div>
+
+                <div class="news-item impact-high">
+                    <div class="news-icon">🛡️</div>
+                    <div class="news-title">完善中国特色稳市机制</div>
+                    <div class="news-section">
+                        <div class="news-label">改变什么</div>
+                        <div class="news-content">将股市稳定从临时性干预提升为常态化制度预期。</div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-label">影响多大</div>
+                        <div class="news-content"><span class="highlight-red">短期对市场情绪和金融权重股有直接提振（今日已反映），中长期降低市场非理性波动下限。影响程度：高</span>。</div>
+                    </div>
+                    <div class="news-section" style="margin-bottom: 0;">
+                        <div class="news-label">影响多久</div>
+                        <div class="news-content">是长期制度建设，构成未来数年A股的底层政策环境之一。</div>
+                    </div>
+                </div>
+
+                <div class="news-item impact-medium">
+                    <div class="news-icon">🌐</div>
+                    <div class="news-title">中美经贸磋商初步共识</div>
+                    <div class="news-section">
+                        <div class="news-label">改变什么</div>
+                        <div class="news-content">暂时缓解了外部最大不确定性，改善了风险偏好。</div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-label">影响多大</div>
+                        <div class="news-content">今日市场高开低走，说明其利好效应<span class="highlight-orange">已被部分预期，且不敌内部结构性调整压力</span>。影响程度：中。</div>
+                    </div>
+                    <div class="news-section" style="margin-bottom: 0;">
+                        <div class="news-label">影响多久</div>
+                        <div class="news-content">短期情绪刺激，具体机制落地前，影响会逐渐衰减。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 明日操作环境 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🎯</div>
+                <div class="card-title">明日操作环境</div>
+            </div>
+
+            <div class="strategy-alert">
+                <div class="strategy-title">⚠️ 总体建议</div>
+                <div class="strategy-content">
+                    仓位控制在<span class="highlight-red" style="font-size: 18px;">5成以下</span>，以防御和观察为主，<strong>不轻易抄底下跌通道中的板块</strong>。
+                </div>
+            </div>
+
+            <div class="sub-section" style="margin-bottom: 6px;">
+                <div class="sub-label" style="font-size: 14px; color: var(--text-primary);">关键观察指标及分支策略</div>
+            </div>
+
+            <div class="indicator-card">
+                <div class="indicator-header">
+                    <div class="indicator-num">1</div>
+                    <div>观察券商板块的持续性</div>
+                    <span class="signal-tag signal-buy">做多信号</span>
+                </div>
+                <div class="indicator-body">
+                    若券商ETF明日能继续放量上涨（>1%），且板块主力资金维持净流入，则市场情绪有望被点燃，可考虑小幅加仓券商或关注其带动的金融科技板块。
+                </div>
+            </div>
+
+            <div class="indicator-card">
+                <div class="indicator-header">
+                    <div class="indicator-num">2</div>
+                    <div>观察市场是否出现"冰点反弹"</div>
+                    <span class="signal-tag signal-buy">反弹信号</span>
+                </div>
+                <div class="indicator-body">
+                    若明日开盘后市场继续恐慌下探，但上涨家数跌至10%以下，同时北向资金仍保持流入，则可视为极端冰点。此时可小仓位（1-2成）博弈<span class="highlight">弹性最大的超跌板块</span>，如军工ETF或通信ETF的日内反弹。
+                </div>
+            </div>
+
+            <div class="indicator-card" style="margin-bottom: 0;">
+                <div class="indicator-header">
+                    <div class="indicator-num">3</div>
+                    <div>观察强势板块是否补跌</div>
+                    <span class="signal-tag signal-risk">风险信号</span>
+                </div>
+                <div class="indicator-body">
+                    若明日银行、保险等今日强势板块开始补跌，而科技成长板块并未止跌，则意味着市场进入<span class="highlight-red">全面风险释放阶段</span>。此时应继续降低仓位，保持观望，等待更明确的企稳信号（如指数长下影线、强势股止跌）。
+                </div>
+            </div>
+        </div>
+
+        <!-- 最大风险 -->
+        <div class="risk-section">
+            <div class="risk-header">
+                <span style="font-size: 24px;">🚨</span>
+                <span>最大风险</span>
+            </div>
+
+            <div class="risk-item">
+                <div class="risk-title">
+                    <span>⚡</span>
+                    <span>强势股补跌风险</span>
+                </div>
+                <div class="risk-content">
+                    <strong>触发条件：</strong>银行、消费等近期连续上涨的板块，明日出现放量下跌（跌幅>1.5%），且主力资金转为净流出。
+                </div>
+                <div class="risk-solution">
+                    💡 应对方案：立即减仓或清仓相关持仓。强势股补跌通常是调整末段的标志，但也意味着最后的多头防线失守，短期杀伤力大。
+                </div>
+            </div>
+
+            <div class="risk-item" style="margin-bottom: 0;">
+                <div class="risk-title">
+                    <span>💥</span>
+                    <span>科技成长板块"多杀多"风险</span>
+                </div>
+                <div class="risk-content">
+                    <strong>触发条件：</strong>半导体、人工智能等ETF明日跌幅继续扩大（>2%），且融资余额数据显示杠杆资金在这些板块上为净偿还状态。
+                </div>
+                <div class="risk-solution">
+                    💡 应对方案：坚决规避此类板块，不接飞刀。等待其日线级别出现明确的缩量企稳（连续2-3日波动率显著下降）后再考虑是否关注。
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <strong>⚠️ 免责声明</strong>
+            本报告基于公开数据和模型分析生成<br><br>
+            🤖 自动生成 by n8n + TuShare + ETF数据 + Perplexity + DeepSeek<br>
+            ⏰ 2026-03-18T00:11:58.626Z
+        </footer>
+
+    </div>
+
+</body>
+</html>
