@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A股ETF投资信号日报 | 2026-03-18</title>
+    <style>
+        :root {
+            --bg-primary: #f0f4f8;
+            --bg-card: #ffffff;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-tertiary: #718096;
+            --accent-blue: #3182ce;
+            --accent-light-blue: #ebf8ff;
+            --accent-purple: #805ad5;
+            --accent-light-purple: #f3e8ff;
+            --accent-orange: #dd6b20;
+            --accent-light-orange: #fffaf0;
+            --accent-red: #e53e3e;
+            --accent-light-red: #fff5f5;
+            --accent-green: #38a169;
+            --accent-light-green: #f0fff4;
+            --accent-yellow: #d69e2e;
+            --accent-teal: #319795;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.75;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #2c5282 0%, #3182ce 100%);
+            color: white;
+            padding: 32px 20px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '📈';
+            position: absolute;
+            top: -20px;
+            right: -10px;
+            font-size: 100px;
+            opacity: 0.1;
+            transform: rotate(-10deg);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .report-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .date-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .cycle-badge {
+            background: rgba(255,255,255,0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 100%;
+            padding: 16px;
+            padding-bottom: 32px;
+        }
+
+        /* 卡片基础 */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-light-blue);
+            border-radius: 10px;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        /* 核心结论 */
+        .summary-highlight {
+            background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);
+            border: 1px solid #fbd38d;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-highlight::before {
+            content: '⚡';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 40px;
+            opacity: 0.1;
+        }
+
+        .summary-title {
+            font-weight: 800;
+            color: var(--accent-orange);
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-content {
+            font-size: 15px;
+            line-height: 1.9;
+            color: var(--text-primary);
+        }
+
+        .highlight-blue {
+            color: var(--accent-blue);
+            font-weight: 700;
+            background: rgba(49,130,206,0.08);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .highlight-orange {
+            color: var(--accent-orange);
+            font-weight: 700;
+            background: rgba(221,107,32,0.08);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .highlight-red {
+            color: var(--accent-red);
+            font-weight: 700;
+            background: rgba(229,62,62,0.08);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .highlight-green {
+            color: var(--accent-green);
+            font-weight: 700;
+            background: rgba(56,161,105,0.08);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        /* 操作建议 */
+        .strategy-section {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .strategy-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .strategy-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .price-tag {
+            display: inline-block;
+            background: var(--accent-blue);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            margin: 4px 2px;
+        }
+
+        .price-tag.purple {
+            background: var(--accent-purple);
+        }
+
+        /* ETF对比 */
+        .etf-comparison {
+            display: grid;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .etf-card {
+            border-radius: 14px;
+            padding: 20px;
+            border: 2px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .etf-card.blue {
+            background: linear-gradient(135deg, #ebf8ff 0%, #ffffff 100%);
+            border-color: #90cdf4;
+        }
+
+        .etf-card.purple {
+            background: linear-gradient(135deg, #f3e8ff 0%, #ffffff 100%);
+            border-color: #d6bcfa;
+        }
+
+        .etf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .etf-name {
+            font-weight: 800;
+            font-size: 17px;
+            color: var(--text-primary);
+        }
+
+        .etf-code {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            background: rgba(255,255,255,0.8);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .signal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .signal-hold {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+
+        .signal-buy {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .score-bar-container {
+            margin-top: 12px;
+        }
+
+        .score-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .score-fill.neutral {
+            background: linear-gradient(90deg, #f6e05e, #d69e2e);
+        }
+
+        .detail-grid {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* 详细分析 */
+        .analysis-block {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+
+        .analysis-header {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 14px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric-table {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .table-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .table-row.highlight {
+            background: linear-gradient(90deg, #ebf8ff, #f7fafc);
+            border: 1px solid #90cdf4;
+        }
+
+        .table-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-value {
+            font-weight: 700;
+        }
+
+        .footnote {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            padding: 0 12px;
+            font-style: italic;
+        }
+
+        /* 技术价位 */
+        .price-levels {
+            display: grid;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .level-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-size: 13px;
+            border-left: 3px solid #e2e8f0;
+        }
+
+        .level-item.resistance {
+            border-left-color: #fc8181;
+            background: linear-gradient(90deg, #fff5f5, #ffffff);
+        }
+
+        .level-item.support {
+            border-left-color: #68d391;
+            background: linear-gradient(90deg, #f0fff4, #ffffff);
+        }
+
+        .level-item.current {
+            border-left-color: #3182ce;
+            background: linear-gradient(90deg, #ebf8ff, #ffffff);
+            font-weight: 700;
+        }
+
+        .level-name {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .level-price {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* 列表 */
+        .check-list {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0;
+        }
+
+        .check-list li {
+            padding: 10px 0 10px 28px;
+            position: relative;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .check-list li:last-child {
+            border-bottom: none;
+        }
+
+        .check-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .cross-list li::before {
+            content: '✗';
+            color: var(--accent-red);
+        }
+
+        .question-list li::before {
+            content: '?';
+            color: var(--accent-orange);
+            font-weight: 700;
+        }
+
+        /* 风险区块 */
+        .risk-block {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            border: 1px solid #fc8181;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+
+        .risk-title {
+            color: #c53030;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .risk-content {
+            font-size: 14px;
+            color: #742a2a;
+            line-height: 1.8;
+        }
+
+        /* 验证区块 */
+        .validation-box {
+            background: #f0fff4;
+            border-left: 4px solid var(--accent-green);
+            padding: 16px;
+            border-radius: 0 12px 12px 0;
+            margin: 16px 0;
+        }
+
+        .validation-title {
+            font-weight: 700;
+            color: #276749;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .adjustment-box {
+            background: var(--accent-light-orange);
+            border-left: 4px solid var(--accent-orange);
+            padding: 16px;
+            border-radius: 0 12px 12px 0;
+            margin: 16px 0;
+        }
+
+        .adjustment-title {
+            font-weight: 700;
+            color: #c05621;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        /* 时间线 */
+        .timeline-item {
+            position: relative;
+            padding-left: 24px;
+            padding-bottom: 16px;
+            border-left: 2px solid #e2e8f0;
+            margin-left: 8px;
+        }
+
+        .timeline-item:last-child {
+            border-left: 2px solid transparent;
+            padding-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -7px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--accent-blue);
+        }
+
+        .timeline-content {
+            background: #f7fafc;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* 深度洞察 */
+        .insight-box {
+            background: linear-gradient(135deg, #f3e8ff 0%, #ffffff 100%);
+            border: 1px solid #d6bcfa;
+            border-radius: 12px;
+            padding: 18px;
+            margin: 16px 0;
+        }
+
+        .insight-title {
+            font-weight: 800;
+            color: #553c9a;
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .divergence-signal {
+            background: #f0fff4;
+            border-left: 4px solid var(--accent-green);
+            padding: 12px;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .flow-signal {
+            background: #fff5f5;
+            border-left: 4px solid var(--accent-red);
+            padding: 12px;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        /* AI引用 */
+        .ai-quote {
+            background: linear-gradient(135deg, #ebf8ff 0%, #f7fafc 100%);
+            border: 1px solid #90cdf4;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            margin: 20px 0;
+            font-style: italic;
+            line-height: 1.9;
+            color: #2c5282;
+        }
+
+        .ai-quote::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 14px;
+            font-size: 48px;
+            color: #90cdf4;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        .quote-content {
+            position: relative;
+            z-index: 1;
+            padding-left: 24px;
+            font-size: 15px;
+        }
+
+        /* 多空对比 */
+        .pros-cons {
+            display: grid;
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .pros-box {
+            background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+            border: 1px solid #9ae6b4;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .cons-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            border: 1px solid #fc8181;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .pros-title {
+            color: #276749;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .cons-title {
+            color: #c53030;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .factor-list {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .factor-list div {
+            margin-bottom: 6px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .factor-list div::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+        }
+
+        .pros-box .factor-list div::before {
+            color: var(--accent-green);
+        }
+
+        .cons-box .factor-list div::before {
+            color: var(--accent-red);
+        }
+
+        /* 页脚 */
+        .footer {
+            margin-top: 24px;
+            padding: 24px 20px;
+            background: #2d3748;
+            color: #a0aec0;
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.9;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .footer strong {
+            color: #e2e8f0;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+            margin: 24px 0;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-yellow { background: var(--accent-yellow); }
+        .status-green { background: var(--accent-green); }
+        .status-red { background: var(--accent-red); }
+
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 6px;
+            margin-top: 6px;
+        }
+
+        .tag-blue {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .tag-green {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .tag-red {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .tag-orange {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <h1 class="report-title">📊 A股ETF投资信号日报</h1>
+            <div class="meta-bar">
+                <span class="date-badge">📅 2026-03-18</span>
+                <span class="cycle-badge">📊 市场周期：震荡市</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- 核心结论 -->
+        <div class="summary-highlight">
+            <div class="summary-title">⚡ 核心结论</div>
+            <div class="summary-content">
+                <span class="highlight-orange">整体建议观望，耐心等待更明确信号。</span> 当前市场处于震荡市，多数信号指向中性，不宜激进操作。
+            </div>
+        </div>
+
+        <!-- 操作建议 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🎯</div>
+                <div class="card-title">操作建议</div>
+            </div>
+
+            <div class="strategy-section">
+                <div class="strategy-title">📘 上证50ETF (510050)</div>
+                <div class="strategy-content">
+                    量化与AI信号存在分歧，综合建议<span class="highlight-blue">观望</span>。若计划左侧布局，可考虑在<span class="price-tag">3.000-3.020</span>区间内小仓位试探，严格设置止损于<span class="highlight-red">2.990</span>。
+                </div>
+            </div>
+
+            <div class="strategy-section" style="border-left-color: var(--accent-purple);">
+                <div class="strategy-title" style="color: var(--accent-purple);">📕 科创50ETF (588000)</div>
+                <div class="strategy-content">
+                    量化与AI一致建议<span class="highlight-blue">观望</span>。其估值泡沫（PE百分位82%）是核心制约，抄底风险较高。
+                </div>
+            </div>
+
+            <div class="strategy-section" style="margin-bottom: 0;">
+                <div class="strategy-title" style="color: var(--accent-teal);">💡 关键价位</div>
+                <div class="strategy-content">
+                    <strong>上证50ETF：</strong>短期反弹第一目标位看<span class="highlight-green">3.085</span>（20日均线阻力）<br>
+                    <strong>科创50ETF：</strong>短期阻力位在<span class="highlight-orange">1.465</span>（10日均线）
+                </div>
+            </div>
+        </div>
+
+        <!-- 核心信号总览 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">📊</div>
+                <div class="card-title">核心信号总览</div>
+            </div>
+
+            <div class="analysis-block" style="border-color: #90cdf4;">
+                <div class="analysis-header" style="color: var(--accent-blue);">
+                    📘 上证50ETF (510050)
+                </div>
+                <div class="status-indicator" style="margin-bottom: 12px;">
+                    <span class="status-dot status-yellow"></span>
+                    <span>量化: 持有观望 / AI: 买入</span>
+                    <span style="margin-left: auto; font-size: 12px; color: var(--text-tertiary);">存在分歧</span>
+                </div>
+                <div class="score-bar-container">
+                    <div class="score-label">
+                        <span>综合得分</span>
+                        <span style="color: var(--accent-yellow);">-6分 (中性)</span>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-fill neutral" style="width: 45%;"></div>
+                    </div>
+                </div>
+                <div class="detail-grid" style="margin-top: 12px;">
+                    <div class="detail-item">
+                        <span class="detail-label">AI信心度</span>
+                        <span class="detail-value" style="color: var(--accent-green);">75%</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">建议仓位</span>
+                        <span class="detail-value" style="color: var(--accent-blue);">占ETF总仓位60%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-block" style="border-color: #d6bcfa;">
+                <div class="analysis-header" style="color: var(--accent-purple);">
+                    📕 科创50ETF (588000)
+                </div>
+                <div class="status-indicator" style="margin-bottom: 12px;">
+                    <span class="status-dot status-yellow"></span>
+                    <span>量化: 持有观望 / AI: 持有观望</span>
+                </div>
+                <div class="score-bar-container">
+                    <div class="score-label">
+                        <span>综合得分</span>
+                        <span style="color: var(--accent-yellow);">-7分 (中性)</span>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-fill neutral" style="width: 40%;"></div>
+                    </div>
+                </div>
+                <div class="detail-grid" style="margin-top: 12px;">
+                    <div class="detail-item">
+                        <span class="detail-label">AI信心度</span>
+                        <span class="detail-value" style="color: var(--accent-green);">70%</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">建议仓位</span>
+                        <span class="detail-value" style="color: var(--accent-purple);">占ETF总仓位40%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-section" style="margin-bottom: 0; background: #f0fff4; border-left-color: var(--accent-green);">
+                <div class="strategy-title" style="color: var(--accent-green);">🔄 轮动建议</div>
+                <div class="strategy-content">
+                    当前建议暂时超配上证50ETF(510050)。因其拥有更明确的<span class="highlight-green">"底背离"</span>和<span class="highlight-green">"聪明钱"</span>信号，且估值压力相对小于科创50。待其反弹至第一目标位（3.085）附近或科创50估值风险进一步释放后，可考虑将配置比例调回5：5的均衡状态。
+                </div>
+            </div>
+        </div>
+
+        <!-- 详细分析 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🔬</div>
+                <div class="card-title">详细分析</div>
+            </div>
+
+            <!-- 上证50详细 -->
+            <div class="analysis-block">
+                <div class="analysis-header" style="color: var(--accent-blue);">
+                    📘 上证50ETF (510050) 深度分析
+                </div>
+                <div style="font-size: 13px; color: var(--text-tertiary); margin-bottom: 12px;">
+                    最新价：3.035 | 日期：2026-03-18
+                </div>
+
+                <div class="metric-table">
+                    <div class="table-row">
+                        <span class="table-label">📊 技术面</span>
+                        <span class="table-value" style="color: var(--accent-red);">-10</span>
+                    </div>
+                    <div class="footnote">
+                        均线空头排列 -15；站上年线 +10；MACD零轴下死叉 -12；MACD柱状负 -3；RSI6=25.5 超卖 +10
+                    </div>
+
+                    <div class="table-row">
+                        <span class="table-label">💰 估值面</span>
+                        <span class="table-value" style="color: var(--accent-red);">-20</span>
+                    </div>
+                    <div class="footnote" style="color: var(--accent-red);">PE百分位: 82.22%</div>
+
+                    <div class="table-row">
+                        <span class="table-label">😐 市场情绪</span>
+                        <span class="table-value">0</span>
+                    </div>
+                    <div class="footnote">情绪: 中性</div>
+
+                    <div class="table-row">
+                        <span class="table-label">🌊 资金面</span>
+                        <span class="table-value" style="color: var(--accent-green);">+15</span>
+                    </div>
+                    <div class="footnote">北向5日: 148.26亿</div>
+
+                    <div class="table-row highlight">
+                        <span class="table-label" style="font-size: 15px;">🎯 综合评分</span>
+                        <span class="table-value" style="color: var(--accent-yellow); font-size: 18px;">-6 🟡 持有观望/买入</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <div style="font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">📐 关键技术价位</div>
+                    <div class="price-levels">
+                        <div class="level-item resistance">
+                            <span class="level-name">布林带上轨</span>
+                            <span class="level-price">3.172</span>
+                        </div>
+                        <div class="level-item resistance">
+                            <span class="level-name">20日均线</span>
+                            <span class="level-price">3.084</span>
+                        </div>
+                        <div class="level-item resistance">
+                            <span class="level-name">10日均线</span>
+                            <span class="level-price">3.048</span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-name">5日均线</span>
+                            <span class="level-price">3.037</span>
+                        </div>
+                        <div class="level-item current">
+                            <span class="level-name">当前价</span>
+                            <span class="level-price">3.035</span>
+                        </div>
+                        <div class="level-item support">
+                            <span class="level-name">布林带下轨</span>
+                            <span class="level-price">2.997</span>
+                        </div>
+                        <div class="level-item support">
+                            <span class="level-name">年线</span>
+                            <span class="level-price">2.911</span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-name">120日均线</span>
+                            <span class="level-price">3.087</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <div style="font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">🎯 操作参数</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">买入区间</span>
+                            <span class="price-tag">3.000-3.020</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">止损位</span>
+                            <span class="detail-value" style="color: var(--accent-red);">2.990</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">目标价1</span>
+                            <span class="detail-value">3.085</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">目标价2</span>
+                            <span class="detail-value">3.119</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">持有周期</span>
+                            <span class="detail-value">1-3个月</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <div style="font-weight: 700; margin-bottom: 8px; color: var(--accent-green);">✅ 核心逻辑</div>
+                    <ul class="check-list">
+                        <li>存在明确的"价格-北向资金"底背离信号，历史上这是可靠的反弹前瞻指标</li>
+                        <li>技术面严重超卖（RSI6=25.5），存在短期技术修复需求</li>
+                        <li>北向资金5日净流入148.26亿，形成"聪明钱逆势布局"的积极信号</li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <div style="font-weight: 700; margin-bottom: 8px; color: var(--accent-red);">⚠️ 风险提示</div>
+                    <ul class="check-list cross-list">
+                        <li>估值仍处高位（PE百分位82.22%），制约反弹高度</li>
+                        <li>均线呈空头排列，MACD在零轴下，整体技术趋势尚未扭转</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- 科创50详细 -->
+            <div class="analysis-block" style="border-color: #d6bcfa;">
+                <div class="analysis-header" style="color: var(--accent-purple);">
+                    📕 科创50ETF (588000) 深度分析
+                </div>
+                <div style="font-size: 13px; color: var(--text-tertiary); margin-bottom: 12px;">
+                    最新价：1.444 | 日期：2026-03-18
+                </div>
+
+                <div class="metric-table">
+                    <div class="table-row">
+                        <span class="table-label">📊 技术面</span>
+                        <span class="table-value" style="color: var(--accent-orange);">-4</span>
+                    </div>
+                    <div class="footnote">
+                        均线空头排列 -15；站上年线 +10；MACD零轴下死叉 -12；MACD柱状负 -3；RSI6=24.2 超卖 +10；布林带位置19.9% 接近下轨 +6
+                    </div>
+
+                    <div class="table-row">
+                        <span class="table-label">💰 估值面</span>
+                        <span class="table-value" style="color: var(--accent-red);">-30</span>
+                    </div>
+                    <div class="footnote" style="color: var(--accent-red); font-weight: 600;">PE百分位: 82.08% | PE-TTM=144.61</div>
+
+                    <div class="table-row">
+                        <span class="table-label">📋 政策</span>
+                        <span class="table-value">中性</span>
+                    </div>
+
+                    <div class="table-row">
+                        <span class="table-label">🌊 资金面</span>
+                        <span class="table-value" style="color: var(--accent-red);">-92.04亿</span>
+                    </div>
+                    <div class="footnote">两融变化: -92.04亿</div>
+
+                    <div class="table-row" style="background: linear-gradient(90deg, #f3e8ff, #faf5ff); border: 1px solid #d6bcfa;">
+                        <span class="table-label" style="font-size: 15px;">🎯 综合评分</span>
+                        <span class="table-value" style="color: var(--accent-yellow); font-size: 18px;">-7 🟡 持有观望</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <div style="font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">📐 关键技术价位</div>
+                    <div class="price-levels">
+                        <div class="level-item resistance">
+                            <span class="level-name">布林带上轨</span>
+                            <span class="level-price">1.590</span>
+                        </div>
+                        <div class="level-item resistance">
+                            <span class="level-name">20日均线</span>
+                            <span class="level-price">1.499</span>
+                        </div>
+                        <div class="level-item resistance">
+                            <span class="level-name">10日均线</span>
+                            <span class="level-price">1.465</span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-name">5日均线</span>
+                            <span class="level-price">1.447</span>
+                        </div>
+                        <div class="level-item current">
+                            <span class="level-name">当前价</span>
+                            <span class="level-price">1.444</span>
+                        </div>
+                        <div class="level-item support">
+                            <span class="level-name">布林带下轨</span>
+                            <span class="level-price">1.408</span>
+                        </div>
+                        <div class="level-item support">
+                            <span class="level-name">年线</span>
+                            <span class="level-price">1.286</span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-name">120日均线</span>
+                            <span class="level-price">1.483</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <div style="font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">🎯 操作参数</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">买入区间</span>
+                            <span class="price-tag purple">1.420-1.440</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">止损位</span>
+                            <span class="detail-value" style="color: var(--accent-red);">1.405</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">目标价1</span>
+                            <span class="detail-value">1.465</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">目标价2</span>
+                            <span class="detail-value">1.498</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">持有周期</span>
+                            <span class="detail-value">3个月以上</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <div style="font-weight: 700; margin-bottom: 8px; color: var(--accent-green);">✅ 核心逻辑</div>
+                    <ul class="check-list">
+                        <li>指数样本调整带来短期结构性利好，调入高科技公司</li>
+                        <li>技术面处于严重超卖状态，布林带位置仅19.9%，接近下轨</li>
+                        <li>与大盘类似，存在"估值偏高叠加技术超卖"的特征，调整可能以时间换空间</li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <div style="font-weight: 700; margin-bottom: 8px; color: var(--accent-red);">⚠️ 风险提示</div>
+                    <ul class="check-list cross-list">
+                        <li>估值泡沫严重（PE_TTM=144.61），是核心制约因素</li>
+                        <li>市场描述指出"高冲击样本调整可能引发短期波动"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 深度洞察 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🧠</div>
+                <div class="card-title">深度洞察（量化独立研判）</div>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">📊 多空分歧度：67%</div>
+                <div style="font-size: 14px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 12px;">
+                    <span style="display: inline-block; margin-right: 16px;">看多: 1</span>
+                    <span style="display: inline-block; margin-right: 16px;">看空: 2</span>
+                    <span style="display: inline-block;">中性: 4</span>
+                </div>
+                
+                <div style="font-size: 14px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 12px;">
+                    📊 <strong>技术面偏空但北向资金持续流入</strong>——典型的"聪明钱"逆势布局信号，历史上此类背离在1-3个月后常伴随反弹。
+                </div>
+                
+                <div style="font-size: 14px; color: var(--text-secondary); line-height: 1.8;">
+                    📉 <strong>估值偏高叠加技术超卖</strong>——市场正在以下跌方式消化估值泡沫，这种调整通常需要时间而非空间，不建议重仓抄底。
+                </div>
+            </div>
+
+            <div class="divergence-signal">
+                <strong style="color: #276749;">背离信号检测：</strong><br>
+                🟢 <strong>上证50ETF</strong>价格5日下跌-0.4%，但北向资金5日净流入148.26亿——<span class="highlight-green">底背离信号（可靠度：中高）</span>
+            </div>
+
+            <div class="flow-signal">
+                <strong style="color: #c53030;">ETF主力资金流向：</strong><br>
+                • 上证50ETF: 5日主力净流入 <span class="highlight-red">-2.49亿</span>，趋势=大量流出<br>
+                • 科创50ETF: 5日主力净流入 <span class="highlight-red">-20.95亿</span>，趋势=大量流出
+            </div>
+        </div>
+
+        <!-- 市场环境 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🌍</div>
+                <div class="card-title">市场环境</div>
+            </div>
+
+            <div class="metric-table">
+                <div class="table-row">
+                    <span class="table-label">🌊 北向资金(今日)</span>
+                    <span class="table-value" style="color: var(--accent-green);">28.47亿</span>
+                </div>
+                <div class="table-row">
+                    <span class="table-label">📈 北向资金(5日)</span>
+                    <span class="table-value" style="color: var(--accent-green);">148.26亿</span>
+                </div>
+                <div class="table-row">
+                    <span class="table-label">💳 两融余额</span>
+                    <span class="table-value">26520.36亿</span>
+                </div>
+                <div class="table-row">
+                    <span class="table-label">📉 两融变化(5日)</span>
+                    <span class="table-value" style="color: var(--accent-red);">-92.04亿</span>
+                </div>
+                <div class="table-row">
+                    <span class="table-label">😐 市场情绪</span>
+                    <span class="table-value">中性</span>
+                </div>
+                <div class="table-row">
+                    <span class="table-label">📋 政策方向</span>
+                    <span class="table-value">中性</span>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div style="font-size: 14px; line-height: 1.8; color: var(--text-secondary); margin-bottom: 16px;">
+                <strong style="color: var(--text-primary);">市场概览：</strong><br>
+                截至2026年3月18日，上证50和科创50指数近一周呈现震荡分化格局。3月16日科创50收1384.99点上涨0.83%，3月18日11:30报1360.15点上涨0.44%；上证指数3月16日收4084.79点，预计3月18日小幅探底后回升，沪指围绕4005-4150点震荡。
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros-box">
+                    <div class="pros-title">✅ 利好因素</div>
+                    <div class="factor-list">
+                        <div>科创50指数样本调整利好量子、半导体等科技股</div>
+                        <div>机构看好中国股票重估，AI、机器人等景气周期</div>
+                        <div>市场预计3月18日探底回升，主升势展开</div>
+                    </div>
+                </div>
+                <div class="cons-box">
+                    <div class="cons-title">❌ 利空因素</div>
+                    <div class="factor-list">
+                        <div>指数近期分化，创业板、科创50月跌超1%</div>
+                        <div>高冲击样本调整可能引发短期波动</div>
+                        <div>成交额中位数上方但波动加大</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 独立交叉验证 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🔍</div>
+                <div class="card-title">独立交叉验证（第二意见）</div>
+            </div>
+
+            <div style="background: #f0fff4; border-radius: 10px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">✓</span>
+                <div>
+                    <div style="font-weight: 700; color: #276749;">总体评价：基本可靠</div>
+                    <div style="font-size: 13px; color: #276749;">DeepSeek的分析框架完整且大部分判断合理，但在信号判断与量化数据存在一定偏离，且对技术面空头信号重视不足，止盈目标过于乐观，需要更谨慎的仓位控制和更保守的目标设定。</div>
+                </div>
+            </div>
+
+            <div class="validation-box">
+                <div class="validation-title">✅ 认同观点</div>
+                <ul class="check-list" style="margin: 0;">
+                    <li>上证50ETF的买入区间3.000-3.020设置合理，接近布林带下轨和年线支撑</li>
+                    <li>上证50ETF的止损位2.990设置在布林带下轨下方，符合技术破位逻辑</li>
+                    <li>科创50ETF的估值风险判断准确，PE_TTM=144.61确实存在较大泡沫风险</li>
+                    <li>北向资金净流入是上证50ETF的积极信号，可作为短期反弹的支撑因素</li>
+                    <li>总体仓位25%符合震荡市场环境，保持较高现金比例是合理的防御策略</li>
+                </ul>
+            </div>
+
+            <div class="adjustment-box">
+                <div class="adjustment-title">❓ 质疑观点</div>
+                <ul class="check-list question-list" style="margin: 0;">
+                    <li>上证50ETF信号判断为BUY与量化数据显示的HOLD信号不一致，且未充分解释转向买入的具体触发条件</li>
+                    <li>上证50ETF的止盈目标3.085和3.119过于乐观，在均线空头排列且估值高位的情况下，反弹高度可能受限</li>
+                    <li>科创50ETF的止损位1.405与布林带下轨1.4078距离过远，约-2.7%的止损幅度在高估值环境下风险过大</li>
+                    <li>两只ETF的仓位配比60%/40%与量化信号不符，科创50的量化得分(-7)略低于上证50(-6)，但差异不足以支持如此大的配置偏离</li>
+                    <li>缺乏对量化数据中"均线空头排列"和"MACD零轴下死叉"等明确空头信号的充分重视</li>
+                </ul>
+            </div>
+
+            <div class="summary-highlight" style="margin-top: 16px; background: linear-gradient(135deg, #e6fffa 0%, #ffffff 100%); border-color: #81e6d9;">
+                <div class="summary-title" style="color: #2c7a7b;">💡 调整建议</div>
+                <div class="summary-content" style="font-size: 14px;">
+                    建议维持观望为主，总仓位降至<span class="highlight-orange">20%</span>，更符合量化HOLD信号。上证50ETF与科创50ETF配置比例调整为<span class="highlight-blue">55%/45%</span>，减少偏离度。上证50ETF买入区间维持3.000-3.020不变，但第一止盈目标下调至<span class="highlight-orange">3.065</span>（5日均线附近），第二目标下调至3.085（20日均线）。科创50ETF的止损位上调至<span class="highlight-green">1.415</span>，更接近布林带下轨，以减小单次止损幅度。同时，建议分批建仓，首批仅使用计划仓位的40%，待价格站稳5日均线后再考虑加仓。
+                </div>
+            </div>
+        </div>
+
+        <!-- 仓位管理 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">⚖️</div>
+                <div class="card-title">仓位管理建议</div>
+            </div>
+
+            <div class="metric-table">
+                <div class="table-row">
+                    <span class="table-label">💼 ETF总仓位</span>
+                    <span class="table-value" style="color: var(--accent-orange);">25%</span>
+                </div>
+                <div class="footnote">AI建议 | 量化基准：15%-30%(观望为主)</div>
+
+                <div class="table-row">
+                    <span class="table-label">💵 现金储备</span>
+                    <span class="table-value" style="color: var(--accent-blue);">75%</span>
+                </div>
+                <div class="footnote">量化基准：70%-85%</div>
+
+                <div class="table-row">
+                    <span class="table-label">📘 510050配比</span>
+                    <span class="table-value">占ETF总仓位的60%</span>
+                </div>
+                <div class="footnote">量化基准：50%</div>
+
+                <div class="table-row">
+                    <span class="table-label">📕 588000配比</span>
+                    <span class="table-value">占ETF总仓位的40%</span>
+                </div>
+                <div class="footnote">量化基准：50%</div>
+            </div>
+
+            <div class="strategy-section" style="margin-bottom: 0; margin-top: 16px;">
+                <div class="strategy-title">🎯 下次操作触发</div>
+                <div class="strategy-content">
+                    <div style="margin-bottom: 8px;"><span class="tag tag-red">止损/止盈</span> 任一ETF价格触及止损位或第一目标止盈位</div>
+                    <div><span class="tag tag-orange">趋势逆转</span> 或北向资金连续3日大幅净流出（单日超50亿），扭转当前流入趋势</div>
+                </div>
+            </div>
+
+            <div class="footnote" style="margin-top: 12px;">
+                <strong>AI偏离说明：</strong>总仓位位于量化基准（15%-30%）中上部，保持观望主基调。ETF配置比例调整为60%/40%，偏离基准10%。理由：基于多空分歧度分析中的"聪明钱信号"和上证50ETF的"底背离信号"，对510050给予战术性超配；同时因588000估值风险显著更高，予以低配。
+            </div>
+        </div>
+
+        <!-- 本周关注 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">📅</div>
+                <div class="card-title">本周关注</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot" style="background: var(--accent-purple);"></div>
+                <div class="timeline-content">
+                    关注科创50指数<span class="highlight-purple">样本调整生效后</span>的资金流向和股价表现
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot" style="background: var(--accent-blue);"></div>
+                <div class="timeline-content">
+                    紧密跟踪<span class="highlight-blue">北向资金每日流向</span>，验证其"聪明钱"信号的有效性
+                </div>
+            </div>
+        </div>
+
+        <!-- 最大风险 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon" style="background: var(--accent-light-red);">⚠️</div>
+                <div class="card-title" style="color: var(--accent-red);">最大风险</div>
+            </div>
+
+            <div class="risk-block" style="margin-bottom: 0;">
+                <div class="risk-title">📉 高估值制约反弹</div>
+                <div class="risk-content">
+                    两大ETF的PE百分位均<span class="highlight-red">超过82%</span>，处于历史高位，严重限制了上涨空间，市场可能以时间换空间继续消化估值。
+                </div>
+            </div>
+
+            <div class="risk-block" style="margin-top: 14px; margin-bottom: 0;">
+                <div class="risk-title">📊 近期关注点</div>
+                <div class="risk-content">
+                    <div style="margin-bottom: 8px;">• <strong>关键信号验证：</strong>重点关注上证50ETF的"价格下跌与北向资金大幅流入"的底背离信号能否兑现为有效反弹</div>
+                    <div style="margin-bottom: 8px;">• <strong>资金面动向：</strong>持续观察北向资金（聪明钱）的流入能否持续，以及两融资金流出的趋势是否缓和</div>
+                    <div>• <strong>技术面扭转：</strong>等待指数有效站上关键均线（如20日线），以确认短期下跌趋势的扭转</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI核心总结 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🤖</div>
+                <div class="card-title">AI核心总结</div>
+            </div>
+
+            <div class="ai-quote">
+                <div class="quote-content">
+                    当前市场处于震荡消化估值阶段，多空信号矛盾。核心机会在于利用"聪明钱"逆势布局形成的背离信号。建议采取谨慎乐观的战术：总仓位控制在25%，现金为主。优先配置上证50ETF（仓位占60%），因其出现"价格下跌而北向资金大幅流入"的底背离，可在3.000-3.020区间分批买入，止损2.990，目标3.085/3.119。科创50ETF因估值泡沫严重，暂维持观望（仓位占40%），仅适合风险承受能力高的投资者在1.420-1.440区间极小仓位试探，严格止损于1.405。本周关注样本调整影响及北向资金持续性。
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <strong>⚠️ 声明</strong>
+            本报告由AI自动生成<br><br>
+            <br>
+            ⏰ 生成时间：2026-03-18T07:28:02.629Z
+        </footer>
+
+    </div>
+
+</body>
+</html>
