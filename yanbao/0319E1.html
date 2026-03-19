@@ -43,14 +43,12 @@
         
         /* 头部样式 */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: var(--spacing-xl) var(--spacing-md);
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-lg);
+           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           color: white;
+           padding: var(--spacing-xl) var(--spacing-md);
+           text-align: center;
+           position: relative;  /* 改为相对定位，或不写默认就是 static */
+           box-shadow: var(--shadow-lg);
         }
         
         .header h1 {
