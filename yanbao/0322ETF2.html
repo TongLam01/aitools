@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A股ETF投资信号日报 | 2026-03-22</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        .tag-hold {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .expand-btn {
+            transition: transform 0.3s ease;
+        }
+        .expand-btn.rotate {
+            transform: rotate(180deg);
+        }
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+        .section-content.open {
+            max-height: 6000px;
+            transition: max-height 0.6s ease-in;
+        }
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #cbd5e1, transparent);
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body class="text-slate-700 text-[15px] leading-relaxed pb-24">
+
+    <!-- 页头：不浮动 -->
+    <header class="bg-slate-900 text-white px-4 py-8">
+        <div class="max-w-lg mx-auto">
+            <div class="flex items-center gap-2 mb-3 opacity-80">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                <span class="text-xs tracking-widest uppercase">投研日报</span>
+            </div>
+            <h1 class="text-2xl font-bold mb-2 tracking-tight">A股ETF投资信号日报</h1>
+            <div class="flex items-center gap-3 text-sm opacity-70 mb-2">
+                <span>2026-03-22</span>
+                <span class="w-1 h-1 rounded-full bg-white/50"></span>
+                <span>震荡市</span>
+            </div>
+            <p class="text-xs opacity-50">数据截止：2026-03-20收盘（今日2026-03-22非交易日或尚未收盘，期权实时数据不可用）</p>
+        </div>
+    </header>
+
+    <main class="max-w-lg mx-auto px-4 py-6 space-y-5">
+
+        <!-- 核心观点（分析师视角：先给结论） -->
+        <section class="glass-card rounded-2xl p-5 border-l-4 border-amber-400 shadow-sm">
+            <h2 class="font-bold text-slate-900 text-lg mb-3 flex items-center gap-2">
+                <span>🎯</span>
+                <span>核心观点：观望为主，耐心等待</span>
+            </h2>
+            <p class="text-sm text-slate-700 leading-relaxed mb-4">
+                量化与AI信号一致给出 <span class="font-bold text-amber-700">HOLD（持有观望）</span> 信号，综合建议偏谨慎执行。当前市场处于震荡市，两大ETF估值均处高位，风险收益比不佳，不宜开新仓。
+            </p>
+            
+            <div class="space-y-3">
+                <div class="bg-white rounded-xl p-4 border border-slate-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-slate-800 text-sm">上证50ETF (510050)</span>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium">现价 2.957</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        虽有北向资金底背离及技术超卖支撑，但估值高估（PE百分位79.42%）且均线空头排列。<span class="text-red-600 font-bold">风险收益比仅0.72:1，严重不足</span>。最大风险在于高估值限制上涨空间及技术趋势未扭转。若想轻仓试探，需等待收盘价有效突破20日均线（3.065）并放量。
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border border-slate-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-slate-800 text-sm">科创50ETF (588000)</span>
+                        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium">现价 1.388</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        技术面超卖，但估值风险极高（PE-TTM 126.87）。<span class="text-red-600 font-bold">风险收益比1.39:1，仍低于1.5的安全阈值</span>。最大风险是估值泡沫及板块弱势。关键关注点在于PE-TTM能否回落至100以下或出现日线级别MACD金叉。
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-4 bg-slate-800 text-white rounded-xl p-4">
+                <p class="text-sm font-medium mb-1">📌 分析师一句话总结</p>
+                <p class="text-sm opacity-90 leading-relaxed">市场多空分歧，估值压制明显，保持耐心，现金为王，等待更明确的右侧信号。</p>
+            </div>
+        </section>
+
+        <!-- 核心信号卡片（无表格，直接呈现） -->
+        <section class="space-y-3">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider px-1">
+                <span>📊</span>
+                <span>核心信号总览</span>
+            </h3>
+            
+            <!-- 上证50 -->
+            <div class="glass-card rounded-xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">510050</span>
+                        <span class="font-bold text-slate-800">上证50ETF</span>
+                    </div>
+                    <span class="tag-hold px-3 py-1 rounded-full text-xs font-bold">持有观望</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2 mb-3 text-center text-xs">
+                    <div class="bg-slate-50 rounded-lg p-2">
+                        <div class="text-slate-500 mb-1">综合得分</div>
+                        <div class="font-bold text-amber-600 text-sm">-1</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-lg p-2">
+                        <div class="text-slate-500 mb-1">AI信心度</div>
+                        <div class="font-bold text-slate-700 text-sm">75%</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-lg p-2">
+                        <div class="text-slate-500 mb-1">建议仓位</div>
+                        <div class="font-bold text-blue-600 text-sm">60%</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-lg p-2">
+                        <div class="text-slate-500 mb-1">RR比</div>
+                        <div class="font-bold text-red-600 text-sm">0.72</div>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-600 bg-slate-50 rounded p-2">
+                    <strong>核心逻辑：</strong>价格与北向资金出现底背离（5日跌2.3% vs 北向流入146.48亿），RSI6=9.8极度超卖，但估值约束明显。
+                </p>
+            </div>
+
+            <!-- 科创50 -->
+            <div class="glass-card rounded-xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">588000</span>
+                        <span class="font-bold text-slate-800">科创50ETF</span>
+                    </div>
+                    <span class="tag-hold px-3 py-1 rounded-full text-xs font-bold">持有观望</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2 mb-3 text-center text-xs">
+                    <div class="bg-slate-50 rounded-lg p-2">
+                        <div class="text-slate-500 mb-1">综合得分</div>
+                        <div class="font-bold text-amber-600 text-sm">-3</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-lg p-2">
+                        <div class="text-slate-500 mb-1">AI信心度</div>
+                        <div class="font-bold text-slate-700 text-sm">70%</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-lg p-2">
+                        <div class="text-slate-500 mb-1">建议仓位</div>
+                        <div class="font-bold text-purple-600 text-sm">40%</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-lg p-2">
+                        <div class="text-slate-500 mb-1">RR比</div>
+                        <div class="font-bold text-red-600 text-sm">1.39</div>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-600 bg-slate-50 rounded p-2">
+                    <strong>核心逻辑：</strong>技术指标超卖（KDJ-J=-2.9，RSI6=21.2），但估值极度高估（PE-TTM=126.87）是最大压制因素。
+                </p>
+            </div>
+
+            <!-- 轮动建议 -->
+            <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+                <h4 class="font-bold text-indigo-900 mb-2 text-sm">💡 轮动建议：略偏价值风格</h4>
+                <p class="text-xs text-indigo-800 leading-relaxed">
+                    当前配置略微偏向价值风格（上证50占比60%）。理由：1) 上证50出现明确的底背离信号，而科创50未出现；2) 在市场整体调整期，价值蓝筹通常相对抗跌；3) 旋转价差为2，未达到显著风格切换阈值。若后市反弹，可观察两者强度，若科创50反弹力度持续强于上证50，再考虑平衡配置。
+                </p>
+            </div>
+        </section>
+
+        <!-- 综合结论 -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm">
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>📋</span>
+                <span>综合结论（量化 + AI + 交叉验证）</span>
+            </h3>
+            <div class="space-y-3">
+                <div class="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
+                    <p class="text-sm text-blue-900"><strong>上证50ETF：</strong>量化与AI一致给出 <strong>HOLD</strong> 信号，但交叉验证建议更谨慎，综合建议：<strong>HOLD（偏谨慎执行）</strong>。</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-400">
+                    <p class="text-sm text-purple-900"><strong>科创50ETF：</strong>量化与AI一致给出 <strong>HOLD</strong> 信号，但交叉验证建议更谨慎，综合建议：<strong>HOLD（偏谨慎执行）</strong>。</p>
+                </div>
+                <div class="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-400">
+                    <p class="text-sm text-amber-900 font-medium">💡 一句话建议：当前多数信号指向观望，建议保持耐心，等待更明确的右侧信号再行动。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 关键价位与风控 -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm">
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>📈</span>
+                <span>关键价位与风控</span>
+                <span class="text-[10px] font-normal text-slate-400 ml-auto">非交易建议</span>
+            </h3>
+            
+            <!-- 上证50 -->
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden mb-4">
+                <div class="bg-blue-50 px-4 py-3 border-b border-blue-100 flex items-center justify-between">
+                    <span class="font-bold text-blue-900">上证50ETF (510050)</span>
+                    <span class="text-sm text-blue-700 font-bold">2.957</span>
+                </div>
+                <div class="p-4 space-y-2 text-sm">
+                    <div class="metric-row">
+                        <span class="text-slate-600">止损位 (AI方法 -5.1%)</span>
+                        <span class="font-bold text-red-600">2.807</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="text-slate-600">目标价1 (布林中轨/MA20)</span>
+                        <span class="font-bold text-green-600">3.065</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="text-slate-600">目标价2 (MA60阻力)</span>
+                        <span class="font-bold text-green-600">3.117</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="text-slate-600">持有周期</span>
+                        <span class="font-medium text-slate-800">1-3个月</span>
+                    </div>
+                    <div class="pt-2 border-t border-red-100 mt-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-red-700 font-medium">风险收益比</span>
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded font-bold text-sm">0.72:1 ⚠️ 不达标</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 科创50 -->
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden mb-4">
+                <div class="bg-purple-50 px-4 py-3 border-b border-purple-100 flex items-center justify-between">
+                    <span class="font-bold text-purple-900">科创50ETF (588000)</span>
+                    <span class="text-sm text-purple-700 font-bold">1.388</span>
+                </div>
+                <div class="p-4 space-y-2 text-sm">
+                    <div class="metric-row">
+                        <span class="text-slate-600">止损位 (AI方法 -5.0%)</span>
+                        <span class="font-bold text-red-600">1.319</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="text-slate-600">目标价1 (布林中轨/MA20)</span>
+                        <span class="font-bold text-green-600">1.484</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="text-slate-600">目标价2 (MA60)</span>
+                        <span class="font-bold text-green-600">1.509</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="text-slate-600">持有周期</span>
+                        <span class="font-medium text-slate-800">1-3个月</span>
+                    </div>
+                    <div class="pt-2 border-t border-red-100 mt-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-red-700 font-medium">风险收益比</span>
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded font-bold text-sm">1.39:1 ⚠️ 不达标</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-red-50 border border-red-100 rounded-xl p-4">
+                <div class="flex items-start gap-2">
+                    <span class="text-red-500 text-xl">⚠️</span>
+                    <div>
+                        <p class="font-bold text-red-900 mb-1 text-sm">风控提示</p>
+                        <p class="text-xs text-red-800 leading-relaxed">
+                            当前信号为观望或RR比不达标，以上价位仅供参考。报告明确标注"参考价位（非交易建议）"。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 仓位管理（分析师策略） -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100">
+            <h3 class="font-bold text-emerald-900 mb-4 flex items-center gap-2">
+                <span>💰</span>
+                <span>仓位管理建议</span>
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-white/80 rounded-xl p-4 text-center shadow-sm">
+                    <div class="text-xs text-emerald-600 mb-1">ETF总仓位</div>
+                    <div class="text-3xl font-black text-emerald-700">15%</div>
+                    <div class="text-[10px] text-emerald-600 mt-1">观望为主（下限）</div>
+                </div>
+                <div class="bg-white/80 rounded-xl p-4 text-center shadow-sm">
+                    <div class="text-xs text-emerald-600 mb-1">现金储备</div>
+                    <div class="text-3xl font-black text-emerald-700">85%</div>
+                    <div class="text-[10px] text-emerald-600 mt-1">保持流动性</div>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-sm">
+                <div class="metric-row bg-white/60 rounded-lg px-3">
+                    <span class="text-emerald-800 font-medium">510050配比</span>
+                    <span class="font-bold text-emerald-900">60%</span>
+                </div>
+                <div class="metric-row bg-white/60 rounded-lg px-3">
+                    <span class="text-emerald-800 font-medium">588000配比</span>
+                    <span class="font-bold text-emerald-900">40%</span>
+                </div>
+            </div>
+
+            <div class="mt-4 bg-white/60 rounded-xl p-4 border border-emerald-100 space-y-2">
+                <p class="text-xs text-emerald-800 leading-relaxed">
+                    <strong>偏离说明：</strong>采用基准仓位（15%-30%）的下限。原因：1) 综合得分均值为-2，市场情绪偏空；2) 美股隔夜大跌（纳斯达克-2.01%），次日A股低开承压概率增加；3) 两ETF估值均处高位，大幅加仓的安全边际不足。
+                </p>
+                <p class="text-xs text-emerald-800 leading-relaxed">
+                    <strong>下次操作触发：</strong>1) 上证50ETF：若收盘价有效突破20日均线（3.065）且伴随放量，可考虑将仓位提升至基准上限。2) 科创50ETF：若PE-TTM回落至100以下或出现日线级别MACD金叉，再评估买入机会。
+                </p>
+            </div>
+        </section>
+
+        <!-- 详细分析折叠区：上证50 -->
+        <section class="glass-card rounded-2xl shadow-sm overflow-hidden">
+            <button onclick="toggleSection('detail-510050')" class="w-full p-5 flex items-center justify-between bg-gradient-to-r from-blue-50 to-white border-b border-blue-100">
+                <div class="flex items-center gap-3">
+                    <span class="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">50</span>
+                    <div class="text-left">
+                        <div class="font-bold text-slate-800">上证50ETF 具体分析</div>
+                        <div class="text-xs text-slate-500 mt-0.5">多维度评分 · 技术逻辑 · 风险因素</div>
+                    </div>
+                </div>
+                <svg id="icon-detail-510050" class="w-5 h-5 text-slate-400 expand-btn" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            <div id="detail-510050" class="section-content">
+                <div class="p-5 space-y-4">
+                    <!-- 多维度评分 -->
+                    <div class="bg-slate-50 rounded-xl p-4">
+                        <h4 class="font-bold text-slate-700 mb-3 text-sm">多维度评分明细</h4>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-slate-600">技术面</span>
+                                    <span class="font-bold text-green-600">+7</span>
+                                </div>
+                                <p class="text-xs text-slate-500 pl-2 border-l-2 border-slate-300">
+                                    均线空头排列 -15；站上年线 +10；MACD零轴下死叉 -12；MACD柱状负 -3；RSI6=9.8 极度超卖 +15；布林带位置-8.9% 触及下轨 +12
+                                </p>
+                            </div>
+                            <div class="h-px bg-slate-200"></div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-slate-600">估值面</span>
+                                    <span class="font-bold text-red-600">-20</span>
+                                </div>
+                                <p class="text-xs text-slate-500 pl-2 border-l-2 border-slate-300">PE百分位: 79.42%</p>
+                            </div>
+                            <div class="h-px bg-slate-200"></div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-slate-600">市场情绪</span>
+                                    <span class="font-bold text-slate-700">0</span>
+                                </div>
+                                <p class="text-xs text-slate-500 pl-2 border-l-2 border-slate-300">偏悲观→稳定化为中性(原始-10，多空接近→实际+0)</p>
+                            </div>
+                            <div class="h-px bg-slate-200"></div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-slate-600">资金面</span>
+                                    <span class="font-bold text-green-600">+15</span>
+                                </div>
+                                <p class="text-xs text-slate-500 pl-2 border-l-2 border-slate-300">北向5日: 146.48亿</p>
+                            </div>
+                            <div class="bg-slate-200 rounded-lg p-2 mt-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-slate-800">综合</span>
+                                    <span class="font-bold text-amber-600 text-lg">-1</span>
+                                </div>
+                                <p class="text-xs text-slate-600 mt-1">量化:持有观望 / AI:持有观望</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 技术价位 -->
+                    <div>
+                        <h4 class="font-bold text-slate-700 mb-3 text-sm">关键技术价位</h4>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">布林带上轨</span><span class="font-medium">3.157</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">20日均线</span><span class="font-medium">3.065</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">10日均线</span><span class="font-medium">3.030</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">5日均线</span><span class="font-medium">3.010</span></div>
+                            <div class="flex justify-between items-center p-3 bg-blue-100 rounded border-2 border-blue-300">
+                                <span class="text-blue-900 font-bold text-sm">当前价</span>
+                                <span class="font-bold text-blue-900 text-base">2.957</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">布林带下轨</span><span class="font-medium">2.973</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">年线</span><span class="font-medium">2.913</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">120日均线</span><span class="font-medium">3.086</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 核心逻辑与风险 -->
+                    <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                        <h4 class="font-bold text-blue-900 mb-2 text-sm">核心逻辑</h4>
+                        <ul class="text-xs text-blue-800 space-y-2 list-disc list-inside leading-relaxed">
+                            <li>价格与北向资金出现底背离信号（5日跌2.3% vs 北向流入146.48亿），显示"聪明钱"有抄底迹象。</li>
+                            <li>RSI6=9.8处于历史极度超卖区间，技术上存在强烈的反弹修复需求。</li>
+                            <li>价格已触及布林带下轨（-8.9%），短期向下空间相对有限。</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-red-50 rounded-xl p-4 border border-red-100">
+                        <h4 class="font-bold text-red-900 mb-2 text-sm">风险提示</h4>
+                        <ul class="text-xs text-red-800 space-y-2 list-disc list-inside leading-relaxed">
+                            <li>PE估值百分位高达79.42%，处于高估区间，限制了中长期上涨空间。</li>
+                            <li>均线系统呈空头排列（MA5&lt;MA10&lt;MA20），技术趋势尚未扭转。</li>
+                            <li>divergence_detection显示背离期间量比1.35（成交量放大），抛压未明显衰竭，反弹可能一波三折。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 详细分析折叠区：科创50 -->
+        <section class="glass-card rounded-2xl shadow-sm overflow-hidden">
+            <button onclick="toggleSection('detail-588000')" class="w-full p-5 flex items-center justify-between bg-gradient-to-r from-purple-50 to-white border-b border-purple-100">
+                <div class="flex items-center gap-3">
+                    <span class="bg-purple-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">科</span>
+                    <div class="text-left">
+                        <div class="font-bold text-slate-800">科创50ETF 具体分析</div>
+                        <div class="text-xs text-slate-500 mt-0.5">多维度评分 · 技术逻辑 · 风险因素</div>
+                    </div>
+                </div>
+                <svg id="icon-detail-588000" class="w-5 h-5 text-slate-400 expand-btn" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            <div id="detail-588000" class="section-content">
+                <div class="p-5 space-y-4">
+                    <!-- 多维度评分 -->
+                    <div class="bg-slate-50 rounded-xl p-4">
+                        <h4 class="font-bold text-slate-700 mb-3 text-sm">多维度评分明细</h4>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-slate-600">技术面</span>
+                                    <span class="font-bold text-green-600">+10</span>
+                                </div>
+                                <p class="text-xs text-slate-500 pl-2 border-l-2 border-slate-300">
+                                    均线空头排列 -15；站上年线 +10；MACD零轴下死叉 -12；MACD柱状负 -3；RSI6=21.2 超卖 +10；布林带位置2.9% 触及下轨 +12；KDJ-J=-2.9 超卖 +8
+                                </p>
+                            </div>
+                            <div class="h-px bg-slate-200"></div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-slate-600">估值面</span>
+                                    <span class="font-bold text-red-600">-30</span>
+                                </div>
+                                <p class="text-xs text-slate-500 pl-2 border-l-2 border-slate-300">PE百分位: 75.04%</p>
+                            </div>
+                            <div class="h-px bg-slate-200"></div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-slate-600">市场情绪</span>
+                                    <span class="font-bold text-slate-700">0</span>
+                                </div>
+                                <p class="text-xs text-slate-500 pl-2 border-l-2 border-slate-300">偏悲观→稳定化为中性(原始-10，多空接近→实际+0)</p>
+                            </div>
+                            <div class="h-px bg-slate-200"></div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-slate-600">资金面</span>
+                                    <span class="font-bold text-green-600">+15</span>
+                                </div>
+                                <p class="text-xs text-slate-500 pl-2 border-l-2 border-slate-300">两融变化: -15.83亿</p>
+                            </div>
+                            <div class="bg-slate-200 rounded-lg p-2 mt-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-slate-800">综合</span>
+                                    <span class="font-bold text-amber-600 text-lg">-3</span>
+                                </div>
+                                <p class="text-xs text-slate-600 mt-1">量化:持有观望 / AI:持有观望</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 技术价位 -->
+                    <div>
+                        <h4 class="font-bold text-slate-700 mb-3 text-sm">关键技术价位</h4>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">布林带上轨</span><span class="font-medium">1.587</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">20日均线</span><span class="font-medium">1.484</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">10日均线</span><span class="font-medium">1.447</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">5日均线</span><span class="font-medium">1.426</span></div>
+                            <div class="flex justify-between items-center p-3 bg-purple-100 rounded border-2 border-purple-300">
+                                <span class="text-purple-900 font-bold text-sm">当前价</span>
+                                <span class="font-bold text-purple-900 text-base">1.388</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">布林带下轨</span><span class="font-medium">1.382</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">年线</span><span class="font-medium">1.288</span></div>
+                            <div class="flex justify-between items-center p-2 bg-slate-50 rounded"><span class="text-slate-600">120日均线</span><span class="font-medium">1.483</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 核心逻辑与风险 -->
+                    <div class="bg-purple-50 rounded-xl p-4 border border-purple-100">
+                        <h4 class="font-bold text-purple-900 mb-2 text-sm">核心逻辑</h4>
+                        <ul class="text-xs text-purple-800 space-y-2 list-disc list-inside leading-relaxed">
+                            <li>技术指标显示超卖（KDJ-J=-2.9， RSI6=21.2），价格触及布林带下轨，短期存在技术性反抽可能。</li>
+                            <li>科创50指数样本近期调入多只硬科技股，长期结构优化。</li>
+                            <li>年线（MA250）趋势仍向上，长期牛市基础尚未破坏。</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-red-50 rounded-xl p-4 border border-red-100">
+                        <h4 class="font-bold text-red-900 mb-2 text-sm">风险提示</h4>
+                        <ul class="text-xs text-red-800 space-y-2 list-disc list-inside leading-relaxed">
+                            <li>估值是最大风险：PE-TTM高达126.87，远超成长股合理上限（PEG体系下假设增速难以匹配）。</li>
+                            <li>板块弱势明显：本月累计跌幅超10%，较年内高点回撤15.01，资金流出压力大。</li>
+                            <li>市场情绪偏悲观，且受纳斯达克科技股走势影响较大，外部波动传导风险高。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 市场环境 -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm">
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>🌡️</span>
+                <span>市场环境扫描</span>
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-slate-50 rounded-lg p-3 text-center">
+                    <div class="text-[10px] text-slate-500 mb-1">北向资金(今日)</div>
+                    <div class="font-bold text-green-600">33.91亿</div>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-3 text-center">
+                    <div class="text-[10px] text-slate-500 mb-1">北向资金(5日)</div>
+                    <div class="font-bold text-green-600">146.48亿</div>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-3 text-center">
+                    <div class="text-[10px] text-slate-500 mb-1">两融余额</div>
+                    <div class="font-bold text-slate-700">26501.28亿</div>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-3 text-center">
+                    <div class="text-[10px] text-slate-500 mb-1">两融变化(5日)</div>
+                    <div class="font-bold text-red-600">-15.83亿</div>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-3 text-center col-span-2">
+                    <div class="text-[10px] text-slate-500 mb-1">美股隔夜</div>
+                    <div class="font-bold text-red-600">S&P500 -1.51% | 纳指 -2.01%</div>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs mb-4">
+                <div class="bg-green-50 rounded-lg p-3 border border-green-100">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-green-600 font-bold">✅ 利好</span>
+                    </div>
+                    <ul class="text-slate-700 space-y-1 list-disc list-inside leading-relaxed">
+                        <li>历史9连跌后往往筑底反弹潜力</li>
+                        <li>成交量未放大，调整时间预计不长</li>
+                        <li>科创50指数样本调整，调入国盾量子、中科飞测、中科星图等硬科技股(3月13日生效)</li>
+                        <li>化工热泵脑机接口等概念局部活跃</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-red-50 rounded-lg p-3 border border-red-100">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-red-600 font-bold">❌ 利空</span>
+                    </div>
+                    <ul class="text-slate-700 space-y-1 list-disc list-inside leading-relaxed">
+                        <li>大四浪回调启动，预计测试8600点极限（上证对应）</li>
+                        <li>三重顶结构确认，短期多头乏力</li>
+                        <li>市场分化加剧，半导体算力板块回落超10%</li>
+                        <li>科创50较1月高点累计跌15.01%，成长风格弱于大盘</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-xs text-slate-500 bg-slate-100 rounded p-2 text-center">
+                当前主导力量：均衡（多空力量接近，多1项 vs 空1项）
+            </div>
+
+            <div class="mt-4 space-y-2 text-xs text-slate-600 leading-relaxed">
+                <p><strong>上证50市场概览：</strong>上证50指数近一周（3月16日至3月19日）整体震荡下行，从约2795点附近逐步回落至3月19日收于2916.23点，累计下跌约4%，成交量中等，呈现调整迹象，受大四浪回调预期影响。</p>
+                <p><strong>科创50市场概览：</strong>科创50指数近一周持续下行，3月19日收报1339.03点跌2.44%创年内新低，3月20日休市中报1318.31点跌1.55%，本月累计跌幅超10%，科技成长板块整体承压明显。</p>
+            </div>
+        </section>
+
+        <!-- 深度洞察 -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm">
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>🔬</span>
+                <span>量化独立研判</span>
+            </h3>
+
+            <div class="bg-green-50 rounded-xl p-4 border border-green-100 mb-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-green-200 text-green-800 text-xs font-bold px-2 py-0.5 rounded">BULLISH DIVERGENCE</span>
+                    <span class="text-xs text-green-700">510050</span>
+                </div>
+                <p class="text-xs text-green-800 leading-relaxed">
+                    上证50ETF价格5日下跌<span class="font-bold">-2.3%</span>，但北向资金5日净流入<span class="font-bold">146.48亿</span>——底背离信号（放量背离，抛压未衰竭，量比1.35）<span class="text-slate-500">[可靠度: 中]</span>
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <h4 class="font-bold text-slate-700 mb-3 text-sm">多空信号分布</h4>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+                            <span>技术面(50)</span>
+                        </div>
+                        <span class="font-medium">⚪ NEUTRAL (+7)</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-400"></span>
+                            <span>估值面(50)</span>
+                        </div>
+                        <span class="font-medium text-red-600">🔴 BEAR (-20)</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                            <span>北向资金</span>
+                        </div>
+                        <span class="font-medium text-green-600">🟢 BULL (+15)</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-400"></span>
+                            <span>估值面(KC)</span>
+                        </div>
+                        <span class="font-medium text-red-600">🔴 BEAR (-30)</span>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 mt-2 text-center bg-slate-100 rounded p-2">
+                    多空比：🟢1 / ⚪5 / 🔴2 | 分歧度：67%
+                </p>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-slate-700 mb-3 text-sm">ETF主力资金流向</h4>
+                <div class="space-y-2">
+                    <div class="bg-white border border-slate-200 rounded-lg p-3 flex justify-between items-center">
+                        <div>
+                            <div class="font-medium text-slate-800 text-sm">510050 主力5日净流入</div>
+                            <div class="text-xs text-red-500 mt-0.5">趋势: 强势流出</div>
+                        </div>
+                        <div class="font-bold text-red-600 text-lg">-16.86亿</div>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-lg p-3 flex justify-between items-center">
+                        <div>
+                            <div class="font-medium text-slate-800 text-sm">588000 主力5日净流入</div>
+                            <div class="text-xs text-red-500 mt-0.5">趋势: 强势流出</div>
+                        </div>
+                        <div class="font-bold text-red-600 text-lg">-23.42亿</div>
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-2 italic text-center">
+                    注：「北向资金」统计口径为沪深港通全市场净流入，「ETF主力资金」为个股ETF产品内大单净流入。两者方向不一致属正常现象。
+                </p>
+            </div>
+        </section>
+
+        <!-- 信号历史回测 -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm">
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>📊</span>
+                <span>信号历史回测</span>
+                <span class="text-[10px] font-normal text-slate-400 ml-auto">2024-02-27 ~ 2026-03-20</span>
+            </h3>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                    <h4 class="font-bold text-blue-900 mb-3 text-sm">上证50ETF (510050) — HOLD信号表现</h4>
+                    <div class="grid grid-cols-2 gap-2 text-center text-xs mb-3">
+                        <div class="bg-white rounded p-2">
+                            <div class="text-slate-500 mb-1">触发次数</div>
+                            <div class="font-bold text-slate-800">165</div>
+                        </div>
+                        <div class="bg-white rounded p-2">
+                            <div class="text-slate-500 mb-1">10日胜率</div>
+                            <div class="font-bold text-green-600">64.8%</div>
+                        </div>
+                        <div class="bg-white rounded p-2">
+                            <div class="text-slate-500 mb-1">20日胜率</div>
+                            <div class="font-bold text-green-600">69.7%</div>
+                        </div>
+                        <div class="bg-white rounded p-2">
+                            <div class="text-slate-500 mb-1">盈亏比(10日)</div>
+                            <div class="font-bold text-slate-800">1.67</div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-blue-800 bg-white/50 rounded p-2">
+                        <strong>量价底背离独立回测：</strong>（过去2年"价格跌但北向资金流入"的情况）出现 34 次，10日胜率 70.6%，20日胜率 58.8%，10日均收益 +0.90%，20日均收益 +2.14%。
+                    </p>
+                </div>
+
+                <div class="bg-purple-50 rounded-xl p-4 border border-purple-100">
+                    <h4 class="font-bold text-purple-900 mb-3 text-sm">科创50ETF (588000) — HOLD信号表现</h4>
+                    <div class="grid grid-cols-2 gap-2 text-center text-xs mb-3">
+                        <div class="bg-white rounded p-2">
+                            <div class="text-slate-500 mb-1">触发次数</div>
+                            <div class="font-bold text-slate-800">179</div>
+                        </div>
+                        <div class="bg-white rounded p-2">
+                            <div class="text-slate-500 mb-1">10日胜率</div>
+                            <div class="font-bold text-green-600">53.6%</div>
+                        </div>
+                        <div class="bg-white rounded p-2">
+                            <div class="text-slate-500 mb-1">20日胜率</div>
+                            <div class="font-bold text-green-600">56.4%</div>
+                        </div>
+                        <div class="bg-white rounded p-2">
+                            <div class="text-slate-500 mb-1">盈亏比(10日)</div>
+                            <div class="font-bold text-slate-800">1.98</div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-purple-800 bg-white/50 rounded p-2">
+                        <strong>量价底背离独立回测：</strong>（（过去2年"价格跌但北向资金流入"的情况））出现 22 次，10日胜率 77.3%，20日胜率 72.7%，10日均收益 +2.27%，20日均收益 +1.90%。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 独立交叉验证 -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm border-l-4 border-indigo-400">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                    <span>🔍</span>
+                    <span>独立交叉验证（第二意见）</span>
+                </h3>
+                <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-bold">需谨慎</span>
+            </div>
+
+            <div class="bg-amber-50 rounded-lg p-3 border border-amber-100 mb-4">
+                <p class="text-xs text-amber-900 leading-relaxed">
+                    <strong>总体评价：</strong>分析整体框架合理但存在关键缺陷：1)风险收益比计算错误，实际&lt;1而非&gt;1.5；2)对估值风险重视不足，尤其科创50的PE-TTM=126.87极度高估；3)建议仓位与量化基准重合，缺乏独立判断；4)对外部风险和资金波动性考虑不足。投资者应更加谨慎，等待更明确的买入信号。
+                </p>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div class="bg-green-50 rounded-lg p-3 border border-green-100">
+                    <h4 class="font-bold text-green-800 mb-2">✅ 认同观点</h4>
+                    <ul class="text-slate-700 space-y-1 list-disc list-inside leading-relaxed">
+                        <li>市场处于震荡市的判断合理，技术指标确实呈现空头排列</li>
+                        <li>上证50出现底背离信号，北向资金流入与价格下跌形成对比</li>
+                        <li>两ETF均处于超卖区域，短期存在技术反弹可能</li>
+                        <li>止损设置在5%左右合理，符合风控规范</li>
+                    </ul>
+                </div>
+
+                <div class="bg-red-50 rounded-lg p-3 border border-red-100">
+                    <h4 class="font-bold text-red-800 mb-2">❓ 质疑观点</h4>
+                    <ul class="text-slate-700 space-y-1 list-disc list-inside leading-relaxed">
+                        <li>风险收益比计算有问题，上证50从2.957到3.065仅3.7%收益，止损5%，风险收益比&lt;1</li>
+                        <li>忽视了成交量放大背离的负面含义，量比1.35表明抛压仍大</li>
+                        <li>对科创50 PE-TTM=126.87的风险警示不足，这一估值极度高估</li>
+                        <li>15%的仓位建议过于保守，与量化基准15%-30%下限重合，缺乏主动判断</li>
+                    </ul>
+                </div>
+
+                <div class="bg-orange-50 rounded-lg p-3 border border-orange-100">
+                    <h4 class="font-bold text-orange-800 mb-2">⚠️ 补充风险</h4>
+                    <ul class="text-slate-700 space-y-1 list-disc list-inside leading-relaxed">
+                        <li>美股大跌后可能引发全球风险资产连锁反应，外部风险被低估</li>
+                        <li>北向资金虽流入但具有波动性，历史上曾出现'诱多'后撤离情况</li>
+                        <li>未考虑流动性收紧预期对高估值资产的持续压制</li>
+                        <li>科创50成分股业绩不确定性高，126.87的PE需要极高增速支撑</li>
+                    </ul>
+                </div>
+
+                <div class="bg-indigo-50 rounded-lg p-3 border border-indigo-100">
+                    <h4 class="font-bold text-indigo-900 mb-2">📋 调整建议</h4>
+                    <p class="text-xs text-indigo-800 leading-relaxed">
+                        建议维持更低仓位(10%)或全现金，等待更明确信号。若持仓，上证50止盈位应下调至3.03(+2.5%)以保证风险收益比&gt;1。科创50不建议配置，其PE-TTM过高，下行风险远大于上行空间。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 本周关注 -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm">
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>📅</span>
+                <span>本周关注 (3.23-3.27)</span>
+            </h3>
+            <div class="space-y-3">
+                <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                    <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                    <div class="text-sm text-slate-700 leading-relaxed">
+                        <strong>3月23-27日：</strong>关注美国2月核心PCE物价指数公布（美联储关键通胀指标），将显著影响全球流动性预期。
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                    <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                    <div class="text-sm text-slate-700 leading-relaxed">
+                        <strong>3月25日前后：</strong>密切关注上证50指数在年线（对应ETF价格约2.913）附近的支撑效力，这是长期趋势生命线。
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                    <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                    <div class="text-sm text-slate-700 leading-relaxed">
+                        <strong>3月27日左右：</strong>留意中国1-2月规模以上工业企业利润数据（若公布），观察经济微观动能。
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                    <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">4</span>
+                    <div class="text-sm text-slate-700 leading-relaxed">
+                        <strong>持续观察：</strong>科创50新样本股（如国盾量子）走势对指数的影响，以及半导体板块是否止跌。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 期权模块（简要） -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm">
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>🧩</span>
+                <span>期权模块</span>
+            </h3>
+            
+            <div class="space-y-3">
+                <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-slate-800 text-sm">上证50ETF期权</span>
+                        <span class="tag-hold px-2 py-1 rounded text-[10px]">观察/禁开仓</span>
+                    </div>
+                    <div class="text-xs text-slate-600 space-y-1">
+                        <p>主信号：HOLD | 标的现价：2.957 | IV百分位：0%</p>
+                        <p class="text-red-600">🔴 风控联动：主信号为HOLD，期权模块仅保留观察，不提供开仓建议。</p>
+                        <p class="text-slate-400">ℹ️ 合约数据已获取（140个）但无有效报价，可能处于非交易时段。</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-slate-800 text-sm">科创50ETF期权</span>
+                        <span class="tag-hold px-2 py-1 rounded text-[10px]">观察/禁开仓</span>
+                    </div>
+                    <div class="text-xs text-slate-600 space-y-1">
+                        <p>主信号：HOLD | 标的现价：1.388 | IV百分位：0%</p>
+                        <p class="text-red-600">🔴 风控联动：主信号为HOLD，期权模块仅保留观察，不提供开仓建议。</p>
+                        <p class="text-slate-400">ℹ️ 合约数据已获取（124个）但无有效报价，可能处于非交易时段。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI核心总结 -->
+        <section class="bg-slate-800 text-white rounded-2xl p-6 shadow-lg">
+            <h3 class="font-bold mb-4 flex items-center gap-2 text-slate-200">
+                <span>🧠</span>
+                <span>AI核心总结</span>
+            </h3>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                当前市场处于震荡市，技术面空头与估值高压是主导力量，但局部出现积极信号。核心矛盾在于：上证50出现"价格跌-北向买"的底背离，预示下跌抵抗增强；然而，两大指数估值均处高位（PE百分位&gt;75%），且隔夜美股大跌带来外部冲击。量化信号均为HOLD，纪律要求不可激进。策略上，维持极低仓位（15%）观望，现金为王（85%）。配置略偏向上证50（60%），因其有背离信号支撑。关键观察点：上证50能否守住年线，以及美股波动对A股情绪的传导。
+            </p>
+            <div class="bg-red-500/20 border border-red-500/30 rounded-xl p-3 flex items-center gap-3">
+                <span class="text-red-400 text-xl">⚠️</span>
+                <div class="text-xs text-red-200">
+                    <strong>【风控修正】</strong>RR比不达标。请以风控校验后的数据为准。
+                </div>
+            </div>
+        </section>
+
+        <!-- 风控合规校验 -->
+        <section class="bg-red-50 border border-red-100 rounded-2xl p-5">
+            <h3 class="font-bold text-red-900 mb-3 flex items-center gap-2">
+                <span>🔒</span>
+                <span>风控合规校验结果</span>
+            </h3>
+            <div class="space-y-2 text-xs text-red-800">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
+                    <span>⚠️ [etf_510050] RR比=0.72不达标，交易方案不成立</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
+                    <span>⚠️ [etf_588000] RR比=1.39不达标，交易方案不成立</span>
+                </div>
+            </div>
+            <p class="text-[10px] text-red-600 mt-3 pt-3 border-t border-red-200 leading-relaxed">
+                以上项目已由风控系统自动修正，报告中的价位和信号为修正后数据。
+            </p>
+        </section>
+
+        <!-- 声明 -->
+        <footer class="text-center space-y-2 pt-6 pb-8">
+            <div class="h-px bg-slate-200 w-16 mx-auto"></div>
+            <p class="text-[10px] text-slate-400 leading-relaxed px-4">
+                本报告由AI自动生成，所有价位经风控系统校验<br>
+                生成时间：2026-03-22T12:22:03.762Z
+            </p>
+            <p class="text-xs text-slate-500 font-medium"></p>
+        </footer>
+
+    </main>
+
+    <script>
+        function toggleSection(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('rotate');
+            } else {
+                content.classList.add('open');
+                icon.classList.add('rotate');
+            }
+        }
+    </script>
+</body>
+</html>
