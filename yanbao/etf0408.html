@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A股ETF投资信号日报 - 2026-04-08</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --accent-orange: #f97316;
+            --accent-purple: #8b5cf6;
+            --border-color: #475569;
+            --card-bg: rgba(30, 41, 59, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Header */
+        .report-header {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .report-date {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .market-cycle {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid var(--accent-yellow);
+            border-radius: 9999px;
+            color: var(--accent-yellow);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+        }
+
+        .meta-info {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Section Base */
+        .section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-header {
+            padding: 1.25rem;
+            background: rgba(51, 65, 85, 0.5);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+            user-select: none;
+        }
+
+        .section-header:hover {
+            background: rgba(71, 85, 105, 0.6);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+        }
+
+        .toggle-btn {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+
+        .section.collapsed .toggle-btn {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .section.collapsed .section-content {
+            display: none;
+        }
+
+        /* Signal Cards */
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .signal-card {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 0.9));
+            border: 2px solid;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signal-card.hold {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 10px 40px -10px rgba(245, 158, 11, 0.3);
+        }
+
+        .signal-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 800;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .hold .signal-badge {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-yellow);
+            border: 1px solid var(--accent-yellow);
+        }
+
+        .etf-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .etf-code {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .metric-item {
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .score-fill.negative {
+            background: linear-gradient(90deg, var(--accent-red), var(--accent-orange));
+        }
+
+        .score-fill.neutral {
+            background: linear-gradient(90deg, var(--accent-yellow), var(--accent-orange));
+        }
+
+        /* Quote Box */
+        .quote-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border-left: 4px solid var(--accent-blue);
+            padding: 1.5rem;
+            border-radius: 0 0.75rem 0.75rem 0;
+            margin: 1.5rem 0;
+            font-size: 1.125rem;
+            line-height: 1.8;
+            position: relative;
+        }
+
+        .quote-box::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--accent-blue);
+            opacity: 0.3;
+            position: absolute;
+            top: -0.5rem;
+            left: 0.5rem;
+            font-family: serif;
+        }
+
+        /* Digest */
+        .digest-card {
+            background: rgba(51, 65, 85, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .highlight-term {
+            color: var(--accent-yellow);
+            font-weight: 700;
+        }
+
+        .highlight-warning {
+            color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        /* ETF Detail Grid */
+        .etf-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .etf-detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .etf-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .etf-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .risk-banner {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dimension-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        .dimension-table th,
+        .dimension-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dimension-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .score-visual {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .price-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .price-table tr.current-price {
+            background: rgba(59, 130, 246, 0.1);
+            font-weight: 700;
+        }
+
+        .price-table .level-type {
+            color: var(--text-muted);
+        }
+
+        .price-table .level-price {
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .operation-zones {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .zone-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(51, 65, 85, 0.4);
+            border-radius: 0.5rem;
+            border-left: 3px solid;
+        }
+
+        .zone-item.stop-loss {
+            border-left-color: var(--accent-red);
+        }
+
+        .zone-item.target {
+            border-left-color: var(--accent-green);
+        }
+
+        .zone-item.entry {
+            border-left-color: var(--accent-blue);
+        }
+
+        .zone-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .zone-value {
+            font-family: monospace;
+            font-weight: 700;
+        }
+
+        .rr-ratio {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border-radius: 0.25rem;
+            font-weight: 700;
+        }
+
+        /* Position Management */
+        .position-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .pie-chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--accent-blue) 0deg 82.8deg,
+                var(--accent-purple) 82.8deg 165.6deg,
+                var(--bg-tertiary) 165.6deg 360deg
+            );
+            position: relative;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .pie-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .pie-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .pie-value {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-text {
+            font-size: 0.875rem;
+        }
+
+        .position-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .position-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Market Environment */
+        .env-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .env-card {
+            background: rgba(51, 65, 85, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .env-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .env-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .env-value.positive {
+            color: var(--accent-green);
+        }
+
+        .env-value.negative {
+            color: var(--accent-red);
+        }
+
+        .factor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .factor-column {
+            background: rgba(51, 65, 85, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+
+        .factor-title {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .factor-list {
+            list-style: none;
+            font-size: 0.875rem;
+        }
+
+        .factor-list li {
+            padding: 0.25rem 0;
+            color: var(--text-secondary);
+        }
+
+        /* Option Strategy */
+        .option-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: rgba(51, 65, 85, 0.4);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .metric-title {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-big {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .option-strategy-card {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--accent-yellow);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .strategy-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-yellow);
+            margin-bottom: 0.75rem;
+        }
+
+        .contract-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .contract-table th {
+            background: rgba(51, 65, 85, 0.6);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .contract-table td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .contract-table tr:hover {
+            background: rgba(51, 65, 85, 0.3);
+        }
+
+        .blocked-row {
+            opacity: 0.5;
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        /* Deep Analysis */
+        .distribution-bar {
+            display: flex;
+            height: 40px;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .dist-bull {
+            background: rgba(16, 185, 129, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 1rem;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .dist-neutral {
+            background: rgba(148, 163, 184, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .dist-bear {
+            background: rgba(239, 68, 68, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 1rem;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .divergence-card {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .divergence-title {
+            color: var(--accent-green);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Backtest Table */
+        .backtest-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .backtest-table th {
+            background: rgba(51, 65, 85, 0.8);
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .backtest-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .backtest-table tr.current-signal {
+            background: rgba(59, 130, 246, 0.2);
+            font-weight: 700;
+            border: 2px solid var(--accent-blue);
+        }
+
+        .win-high {
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        .win-low {
+            color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        /* Cross Check */
+        .assessment-badge {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .assessment-badge.reliable {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: 2px solid var(--accent-green);
+        }
+
+        .assessment-badge.basic {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+        }
+
+        .assessment-badge.caution {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-yellow);
+            border: 2px solid var(--accent-yellow);
+        }
+
+        .check-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .check-card {
+            background: rgba(51, 65, 85, 0.4);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border-left: 4px solid;
+        }
+
+        .check-card.agree {
+            border-left-color: var(--accent-green);
+        }
+
+        .check-card.disagree {
+            border-left-color: var(--accent-red);
+        }
+
+        .check-card.risk {
+            border-left-color: var(--accent-orange);
+        }
+
+        .check-title {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .check-list {
+            list-style: none;
+            font-size: 0.875rem;
+        }
+
+        .check-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+            line-height: 1.6;
+        }
+
+        .check-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            border: 2px solid var(--bg-secondary);
+        }
+
+        .timeline-date {
+            font-size: 0.875rem;
+            color: var(--accent-blue);
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-content {
+            background: rgba(51, 65, 85, 0.4);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        /* Glossary */
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .glossary-item {
+            background: rgba(51, 65, 85, 0.4);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border-left: 3px solid var(--accent-purple);
+        }
+
+        .glossary-term {
+            font-weight: 700;
+            color: var(--accent-purple);
+            margin-bottom: 0.5rem;
+        }
+
+        .glossary-def {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+
+        /* Utilities */
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: var(--accent-red);
+            font-size: 0.875rem;
+        }
+
+        .info-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .tag-red {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .tag-green {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .tag-yellow {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-yellow);
+        }
+
+        @media (max-width: 768px) {
+            .report-date {
+                font-size: 1.5rem;
+            }
+            
+            .signal-grid,
+            .etf-detail-grid,
+            .check-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .option-metrics {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .env-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="report-header">
+        <div class="report-date">📊 A股ETF投资信号日报</div>
+        <div class="market-cycle">⚠️ 市场周期：震荡市（弱势）</div>
+        <div class="meta-info">
+            报告日期：2026-04-08 | 数据基准：2026-04-07收盘 | 生成时间：2026-04-08T00:33:52
+        </div>
+    </div>
+
+    <!-- Core Signals -->
+    <div class="section" id="core-signals">
+        <div class="section-header" onclick="toggleSection('core-signals')">
+            <div class="section-title">
+                <span class="section-icon">🎯</span>
+                核心信号总览
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="signal-grid">
+                <!-- 510050 Card -->
+                <div class="signal-card hold">
+                    <div class="signal-badge">🟡 HOLD - 持有观望</div>
+                    <div class="etf-name">上证50ETF</div>
+                    <div class="etf-code">510050 | 最新价：2.9</div>
+                    
+                    <div class="score-bar">
+                        <div class="score-fill negative" style="width: 35%;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-top: 0.25rem;">
+                        <span style="color: var(--text-muted);">综合得分</span>
+                        <span style="color: var(--accent-red); font-weight: 700;">-7 (中性偏空)</span>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">AI信心度</div>
+                            <div class="metric-value" style="color: var(--accent-yellow);">50%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">建议仓位</div>
+                            <div class="metric-value" style="color: var(--accent-blue);">11.5%</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.875rem; color: var(--text-secondary);">
+                        <strong>信号来源：</strong>量化:🟡 持有观望 / AI:🟡 持有观望
+                    </div>
+                </div>
+
+                <!-- 588000 Card -->
+                <div class="signal-card hold">
+                    <div class="signal-badge">🟡 HOLD - 持有观望</div>
+                    <div class="etf-name">科创50ETF</div>
+                    <div class="etf-code">588000 | 最新价：1.342</div>
+                    
+                    <div class="score-bar">
+                        <div class="score-fill negative" style="width: 40%;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-top: 0.25rem;">
+                        <span style="color: var(--text-muted);">综合得分</span>
+                        <span style="color: var(--accent-red); font-weight: 700;">-8 (中性偏空)</span>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">AI信心度</div>
+                            <div class="metric-value" style="color: var(--accent-yellow);">50%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">建议仓位</div>
+                            <div class="metric-value" style="color: var(--accent-purple);">11.5%</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.875rem; color: var(--text-secondary);">
+                        <strong>信号来源：</strong>量化:🟡 持有观望 / AI:🟡 持有观望
+                    </div>
+                </div>
+            </div>
+
+            <div class="quote-box">
+                <strong>💡 一句话建议：</strong>当前多数信号指向观望，建议保持耐心，等待更明确的右侧信号再行动。北向资金逆势流入构成<span class="highlight-term">聪明钱背离信号</span>，但内资两融流出显示<span class="highlight-warning">信心不足</span>，风格轮动机会不明，维持均衡配置。
+            </div>
+
+            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--accent-blue); border-radius: 0.75rem; padding: 1rem; margin-top: 1rem;">
+                <strong style="color: var(--accent-blue);">轮动建议：</strong>在ETF总目标仓约束下，子仓按 <strong>50% : 50%</strong> 落实为 <strong>11.5% / 11.5%</strong>（各占总资产）。当前两指数均处于弱势震荡，Confidence仅为模型内相对排序，HOLD信号下不构成加仓或开新仓许可。
+            </div>
+        </div>
+    </div>
+
+    <!-- Digest -->
+    <div class="section" id="digest">
+        <div class="section-header" onclick="toggleSection('digest')">
+            <div class="section-title">
+                <span class="section-icon">📋</span>
+                精华摘要
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="digest-card">
+                <p style="margin-bottom: 1rem;">
+                    <span class="info-tag">口径说明</span>
+                    <span class="highlight-term">「建议仓位%」</span> = 模型观望档目标配置参考，<span class="highlight-warning">非真实持仓推断；空仓勿作建仓指令</span>。
+                </p>
+                
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                    行情/指标可能非当日完整收盘，基于<span class="highlight-term">2026-04-07数据</span>。当前市场处于<span class="highlight-warning">弱势震荡</span>，双票（上证50ETF、科创50ETF）信号均为<span class="tag tag-yellow">HOLD</span>，<span class="highlight-warning">不建议开新仓</span>。
+                </p>
+
+                <p style="margin-bottom: 1rem;">
+                    表中"建议仓位11.5%"是模型观望档下的目标配置参考，<span class="highlight-warning">空仓读者不得理解为建仓指令</span>。若已持仓，应维持纪律，<strong>上证50止损位2.813（-3.0%）</strong>，<strong>科创50止损位1.298（-3.3%）</strong>。
+                </p>
+
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                    隔夜美股变动温和，对A股风险偏好指引有限。<span class="highlight-warning">最大风险</span>在于估值偏高（PE百分位均超70%）与内资信心不足（两融流出）。<strong>近期关键关注点</strong>：北向资金持续性、量能能否放大，以及上证50能否站稳年线、科创50能否突破中期均线压制。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ETF Detailed Analysis -->
+    <div class="section" id="etf-detail">
+        <div class="section-header" onclick="toggleSection('etf-detail')">
+            <div class="section-title">
+                <span class="section-icon">📈</span>
+                ETF详细分析
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="etf-detail-grid">
+                <!-- 510050 Detail -->
+                <div class="etf-card">
+                    <div class="risk-banner">
+                        ⚠️ 风控提示：当前信号为观望或RR比不达标，以下价位仅供参考，不构成交易建议。
+                    </div>
+                    
+                    <div class="etf-card-header">
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: 700;">上证50ETF</div>
+                            <div style="color: var(--text-muted); font-size: 0.875rem;">510050 | 最新价：2.9</div>
+                        </div>
+                        <div class="tag tag-yellow">HOLD</div>
+                    </div>
+
+                    <h3 style="margin-bottom: 1rem; color: var(--accent-blue);">多维度评分</h3>
+                    <table class="dimension-table">
+                        <tr>
+                            <th>维度</th>
+                            <th>得分</th>
+                            <th>可视化</th>
+                        </tr>
+                        <tr>
+                            <td>技术面</td>
+                            <td style="color: var(--accent-red);">-14</td>
+                            <td>
+                                <div class="score-visual">
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 70%; background: var(--accent-red);"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>估值面</td>
+                            <td style="color: var(--accent-red);">-20</td>
+                            <td>
+                                <div class="score-visual">
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 100%; background: var(--accent-red);"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>市场情绪</td>
+                            <td style="color: var(--accent-yellow);">0</td>
+                            <td>
+                                <div class="score-visual">
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 50%; background: var(--accent-yellow);"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>资金面</td>
+                            <td style="color: var(--accent-green);">+10</td>
+                            <td>
+                                <div class="score-visual">
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 60%; background: var(--accent-green); margin-left: 50%;"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="border-top: 2px solid var(--border-color);">
+                            <td><strong>综合</strong></td>
+                            <td colspan="2" style="color: var(--accent-red); font-weight: 700; font-size: 1.25rem;">-7 (量化:🟡 持有观望 / AI:🟡 持有观望)</td>
+                        </tr>
+                    </table>
+
+                    <h3 style="margin-bottom: 1rem; color: var(--accent-blue);">关键技术价位</h3>
+                    <table class="price-table">
+                        <tr>
+                            <td class="level-type">布林带上轨</td>
+                            <td class="level-price" style="color: var(--accent-green);">3.093</td>
+                        </tr>
+                        <tr>
+                            <td class="level-type">120日均线</td>
+                            <td class="level-price">3.078</td>
+                        </tr>
+                        <tr>
+                            <td class="level-type">20日均线</td>
+                            <td class="level-price">2.962</td>
+                        </tr>
+                        <tr class="current-price">
+                            <td class="level-type">当前价</td>
+                            <td class="level-price" style="color: var(--accent-blue);">2.900</td>
+                        </tr>
+                        <tr>
+                            <td class="level-type">布林带下轨</td>
+                            <td class="level-price">2.832</td>
+                        </tr>
+                        <tr>
+                            <td class="level-type">年线 (MA250)</td>
+                            <td class="level-price" style="color: var(--accent-red);">2.923</td>
+                        </tr>
+                    </table>
+
+                    <h3 style="margin-bottom: 1rem; color: var(--accent-blue);">AI操作建议</h3>
+                    <div class="operation-zones">
+                        <div class="zone-item entry">
+                            <span class="zone-label">买入区间</span>
+                            <span class="zone-value" style="color: var(--text-muted);">不建议开新仓</span>
+                        </div>
+                        <div class="zone-item stop-loss">
+                            <span class="zone-label">止损位 (AI)</span>
+                            <span class="zone-value">2.813 (-3.0%)</span>
+                        </div>
+                        <div class="zone-item target">
+                            <span class="zone-label">目标价1 (MA120)</span>
+                            <span class="zone-value">3.078 <span class="rr-ratio">RR 2.05:1 ✅</span></span>
+                        </div>
+                        <div class="zone-item target">
+                            <span class="zone-label">目标价2 (BOLL上轨)</span>
+                            <span class="zone-value">3.093</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                        <strong style="color: var(--accent-red);">⚠️ 风险提示：</strong>PE估值百分位75.35%超过75%，存在进一步向下修复估值的压力。均线空头排列格局下，任何反弹若缺乏量能配合（当前量比0.63）都可能难以持续。
+                    </div>
+                </div>
+
+                <!-- 588000 Detail -->
+                <div class="etf-card">
+                    <div class="risk-banner">
+                        ⚠️ 风控提示：当前信号为观望，技术得分最弱（-20），估值偏高（72.16%）。
+                    </div>
+                    
+                    <div class="etf-card-header">
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: 700;">科创50ETF</div>
+                            <div style="color: var(--text-muted); font-size: 0.875rem;">588000 | 最新价：1.342</div>
+                        </div>
+                        <div class="tag tag-yellow">HOLD</div>
+                    </div>
+
+                    <h3 style="margin-bottom: 1rem; color: var(--accent-purple);">多维度评分</h3>
+                    <table class="dimension-table">
+                        <tr>
+                            <th>维度</th>
+                            <th>得分</th>
+                            <th>可视化</th>
+                        </tr>
+                        <tr>
+                            <td>技术面</td>
+                            <td style="color: var(--accent-red);">-20</td>
+                            <td>
+                                <div class="score-visual">
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 100%; background: var(--accent-red);"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>估值面</td>
+                            <td style="color: var(--accent-red);">-10</td>
+                            <td>
+                                <div class="score-visual">
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 50%; background: var(--accent-red);"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>市场情绪</td>
+                            <td style="color: var(--accent-orange);">-7</td>
+                            <td>
+                                <div class="score-visual">
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 35%; background: var(--accent-orange);"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>资金面</td>
+                            <td style="color: var(--accent-green);">+10</td>
+                            <td>
+                                <div class="score-visual">
+                                    <div class="bar-container">
+                                        <div class="bar-fill" style="width: 60%; background: var(--accent-green); margin-left: 50%;"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="border-top: 2px solid var(--border-color);">
+                            <td><strong>综合</strong></td>
+                            <td colspan="2" style="color: var(--accent-red); font-weight: 700; font-size: 1.25rem;">-8 (量化:🟡 持有观望 / AI:🟡 持有观望)</td>
+                        </tr>
+                    </table>
+
+                    <h3 style="margin-bottom: 1rem; color: var(--accent-purple);">关键技术价位</h3>
+                    <table class="price-table">
+                        <tr>
+                            <td class="level-type">布林带上轨</td>
+                            <td class="level-price" style="color: var(--accent-green);">1.501</td>
+                        </tr>
+                        <tr>
+                            <td class="level-type">20日均线</td>
+                            <td class="level-price">1.393</td>
+                        </tr>
+                        <tr>
+                            <td class="level-type">10日均线</td>
+                            <td class="level-price">1.352</td>
+                        </tr>
+                        <tr class="current-price">
+                            <td class="level-type">当前价</td>
+                            <td class="level-price" style="color: var(--accent-purple);">1.342</td>
+                        </tr>
+                        <tr>
+                            <td class="level-type">5日均线</td>
+                            <td class="level-price">1.338</td>
+                        </tr>
+                        <tr>
+                            <td class="level-type">年线 (MA250)</td>
+                            <td class="level-price" style="color: var(--accent-red);">1.298</td>
+                        </tr>
+                    </table>
+
+                    <h3 style="margin-bottom: 1rem; color: var(--accent-purple);">AI操作建议</h3>
+                    <div class="operation-zones">
+                        <div class="zone-item entry">
+                            <span class="zone-label">买入区间</span>
+                            <span class="zone-value" style="color: var(--text-muted);">不建议开新仓</span>
+                        </div>
+                        <div class="zone-item stop-loss">
+                            <span class="zone-label">止损位 (AI)</span>
+                            <span class="zone-value">1.298 (-3.28%)</span>
+                        </div>
+                        <div class="zone-item target">
+                            <span class="zone-label">目标价1 (BOLL上轨)</span>
+                            <span class="zone-value">1.501 <span class="rr-ratio">RR 3.61:1 ✅</span></span>
+                        </div>
+                        <div class="zone-item target">
+                            <span class="zone-label">目标价2</span>
+                            <span class="zone-value">N/A</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                        <strong style="color: var(--accent-red);">⚠️ 风险提示：</strong>PE 43.57处于72.16%历史百分位，高估值本身构成压力。MACD零轴下死叉且柱状负值，中期趋势向下。若跌破年线1.298将触发止损。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Position Management -->
+    <div class="section" id="position">
+        <div class="section-header" onclick="toggleSection('position')">
+            <div class="section-title">
+                <span class="section-icon">💰</span>
+                仓位管理建议
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="position-visual">
+                <div class="pie-chart-container">
+                    <div class="pie-chart">
+                        <div class="pie-center">
+                            <div class="pie-label">ETF总仓位</div>
+                            <div class="pie-value">23%</div>
+                        </div>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--accent-blue);"></div>
+                            <div class="legend-text"><strong>上证50ETF</strong> 11.5%</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--accent-purple);"></div>
+                            <div class="legend-text"><strong>科创50ETF</strong> 11.5%</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--bg-tertiary);"></div>
+                            <div class="legend-text"><strong>现金储备</strong> 77%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="position-table">
+                    <tr>
+                        <td style="color: var(--text-muted);">风格权重</td>
+                        <td style="text-align: right; font-weight: 700;">50% : 50%</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--text-muted);">步长规则</td>
+                        <td style="text-align: right;">0.5%步长（如11.5%、12%）</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--text-muted);">下次操作触发</td>
+                        <td style="text-align: right; font-size: 0.875rem;">
+                            1) 突破MA120且量能放大→加仓<br>
+                            2) 跌破年线→减仓观望
+                        </td>
+                    </tr>
+                </table>
+
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--accent-yellow); border-radius: 0.75rem; padding: 1rem; font-size: 0.875rem; margin-top: 1rem;">
+                    <strong style="color: var(--accent-yellow);">⚠️ 重要说明：</strong>「建议仓位」各百分比为模型在对应风险档位下的<strong>目标配置参考</strong>（非对真实账户持仓的推断）。当出现「不建议开新仓」时，表示本文档<strong>不给出</strong>新开仓理由；若您实际空仓，请勿将表中目标%理解为须立刻建仓到该比例。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Market Environment -->
+    <div class="section" id="market-env">
+        <div class="section-header" onclick="toggleSection('market-env')">
+            <div class="section-title">
+                <span class="section-icon">🌡️</span>
+                市场环境
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="env-grid">
+                <div class="env-card">
+                    <div class="env-label">北向资金 (今日)</div>
+                    <div class="env-value positive">+20.42亿</div>
+                </div>
+                <div class="env-card">
+                    <div class="env-label">北向资金 (5日)</div>
+                    <div class="env-value positive">+116.42亿</div>
+                </div>
+                <div class="env-card">
+                    <div class="env-label">两融余额</div>
+                    <div class="env-value">25808亿</div>
+                </div>
+                <div class="env-card">
+                    <div class="env-label">两融变化 (5日)</div>
+                    <div class="env-value negative">-361.12亿</div>
+                </div>
+                <div class="env-card">
+                    <div class="env-label">标普500隔夜</div>
+                    <div class="env-value positive">+0.08%</div>
+                </div>
+                <div class="env-card">
+                    <div class="env-label">纳指隔夜</div>
+                    <div class="env-value positive">+0.10%</div>
+                </div>
+            </div>
+
+            <div class="factor-grid">
+                <div class="factor-column">
+                    <div class="factor-title" style="color: var(--accent-green);">
+                        ✅ 利好因素
+                    </div>
+                    <ul class="factor-list">
+                        <li>2026年3月工信部信创扶持政策延续</li>
+                        <li>国产半导体企业订单回暖</li>
+                        <li>北向资金5日净流入116.42亿（聪明钱信号）</li>
+                    </ul>
+                </div>
+                <div class="factor-column">
+                    <div class="factor-title" style="color: var(--accent-red);">
+                        ❌ 利空因素
+                    </div>
+                    <ul class="factor-list">
+                        <li>半导体板块全球库存压力</li>
+                        <li>两融资金5日净流出361.12亿</li>
+                        <li>估值偏高（双票PE百分位均超70%）</li>
+                        <li>技术均线空头排列</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 0.75rem; font-size: 0.875rem;">
+                <strong>美股→A股传导：</strong>隔夜变动温和（neutral），对A股风格指引有限。科创50偏成长，对美国科技股风险偏好更敏感；上证50更多受内资情绪影响。
+            </div>
+        </div>
+    </div>
+
+    <!-- Option Strategy -->
+    <div class="section" id="option">
+        <div class="section-header" onclick="toggleSection('option')">
+            <div class="section-title">
+                <span class="section-icon">🔬</span>
+                期权策略建议
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <!-- 510050 Options -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: var(--accent-blue);">上证50ETF期权</h3>
+                <div class="option-metrics">
+                    <div class="metric-card">
+                        <div class="metric-title">PCR%</div>
+                        <div class="metric-big" style="color: var(--text-primary);">85.73</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">IV百分位</div>
+                        <div class="metric-big" style="color: var(--accent-yellow);">55%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">IV/HV比</div>
+                        <div class="metric-big" style="color: var(--text-primary);">1.22</div>
+                    </div>
+                </div>
+
+                <div class="option-strategy-card">
+                    <div class="strategy-title">🚫 策略：不操作（观察/禁开仓）</div>
+                    <p style="font-size: 0.875rem; line-height: 1.6;">
+                        主量化信号为HOLD，根据纪律冻结期权开仓。当前IV百分位55，IV/HV比1.22，期权价格相对合理偏高，未达卖方收租（IV百分位≥70）或买方博方向（IV/HV&lt;0.9）的明确阈值。
+                    </p>
+                </div>
+
+                <h4 style="margin-bottom: 0.75rem; color: var(--accent-green);">认购合约TOP3（参考）</h4>
+                <table class="contract-table">
+                    <thead>
+                        <tr>
+                            <th>合约</th>
+                            <th>评分</th>
+                            <th>DTE</th>
+                            <th>杠杆</th>
+                            <th>价差</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>50ETF购5月2850</td>
+                            <td style="color: var(--accent-green); font-weight: 700;">73</td>
+                            <td>48</td>
+                            <td>19x</td>
+                            <td>0%</td>
+                        </tr>
+                        <tr>
+                            <td>50ETF购5月2800</td>
+                            <td style="color: var(--accent-green);">68</td>
+                            <td>48</td>
+                            <td>16.4x</td>
+                            <td>0%</td>
+                        </tr>
+                        <tr>
+                            <td>50ETF购6月2950</td>
+                            <td style="color: var(--accent-green);">62</td>
+                            <td>76</td>
+                            <td>18.5x</td>
+                            <td>0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin-bottom: 0.75rem; color: var(--accent-red);">认沽合约TOP3（参考）</h4>
+                <table class="contract-table">
+                    <thead>
+                        <tr>
+                            <th>合约</th>
+                            <th>评分</th>
+                            <th>DTE</th>
+                            <th>杠杆</th>
+                            <th>价差</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>50ETF沽5月2900</td>
+                            <td style="color: var(--accent-green); font-weight: 700;">73</td>
+                            <td>48</td>
+                            <td>19.3x</td>
+                            <td>0%</td>
+                        </tr>
+                        <tr>
+                            <td>50ETF沽5月2950</td>
+                            <td style="color: var(--accent-green);">68</td>
+                            <td>48</td>
+                            <td>17.2x</td>
+                            <td>0%</td>
+                        </tr>
+                        <tr>
+                            <td>50ETF沽5月3000</td>
+                            <td style="color: var(--accent-green);">63</td>
+                            <td>48</td>
+                            <td>15.3x</td>
+                            <td>0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin-bottom: 0.75rem; color: var(--text-muted);">被阻断样例（高杠杆）</h4>
+                <table class="contract-table">
+                    <tbody>
+                        <tr class="blocked-row">
+                            <td>50ETF购4月2800</td>
+                            <td>杠杆23.2x</td>
+                            <td style="color: var(--accent-red);">>20x阻断</td>
+                        </tr>
+                        <tr class="blocked-row">
+                            <td>50ETF购4月2900</td>
+                            <td>杠杆39.6x</td>
+                            <td style="color: var(--accent-red);">>20x阻断</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <hr style="border-color: var(--border-color); margin: 2rem 0;">
+
+            <!-- 588000 Options -->
+            <div>
+                <h3 style="margin-bottom: 1rem; color: var(--accent-purple);">科创50ETF期权</h3>
+                <div class="option-metrics">
+                    <div class="metric-card">
+                        <div class="metric-title">PCR%</div>
+                        <div class="metric-big" style="color: var(--text-primary);">77.48</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">IV百分位</div>
+                        <div class="metric-big" style="color: var(--accent-yellow);">62%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">IV/HV比</div>
+                        <div class="metric-big" style="color: var(--text-muted);">N/A</div>
+                    </div>
+                </div>
+
+                <div class="option-strategy-card">
+                    <div class="strategy-title">🚫 策略：不操作（观察/禁开仓）</div>
+                    <p style="font-size: 0.875rem; line-height: 1.6;">
+                        主量化信号为HOLD，根据纪律冻结期权开仓。当前IV百分位62，未达卖方收租（IV百分位≥70）或买方博方向（IV/HV&lt;0.9）的明确阈值。
+                    </p>
+                </div>
+
+                <h4 style="margin-bottom: 0.75rem; color: var(--accent-green);">认购合约TOP3（参考）</h4>
+                <table class="contract-table">
+                    <thead>
+                        <tr>
+                            <th>合约</th>
+                            <th>评分</th>
+                            <th>DTE</th>
+                            <th>杠杆</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>科创50购5月1500</td>
+                            <td style="color: var(--accent-green); font-weight: 700;">92</td>
+                            <td>48</td>
+                            <td>18.7x</td>
+                        </tr>
+                        <tr>
+                            <td>科创50购5月1450</td>
+                            <td style="color: var(--accent-green);">91</td>
+                            <td>48</td>
+                            <td>16.5x</td>
+                        </tr>
+                        <tr>
+                            <td>科创50购5月1400</td>
+                            <td style="color: var(--accent-green);">90</td>
+                            <td>48</td>
+                            <td>14.2x</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin-bottom: 0.75rem; color: var(--text-muted);">被阻断样例（高杠杆）</h4>
+                <table class="contract-table">
+                    <tbody>
+                        <tr class="blocked-row">
+                            <td>科创50购4月1400</td>
+                            <td>杠杆28.4x</td>
+                            <td style="color: var(--accent-red);">>25x阻断</td>
+                        </tr>
+                        <tr class="blocked-row">
+                            <td>科创50购4月1600</td>
+                            <td>杠杆37.3x</td>
+                            <td style="color: var(--accent-red);">>25x阻断</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deep Analysis -->
+    <div class="section" id="deep-analysis">
+        <div class="section-header" onclick="toggleSection('deep-analysis')">
+            <div class="section-title">
+                <span class="section-icon">🔭</span>
+                多空分析
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <h3 style="margin-bottom: 1rem;">多空信号分布</h3>
+            <div class="distribution-bar">
+                <div class="dist-bull" style="width: 10%;">🟢 1</div>
+                <div class="dist-neutral" style="width: 50%;">⚪ 5</div>
+                <div class="dist-bear" style="width: 40%;">🔴 4</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                <span>看涨维度:看跌维度 = 1:4</span>
+                <span>方向对立指数: 40%</span>
+            </div>
+
+            <div class="divergence-card">
+                <div class="divergence-title">📈 价格-资金背离检测</div>
+                <div style="font-size: 0.875rem; line-height: 1.6;">
+                    <strong>BULLISH_DIVERGENCE</strong> (510050) — 上证50ETF价格5日下跌-0.1%，但北向资金5日净流入116.42亿——<span style="color: var(--accent-green); font-weight: 700;">底背离信号</span>（缩量背离，量比0.57）<br>
+                    <span style="color: var(--accent-green);">[可靠度: 高]</span>
+                </div>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--accent-yellow); padding: 1rem; border-radius: 0 0.5rem 0.5rem 0; font-size: 0.875rem; margin-top: 1rem;">
+                <strong style="color: var(--accent-yellow);">⚠️ 内资-北向背离警告：</strong>北向评分偏多/不弱，但ETF主力资金5日显著净流出——内资撤退与北向不同步，勿单独以北向解读为全面看多。
+            </div>
+        </div>
+    </div>
+
+    <!-- Backtest -->
+    <div class="section" id="backtest">
+        <div class="section-header" onclick="toggleSection('backtest')">
+            <div class="section-title">
+                <span class="section-icon">📊</span>
+                信号历史回测
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <h3 style="margin-bottom: 1rem; color: var(--accent-blue);">上证50ETF (510050) 回测表现</h3>
+            <div style="overflow-x: auto;">
+                <table class="backtest-table">
+                    <thead>
+                        <tr>
+                            <th>信号</th>
+                            <th>触发次数</th>
+                            <th>10日胜率</th>
+                            <th>20日胜率</th>
+                            <th>10日平均收益</th>
+                            <th>盈亏比</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="current-signal">
+                            <td>HOLD <span style="font-size: 0.75rem; color: var(--accent-blue);">(当前)</span></td>
+                            <td>169</td>
+                            <td class="win-high">60.9%</td>
+                            <td class="win-high">65.7%</td>
+                            <td class="win-high">+0.64%</td>
+                            <td>1.36</td>
+                        </tr>
+                        <tr>
+                            <td>BUY</td>
+                            <td>50</td>
+                            <td class="win-high">62.0%</td>
+                            <td class="win-high">62.0%</td>
+                            <td class="win-high">+0.70%</td>
+                            <td>1.46</td>
+                        </tr>
+                        <tr>
+                            <td>STRONG_BUY</td>
+                            <td style="color: var(--accent-red);">1*</td>
+                            <td>100%</td>
+                            <td>0%</td>
+                            <td>+0.50%</td>
+                            <td>50.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 2rem;">* 样本量&lt;5，统计极不稳定，仅供感性参考</p>
+
+            <h3 style="margin-bottom: 1rem; color: var(--accent-purple);">科创50ETF (588000) 回测表现</h3>
+            <div style="overflow-x: auto;">
+                <table class="backtest-table">
+                    <thead>
+                        <tr>
+                            <th>信号</th>
+                            <th>触发次数</th>
+                            <th>10日胜率</th>
+                            <th>20日胜率</th>
+                            <th>10日平均收益</th>
+                            <th>盈亏比</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="current-signal">
+                            <td>HOLD <span style="font-size: 0.75rem; color: var(--accent-purple);">(当前)</span></td>
+                            <td>180</td>
+                            <td class="win-low">51.7%</td>
+                            <td>53.3%</td>
+                            <td class="win-high">+1.39%</td>
+                            <td class="win-high">1.72</td>
+                        </tr>
+                        <tr>
+                            <td>BUY</td>
+                            <td>37</td>
+                            <td class="win-high">70.3%</td>
+                            <td class="win-low">51.4%</td>
+                            <td class="win-high">+2.57%</td>
+                            <td class="win-high">1.62</td>
+                        </tr>
+                        <tr>
+                            <td>SELL</td>
+                            <td style="color: var(--accent-red);">3*</td>
+                            <td class="win-low">0%</td>
+                            <td>66.7%</td>
+                            <td>-1.01%</td>
+                            <td>0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">* 样本量&lt;5，统计极不稳定，仅供感性参考</p>
+        </div>
+    </div>
+
+    <!-- Cross Check -->
+    <div class="section" id="cross-check">
+        <div class="section-header" onclick="toggleSection('cross-check')">
+            <div class="section-title">
+                <span class="section-icon">🔍</span>
+                独立交叉验证
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">总体评价</div>
+                <div class="assessment-badge basic">基本可靠</div>
+            </div>
+
+            <div class="check-grid">
+                <div class="check-card agree">
+                    <div class="check-title" style="color: var(--accent-green);">
+                        ✅ 认同观点
+                    </div>
+                    <ul class="check-list">
+                        <li>数据时效标注规范，AI已明确提示主数据截至2026-04-07收盘</li>
+                        <li>PCR口径处理正确，认购侧更活跃未误读为偏空</li>
+                        <li>子仓口径合规，50:50权重下0.5%步长分拆符合约束</li>
+                        <li>期权策略纪律性强，HOLD信号下选择不操作</li>
+                        <li>止损幅度合规，均在3%-7%区间内</li>
+                        <li>北向与两融背离已并列披露，未单独以北向下结论</li>
+                    </ul>
+                </div>
+
+                <div class="check-card disagree">
+                    <div class="check-title" style="color: var(--accent-red);">
+                        ❓ 质疑观点
+                    </div>
+                    <ul class="check-list">
+                        <li>weekly_focus含未入库事件风险（2026-04-20会议），违反事实边界规则</li>
+                        <li>588000 risk_warnings引用与量化数据矛盾的检索结论</li>
+                        <li>止损政策note表述存在内部逻辑矛盾（3.28% vs 低于3%阈值）</li>
+                        <li>总仓位23%取区间中偏上值在偏空信号组合下论证不足</li>
+                    </ul>
+                </div>
+
+                <div class="check-card risk">
+                    <div class="check-title" style="color: var(--accent-orange);">
+                        ⚠️ 补充风险
+                    </div>
+                    <ul class="check-list">
+                        <li>两融持续流出尾部风险：若跌破25500亿，建议仓位降至15%</li>
+                        <li>估值双高叠加技术弱势的共振下行风险（单周跌幅可能超5%）</li>
+                        <li>科创50 MACD死叉与KDJ超卖并存的信号矛盾风险</li>
+                        <li>隔夜美股中性但尾部不对称风险（若美股跌超2%，科创仓位降至8%以下）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Focus -->
+    <div class="section" id="weekly-focus">
+        <div class="section-header" onclick="toggleSection('weekly-focus')">
+            <div class="section-title">
+                <span class="section-icon">📅</span>
+                本周关注 & 前瞻推演
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">2026-04-15</div>
+                    <div class="timeline-content">
+                        科创板公司一季报集中披露，关注业绩对科技板块的验证。
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">持续关注</div>
+                    <div class="timeline-content">
+                        技术面观察：上证50能否收复并站稳MA120（3.078）关键阻力。<br>
+                        关注潜在的未入库宏观政策动态（非本流程核验事实）。
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin: 2rem 0 1rem; color: var(--accent-blue);">If-Then 路线图</h3>
+            <div style="display: grid; gap: 0.75rem;">
+                <div style="padding: 1rem; background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--accent-blue); border-radius: 0 0.5rem 0.5rem 0;">
+                    <strong>若上证50放量站上3.078：</strong>总仓位再评估是否上调至区间上沿；若量能不配合，仅维持观察仓。
+                </div>
+                <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--accent-red); border-radius: 0 0.5rem 0.5rem 0;">
+                    <strong>若上证50跌破2.813或科创50跌破1.298：</strong>执行防守，优先降总仓位并暂停新增风险暴露。
+                </div>
+                <div style="padding: 1rem; background: rgba(139, 92, 246, 0.1); border-left: 4px solid var(--accent-purple); border-radius: 0 0.5rem 0.5rem 0;">
+                    <strong>若科创50放量收复1.501：</strong>允许在总仓约束内向成长侧倾斜。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Summary -->
+    <div class="section" id="ai-summary">
+        <div class="section-header" onclick="toggleSection('ai-summary')">
+            <div class="section-title">
+                <span class="section-icon">🧠</span>
+                AI核心总结
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="quote-box" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1)); border-left-color: var(--accent-purple);">
+                主数据截至2026-04-07收盘，系统时效提示非实时。当前市场处于弱势震荡格局，主导力量为技术面偏空与估值偏高，但北向资金连续5日净流入116.42亿形成显著背离（聪明钱逆势布局），两融资金则同期净流出361.12亿显示内资谨慎。期权市场情绪未达极端，PCR结构显示科创50侧认购更活跃。隔夜美股变动温和（中性），对A股开盘风险偏好指引有限，但科创50相对上证50对海外科技股情绪更敏感。综合得分均值为-7，建议采取保守策略，ETF总仓位控制在23%，现金储备77%，双票等权重配置。两个ETF量化信号均为HOLD，纪律性暂停新开仓与期权交易，以观望和持仓管理为主。
+            </div>
+
+            <div class="warning-box" style="margin-top: 1rem;">
+                <strong>🔒 风控合规校验：</strong>止损位已被风控系统自动调整至3%-7%合理范围，请以风控校验后的数据为准。本报告由AI自动生成，所有价位建议基于技术指标推导。
+            </div>
+        </div>
+    </div>
+
+    <!-- Glossary -->
+    <div class="section" id="glossary">
+        <div class="section-header" onclick="toggleSection('glossary')">
+            <div class="section-title">
+                <span class="section-icon">📖</span>
+                名词解释（白话）
+            </div>
+            <span class="toggle-btn">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="glossary-grid">
+                <div class="glossary-item">
+                    <div class="glossary-term">ETF</div>
+                    <div class="glossary-def">在交易所买卖的指数基金，跟踪某一指数，交易方式类似股票。</div>
+                </div>
+                <div class="glossary-item">
+                    <div class="glossary-term">北向资金</div>
+                    <div class="glossary-def">经沪深港通等从境外流入A股的资金，常作外资态度的参考（非唯一真理）。</div>
+                </div>
+                <div class="glossary-item">
+                    <div class="glossary-term">两融</div>
+                    <div class="glossary-def">融资融券余额与变动，反映杠杆资金与风险偏好，需与北向等区分口径。</div>
+                </div>
+                <div class="glossary-item">
+                    <div class="glossary-term">PE百分位</div>
+                    <div class="glossary-def">当前估值在过去一段统计期内的相对位置，越高通常表示相对越「贵」。</div>
+                </div>
+                <div class="glossary-item">
+                    <div class="glossary-term">PCR%</div>
+                    <div class="glossary-def">认沽成交量÷认购成交量×100。小于100多表示认购成交更重；大于100多表示认沽更重。</div>
+                </div>
+                <div class="glossary-item">
+                    <div class="glossary-term">RR比 / 风险收益比</div>
+                    <div class="glossary-def">潜在收益相对潜在风险的倍数；门槛判定仅使用TP1相对现价，TP2为更远参考不参与判定。</div>
+                </div>
+                <div class="glossary-item">
+                    <div class="glossary-term">DTE</div>
+                    <div class="glossary-def">距到期天数（Days To Expiration）。</div>
+                </div>
+                <div class="glossary-item">
+                    <div class="glossary-term">聪明钱 / 背离</div>
+                    <div class="glossary-def">不同资金或价格与资金是否「讲同一个故事」；用于风险提示，不是单一买卖指令。</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>数据来源：量化模型自动生成 | 报告版本：v2026.04.08.00</p>
+        <p style="margin-top: 0.5rem; font-size: 0.75rem;">
+            ⚠️ 声明：本报告由AI自动生成，仅供参考，不构成投资建议。市场有风险，投资需谨慎。
+        </p>
+    </div>
+</div>
+
+<script>
+    function toggleSection(id) {
+        const section = document.getElementById(id);
+        section.classList.toggle('collapsed');
+    }
+
+    // Initialize - collapse all except core signals and digest
+    document.addEventListener('DOMContentLoaded', function() {
+        const sections = ['etf-detail', 'position', 'market-env', 'option', 'deep-analysis', 'backtest', 'cross-check', 'weekly-focus', 'ai-summary', 'glossary'];
+        sections.forEach(id => {
+            document.getElementById(id).classList.add('collapsed');
+        });
+    });
+
+    // Animate score bars on load
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            document.querySelectorAll('.score-fill').forEach(fill => {
+                const width = fill.style.width;
+                fill.style.width = '0';
+                setTimeout(() => {
+                    fill.style.width = width;
+                }, 100);
+            });
+        }, 500);
+    });
+</script>
+
+</body>
+</html>
