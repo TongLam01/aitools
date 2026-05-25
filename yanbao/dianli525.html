@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>美国数据中心建设现状概况</title>
+<style>
+  :root {
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #111827;
+    --bg-card: #1a1f2e;
+    --bg-elevated: #232838;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-blue: #3b82f6;
+    --accent-cyan: #06b6d4;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+    --accent-violet: #8b5cf6;
+    --border-color: #2d3748;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* Header */
+  .header {
+    padding: 32px 0 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(59,130,246,0.15);
+    color: var(--accent-blue);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(59,130,246,0.3);
+    letter-spacing: 0.5px;
+  }
+
+  .header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-summary {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 90%;
+    margin: 0 auto;
+  }
+
+  .header-summary .highlight {
+    color: var(--accent-amber);
+    font-weight: 600;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 20px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .section-header {
+    padding: 16px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  .section-header:active {
+    background: var(--bg-elevated);
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .section-toggle {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: transform 0.3s;
+    font-size: 18px;
+  }
+
+  .section.collapsed .section-toggle {
+    transform: rotate(-90deg);
+  }
+
+  .section-body {
+    padding: 20px;
+    display: block;
+  }
+
+  .section.collapsed .section-body {
+    display: none;
+  }
+
+  /* Data Cards Grid */
+  .data-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .data-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .data-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-color, var(--accent-blue));
+  }
+
+  .data-card .number {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 8px 0;
+    letter-spacing: -0.5px;
+  }
+
+  .data-card .unit {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .data-card .label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* Full width card */
+  .data-card.full-width {
+    grid-column: 1 / -1;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .data-card.full-width .number-wrap {
+    flex-shrink: 0;
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .data-card.full-width .label {
+    margin-top: 0;
+    font-size: 13px;
+  }
+
+  /* Progress Bar */
+  .progress-wrap {
+    margin: 16px 0;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: var(--text-secondary);
+  }
+
+  .progress-track {
+    height: 8px;
+    background: var(--bg-elevated);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent-color, var(--accent-blue)), var(--accent-cyan));
+    transition: width 1s ease-out;
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+  }
+
+  /* Pie Chart */
+  .pie-chart-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+  }
+
+  .pie-chart {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--accent-blue) 0deg 190.8deg,
+      var(--accent-emerald) 190.8deg 201.6deg,
+      var(--text-muted) 201.6deg 291.6deg,
+      rgba(100,116,139,0.2) 291.6deg 360deg
+    );
+    position: relative;
+    box-shadow: 0 0 20px rgba(59,130,246,0.15);
+  }
+
+  .pie-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 110px;
+    height: 110px;
+    background: var(--bg-card);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border-color);
+  }
+
+  .pie-center .value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  .pie-center .label {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .pie-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Bar Chart */
+  .bar-chart {
+    margin: 16px 0;
+  }
+
+  .bar-item {
+    margin-bottom: 12px;
+  }
+
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+  }
+
+  .bar-label .value {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .bar-track {
+    height: 24px;
+    background: var(--bg-elevated);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    transition: width 1s ease-out;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* List styling */
+  .detail-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .detail-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  .detail-list li:last-child {
+    border-bottom: none;
+  }
+
+  .detail-list .key {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .detail-list .tag {
+    display: inline-block;
+    padding: 2px 6px;
+    background: rgba(244,63,94,0.15);
+    color: var(--accent-rose);
+    font-size: 11px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: 600;
+  }
+
+  .detail-list .tag-warn {
+    background: rgba(245,158,11,0.15);
+    color: var(--accent-amber);
+  }
+
+  .detail-list .tag-info {
+    background: rgba(59,130,246,0.15);
+    color: var(--accent-blue);
+  }
+
+  /* Bottleneck Section */
+  .bottleneck-item {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--accent-color, var(--accent-rose));
+  }
+
+  .bottleneck-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bottleneck-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent-color, var(--accent-rose));
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .bottleneck-content {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .bottleneck-content .highlight {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 24px 0 40px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 8px;
+  }
+
+  /* Summary Box */
+  .summary-box {
+    background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1));
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }
+
+  .summary-box strong {
+    color: var(--accent-blue);
+  }
+
+  /* Responsive */
+  @media (max-width: 380px) {
+    .data-grid {
+      grid-template-columns: 1fr;
+    }
+    .header h1 {
+      font-size: 22px;
+    }
+    .pie-legend {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .section:nth-child(2) { animation-delay: 0.05s; }
+  .section:nth-child(3) { animation-delay: 0.1s; }
+  .section:nth-child(4) { animation-delay: 0.15s; }
+  .section:nth-child(5) { animation-delay: 0.2s; }
+  .section:nth-child(6) { animation-delay: 0.25s; }
+  .section:nth-child(7) { animation-delay: 0.3s; }
+  .section:nth-child(8) { animation-delay: 0.35s; }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-badge">截至2026年5月</div>
+    <h1>美国数据中心建设现状概况</h1>
+    <p class="header-summary">
+      美国数据中心建设正处于<span class="highlight">"野心极大、落地受阻"</span>的矛盾状态——规划容量庞大，但实际施工进度严重滞后。需求端真实且强劲，资本承诺规模前所未有；供给端受多重制约，实际落地进度严重滞后。
+    </p>
+  </div>
+
+  <!-- 一、现有存量与规模 -->
+  <div class="section" data-collapsible>
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-title">
+        <div class="section-icon" style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">📊</div>
+        一、现有存量与规模
+      </div>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="data-grid">
+        <div class="data-card" style="--accent-color: var(--accent-blue);">
+          <div class="unit">在运容量</div>
+          <div class="number">44<span style="font-size:16px; color:var(--text-muted);">GW</span></div>
+          <div class="label">截至2025年底</div>
+        </div>
+        <div class="data-card" style="--accent-color: var(--accent-cyan);">
+          <div class="unit">在建容量</div>
+          <div class="number">10<span style="font-size:16px; color:var(--text-muted);">GW</span></div>
+          <div class="label">约10GW</div>
+        </div>
+        <div class="data-card" style="--accent-color: var(--accent-violet);">
+          <div class="unit">规划容量</div>
+          <div class="number">70<span style="font-size:16px; color:var(--text-muted);">GW+</span></div>
+          <div class="label">规划容量超70GW</div>
+        </div>
+        <div class="data-card" style="--accent-color: var(--accent-emerald);">
+          <div class="unit">全球占比</div>
+          <div class="number">45<span style="font-size:16px; color:var(--text-muted);">%</span></div>
+          <div class="label">全球最大数据中心市场</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 二、2026年建设计划 -->
+  <div class="section" data-collapsible>
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-title">
+        <div class="section-icon" style="background: rgba(6,182,212,0.15); color: var(--accent-cyan);">🏗️</div>
+        二、2026年建设计划
+      </div>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="data-card full-width" style="--accent-color: var(--accent-cyan); margin-bottom: 16px;">
+        <div class="number-wrap">
+          <div class="number">140</div>
+          <div class="unit">个项目</div>
+        </div>
+        <div class="label">2026年全美计划投入运营的数据中心项目数量，合计规划容量约 <strong style="color:var(--text-primary);">16 GW</strong>（数据来源：Sightline Climate《2026年数据中心展望》）</div>
+      </div>
+
+      <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600;">供电方式分布</div>
+      <div class="pie-chart-wrap">
+        <div class="pie-chart">
+          <div class="pie-center">
+            <div class="value">16GW</div>
+            <div class="label">总规划</div>
+          </div>
+        </div>
+        <div class="pie-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--accent-blue);"></div>
+            <span>公共电网 53%</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--accent-emerald);"></div>
+            <span>自备电源 3%</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--text-muted);"></div>
+            <span>尚未披露 25%</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: rgba(100,116,139,0.2);"></div>
+            <span>其他 19%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 三、资本承诺 -->
+  <div class="section" data-collapsible>
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-title">
+        <div class="section-icon" style="background: rgba(16,185,129,0.15); color: var(--accent-emerald);">💰</div>
+        三、资本承诺：史无前例的规模
+      </div>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="data-grid">
+        <div class="data-card" style="--accent-color: var(--accent-emerald);">
+          <div class="unit">四大巨头投入</div>
+          <div class="number">6300<span style="font-size:14px;">亿美元</span></div>
+          <div class="label">微软/谷歌/Meta/亚马逊2026年预计</div>
+        </div>
+        <div class="data-card" style="--accent-color: var(--accent-violet);">
+          <div class="unit">八大云服务商</div>
+          <div class="number">7100<span style="font-size:14px;">亿美元</span></div>
+          <div class="label">TrendForce预计2026年总投入</div>
+        </div>
+        <div class="data-card" style="--accent-color: var(--accent-blue);">
+          <div class="unit">ARK Invest预测</div>
+          <div class="number">6530<span style="font-size:14px;">亿美元</span></div>
+          <div class="label">2026年全球数据中心系统投资</div>
+        </div>
+        <div class="data-card" style="--accent-color: var(--accent-amber);">
+          <div class="unit">年增速</div>
+          <div class="number">30<span style="font-size:16px;">%</span></div>
+          <div class="label">近三年增速（此前约5%）</div>
+        </div>
+      </div>
+
+      <div class="summary-box">
+        微软、谷歌、Meta、亚马逊四家2026年预计投入约 <strong>6300亿美元</strong>，是其2023年投入的四倍以上，约占美国GDP的 <strong>2.2%</strong>。甲骨文已融资逾 <strong>1000亿美元</strong>专项用于数据中心。TrendForce预计全球八大云服务商2026年总投入将达 <strong>7100亿美元</strong>，超过爱尔兰GDP。
+      </div>
+    </div>
+  </div>
+
+  <!-- 四、需求端 -->
+  <div class="section" data-collapsible>
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-title">
+        <div class="section-icon" style="background: rgba(139,92,246,0.15); color: var(--accent-violet);">📈</div>
+        四、需求端：真实且强劲
+      </div>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">上游芯片与存储数据印证了数据中心需求的真实性，并非虚火：</div>
+
+      <div class="bar-chart">
+        <div class="bar-item">
+          <div class="bar-label"><span>AMD 2026年Q1数据中心收入</span><span class="value">58亿美元 (+57%)</span></div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: 58%; background: linear-gradient(90deg, #ef4444, #f97316);">58亿</div>
+          </div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label"><span>美光科技2026财年Q2销售额</span><span class="value">近240亿美元 (+200%)</span></div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: 85%; background: linear-gradient(90deg, #3b82f6, #06b6d4);">~240亿</div>
+          </div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label"><span>英伟达已锁定GPU订单（至2027年）</span><span class="value">约1万亿美元</span></div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: 100%; background: linear-gradient(90deg, #10b981, #84cc16);">1万亿</div>
+          </div>
+        </div>
+      </div>
+
+      <ul class="detail-list">
+        <li><span class="key">AMD：</span>2026年Q1数据中心收入达 <strong>58亿美元</strong>，同比增长 <strong>57%</strong></li>
+        <li><span class="key">英伟达：</span>声称已锁定截至2027年约 <strong>1万亿美元</strong>的GPU订单</li>
+        <li><span class="key">美光科技：</span>2026财年Q2销售额近 <strong>240亿美元</strong>，同比增长约 <strong>200%</strong>，主要驱动力正是AI数据中心对HBM内存的需求激增</li>
+        <li><span class="key">市场结构：</span>数据中心内存已占整体内存市场 <strong>一半以上</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 五、落地端 -->
+  <div class="section" data-collapsible>
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-title">
+        <div class="section-icon" style="background: rgba(244,63,94,0.15); color: var(--accent-rose);">⚠️</div>
+        五、落地端：普遍滞后，瓶颈多元
+      </div>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="data-card full-width" style="--accent-color: var(--accent-rose); margin-bottom: 20px;">
+        <div class="number-wrap">
+          <div class="number" style="color: var(--accent-rose);">16%</div>
+          <div class="unit">实际开工率</div>
+        </div>
+        <div class="label">约 <strong>3万亿美元</strong> 的大型项目储备中，目前仅约16%实际开工，约 <strong>半数</strong> 规划项目面临延期或取消。资本承诺与实物落地之间存在巨大鸿沟。</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-header"><span>项目实际开工进度</span><span>16%</span></div>
+        <div class="bar-track">
+          <div class="progress-fill" style="width: 16%; --accent-color: var(--accent-rose);"></div>
+        </div>
+      </div>
+
+      <div class="progress-wrap" style="margin-bottom: 24px;">
+        <div class="progress-header"><span>规划项目面临延期/取消比例</span><span>~50%</span></div>
+        <div class="bar-track">
+          <div class="progress-fill" style="width: 50%; --accent-color: var(--accent-amber);"></div>
+        </div>
+      </div>
+
+      <div class="bottleneck-item" style="--accent-color: var(--accent-rose);">
+        <div class="bottleneck-title">
+          <div class="bottleneck-num">1</div>
+          电力基础设施：最核心硬约束
+        </div>
+        <div class="bottleneck-content">
+          美国能源部预测数据中心电力需求到<strong>2035年将达106 GW</strong>，较早期预测高出36%。变压器交货周期最长达<strong>五年</strong>，燃气轮机全球供应趋紧，PJM和ERCOT已预警电力短缺风险。弗吉尼亚州近期一次高压线路故障即导致约<strong>40个数据中心</strong>同时切换备用电源，预计到2030年数据中心将消耗该州<strong>57%</strong>的电力。
+          <br><br>
+          <span class="highlight">企业自救：</span>Meta建<strong>5.2 GW</strong>天然气电厂、甲骨文采购<strong>2.8 GW</strong>燃料电池、谷歌在明尼苏达州整合太阳能+储能。七大科技公司与特朗普政府签署承诺，为各自数据中心自行供电。
+        </div>
+      </div>
+
+      <div class="bottleneck-item" style="--accent-color: var(--accent-amber);">
+        <div class="bottleneck-title">
+          <div class="bottleneck-num">2</div>
+          供应链中断
+        </div>
+        <div class="bottleneck-content">
+          关键开关设备等高度依赖<strong>中国供应链</strong>，中美贸易摩擦导致供应中断，已引发GPU库存积压和潜在订单取消风险。
+        </div>
+      </div>
+
+      <div class="bottleneck-item" style="--accent-color: var(--accent-violet);">
+        <div class="bottleneck-title">
+          <div class="bottleneck-num">3</div>
+          行政与监管障碍
+        </div>
+        <div class="bottleneck-content">
+          <strong>2026年5月8日</strong>最新案例：Compass Datacenters宣布放弃弗吉尼亚州<strong>800英亩以上</strong>的数据中心园区，原因仅为土地分区文书错误及广告纠纷。这是一家由Brookfield Asset Management支持、资金充裕的大型开发商，凸显了行政问题对大型项目的实质性杀伤力。
+        </div>
+      </div>
+
+      <div class="bottleneck-item" style="--accent-color: var(--accent-blue);">
+        <div class="bottleneck-title">
+          <div class="bottleneck-num">4</div>
+          融资结构风险积聚
+        </div>
+        <div class="bottleneck-content">
+          市场大量依赖高收益（垃圾）债融资：英伟达相关项目寻求<strong>45.4亿美元</strong>垃圾债（收益率6.5%-7%），Core Scientific发行<strong>33亿美元</strong>垃圾债，甲骨文自由现金流已转负。
+          <br><br>
+          <span class="highlight">风险预警：</span>瑞士再保险警告，快速扩张已导致过度建设和产能过剩，部分地区利用率下降，资产搁浅风险正在上升。贝恩资本探索出售旗下Bridge Data Centres亦是佐证。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 六、结构性矛盾 -->
+  <div class="section" data-collapsible>
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-title">
+        <div class="section-icon" style="background: rgba(245,158,11,0.15); color: var(--accent-amber);">⚡</div>
+        六、结构性矛盾：算力迭代 vs. 建设周期
+      </div>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="summary-box" style="background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(244,63,94,0.1)); border-color: rgba(245,158,11,0.3);">
+        甲骨文的困境深刻揭示了一个<strong style="color:var(--accent-amber);">行业性悖论</strong>：AI芯片（以英伟达为代表）的技术迭代速度远超数据中心建设周期（12-18个月），OpenAI等主要AI公司倾向于选用配备最新芯片的新建数据中心，导致已建成设施可能迅速"过时"。
+      </div>
+      <ul class="detail-list">
+        <li>数据中心建设周期：<strong>12-18个月</strong></li>
+        <li>AI芯片技术迭代速度：<span class="tag tag-warn">远快于建设周期</span></li>
+        <li>OpenAI等主要AI公司倾向：选用配备<strong>最新芯片</strong>的新建数据中心</li>
+        <li>已建成设施风险：可能迅速"过时"，面临<strong>利用率不足</strong>乃至<strong>资产搁浅</strong>的风险</li>
+        <li>风险承担方：保险公司和投资者正承受日益复杂的风险敞口</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 七、能源转型 -->
+  <div class="section" data-collapsible>
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-title">
+        <div class="section-icon" style="background: rgba(16,185,129,0.15); color: var(--accent-emerald);">🔋</div>
+        七、能源转型：核电与替代能源加速
+      </div>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="data-grid">
+        <div class="data-card" style="--accent-color: var(--accent-emerald);">
+          <div class="unit">NuScale SMR部署</div>
+          <div class="number">6<span style="font-size:16px;">GW</span></div>
+          <div class="label">计划在美国七个州部署小型模块化反应堆</div>
+        </div>
+        <div class="data-card" style="--accent-color: var(--accent-cyan);">
+          <div class="unit">Nebius园区</div>
+          <div class="number">1.2<span style="font-size:16px;">GW</span></div>
+          <div class="label">密苏里州获批潜在容量</div>
+        </div>
+      </div>
+      <ul class="detail-list">
+        <li><span class="key">加州核能：</span>正在重新审视近<strong>50年</strong>的核能禁令</li>
+        <li><span class="key">NuScale Power：</span>计划在美国<strong>七个州</strong>部署高达 <strong>6 GW</strong>的小型模块化反应堆（SMR）</li>
+        <li><span class="key">Nebius：</span>在<strong>密苏里州</strong>获批建设 <strong>1.2 GW</strong>潜在容量的AI数据中心园区</li>
+        <li><span class="key">国家战略：</span>能源安全已从运营议题上升为国家战略议题</li>
+        <li><span class="key">白宫承诺：</span>"费率支付者保护承诺"明确要求科技公司<strong>独立承担</strong>数据中心能源成本，避免推高民用电价</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 总体判断 -->
+  <div class="section" data-collapsible>
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-title">
+        <div class="section-icon" style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">🎯</div>
+        总体判断
+      </div>
+      <div class="section-toggle">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="summary-box" style="background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15)); border-color: rgba(59,130,246,0.4);">
+        美国数据中心建设正处于<strong style="color:var(--text-primary);">"资本狂热、落地艰难"</strong>的历史性转折点。需求端真实且强劲，资本承诺规模前所未有；但供给端受电力基础设施、供应链、行政监管和融资风险多重制约，实际落地进度严重滞后。
+        <br><br>
+        <strong style="color:var(--accent-cyan);">核心变量：</strong>未来2-3年，能否突破电力瓶颈将是决定这场AI基础设施竞赛走向的核心变量。
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    
+    整理时间：2026年5月
+  </div>
+
+</div>
+
+<script>
+function toggleSection(header) {
+  const section = header.parentElement;
+  section.classList.toggle('collapsed');
+}
+
+// Animate progress bars on load
+window.addEventListener('load', () => {
+  document.querySelectorAll('.progress-fill, .bar-fill').forEach(el => {
+    const width = el.style.width;
+    el.style.width = '0';
+    setTimeout(() => {
+      el.style.width = width;
+    }, 300);
+  });
+});
+
+// Auto-collapse some sections on mobile for better initial view
+if (window.innerWidth < 480) {
+  document.querySelectorAll('.section[data-collapsible]').forEach((sec, idx) => {
+    if (idx > 2 && idx < 7) sec.classList.add('collapsed');
+  });
+}
+</script>
+
+</body>
+</html>
