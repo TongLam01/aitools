@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI 行业周报</title>
+<style>
+:root {
+    --c-bg: #f5f7fa; --c-card: #ffffff; --c-text: #1a1a2e;
+    --c-text2: #4a4a5a; --c-text3: #8a8a9a; --c-border: #e8ecf1;
+    --c-macro: #fff0f0; --c-macro-b: #e8d5d5;
+    --c-commerce: #f0fff4; --c-commerce-b: #d5e8d5;
+    --c-capital: #f0f5ff; --c-capital-b: #d5dce8;
+    --c-compute: #fffbe6; --c-compute-b: #e8e0d5;
+    --c-capacity: #f0fffe; --c-capacity-b: #d5e8e5;
+    --c-academic: #f8f0ff; --c-academic-b: #e0d5e8;
+    --c-regulatory: #f5f5f5; --c-regulatory-b: #d5d5d5;
+    --c-model: #f3f0ff; --c-model-b: #ddd5e8;
+    --c-frontier: #f0fffb; --c-frontier-b: #d5e8e0;
+    --c-bull: #10b981; --c-bull-bg: #ecfdf5;
+    --c-bear: #ef4444; --c-bear-bg: #fef2f2;
+    --c-warn: #f59e0b; --c-warn-bg: #fffbeb;
+    --c-neutral: #3b82f6; --c-neutral-bg: #eff6ff;
+    --c-caution: #8b5cf6; --c-caution-bg: #f5f3ff;
+    --c-chain1: #3b82f6; --c-chain2: #06b6d4; --c-chain3: #8b5cf6; --c-chain4: #ec4899;
+    --c-buy: #10b981; --c-caut-opt: #f59e0b; --c-caut: #f97316;
+    --c-nr: #6b7280; --c-avoid: #ef4444;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { scroll-behavior:smooth; }
+body {
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Segoe UI",Roboto,sans-serif;
+    font-size:17px; line-height:1.9; color:var(--c-text);
+    background:var(--c-bg); padding:0 15px; max-width:720px; margin:0 auto;
+}
+p { margin:12px 0; }
+.callout p, .direction-card p { margin:6px 0; }
+img { max-width:100%; display:block; }
+a { color:var(--c-neutral); text-decoration:none; }
+
+/* Header */
+.header {
+    margin:0 -15px 20px -15px;
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    padding:32px 15px 24px 15px; color:#fff;
+    border-radius:0 0 24px 24px; position:relative; overflow:hidden;
+}
+.header::before {
+    content:''; position:absolute; top:-50%; right:-30%;
+    width:300px; height:300px; border-radius:50%;
+    background:rgba(255,255,255,0.08); pointer-events:none;
+}
+.header-title { font-size:24px; font-weight:700; margin-bottom:8px; letter-spacing:-0.3px; }
+.header-meta { font-size:12px; opacity:0.85; margin-bottom:16px; }
+.header-stats { display:flex; gap:8px; justify-content:space-between; }
+.stat-card {
+    flex:1; background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border-radius:12px; padding:10px 8px; text-align:center;
+    border:1px solid rgba(255,255,255,0.1);
+}
+.stat-value { font-size:22px; font-weight:700; display:block; margin-bottom:2px; }
+.stat-label { font-size:10px; opacity:0.8; }
+.market-temp {
+    display:inline-flex; align-items:center; gap:4px;
+    background:rgba(255,255,255,0.2); border-radius:20px;
+    padding:3px 10px; font-size:11px; margin-top:10px;
+}
+.temp-dot { width:8px; height:8px; border-radius:50%; background:#fbbf24; display:inline-block; }
+
+/* Nav chips */
+.nav-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; padding:2px; }
+.nav-chip {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:5px 10px; border-radius:20px; font-size:12px; font-weight:500;
+    background:#fff; border:1px solid var(--c-border);
+    color:var(--c-text2); text-decoration:none; transition:all 0.15s;
+}
+.nav-chip:active { transform:scale(0.96); }
+.nav-chip .dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+
+/* Module */
+.module {
+    background:var(--c-card); border-radius:16px;
+    padding:16px; margin-bottom:18px;
+    border:1px solid var(--c-border);
+    box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.module-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; position:relative; }
+.module-num { font-size:48px; font-weight:800; opacity:0.12; line-height:1; position:absolute; left:-4px; top:-8px; pointer-events:none; }
+.module-title { font-size:18px; font-weight:700; z-index:1; padding-left:8px; border-left:3px solid var(--c-neutral); }
+
+.module-macro { background:var(--c-macro); border-color:var(--c-macro-b); }
+.module-commerce { background:var(--c-commerce); border-color:var(--c-commerce-b); }
+.module-capital { background:var(--c-capital); border-color:var(--c-capital-b); }
+.module-compute { background:var(--c-compute); border-color:var(--c-compute-b); }
+.module-capacity { background:var(--c-capacity); border-color:var(--c-capacity-b); }
+.module-academic { background:var(--c-academic); border-color:var(--c-academic-b); }
+.module-regulatory { background:var(--c-regulatory); border-color:var(--c-regulatory-b); }
+.module-model { background:var(--c-model); border-color:var(--c-model-b); }
+.module-frontier { background:var(--c-frontier); border-color:var(--c-frontier-b); }
+
+/* Data bar */
+.data-bar { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #f3f4f6; font-size:13px; }
+.data-bar:last-child { border-bottom:none; }
+.data-bar-label { color:var(--c-text2); }
+.data-bar-value { font-weight:600; }
+
+/* Key numbers */
+.key-numbers { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
+.kn-card { background:#fff; border-radius:12px; padding:10px; border:1px solid var(--c-border); text-align:center; }
+.kn-value { font-size:28px; font-weight:700; line-height:1.2; }
+.kn-value.green { color:var(--c-bull); }
+.kn-value.red { color:var(--c-bear); }
+.kn-value.blue { color:var(--c-neutral); }
+.kn-value.amber { color:var(--c-warn); }
+.kn-label { font-size:11px; color:var(--c-text3); margin-top:4px; }
+
+/* Callout */
+.callout { border-radius:10px; padding:12px 14px; margin:10px 0; font-size:14px; line-height:1.75; }
+.callout-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:block; }
+.callout-core { background:var(--c-warn-bg); border:2px solid #fde68a; font-size:14.5px; font-weight:500; }
+.callout-core .callout-label { font-size:13px; color:#92400e; }
+.callout-fact { background:var(--c-neutral-bg); border:1px solid #bfdbfe; }
+.callout-fact .callout-label { color:#1d4ed8; }
+.callout-strategy { background:var(--c-warn-bg); border:1px solid #fde68a; }
+.callout-strategy .callout-label { color:#92400e; }
+.callout-risk { background:var(--c-bear-bg); border:1px solid #fecaca; }
+.callout-risk .callout-label { color:#b91c1c; }
+.callout-signal { background:var(--c-caution-bg); border:1px solid #ddd6fe; }
+.callout-signal .callout-label { color:#6d28d9; }
+
+/* Highlight */
+.hl { background:#fef08a; padding:1px 3px; border-radius:2px; font-weight:600; }
+
+/* Chain */
+.chain-step { display:flex; align-items:flex-start; gap:12px; padding:10px 0; position:relative; }
+.chain-num { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:700; flex-shrink:0; margin-top:2px; }
+.chain-num.c1 { background:var(--c-chain1); }
+.chain-num.c2 { background:var(--c-chain2); }
+.chain-num.c3 { background:var(--c-chain3); }
+.chain-num.c4 { background:var(--c-chain4); }
+.chain-content { flex:1; }
+.chain-arrow { display:flex; justify-content:center; width:100%; padding:4px 0; }
+.chain-arrow svg { width:24px; height:24px; }
+
+/* Signal list */
+.signal-list { list-style:none; padding:0; }
+.signal-list li { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid #f3f4f6; }
+.signal-list li:last-child { border-bottom:none; }
+.signal-num {
+    width:28px; height:28px; border-radius:50%; background:var(--c-neutral);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; flex-shrink:0; margin-top:2px;
+}
+
+/* Tag chips */
+.tag-chip { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; margin-left:4px; }
+.tag-red { background:var(--c-bear-bg); color:#b91c1c; }
+.tag-amber { background:var(--c-warn-bg); color:#92400e; }
+.tag-green { background:var(--c-bull-bg); color:#047857; }
+.tag-blue { background:var(--c-neutral-bg); color:#1d4ed8; }
+
+/* Direction card */
+.direction-card {
+    background:#fff; border-radius:12px; border:1px solid var(--c-border);
+    padding:12px; margin-bottom:8px; position:relative; overflow:hidden;
+}
+.direction-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; }
+.direction-card.buy::before { background:var(--c-buy); }
+.direction-card.cautious-opt::before { background:var(--c-warn); }
+.direction-card.cautious::before { background:var(--c-warn); }
+.direction-card.neutral::before { background:var(--c-nr); }
+.direction-card.avoid::before { background:var(--c-bear); }
+.dc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.dc-name { font-weight:700; font-size:14px; }
+.dc-pill { display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+.pill-buy { background:var(--c-bull-bg); color:#047857; }
+.pill-cautious-opt { background:var(--c-warn-bg); color:#92400e; }
+.pill-cautious { background:#fff7ed; color:#c2410c; }
+.pill-neutral { background:#f3f4f6; color:#4b5563; }
+.pill-avoid { background:var(--c-bear-bg); color:#b91c1c; }
+.dc-signal { font-size:12px; color:var(--c-text3); margin-bottom:6px; }
+.dc-logic { font-size:13px; line-height:1.65; color:var(--c-text2); }
+.dc-ticker { font-size:11px; color:var(--c-text3); margin-top:6px; padding-top:6px; border-top:1px dashed var(--c-border); }
+
+/* Verify node */
+.verify-node {
+    background:var(--c-neutral-bg); border:1px solid #bfdbfe; border-radius:8px;
+    padding:8px 12px; margin:8px 0; font-size:12px; color:#1d4ed8;
+    display:flex; align-items:flex-start; gap:6px;
+}
+.verify-node::before { content:'🔍'; flex-shrink:0; }
+
+/* Scenario cards */
+.scenario-card { border-radius:12px; padding:14px; margin:10px 0; border:1px solid; }
+.scenario-card.mild { background:#f0fdf4; border-color:#bbf7d0; }
+.scenario-card.base { background:#eff6ff; border-color:#bfdbfe; }
+.scenario-card.severe { background:#fef2f2; border-color:#fecaca; }
+.scenario-title { font-weight:700; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+.scenario-label { font-size:11px; font-weight:600; padding:2px 8px; border-radius:8px; }
+
+/* Analogy */
+.analogy {
+    background:#faf5ff; border:1px solid #e9d5ff; border-radius:12px;
+    padding:12px 14px; margin:10px 0; font-size:13px; color:#6b21a8;
+}
+
+/* Section divider */
+.section-divider {
+    text-align:center; margin:28px 0 18px;
+    font-size:20px; font-weight:700; color:var(--c-text);
+    display:flex; align-items:center; gap:12px;
+}
+.section-divider::before, .section-divider::after {
+    content:''; flex:1; height:1px; background:var(--c-border);
+}
+
+/* Sector details */
+.sector-details { margin:0 0 12px 0; }
+.sector-details summary {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px; background:#fff; border-radius:12px;
+    border:1px solid var(--c-border); cursor:pointer;
+    font-size:16px; font-weight:600; list-style:none;
+    position:relative;
+}
+.sector-details summary::-webkit-details-marker { display:none; }
+.sector-details summary::after { content:'▸'; font-size:12px; transition:transform 0.2s; }
+.sector-details[open] summary::after { content:'▾'; }
+.sector-num-bg { font-size:32px; font-weight:800; opacity:0.1; position:absolute; right:40px; }
+.sector-body { padding:16px 0 0; }
+
+.s-macro summary { background:var(--c-macro); border-color:var(--c-macro-b); }
+.s-macro .sector-body { background:var(--c-macro); padding:16px; margin:0 -1px -1px; border:1px solid var(--c-macro-b); border-top:none; border-radius:0 0 12px 12px; }
+.s-commerce summary { background:var(--c-commerce); border-color:var(--c-commerce-b); }
+.s-commerce .sector-body { background:var(--c-commerce); padding:16px; margin:0 -1px -1px; border:1px solid var(--c-commerce-b); border-top:none; border-radius:0 0 12px 12px; }
+.s-capital summary { background:var(--c-capital); border-color:var(--c-capital-b); }
+.s-capital .sector-body { background:var(--c-capital); padding:16px; margin:0 -1px -1px; border:1px solid var(--c-capital-b); border-top:none; border-radius:0 0 12px 12px; }
+.s-compute summary { background:var(--c-compute); border-color:var(--c-compute-b); }
+.s-compute .sector-body { background:var(--c-compute); padding:16px; margin:0 -1px -1px; border:1px solid var(--c-compute-b); border-top:none; border-radius:0 0 12px 12px; }
+.s-capacity summary { background:var(--c-capacity); border-color:var(--c-capacity-b); }
+.s-capacity .sector-body { background:var(--c-capacity); padding:16px; margin:0 -1px -1px; border:1px solid var(--c-capacity-b); border-top:none; border-radius:0 0 12px 12px; }
+.s-academic summary { background:var(--c-academic); border-color:var(--c-academic-b); }
+.s-academic .sector-body { background:var(--c-academic); padding:16px; margin:0 -1px -1px; border:1px solid var(--c-academic-b); border-top:none; border-radius:0 0 12px 12px; }
+.s-regulatory summary { background:var(--c-regulatory); border-color:var(--c-regulatory-b); }
+.s-regulatory .sector-body { background:var(--c-regulatory); padding:16px; margin:0 -1px -1px; border:1px solid var(--c-regulatory-b); border-top:none; border-radius:0 0 12px 12px; }
+.s-model summary { background:var(--c-model); border-color:var(--c-model-b); }
+.s-model .sector-body { background:var(--c-model); padding:16px; margin:0 -1px -1px; border:1px solid var(--c-model-b); border-top:none; border-radius:0 0 12px 12px; }
+.s-frontier summary { background:var(--c-frontier); border-color:var(--c-frontier-b); }
+.s-frontier .sector-body { background:var(--c-frontier); padding:16px; margin:0 -1px -1px; border:1px solid var(--c-frontier-b); border-top:none; border-radius:0 0 12px 12px; }
+
+/* Glossary cards */
+.glossary-grid { display:flex; flex-direction:column; gap:6px; }
+.gloss-card { background:#fff; border-radius:10px; padding:10px 14px; border:1px solid var(--c-border); }
+.gloss-term { font-weight:700; font-size:13px; color:var(--c-text); }
+.gloss-def { font-size:13px; color:var(--c-text2); margin-top:2px; }
+
+/* Sub-section titles in summary */
+.sub-title { font-weight:700; font-size:14px; margin:14px 0 8px; }
+.footer-notes { padding:20px 0 40px; border-top:1px solid var(--c-border); }
+.footer-notes details { margin:8px 0; }
+.footer-notes details summary {
+    font-size:13px; color:var(--c-text2); padding:8px 0;
+    background:transparent; border:none; cursor:pointer; list-style:none;
+}
+.footer-notes details summary::-webkit-details-marker { display:none; }
+.footer-notes details summary::before { content:'▸ '; }
+.footer-notes details[open] summary::before { content:'▾ '; }
+
+/* IO arrow toggle */
+.io-arrow { margin-left:auto; font-size:12px; transition:transform 0.2s; }
+details[open] > summary .io-arrow { display:none; }
+details[open] > summary::after { content:'▾'; margin-left:auto; font-size:12px; }
+
+/* Visual chains for sector analysis */
+.vc-chain { margin:12px 0; background:#f8fafc; border-radius:10px; overflow:hidden; border:1px solid var(--c-border); }
+.vc-chain-title { font-weight:700; font-size:13px; padding:8px 12px; border-left:3px solid; background:#fff; }
+.vc-step { display:flex; align-items:flex-start; gap:8px; padding:8px 12px; }
+.vc-tag { flex-shrink:0; padding:1px 8px; border-radius:8px; font-size:11px; font-weight:600; color:#fff; min-width:44px; text-align:center; }
+.vc-tag.risk { background:#ef4444; }
+.vc-tag.opp { background:#10b981; }
+.vc-tag.warn { background:#f59e0b; }
+.vc-tag.info { background:#3b82f6; }
+.vc-tag.neutral { background:#6b7280; }
+.vc-desc { font-size:13px; line-height:1.55; color:var(--c-text2); flex:1; }
+.vc-desc strong { color:var(--c-text); }
+.vc-connector { text-align:center; padding:0; margin:-2px 0; color:#94a3b8; font-size:14px; line-height:1; }
+</style>
+</head>
+<body>
+<header class="header">
+    <div class="header-title">AI 行业周报</div>
+    <div class="header-meta">2026年5月31日 10:40 · 数据截至：2026/5/31 10:38:23 (北京时间)</div>
+    <div class="header-stats"><div class="stat-card"><span class="stat-value">$91.12</span><span class="stat-label">布伦特原油/桶</span></div><div class="stat-card"><span class="stat-value">15.32</span><span class="stat-label">VIX 恐慌指数</span></div><div class="stat-card"><span class="stat-value">816亿$</span><span class="stat-label">英伟达 FY27Q1 营收</span></div><div class="stat-card"><span class="stat-value">+74.9%</span><span class="stat-label">美光营收环比</span></div></div>
+    <div class="market-temp"><span class="temp-dot"></span><span>分化验证期 — 算力基建高景气 vs 应用层残酷分筛</span></div>
+</header>
+<nav class="nav-chips"><a href="#overview" class="nav-chip"><span class="dot" style="background:#ef4444"></span>摘要</a><a href="#macro" class="nav-chip"><span class="dot" style="background:#f59e0b"></span>宏观</a><a href="#compute" class="nav-chip"><span class="dot" style="background:#eab308"></span>算力</a><a href="#capacity" class="nav-chip"><span class="dot" style="background:#06b6d4"></span>产能</a><a href="#commerce" class="nav-chip"><span class="dot" style="background:#22c55e"></span>商业化</a><a href="#capital" class="nav-chip"><span class="dot" style="background:#3b82f6"></span>资本</a><a href="#frontier" class="nav-chip"><span class="dot" style="background:#8b5cf6"></span>前沿</a></nav>
+<section id="overview"><div class="module module-macro">
+<details><summary style="font-weight:700;font-size:14px;padding:10px 0;cursor:pointer;list-style:none;display:flex;align-items:center;">📊 与上期对比<span class="io-arrow">▸</span></summary>
+<p><strong>持续看好（连续2期）：</strong>国防AI与自主系统、光通信与网络设备、企业流程自动化/AI工作流、晶圆代工与先进封装 — 逻辑未被否定，本周国防AI获戴尔97亿合同新催化剂。<br><strong>持续谨慎乐观（连续2期）：</strong>AI应用层 — Salesforce指引miss是上期「商业化验证」逻辑的首个强证伪信号，分化加剧。<br><strong>🆕 新增看好：</strong>企业级AI助手/Copilot产品（Snowflake指引上调、NRR升至126%验证变现闭环）、HBM与高端存储（瑞银将美光目标价上调至华尔街最高1625美元，营收环比+74.9%）。<br><strong>⬆️ 评级上调：</strong>AI基建估值与资本退出从「谨慎乐观」升为「看好」（Cognition AI估值翻倍至260亿美元，一级市场AI编程赛道估值体系稳固）。<br><strong>⬆️ 评级上调：</strong>数据中心电力基建从「回避」升为「中性观望」（电力基建板块内部出现结构性分化：地缘能源尾部风险上升，但微反应堆等长期期权获五角大楼推力与Equinix预购背书）。<br><strong>📡 上期微弱信号追踪：</strong>「数据中心散热赛道无差别抛售或掩盖液冷需求刚性」→ 本周Vertiv(VRT)周跌2.4%仍处弱势，信号未获验证；「SpaceX进入AI算力市场」→ 本周无增量信息，维持低确定性观察；「Figure 03人形机器人」→ 本周无新增验证数据。</p>
+</details>
+</div>
+<div class="module">
+            <div class="module-header"><span class="module-num">02</span><div class="module-title">本周研判</div></div>
+            <div class="callout callout-strategy"><span class="callout-label">核心判断</span><p><strong>🎯 本周研判：AI产业正从「大规模建基础设施」阶段切换至「验证谁真正赚钱」的分化期。</strong>上游（芯片、封装、光通信、HBM）的景气度由订单和CapEx硬数据支撑，但下游应用层已出现Salesforce指引miss这样的强证伪信号——资本对AI的耐心正在缩短，不再愿意为「迟早会赚钱」的故事买单，而是要求即期的收入证明。未来1-3个月最关键的变化窗口是：云厂商（微软、谷歌、亚马逊）财报中AI工作负荷收入的环比增速，以及更多企业软件公司（如ServiceNow、Workday）的AI收入占比披露。这将决定「应用层杀估值」是局部现象还是系统性压力。</p></div>
+        </div>
+<div class="key-numbers"><div class="kn-card"><div class="kn-value blue">816亿$</div><div class="kn-label">英伟达 FY27Q1 营收</div></div><div class="kn-card"><div class="kn-value amber">$91.12</div><div class="kn-label">布伦特原油/桶</div></div><div class="kn-card"><div class="kn-value green">+54.4%</div><div class="kn-label">Snowflake 周涨幅</div></div><div class="kn-card"><div class="kn-value blue">15.32</div><div class="kn-label">VIX 恐慌指数（年内低位）</div></div><div class="kn-card"><div class="kn-value green">+74.9%</div><div class="kn-label">美光营收环比增幅</div></div><div class="kn-card"><div class="kn-value green">+66.7%</div><div class="kn-label">戴尔周涨幅</div></div></div>
+<div class="module module-macro">
+            <div class="module-header"><span class="module-num">03</span><div class="module-title" style="border-color:#ef4444">产业全景</div></div>
+            <p>AI产业正从「大规模建基础设施」切换至「验证谁真正赚钱」的分化期。上游芯片/封装/光通信/HBM由订单和CapEx硬数据支撑，下游应用层却出现Salesforce指引miss——资本不再为「迟早会赚钱」买单，要求即期收入证明。</p><p>两组数据佐证：英伟达FY27Q1营收816亿（环比+19.8%）+戴尔AI服务器+31.3%证明基建加速；Salesforce RPO低于预期10亿+企业AI采用率仅20%暴露变现斜率不及预期。市场从「买赛道」转为「选选手」：Snowflake周涨54.4%是奖赏，传统SaaS被用脚投票。</p><div class="callout callout-risk"><span class="callout-label">风险警示</span><p>霍尔木兹航运近乎停滞推高能源成本尾部风险。布伦特$91低于均线$101，市场定价不充分——持有电力敏感仓位需承受被低估的尾部敞口。地缘风险同时制造破坏与机会——关键不是逃离，而是精确切换。</p></div><div class="callout callout-signal"><span class="callout-label">微弱信号</span><p>Snowflake NRR升至126%是B2C渗透率线索——终端用户付费意愿加速。NRR攀升反映组织中更多个人用户日常依赖，这是C端心智渗透的先行指标。</p></div>
+        </div>
+<div id="top3" class="module module-commerce">
+            <div class="module-header"><span class="module-num">04</span><div class="module-title" style="border-color:#10b981">本周 TOP 3 信号</div></div>
+            <ul class="signal-list"><li><span class="signal-num">1</span><div><strong>AI应用层从「概念验证」进入「残酷分筛」— Salesforce指引miss是强证伪信号</strong><span class="tag-chip tag-red">信号强度：强</span><br>Salesforce RPO低于预期10亿美元，首个Tier1数据动摇「AI增厚传统SaaS收入」信仰。同时Snowflake指引上调至58.4亿（+31%），NRR攀至126%——深度嵌入数据工作流的AI兑现真实增长。结论：AI应用层不再是整体赛道，须区分「AI续命」与「AI造新池」。</div></li><li><span class="signal-num">2</span><div><strong>供应链瓶颈从「单点紧张」扩散为「多点围堵」— MLCC成新瓶颈</strong><span class="tag-chip tag-red">信号强度：强</span><br>纬颖科技（英伟达服务器商）警示短缺从HBM/CoWoS扩散至网络设备与零部件。太阳诱电CEO称MLCC需求「可怕」——寡头格局下任何单点中断可致整机交付延迟。中期交付时间与成本上修，但瓶颈扩散加深了HBM和先进封装的价值护城河。</div></li><li><span class="signal-num">3</span><div><strong>国防AI获得逆周期确定性 — 戴尔拿下97亿美元国防IT合同</strong><span class="tag-chip tag-red">信号强度：强</span><br>美国防部授予戴尔五年97亿美元软件整合合同（年省4.22亿）。在商业AI支出或因能源成本放缓背景下，这是市场尚未充分定价的结构性顺风。逻辑链：美伊冲突→国防IT优先级↑→国防AI营收确定性↑→对冲商业应用层估值压力。</div></li></ul>
+        </div>
+<div id="chains" class="module module-compute">
+            <details><summary style="font-weight:700;font-size:18px;padding:10px 0;cursor:pointer;list-style:none;display:flex;align-items:center;">🔗 产业链传导与前瞻<span class="io-arrow">▸</span></summary>
+            <p style="font-weight:700;font-size:15px;margin:16px 0 8px;color:#3b82f6;border-left:3px solid #3b82f6;padding-left:10px;">链条一：霍尔木兹断航 → AI应用层「软刹车」</p><div class="callout callout-strategy" style="padding:0;background:transparent;border:none;"><div class="vc-chain"><div class="vc-chain-title" style="border-color:#3b82f6">霍尔木兹断航 → 数据中心电力成本 → 云厂利润率</div><div class="vc-step"><span class="vc-tag risk">触发</span><span class="vc-desc">海峡<strong>无商业船只通行</strong>（全球21%石油运输），布伦特$91虽低于均线$101但断供风险未充分定价</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag risk">传导</span><span class="vc-desc">现货电价在数据中心枢纽脉冲式上涨→<strong>AWS毛利率51.8%</strong>对能源成本敏感度高于微软67.6%</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag warn">二阶</span><span class="vc-desc">云厂缩减折扣/提升费率→AI创业公司推理成本<strong>被动上升</strong>→应用层定价权受压</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag risk">三阶</span><span class="vc-desc">能源成本↑+软件企业2026-27债务到期→中小SaaS<strong>双重挤压</strong>，仅CI GAM识别此市场定价盲点</span></div></div><p style="margin-top:10px"><strong>方向含义：</strong>短期（1-3月）若布伦特升破$105→电力基建和服务器整机承压；中期（3-12月）→国防AI和液冷散热获结构性顺风。</p></div><p style="font-weight:700;font-size:15px;margin:16px 0 8px;color:#06b6d4;border-left:3px solid #06b6d4;padding-left:10px;">链条二：SaaS打包AI被证伪 → 数据原生平台崛起</p><div class="callout callout-strategy" style="padding:0;background:transparent;border:none;"><div class="vc-chain"><div class="vc-chain-title" style="border-color:#06b6d4">SaaS打包AI → 数据原生平台（价值链重心迁移）</div><div class="vc-step"><span class="vc-tag risk">证伪</span><span class="vc-desc">Salesforce RPO<strong>低于预期10亿美元</strong>，「AI叠加传统SaaS」信仰首次遭Tier 1数据动摇</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag opp">验证</span><span class="vc-desc">Snowflake NRR<strong>126%</strong>、指引上调至58.4亿（+31%）——客户愿为业务结果买单</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag warn">分化</span><span class="vc-desc">AI Agent跨平台执行→封闭SaaS套件必要性下降→传统「集成商」定价权被稀释</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag opp">迁移</span><span class="vc-desc">IT预算从「人头」→「软件Agent」，工具链TAM从软件预算扩展至<strong>人力预算</strong>，空间数量级释放</span></div></div><p style="margin-top:10px"><strong>方向含义：</strong>关注数据原生平台（Snowflake、Palantir）和AI工作流自动化工具，回避传统SaaS套件过度依赖敞口。</p></div><p style="font-weight:700;font-size:15px;margin:16px 0 8px;color:#8b5cf6;border-left:3px solid #8b5cf6;padding-left:10px;">链条三：霍尔木兹冲突三情景分析</p><div class="callout callout-strategy" style="padding:0;background:transparent;border:none;"><div class="vc-chain"><div class="vc-chain-title" style="border-color:#10b981">🟢 缓和情景（次可能）</div><div class="vc-step"><span class="vc-tag opp">停火</span><span class="vc-desc">外交渠道临时停火→海峡<strong>1-2周恢复通航</strong>→油价$85-90→中东AI项目重启</span></div><div class="vc-step"><span class="vc-tag warn">抵消</span><span class="vc-desc">国防AI逆周期逻辑减弱，戴尔(DELL)短期涨幅或被重新定价</span></div></div><div class="vc-chain"><div class="vc-chain-title" style="border-color:#f59e0b">🟡 基准情景（最可能）</div><div class="vc-step"><span class="vc-tag warn">僵持</span><span class="vc-desc">摩擦持续但不封锁海峡→油价<strong>$90-100震荡</strong>→中东投资暂停成常态</span></div><div class="vc-step"><span class="vc-tag opp">回流</span><span class="vc-desc">增量需求<strong>回流北美</strong>，利好本土算力基建；云厂电力成本温和上升但不致命</span></div></div><div class="vc-chain"><div class="vc-chain-title" style="border-color:#ef4444">🔴 恶化情景（尾部风险）</div><div class="vc-step"><span class="vc-tag risk">冲击</span><span class="vc-desc">冲突扩至伊朗油田/网络战→海峡<strong>封锁>4周</strong>→布伦特>$120</span></div><div class="vc-step"><span class="vc-tag risk">一层</span><span class="vc-desc">韩台日本币贬值→晶圆厂/封装厂/存储厂<strong>运营成本飙升</strong></span></div><div class="vc-step"><span class="vc-tag risk">二层</span><span class="vc-desc">MLCC寡头产能中断→AI服务器交付<strong>延迟数周→数月</strong>→英伟达营收预期承压</span></div><div class="vc-step"><span class="vc-tag risk">三层</span><span class="vc-desc">债务到期+部署延期→中小AI<strong>生存危机</strong>→投资从结构性叙事变周期性收缩</span></div></div><p style="margin-top:10px"><strong>方向含义：</strong>恶化兑现时数据中心电力基建→谨慎，AI服务器→回避，AI应用层→中性观望；最韧性方向为国防AI、HBM、晶圆代工。</p></div>
+            </details>
+        </div>
+<div id="directions" class="module module-capital">
+            <div class="module-header"><span class="module-num">06</span><div class="module-title" style="border-color:#3b82f6">投资方向总览</div></div>
+            <div class="callout callout-fact"><span class="callout-label">产业周期判断</span>AI产业处于「商业化验证期的中期」——算力基建的订单与CapEx确认景气，但下游应用层的收入变现正在经历残酷分筛。这意味着不该再买「AI概念股」，而应聚焦「AI营收股」。</div>
+            <details><summary style="font-weight:700;font-size:14px;margin:8px 0 6px;cursor:pointer;list-style:none;display:flex;align-items:center;">🟢 推荐看好方向（3条）<span class="io-arrow">▸</span></summary><div class="direction-card buy">
+<div class="dc-header"><span class="dc-name">国防AI与自主系统</span><span class="dc-pill pill-buy">看好</span></div>
+<div class="dc-signal">信号强度：●●●●</div>
+<div class="dc-logic">戴尔97亿美元合同确认逆周期营收确定性，中东冲突加速国防IT预算释放。</div>
+<div class="dc-ticker">参考：戴尔(DELL)</div>
+</div>
+<div class="direction-card buy">
+<div class="dc-header"><span class="dc-name">HBM与高端存储</span><span class="dc-pill pill-buy">看好</span></div>
+<div class="dc-signal">信号强度：●●●●</div>
+<div class="dc-logic">瑞银将美光目标价上调至华尔街最高1625美元，营收环比+74.9%验证量价齐升。</div>
+<div class="dc-ticker">参考：美光(MU)</div>
+</div>
+<div class="direction-card buy">
+<div class="dc-header"><span class="dc-name">企业级AI助手/Copilot产品</span><span class="dc-pill pill-buy">看好</span></div>
+<div class="dc-signal">信号强度：●●●●</div>
+<div class="dc-logic">Snowflake指引上调与NRR升至126%证明数据平台嵌入AI已跑通收入闭环，是应用层优等生。</div>
+<div class="dc-ticker">参考：Snowflake(SNOW)</div>
+</div></details><details><summary style="font-weight:700;font-size:14px;margin:14px 0 8px;cursor:pointer;list-style:none;display:flex;align-items:center;">🔴 特别需要谨慎/回避的方向（2条）<span class="io-arrow">▸</span></summary><div class="direction-card cautious">
+<div class="dc-header"><span class="dc-name">AI服务器/硬件整机</span><span class="dc-pill pill-cautious">谨慎</span></div>
+<div class="dc-signal">信号强度：●●</div>
+<div class="dc-logic">纬颖与太阳诱电预警证实供应链风险从HBM扩散至MLCC等被动元件，交付延迟与成本上升可能挤压整机厂短期利润率。待纬颖下次季报给出具体延迟数据后可重新评估。</div>
+</div>
+<div class="direction-card avoid">
+<div class="dc-header"><span class="dc-name">AI模型公司一级市场</span><span class="dc-pill pill-avoid">回避</span></div>
+<div class="dc-signal">信号强度：●</div>
+<div class="dc-logic">Anthropic估值约9650亿美元已隐含极高增长预期，二级市场缺乏直接参与工具，且盈利路径未经验证，一旦收入增速下滑估值回撤幅度将相当显著。</div>
+</div></details><div class="sub-title" style="color:#b91c1c">🔀 本周关键矛盾</div><div class="callout callout-strategy"><span class="callout-label">核心分歧</span><strong>🔀 本周关键矛盾：「算力基建高景气 vs 应用层收入变现慢」</strong>——我们站在算力基建侧。英伟达816亿美元季度营收证明AI基础设施的真实需求来自云厂的战略储备需求（而非仅是终端应用的线性拉动），但Salesforce的指引miss警告市场不要在尚未验证收入的环节给出基建侧的估值。分辨率需要持续追踪云厂季度财报中AI工作负荷收入的环比增速。</div><div class="sub-title" style="color:#6d28d9">⚡ 微弱但重要的早期信号</div><div class="callout callout-signal"><span class="callout-label">早期信号</span><strong>1. GPU算力期货市场雏形（Tier 2报道）：</strong>若主要交易所推出GPU期货合约，算力将加速商品化，削弱云厂商的定价霸权，长期有利于中小AI公司，但短期缺乏具体产品细节。<br><strong>2. 「降本增AI」新范式萌芽：</strong>由Snowflake的AI功能成本优化和SentinelOne裁员转向AI投资共同指向，AI基础设施层或正形成通过Token限制+小型模型+运营裁员三项组合修复利润率的新路径。若未来2个季度被更多公司验证，将显著改善AI应用层投资逻辑。</div><div class="sub-title" style="color:#1d4ed8">⏰ 未来2-4周关注窗口</div><div class="callout callout-fact"><span class="callout-label">关注节点</span><strong>2-4周内：</strong>霍尔木兹海峡是否有大型油轮恢复通行——若恢复则能源尾部风险缓解，利好数据中心电力基建方向；若仍无通行，需上调能源成本冲击的概率。<br><strong>未来1-3个月内：</strong>ServiceNow和Workday季度财报——若其AI收入占比同样不及预期，则AI应用层由「谨慎乐观」降为「中性观望」。<br><strong>英伟达下季度财报（7月窗口）：</strong>毛利率若跌破70%则触发估值下修。</div>
+        </div>
+<div class="module module-academic">
+            <div class="module-header"><span class="module-num">07</span><div class="module-title" style="border-color:#8b5cf6">冷门机会</div></div>
+            <div class="direction-card buy"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>国防AI二级供应商：战场边缘计算与自主系统</strong></div><div class="dc-logic">戴尔97亿美元合同是国防IT现代化大趋势信号。提供嵌入式AI推理芯片、战场级边缘服务器、国防专用数据链加密的公司，可能获合同外溢长期订单——这些公司不在AI主线叙事中，但同样受益逆周期逻辑。可跟踪：<strong>Arista(ANET)</strong>——高速网络技术广泛应用于国防云基础架构，周涨7.3%+营收环比+8.9%，已有多层AI/国防双重敞口。</div></div><div class="direction-card buy"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>软件许可管理平台：AI Agent部署引爆合规需求</strong></div><div class="dc-logic">戴尔国防部微软许可整合合同暗含被低估趋势：AI Agent部署增多→软件许可管理复杂度指数级上升→每一AI代理调用、跨应用API交互都可能触发新合规义务。软件资产管理工具需求面临结构性升级。可关注<strong>ServiceNow（NOW）</strong>——其IT资产管理模块已含SAM组件，留意后续财报是否将许可管理作为AI增长点量化。</div></div>
+        </div></section>
+<div id="sectors" class="section-divider"><span>细分板块分析</span></div>
+<details class="sector-details s-macro">
+  <summary>1. 宏观环境与政策风向：地缘能源风险加剧，国防IT投资提供结构性对冲<span class="sector-num-bg">01</span></summary>
+  <div class="sector-body"><div class="callout callout-core callout-core"><span class="callout-label">核心判断</span><p>本周外部环境逆风加剧但局部对冲。主导变量：美伊霍尔木兹军事摩擦升级，航运近乎停滞，直接推高能源成本不确定性。布伦特现价$91.12虽低于50日均线$101.34，风险不在当前水位而在潜在断供对电价的脉冲冲击。</p><p>对冲面：戴尔获97亿美元国防IT合同，为国防AI提供逆周期确定性。VIX报15.32（年内低位），市场对地缘尾部风险定价不足——这种背离本身构成风险。</p></div><div class="key-numbers"><div class="kn-card"><div class="kn-value amber">$91.12</div><div class="kn-label">布伦特原油现价</div></div><div class="kn-card"><div class="kn-value blue">$101.34</div><div class="kn-label">50日均线</div></div><div class="kn-card"><div class="kn-value blue">15.32</div><div class="kn-label">VIX（年内低位）</div></div><div class="kn-card"><div class="kn-value green">97亿$</div><div class="kn-label">戴尔国防合同额</div></div></div><p style="font-weight:700;margin:14px 0 6px">关键事件与数据</p><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 美国一周内两次空袭伊朗军事目标，霍尔木兹海峡航运近乎停滞</strong>（Tier 1 — Bloomberg/CNBC）</p><p>核心数据：5月28日美国第二次空袭；无商业船只通过海峡；两艘国际超大型油轮撤离；雪佛龙CEO确认多艘船只本周遭袭。趋势含义：全球最重要能源咽喉的运输间歇性中断已从「风险」演变为「现实」，能源成本尾部风险显著上移，直接威胁AI数据中心电力成本。</p></div><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 戴尔赢得美国防部97亿美元软件许可整合合同</strong>（Tier 1）</p><p>核心数据：五年期合同，集中管理微软软件许可，年节省4.22亿美元，覆盖机密与非机密系统。趋势含义：国防IT现代化与效率整合的长期趋势获得大额订单确认，为国防AI与自主系统方向提供坚实营收支撑。</p></div><p style="font-weight:700;margin:14px 0 6px">产业链传导</p><div class="vc-chain"><div class="vc-chain-title" style="border-color:#3b82f6">链条一：霍尔木兹断航 → 电力成本 → 云厂利润率</div><div class="vc-step"><span class="vc-tag risk">触发</span><span class="vc-desc">美伊冲突升级，霍尔木兹海峡<strong>无商业船只通行</strong>，全球21%石油运输受阻</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag risk">传导</span><span class="vc-desc">若布伦特<strong>升破$105</strong>，北弗吉尼亚/伦敦等枢纽现货电价脉冲式上涨</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag warn">承压</span><span class="vc-desc">AWS毛利率<strong>51.8%</strong>对能源敏感度高于微软<strong>67.6%</strong>，云厂利润率承压</span></div></div><div class="vc-chain"><div class="vc-chain-title" style="border-color:#06b6d4">链条二：中东地缘不稳定 → 全球算力扩张受阻</div><div class="vc-step"><span class="vc-tag risk">事件</span><span class="vc-desc">AWS中东数据中心遇袭，Pure Data Center Group等<strong>暂停投资决策</strong></span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag warn">影响</span><span class="vc-desc">海湾国家AI数据中心宏大计划面临<strong>安全成本重估</strong>，「全球算力遍地开花」预期需下修</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag opp">对冲</span><span class="vc-desc">增量需求<strong>回流至北美</strong>，利好美国本土算力基建方向</span></div></div><div class="vc-chain"><div class="vc-chain-title" style="border-color:#8b5cf6">链条三：国防预算逆周期 → 国防AI受益</div><div class="vc-step"><span class="vc-tag opp">催化</span><span class="vc-desc">戴尔获<strong>97亿美元</strong>国防IT合同（年化约19.4亿美元），软件许可整合与IT现代化趋势确认</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag opp">受益</span><span class="vc-desc">国防AI、自主系统、网络安全环节获<strong>结构性顺风</strong>，对冲商业应用层估值压力</span></div></div><div class="callout callout-strategy"><span class="callout-label">链条交汇与净效应</span><p><strong>链条交汇与净效应：</strong>地缘恶化推高能源成本、压制商业AI风险偏好，但上述同一地缘风险也加速了国防AI相关支出的刚性释放。短期（1-3个月），若油价急升，能源成本对云厂利润率的挤压优先于国防订单的利好兑现，因合同执行跨多个财年，而电价传导更快。中期（3-12个月），国防AI方向的营收确定性增强将对冲甚至超越商业应用层的估值压力。</p><p><strong>验证节点：</strong>关注未来2-4周霍尔木兹海峡的商业航运恢复数据及布伦特短期走势。若下周海峡仍无大型油轮通行，能源成本冲击将从尾部风险升级为基准情景。当前被市场忽略的一个重要对冲信号是：地缘风险不仅制造问题，<strong>也正是这些风险在创造国防AI的逆周期预算</strong>——这构成了市场尚未充分定价的非对称收益。</p></div></div>
+</details>
+<details class="sector-details s-compute">
+  <summary>2. 算力供需与竞争格局：英伟达向光互连纵深扩张，定制推理芯片路线分化初现<span class="sector-num-bg">02</span></summary>
+  <div class="sector-body"><div class="callout callout-core callout-core"><span class="callout-label">核心判断</span><p>算力竞争正从单芯片算力向「系统级互联」和「定制化推理」扩散。英伟达以25亿美元投资硅光子学巩固数据中心控制力——这是对「算力瓶颈从计算转向数据移动」的防御。</p><p>同时Mistral AI探索自研推理芯片、GUC展示5nm ASIC方案，反映客户对推理成本的敏感度已升至愿意自研。两个趋势指向：英伟达训练端统治短期难撼，但推理和互联战场的话语权正被试探性分割。</p></div><div class="key-numbers"><div class="kn-card"><div class="kn-value blue">25亿$</div><div class="kn-label">英伟达光子学投资</div></div><div class="kn-card"><div class="kn-value green">816.2亿$</div><div class="kn-label">FY27Q1营收</div></div><div class="kn-card"><div class="kn-value green">74.9%</div><div class="kn-label">毛利率</div></div><div class="kn-card"><div class="kn-value green">+66.7%</div><div class="kn-label">戴尔周涨幅</div></div></div><p style="font-weight:700;margin:14px 0 6px">关键事件与数据</p><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 英伟达25亿美元投资光子公司，锁定硅光子学产能</strong>（Tier 1）</p><p>核心数据：约20亿美元投向Lumentum、Coherent、Marvell，5亿美元投向Corning，另参投Ayar Labs。大规模部署预计在2028年。趋势含义：光互连正从可选技术升级为AI数据中心的必备基础设施，先发投资锁定长期供应链控制权。</p></div><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 老牌IT硬件商因AI基建支出集体反弹，1.7万亿美元市值重现</strong>（Tier 1）</p><p>核心数据：戴尔(DELL)、诺基亚(NOK)、联想(LNVGY)等股价大涨，资金从AI软件股轮动至硬件敞口标的。趋势含义：算力需求的外溢效应已超出芯片环节，服务器与网络设备OEM成为本轮基建周期的直接受益者。</p></div><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 Mistral AI探索自研芯片，挑战英伟达推理市场</strong>（Tier 1）</p><p>核心数据：CEO Arthur Mensch表示正探索自研推理芯片以降低token部署成本，公司估值约120亿欧元。趋势含义：垂直整合趋势向中型AI公司蔓延，英伟达的推理芯片长期份额面临客户「自供」风险，但短期无财务影响。</p></div><div class="callout callout-risk"><span class="callout-label">风险警示</span><p><strong>📌 英伟达FY27Q1营收同比增85%至816亿美元，利润率担忧浮现</strong>（Tier 3）</p><p>核心数据：季度营收816.2亿美元（环比+19.8%），毛利率74.9%，运营费用同步上升。趋势含义：训练端需求依然强劲，但费用膨胀提醒市场，英伟达的高利润率护城河并非没有耗散点。验证节点：下一季度财报（7月窗口）需观察毛利率能否维持在74%以上，若跌破70%则可能触发估值下修。被忽略的风险——光子学投资2028年前都是成本项而非收入项，若AI基建支出在2027年出现周期性放缓，这笔超前投资可能暂时拖累资本回报率。</p></div><p style="font-weight:700;margin:14px 0 6px">产业链传导</p><div class="vc-chain"><div class="vc-chain-title" style="border-color:#3b82f6">链条一：光模块 → 网络设备 → 数据中心互联</div><div class="vc-step"><span class="vc-tag info">投资</span><span class="vc-desc">英伟达<strong>25亿美元</strong>锁定Lumentum/Coherent/Marvell/Corning光子学产能</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag opp">受益</span><span class="vc-desc">光器件供应商直接受益，Arista等高速网络设备商<strong>产业地位强化</strong></span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag info">趋势</span><span class="vc-desc">光通信价值占比随AI集群规模扩大<strong>持续提升</strong></span></div></div><div class="vc-chain"><div class="vc-chain-title" style="border-color:#06b6d4">链条二：推理成本压缩 → 定制ASIC设计需求</div><div class="vc-step"><span class="vc-tag info">信号</span><span class="vc-desc">Mistral AI（估值120亿€）<strong>探索自研推理芯片</strong>，GUC展示5nm推理ASIC方案</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag opp">受益</span><span class="vc-desc">台积电(TSM)先进封装 + 博通(AVGO)设计服务<strong>处于受益位置</strong></span></div></div><div class="vc-chain"><div class="vc-chain-title" style="border-color:#8b5cf6">链条三：GPU外溢 → OEM与存储需求</div><div class="vc-step"><span class="vc-tag info">数据</span><span class="vc-desc">戴尔(DELL)<strong>周涨66.7%</strong>，老牌硬件商1.7万亿$市值重现，资金从AI软件轮动至硬件</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag opp">反馈</span><span class="vc-desc">AI服务器与存储订单消化GPU交付，<strong>反向支撑上游GPU出货预期</strong></span></div></div></div>
+</details>
+<details class="sector-details s-academic">
+  <summary>3. 学术界与研究机构观点：学术预印本周信号稀疏，算力集中风险获机构背书<span class="sector-num-bg">03</span></summary>
+  <div class="sector-body"><div class="callout callout-core callout-core"><span class="callout-label">核心判断</span><p>斯坦福HAI报告核心发现——全球Top 5控制>80%专用算力——并非新突变而是已有趋势的量化确认，为「算力即主权」叙事增加机构背书，可能加速各国本土算力基建投入。</p><p>短期看集中度意味着头部云厂/芯片商议价权难挑战；中长期看若算力治理入政策议程，可能压缩超额回报。注意：仅路透社单源报道，建议核对HAI原始报告后作交易依据。</p></div><p style="font-weight:700;margin:14px 0 6px">关键事件与数据</p><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 斯坦福HAI 2026年度AI指数报告：Top 5控制>80%专用算力</strong>（证据强度：中，路透社单源）</p><p>核心数据：全球Top 5 AI公司控制超过80%专用算力资源。投资含义是双面的——短期看集中度高意味着头部云厂和芯片商议价能力难以被挑战；中长期看若算力治理进入政策议程，可能压缩头部玩家的超额回报。报告同时呼吁建立国际算力治理框架。</p></div><div class="callout callout-signal"><span class="callout-label">微弱信号</span><p><strong>📌 DeepMind神经符号定理证明预印本</strong>（证据强度：低，预印本未经同行评议）</p><p>该论文声称在Lean4验证器上证明了99个高等数学命题，将神经证明器与符号搜索结合后准确率较纯神经方法提升30%。与投资周期距离较远，当前不构成对任何AI推理芯片或模型层赛道的短期催化。</p></div><div class="callout callout-strategy"><span class="callout-label">链条交汇与净效应</span><p><strong>趋势研判：</strong>HAI报告使得「算力集中」从笼统叙事升级为可引用的量化事实（80/20），这可能是后续政策讨论的锚点——但政策从呼吁到落地的时间窗口通常以年计，短期不改变算力供需格局。验证节点：需追踪欧盟或G7是否在未来3个月内将「算力治理」纳入正式议程；若无，逻辑维持长期缓释形态，不构成短期交易信号。</p></div></div>
+</details>
+<details class="sector-details s-capital">
+  <summary>4. 资本流向与估值逻辑：一级市场AI编程估值翻倍，企业端落地不及预期与债务隐忧形成定价分歧<span class="sector-num-bg">04</span></summary>
+  <div class="sector-body"><div class="callout callout-core callout-core"><span class="callout-label">核心判断</span><p>AI资本配置出现结构性分化：一级市场Cognition AI估值翻倍至260亿美元，但企业端AI采用率仅约20%、软件债务到期预警、AI项目高失败率——共同构成「高预期定价 vs 缓慢变现」的定价分歧。</p><p>这意味着应用层估值逻辑将从「赛道溢价」加速转向「收入验证」，缺乏实质营收的高估值标的面临重新定价。</p></div><div class="key-numbers"><div class="kn-card"><div class="kn-value blue">260亿$</div><div class="kn-label">Cognition AI 估值</div></div><div class="kn-card"><div class="kn-value amber">~20%</div><div class="kn-label">美国企业AI采用率</div></div><div class="kn-card"><div class="kn-value green">~10亿$</div><div class="kn-label">Cognition融资额</div></div></div><p style="font-weight:700;margin:14px 0 6px">关键事件与数据</p><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 AI编程初创公司Cognition融资超10亿美元，估值达260亿美元</strong>（Tier 1）</p><p>核心数据：Cognition AI估值较去年9月翻倍，由Lux Capital、General Catalyst、8VC联合领投。趋势含义：资本对直接兑现生产力的AI编程工具给予极高信心溢价，该赛道一级市场估值体系稳固。</p></div><div class="callout callout-risk"><span class="callout-label">风险警示</span><p><strong>📌 MIT科技评论：仅约20%美国企业使用AI</strong>（Tier 2）</p><p>核心数据：美国人口普查局数据显示企业AI采用率约20%。趋势含义：上游算力需求定价可能过度线性外推了企业实际采用速度，应用层变现有慢于预期风险。</p></div><div class="callout callout-risk"><span class="callout-label">风险警示</span><p><strong>📌 CI GAM警告：软件公司债务到期或成AI投资减速带</strong>（Tier 1）</p><p>核心数据：CI Global Asset Management固定收益主管指出软件公司2026-2027年面临大量债务到期，可能压缩AI投资。趋势含义：债务压力或从融资端向AI资本开支端传导，属于中期待验证的「融资紧缩→预算削减」链条。</p></div><div class="callout callout-risk"><span class="callout-label">风险警示</span><p><strong>📌 Gartner预测：半数生成式AI项目将超支，多数自定义模型项目将被放弃</strong>（Tier 2）</p><p>核心数据：Gartner认为架构缺陷和运维知识不足将致超支，自定义模型项目因成本与复杂性大概率失败。趋势含义：AI应用层商业化效率存疑，基础设施投资预期需拉长回报周期。</p></div><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 应用材料CEO称AI需求能见度可至2027-2028年</strong>（Tier 1）</p><p>核心数据：应用材料CEO Gary Dickerson称当前半导体周期为AI需求驱动的史上最强周期，公司已主动扩大供应链。趋势含义：设备端订单能见度支撑算力基建长周期逻辑，但需警惕管理层乐观偏差。</p></div><p style="font-weight:700;margin:14px 0 6px">产业链传导</p><div class="vc-chain"><div class="vc-chain-title" style="border-color:#3b82f6">链条一：一级市场热度 → 二级市场映射</div><div class="vc-step"><span class="vc-tag info">催化</span><span class="vc-desc">Cognition AI估值<strong>翻倍至260亿美元</strong>，AI编程/Agent工具链一级定价上升通道</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag warn">风险</span><span class="vc-desc">二级市场<strong>可对标标的稀缺</strong>，估值锚点缺失放大后续IPO定价波动</span></div></div><div class="vc-chain"><div class="vc-chain-title" style="border-color:#06b6d4">链条二：企业AI采用率滞后 → 云厂/SaaS估值</div><div class="vc-step"><span class="vc-tag risk">数据</span><span class="vc-desc">仅<strong>~20%</strong>美国企业使用AI（人口普查局），80%企业处于试验/观望阶段</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag warn">含义</span><span class="vc-desc">云厂AI收入增长<strong>依赖头部客户集中贡献</strong>，长尾渗透不足，若头部增速放缓则触发估值修正</span></div></div><div class="vc-chain"><div class="vc-chain-title" style="border-color:#8b5cf6">链条三：软件债务到期 → AI资本开支节奏</div><div class="vc-step"><span class="vc-tag risk">预警</span><span class="vc-desc">软件公司<strong>2026-2027年债务集中到期</strong>，中小软件企业AI转型杠杆承压（CI GAM）</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag warn">传导</span><span class="vc-desc">再融资成本上升 → AI CapEx优先被砍，<strong>滞后约2-4个季度</strong>，当前处于信号观察期</span></div></div><div class="callout callout-strategy"><span class="callout-label">链条交汇与净效应</span><p><strong>趋势研判：</strong>当前市场对AI应用层的定价存在「一级热、二级观望、企业端慢」的三层错位。被市场忽略的风险点在于：软件企业债务到期的连锁反应若触发中小型AI采购收缩，可能形成「宏观不衰退但AI支出局部衰退」的结构性青黄不接。验证节点为未来1-3个月内云厂商季度业绩中AI工作负荷收入的环比增速——若连续两个季度低于15%环比增长，需重新评估AI应用层变现斜率。</p></div></div>
+</details>
+<details class="sector-details s-commerce">
+  <summary>5. AI商业化落地与价值验证：AI应用层进入「分化验证期」，SaaS巨头指引不及预期，企业级AI助手数据平台逆势加速<span class="sector-num-bg">05</span></summary>
+  <div class="sector-body"><div class="callout callout-core callout-core"><span class="callout-label">核心判断</span><p>AI商业化正经历残酷「分筛」：大而全的SaaS面临AI投入「产出真空期」质疑，聚焦数据基建与AI Agent的公司已跑通收入闭环。</p><p>Salesforce RPO低于预期10亿美元动摇传统软件AI信仰，但Snowflake NRR升至126%证明当AI深度嵌入高价值工作流时价值创造真实。核心矛盾已从「AI有没有需求」转为「AI在谁手里更快变现」。</p></div><div class="key-numbers"><div class="kn-card"><div class="kn-value red">679亿$</div><div class="kn-label">Salesforce RPO（低于预期10亿）</div></div><div class="kn-card"><div class="kn-value green">58.4亿$</div><div class="kn-label">Snowflake FY27产品收入指引</div></div><div class="kn-card"><div class="kn-value green">126%</div><div class="kn-label">Snowflake NRR</div></div><div class="kn-card"><div class="kn-value blue">+205%</div><div class="kn-label">Agentforce年收入增幅</div></div></div><p style="font-weight:700;margin:14px 0 6px">关键事件与数据</p><div class="callout callout-risk"><span class="callout-label">风险警示</span><p><strong>📌 Salesforce营收指引与RPO不及预期，动摇市场对传统SaaS的AI信仰</strong>（Tier 1）</p><p>核心数据：2027财年Q2营收指引中位数113亿美元（低于预期1亿美元），RPO 679亿美元（低于预期10亿美元）；但Agentforce年收入同比增205%至12亿美元。趋势含义：这标志着AI对传统订阅SaaS的赋能逻辑出现首个强证伪信号——AI Agent对单一功能的替代速度快于平台整合AI带来的增量，拖累整体RPO。</p></div><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 Snowflake上调全年产品收入指引，AI驱动NRR升至126%</strong>（Tier 2）</p><p>核心数据：FY2027产品收入指引上调至58.4亿美元（同比增31%），非GAAP运营利润率同比扩大超300个基点。趋势含义：企业愿意为能直接产生价值的AI数据分析和Agent能力支付更高溢价，消费型数据平台正在成为本轮AI价值捕获的优等生。</p></div><div class="callout callout-signal"><span class="callout-label">微弱信号</span><p><strong>📌 欧洲银行AI裁员预期与SentinelOne裁员转向AI</strong>（Tier 1）</p><p>核心数据：摩根士丹利预测欧洲银行或裁员10-20%，SentinelOne宣布裁员8%并将资源转向AI投资。趋势含义：从金融巨头到网络安全SaaS公司，AI正从「降本增效」工具演变为主动的结构性成本置换手段。但降本动作本身并不被市场直接奖励，需搭配可持续的增长引擎才行。</p></div><p style="font-weight:700;margin:14px 0 6px">产业链传导</p><div class="vc-chain"><div class="vc-chain-title" style="border-color:#3b82f6">链条一：SaaS打包AI → 数据原生平台（价值链重心转移）</div><div class="vc-step"><span class="vc-tag risk">证伪</span><span class="vc-desc">Salesforce RPO<strong>低于预期10亿美元</strong>，传统SaaS叠加AI模式遭首个Tier 1数据动摇</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag opp">验证</span><span class="vc-desc">Snowflake NRR升至<strong>126%</strong>，Palantir PE<strong>259倍</strong>营收环比+16%——数据到决策闭环获高溢价</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag warn">分化</span><span class="vc-desc">传统SaaS「集成商」价值被AI Agent稀释，客户倾向为<strong>业务结果</strong>而非AI功能买单</span></div></div><div class="vc-chain"><div class="vc-chain-title" style="border-color:#8b5cf6">链条二：裁员 → AI再投资 → 效率提升（主动重组周期）</div><div class="vc-step"><span class="vc-tag info">信号</span><span class="vc-desc">欧洲银行或裁员<strong>10-20%</strong>（大摩），SentinelOne裁员<strong>8%</strong>转投AI</span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag opp">机遇</span><span class="vc-desc">IT预算从「人头」→「软件Agent」，工具链TAM从<strong>软件预算扩展至人力预算</strong></span></div><div class="vc-connector">↓</div><div class="vc-step"><span class="vc-tag info">枢纽</span><span class="vc-desc">微软(MSFT) CapEx强度<strong>37%</strong>，Copilot+Agent布局使其成为结构性迁移枢纽</span></div></div><div class="callout callout-strategy"><span class="callout-label">链条交汇与净效应</span><p><strong>⚡ 链条交汇与净效应：</strong>Salesforce代表「旧范式增速放缓」，Snowflake/Axon代表「新范式增速证明」。两者短期在资本市场的共振是AI应用层估值泡沫的挤压，但从18个月维度看，效率（裁员）和增长（数据平台）的合力，将共同推动企业软件板块的总营业利润率上一个台阶。当前的关键是识别谁在增长端，谁只在成本端。</p><p><strong>趋势研判：</strong>主要风险是「双层分化」：传统SaaS巨头AI变现慢于预期（需求端），同时高增长AI公司因板块整体杀估值而承压（估值端）。下一个验证节点是未来1-3个月内的其他企业软件公司（如ServiceNow、Workday）的季度财报：若其AI相关收入占比或RPO增速同样不能跑赢预期，则AI应用层将由「谨慎乐观」降级为「中性观望」。被市场忽略的机会——拥有强监管/政务护城河的AI SaaS（如Axon），其B2G模式可对冲企业端支出波动。</p></div></div>
+</details>
+<details class="sector-details s-capacity">
+  <summary>6. 产能瓶颈与供应链重构：硬件短缺从「单点」扩散为「多点围堵」<span class="sector-num-bg">06</span></summary>
+  <div class="sector-body"><div class="callout callout-core callout-core"><span class="callout-label">核心判断</span><p>AI硬件供应链瓶颈从「单点」扩散为「多点围堵」。纬颖科技警示短缺从HBM/CoWoS蔓延至网络设备与服务器零部件，太阳诱电CEO用「可怕」形容MLCC需求激增——MLCC寡头格局下任何单点中断都可造成整机交付连锁延迟。</p><p>但紧张也铸就护城河：三星越南测试厂2027年才投产，HBM供给弹性不足支撑美光量价齐升（营收环比+74.9%，毛利率74.4%）。</p></div><div class="key-numbers"><div class="kn-card"><div class="kn-value green">+74.9%</div><div class="kn-label">美光营收环比</div></div><div class="kn-card"><div class="kn-value green">74.4%</div><div class="kn-label">美光毛利率</div></div><div class="kn-card"><div class="kn-value green">+27.4%</div><div class="kn-label">美光周涨幅</div></div><div class="kn-card"><div class="kn-value blue">15亿$</div><div class="kn-label">三星越南测试厂投资</div></div></div><p style="font-weight:700;margin:14px 0 6px">关键事件与数据</p><div class="callout callout-risk"><span class="callout-label">风险警示</span><p><strong>📌 纬颖科技警告网络设备与服务器零部件短缺</strong>（Tier 1 — 彭博社）</p><p>核心数据：英伟达主要服务器制造商纬颖科技于5月28日警示硬件短缺正从HBM/CoWoS向网络设备和服务器零部件扩散。趋势含义：瓶颈从「可预期的技术攻坚」转变为「多点失压的结构性紧张」，AI服务器交付时间和成本面临上修压力。</p></div><div class="callout callout-risk"><span class="callout-label">风险警示</span><p><strong>📌 太阳诱电CEO：AI服务器对高端MLCC需求「可怕」</strong>（Tier 1 — 彭博社）</p><p>核心数据：MLCC巨头太阳诱电CEO Katsuya Sase称AI服务器对高端MLCC的需求激增，公司产能已接近极限。太阳诱电与村田制作所形成寡头供应格局。趋势含义：MLCC寡头供给格局意味着任何单点生产中断都可造成云厂整机交付延迟，增加了供应链预测的难度。</p></div><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 三星投资15亿美元在越南建存储芯片测试工厂，2027年投产</strong>（Tier 1）</p><p>核心数据：三星越南存储芯片测试工厂预计2027年投产。趋势含义：对后端产能紧张的实质性回应，但长达两年的建设周期意味着中短期内供给弹性依然不足。</p></div><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 瑞银将美光目标价上调至华尔街最高1625美元</strong>（Tier 1，单一投行观点）</p><p>核心数据：美光最新季度营收环比飙升74.9%，毛利率高达74.4%，印证量价齐升的超级周期。市场对美光的极度乐观（周涨27.4%）已包含对完美交付的预期，任何物料缺失导致HBM出货延迟都可能构成应激风险（PE约15.9倍，周期高位）。</p></div><div class="callout callout-strategy"><span class="callout-label">链条交汇与净效应</span><p><strong>趋势研判：</strong>纬颖与太阳诱电的预警若在下季度服务器厂商财报中被量化为具体的交付延迟周数或成本增幅，本板块对「AI服务器/硬件整机」的谨慎判断将得到强化。被忽略的风险在于，MLCC寡头若扩产节奏慢于预期，可能迫使云巨头在年末的旺季采购中触发非理性抢单，加剧成本波动；须跟踪太阳诱电和村田下一财季的CapEx指引，以验证产能约束的持续时长。</p></div></div>
+</details>
+<details class="sector-details s-frontier">
+  <summary>7. 前沿技术进展（预商业化）：数据中心离网电力探索推进，华为芯片路线宣示远期雄心<span class="sector-num-bg">07</span></summary>
+  <div class="sector-body"><div class="callout callout-core callout-core"><span class="callout-label">核心判断</span><p>五角大楼加速微反应堆竞赛：Antares计划2027年测试1-2MW原型（HALEU燃料尚无商业化供应），Equinix已预购20个。若商业化将为数据中心提供离网稳定电力，但面临燃料供应链未成型、NRC许可漫长、早期经济性存疑三大硬障碍。</p><p>华为LogicFolding路线图属5年以上远期宣示，对当前AI芯片格局无实质影响。数据中心电力基建长期估值框架已计入核电期权价值，但2-3年内不会转化为实际营收。</p></div><p style="font-weight:700;margin:14px 0 6px">关键事件与数据</p><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 五角大楼加速微反应堆竞赛，Antares计划2027年测试原型</strong>（Tier 1 — 路透社）</p><p>核心数据：Antares计划于2027年测试1-2兆瓦微型核反应堆原型，使用HALEU燃料（尚无商业化供应）；Equinix已预购20个Radiant Industries的Kaleidos 1兆瓦微反应堆。集装箱式设计支持48小时内快速部署或拆除，燃料更换周期约5年。趋势含义：微反应堆若实现商业化，将为AI数据中心提供不依赖电网的稳定低碳电力，但商业化里程碑均指向2027年或更晚。</p></div><div class="callout callout-signal"><span class="callout-label">微弱信号</span><p><strong>📌 华为LogicFolding与τ缩放技术路线图</strong>（Tier 1 — CNBC，未商业验证）</p><p>行业分析师警告该方案处于未商业验证阶段，规模化量产、热管理及可靠性挑战严峻。华为计划2026年秋季推出相关手机处理器，并宣称2031年可达1.4nm级能力——时间跨度达5年以上且缺乏第三方数据支撑，对当前AI芯片竞争格局无直接实质影响。</p></div><div class="callout callout-strategy"><span class="callout-label">链条交汇与净效应</span><p><strong>趋势研判：</strong>微反应堆离网电力方案从实验室向国防场景迈出一步，但对AI数据中心收入的实际影响至少需3年以上才能验证；华为LogicFolding路线图属远期宣示，本周不构成方向性信号。建议关注HALEU燃料供应链的首次商业化合同签署与NRC许可动态，作为验证该方向从「期权」转为「趋势」的里程碑。</p></div></div>
+</details>
+<details class="sector-details s-model">
+  <summary>8. 其他信号与边缘观察：Anthropic估值登顶标志模型层双头格局确立<span class="sector-num-bg">08</span></summary>
+  <div class="sector-body"><div class="callout callout-core callout-core"><span class="callout-label">核心判断</span><p>Anthropic以650亿美元融资估值约9650亿美元超越OpenAI，模型层「双头格局」确立。收入运行率约470亿美元（同比增近4倍），但估值近万亿已隐含极高增长预期。</p><p>资本正向头部加速集中，但盈利路径未验证——二级市场缺乏直接参与工具，一旦增长不及预期估值回撤幅度将相当显著。维持「谨慎」评级。</p></div><div class="key-numbers"><div class="kn-card"><div class="kn-value blue">~9650亿$</div><div class="kn-label">Anthropic估值</div></div><div class="kn-card"><div class="kn-value green">~470亿$</div><div class="kn-label">Anthropic收入运行率</div></div><div class="kn-card"><div class="kn-value green">650亿$</div><div class="kn-label">Series H融资额</div></div></div><p style="font-weight:700;margin:14px 0 6px">关键事件与数据</p><div class="callout callout-fact"><span class="callout-label">事实/数据</span><p><strong>📌 Anthropic估值9650亿美元超越OpenAI，模型层双头格局确立</strong>（Tier 1 — CNBC）</p><p>核心数据：Anthropic完成650亿美元Series H轮融资，估值约9650亿美元，收入运行率已达约470亿美元（同比增长近4倍），由Altimeter Capital、Dragoneer、Greenoaks和Sequoia Capital领投。趋势含义：资本加速向头部集中，模型层从单极转向双头格局。但估值近万亿美元已隐含极高增长预期，盈利路径是关键验证点。本板块维持「谨慎」评级——一级市场估值已反映极为乐观的预期，二级市场投资者缺乏直接参与工具，且万一增长不及预期，估值回撤幅度将相当显著。</p></div><div class="callout callout-strategy"><span class="callout-label">链条交汇与净效应</span><p>关于美国反垄断执法权从联邦向各州转移的趋势（WSJ报道，2026年5月26日），其对大型科技公司并购与合规成本的中期不确定性需要持续关注，但短期无具体催化，此处仅作提示。</p></div></div>
+</details>
+
+<div id="guidance" class="section-divider"><span>本周综合方向指引</span></div>
+<details><summary style="font-size:16px;font-weight:700;padding:14px 16px;background:#fff;border-radius:12px;border:1px solid var(--c-border);cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;">📡 展开全部方向指引（15条）</summary><div class="sector-body"><div class="dir-group"><div style="font-weight:700;font-size:14px;color:#10b981;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #10b981">🟢 看好（7条）</div><div class="direction-card buy"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>国防AI与自主系统</strong><span class="pill-bullish">看好</span></div><div class="dc-signal">信号强度：●●●○</div><div class="dc-logic">戴尔97亿美元合同确认国防IT现代化长期趋势，逆周期属性提供营收确定性。</div><div class="dc-ticker">参考：戴尔(DELL) · ✅共振</div></div><div class="direction-card buy"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>光通信与网络设备</strong><span class="pill-bullish">看好</span></div><div class="dc-signal">信号强度：●●●○</div><div class="dc-logic">英伟达锁产能、AI集群规模扩大驱动光互联升级，2028年量产但供应链预期前置。</div></div><div class="direction-card buy"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>企业流程自动化/AI工作流</strong><span class="pill-bullish">看好</span></div><div class="dc-signal">信号强度：●●●○</div><div class="dc-logic">银行裁员等事件强化AI替代人力的长期结构性逻辑，无新催化剂改变趋势。</div></div><div class="direction-card buy"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>企业级AI助手/Copilot产品</strong><span class="pill-bullish">看好</span></div><div class="dc-signal">信号强度：●●●○</div><div class="dc-logic">Snowflake指引上调与NRR提升，直接验证了数据平台上的AI助手可变现性，率先跑通ROI闭环。</div><div class="dc-ticker">参考：Snowflake(SNOW) · ✅共振</div></div><div class="direction-card buy"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>HBM与高端存储</strong><span class="pill-bullish">看好</span></div><div class="dc-signal">信号强度：●●●○</div><div class="dc-logic">瑞银上调MU目标价及MU强劲财报(营收环比+74.9%，毛利率74.4%)佐证长期供需缺口，但MLCC缺货或间接延缓下游拉货节奏。</div><div class="dc-ticker">参考：美光(MU) · ✅共振</div></div><div class="direction-card buy"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>AI基建估值与资本退出</strong><span class="pill-bullish">看好</span></div><div class="dc-signal">信号强度：●●●○</div><div class="dc-logic">一级市场AI编程估值坚挺支撑长期退出逻辑，但软件债务到期构成中期扰动，需观察债务重组进展。</div><div class="dc-ticker">参考：博通(AVGO) · ✅共振</div></div><div class="direction-card buy"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>晶圆代工与先进封装</strong><span class="pill-bullish">看好</span></div><div class="dc-signal">信号强度：●●●○</div><div class="dc-logic">作为结构性瓶颈议价权稳固，TSM巨额CapEx(占营收31%)反映扩产力度；本周虽无直接新催化剂，但评级维持。</div><div class="dc-ticker">参考：台积电(TSM) · ✅共振</div></div></div><div class="dir-group"><div style="font-weight:700;font-size:14px;color:#f59e0b;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #f59e0b">🟡 谨慎乐观（4条）</div><div class="direction-card cautious-opt"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>定制芯片/ASIC设计</strong><span class="pill-cautious-opt">谨慎乐观</span></div><div class="dc-signal">信号强度：●●●</div><div class="dc-logic">Mistral探索与GUC展示验证推理侧定制化趋势，博通已有订单支撑。</div><div class="dc-ticker">参考：博通(AVGO) · ✅共振</div></div><div class="direction-card cautious-opt"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>美国本土算力基建</strong><span class="pill-cautious-opt">谨慎乐观</span></div><div class="dc-signal">信号强度：●●●</div><div class="dc-logic">HAI报告量化算力集中度，为「算力主权化」提供机构背书，或加速各国本土基建拨款。</div></div><div class="direction-card cautious-opt"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>AI应用层</strong><span class="pill-cautious-opt">谨慎乐观</span></div><div class="dc-signal">信号强度：●●●○</div><div class="dc-logic">Salesforce指引miss暴露AI对传统SaaS的增收困境，赛道内部分化加剧，需财报验证龙头公司AI收入渗透率。</div><div class="dc-ticker">参考：Salesforce(CRM) · ✅共振</div></div><div class="direction-card cautious-opt"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>AI推理芯片</strong><span class="pill-cautious-opt">谨慎乐观</span></div><div class="dc-signal">信号强度：●●●</div><div class="dc-logic">定制化替代方案增多，但英伟达推理份额仍大，需等待客户量产消息。</div></div></div><div class="dir-group"><div style="font-weight:700;font-size:14px;color:#6b7280;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #6b7280">⚪ 中性观望（2条）</div><div class="direction-card neutral"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>数据中心电力基建</strong><span class="pill-neutral">中性观望</span></div><div class="dc-signal">信号强度：●●●</div><div class="dc-logic">霍尔木兹断航推高电力成本尾部风险，提升项目融资与保险成本，若布伦特升破$105负面传导将加剧。</div><div class="dc-ticker">参考：EQIX</div></div><div class="direction-card neutral"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>AI训练芯片龙头</strong><span class="pill-neutral">中性观望</span></div><div class="dc-signal">信号强度：●●●</div><div class="dc-logic">营收强劲但运营费用上行引发利润率担忧，下一份财报是关键验证节点。</div><div class="dc-ticker">参考：英伟达(NVDA) · 偏多</div></div></div><div class="dir-group"><div style="font-weight:700;font-size:14px;color:#f97316;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #f97316">🟠 谨慎（1条）</div><div class="direction-card cautious"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>AI服务器/硬件整机</strong><span class="pill-cautious">谨慎</span></div><div class="dc-signal">信号强度：●●</div><div class="dc-logic">纬颖与太阳诱电预警证实供应链风险从HBM向MLCC与网络部件扩散，交付延迟与成本上升可能挤压整机厂短期利润率。</div></div></div><div class="dir-group"><div style="font-weight:700;font-size:14px;color:#ef4444;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #ef4444">🔴 回避（1条）</div><div class="direction-card avoid"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong>AI模型公司一级市场</strong><span class="pill-avoid">回避</span></div><div class="dc-signal">信号强度：●</div><div class="dc-logic">Gartner预测多数自定义模型项目失败，与一级高估值矛盾；若大型企业AI预算未上调则评级承压。</div></div></div></div></details>
+<div class="footer-notes"><details><summary>📖 名词解释（7条）</summary><div class="body"><div class="glossary-grid"><div class="gloss-card"><div class="gloss-term">RPO（剩余履约义务）</div><div class="gloss-def">Remaining Performance Obligations — 已签约但尚未确认收入的合同金额，是企业未来收入的「压舱石」。Salesforce本周RPO 679亿美元低于预期10亿美元，是AI应用层变现不及预期的核心数据点。</div></div><div class="gloss-card"><div class="gloss-term">NRR（净收入留存率）</div><div class="gloss-def">Net Revenue Retention — 衡量现有客户群体花费变化的指标。大于100%表示客户在扩大使用/增购。Snowflake本周NRR升至126%意味着客户平均花费同比增加26%，证明AI功能带动了真实的使用深度。</div></div><div class="gloss-card"><div class="gloss-term">MLCC（多层陶瓷电容器）</div><div class="gloss-def">Multi-Layer Ceramic Capacitor — 电子设备中不可或缺的微型滤波与储能元件。AI服务器对高端MLCC的需求量是传统服务器的数倍，太阳诱电与村田制作所形成寡头供应格局。本周首次成为AI服务器交付的瓶颈信号。</div></div><div class="gloss-card"><div class="gloss-term">CapEx（资本开支）</div><div class="gloss-def">Capital Expenditure — 用于购买或升级实物资产的支出。微软CapEx强度高达营收的37%，反映云厂商正在大规模投资AI基础设施。过高的CapEx强度在收入增速放缓时会产生利润率压力。</div></div><div class="gloss-card"><div class="gloss-term">CoWoS</div><div class="gloss-def">Chip on Wafer on Substrate — 台积电的先进封装技术，将多个芯片集成在同一基板上。当前是AI芯片（尤其是英伟达GPU）产能的核心瓶颈之一。</div></div><div class="gloss-card"><div class="gloss-term">HBM（高带宽内存）</div><div class="gloss-def">High Bandwidth Memory — 通过3D堆叠技术实现极高数据带宽的专用内存。AI训练对HBM需求巨大，美光(MU)、SK海力士、三星为主要供应商，供不应求格局中短期难以改变。</div></div><div class="gloss-card"><div class="gloss-term">TAM（可触达市场规模）</div><div class="gloss-def">Total Addressable Market — 特定产品或服务的最大潜在市场。本周周报指出AI Agent可能将企业自动化工具链的TAM从「软件预算」扩展到「人力预算」的一部分，这意味着数量级的市场空间释放。</div></div></div></div></details><details><summary>📝 备注</summary><div class="body"><div class="callout callout-fact"><span class="callout-label">信源分级</span><strong>Tier 1 (T1)：</strong>Bloomberg、Reuters、WSJ、FT、CNBC、SEC.gov、公司官方公告、Nature/Science<br><strong>Tier 2 (T2)：</strong>The Information、TechCrunch、SemiAnalysis、IEEE Spectrum、专业行业媒体<br><strong>Tier 3 (T3)：</strong>聚合网站、个人博客、社交媒体、未署名分析<br><br><strong>事件评分（0-10分）：</strong>7-8分=重大突破/并购/政策转折（+信源加成）；5-6分=有数据支撑的产品发布/行业分析；3-4分=常规更新/缺乏独立验证的报道。非Tier 1且非High可信度的文章，得分上限为7.5分。</div>
+<div class="callout callout-fact"><span class="callout-label">信号强度</span><strong>●●●●（强信号）：</strong>评级为「看好」且在2个以上趋势主题中被独立验证<br><strong>●●●○（较强信号）：</strong>评级为「看好」但仅单一主题支撑，或「谨慎乐观」且多主题验证<br><strong>●●●（中等信号）：</strong>「谨慎乐观」（单主题）或「中性观望」<br><strong>●●（弱信号）：</strong>「谨慎」——负面信号主导但强度有限<br><strong>●（警示信号）：</strong>「回避」——明确的负面信号<br><br><strong>市场验证标注：</strong>✅共振=产业趋势与价格走势方向一致；⚠️背离=方向相反（市场尚未定价或产业逻辑存在盲点）；— =数据不可用</div>
+<div class="callout callout-fact"><span class="callout-label">市场验证</span>本周信号强度判断基于Tier 1信源（Bloomberg、Reuters、CNBC、公司官方公告）验证的核心事件，包括Salesforce财报（Tier 1）、英伟达FY27Q1财报（Tier 1）、戴尔97亿美元国防合同（Tier 1）、纬颖科技MLCC预警（Tier 1）、太阳诱电CEO采访（Tier 1）、Anthropic融资（Tier 1）、Cognition AI估值（Tier 1）等。Tier 2/3信源仅作为辅助交叉验证使用。所有评级均为跨板块综合判断，单一板块视角的乐观/悲观信号已在综合过程中进行对冲和加权处理。</div></div></details></div>
+</body>
+</html>
