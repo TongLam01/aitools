@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI 周报 · Compass</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI",Roboto,sans-serif;font-size:18px;line-height:1.8;color:#1a1a2e;background:#e8fce8;-webkit-text-size-adjust:100%}
+
+.header{background:linear-gradient(135deg,#07C160,#038a3f);color:#fff;padding:24px 20px 20px}
+.h-tag{display:inline-block;padding:4px 14px;border-radius:12px;font-size:13px;font-weight:700;background:rgba(0,0,0,.28);letter-spacing:1px;margin-bottom:10px}
+.h-title{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:8px}
+.h-meta{font-size:13px;opacity:.6}
+
+.container{max-width:680px;margin:0 auto;padding:0 0 32px}
+
+.nums-bar{display:flex;gap:10px;margin:14px 16px;flex-wrap:wrap}
+.num-chip{flex:1;min-width:90px;text-align:center;padding:12px 8px;background:#fff;border:1px solid #d1e8d1;border-radius:10px}
+.num-chip-val{font-size:20px;font-weight:700;color:#1a1a2e}
+.num-chip-label{font-size:12px;color:#888;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+
+/* Sparklines */
+.trends-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.trend-card{background:#fff;border:1px solid #d1e8d1;border-radius:10px;padding:12px;text-align:center}
+.trend-name{font-size:13px;color:#888;margin-bottom:4px;font-weight:600;letter-spacing:.5px}
+.trend-val{font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px}
+.trend-change{font-size:14px;font-weight:600;margin-bottom:8px}
+.trend-up{color:#07C160}.trend-down{color:#ef4444}
+.trend-spark{width:100%;height:48px}
+.trend-spark svg{width:100%;height:100%}
+.trend-labels{display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:4px;padding:0 2px}
+
+/* Section */
+.section{padding:16px 16px}
+.s-title{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.s-num{display:inline-flex;width:32px;height:32px;border-radius:8px;background:#07C160;color:#fff;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+
+/* Big divider */
+.s-divider{margin:8px 0 16px;padding:22px 16px;background:linear-gradient(135deg,#07C160,#038a3f);color:#fff;border-radius:12px;text-align:center}
+.s-divider h2{font-size:22px;font-weight:800;margin:0;letter-spacing:2px}
+.s-divider p{font-size:14px;opacity:.8;margin:4px 0 0}
+
+/* Verification Cards — now inside fold-card */
+.ver-card{margin-bottom:8px;border-radius:10px;overflow:hidden;background:#fff}
+.ver-card.confirmed{border-left:4px solid #07C160}
+.ver-card.cautious{border-left:4px solid #3b82f6}
+.ver-card.pending{border-left:4px solid #f59e0b}
+.ver-card.risk-up{border-left:4px solid #ef4444}
+.ver-card-body{padding:15px 16px}
+.ver-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.ver-card-judgment{font-size:16px;font-weight:600;color:#1a1a2e;flex:1;line-height:1.5}
+.ver-card-status{display:inline-flex;align-items:center;gap:3px;font-size:13px;font-weight:700;padding:3px 10px;border-radius:12px;flex-shrink:0}
+.ver-card-status.confirmed{background:#b7f0c7;color:#038a3f}
+.ver-card-status.cautious{background:#dbeafe;color:#1e40af}
+.ver-card-status.pending{background:#fef3c7;color:#92400e}
+.ver-card-status.risk-up{background:#fee2e2;color:#991b1b}
+.ver-card-evidence{font-size:16px;color:#555;line-height:1.65;margin-bottom:8px}
+.ver-card-action{font-size:15px;color:#888}
+
+/* Mainline Cards */
+.mainline-card{margin-bottom:8px;padding:15px 16px;background:#fff;border-radius:10px;border:1px solid #d1e8d1;display:flex;gap:12px;align-items:flex-start}
+.mainline-priority{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800;flex-shrink:0}
+.mlp1{background:#07C160}.mlp2{background:#10b981}.mlp3{background:#3b82f6}.mlp4{background:#8b5cf6}.mlpr{background:#ef4444}
+.mainline-body{flex:1}
+.mainline-name{font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+.mainline-judgment{font-size:15px;color:#555;line-height:1.6;margin-bottom:4px}
+.mainline-caveat{font-size:14px;color:#ef4444;line-height:1.5}
+
+/* Decision Cards with ABCD numbering and colors */
+.dec-card{margin-bottom:10px;border-radius:10px;background:#fff;overflow:hidden}
+.dec-card.A{border:2px solid #07C160}.dec-card.B{border:2px solid #3b82f6}.dec-card.C{border:2px solid #f59e0b}
+.dec-card.D{border:2px solid #8b5cf6}.dec-card.E{border:2px solid #ec4899}
+.dec-card-dir{font-size:16px;font-weight:700;color:#1a1a2e;padding:14px 16px 8px}
+.dec-card-dir .dec-idx{display:inline-flex;width:26px;height:26px;border-radius:6px;color:#fff;align-items:center;justify-content:center;font-size:13px;font-weight:800;margin-right:8px;flex-shrink:0}
+.decA .dec-idx{background:#07C160}.decB .dec-idx{background:#3b82f6}.decC .dec-idx{background:#f59e0b}
+.decD .dec-idx{background:#8b5cf6}.decE .dec-idx{background:#ec4899}
+.dec-card-action{font-size:15px;color:#555;padding:0 16px 10px;line-height:1.7}
+.dec-card-rule{display:flex;flex-direction:column;gap:6px;padding:0 16px 10px}
+.dec-trigger{display:flex;align-items:flex-start;gap:6px;font-size:14px;line-height:1.6;padding:10px 12px;border-radius:8px}
+.dec-trigger.trigger-up{background:#ecfdf5;border:1px solid #bbf7d0}
+.dec-trigger.trigger-down{background:#fef2f2;border:1px solid #fecaca}
+.dec-trigger-icon{flex-shrink:0;font-size:15px;font-weight:700}
+.trigger-up .dec-trigger-icon{color:#07C160}
+.trigger-down .dec-trigger-icon{color:#ef4444}
+.dec-trigger-label{font-size:13px;font-weight:700;flex-shrink:0;min-width:50px}
+.trigger-up .dec-trigger-label{color:#038a3f}
+.trigger-down .dec-trigger-label{color:#991b1b}
+.dec-trigger-text{color:#555;flex:1}
+.dec-tickers{padding:0 16px 14px;font-size:14px;color:#888}
+.dec-tickers span{color:#07C160;font-weight:600}
+
+/* Scenario Cards */
+.scenario-grid{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.scenario-card{padding:15px 16px;border-radius:10px;border:1px solid;font-size:15px;line-height:1.7}
+.sc-mild{background:#f0fdf4;border-color:#bbf7d0;color:#065f46}
+.sc-base{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.sc-worst{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.scenario-label{font-size:14px;font-weight:700;margin-bottom:4px;letter-spacing:.5px}
+
+/* Modules */
+.sec-details{margin-bottom:10px;border-radius:12px;overflow:hidden;background:#fff;border:1px solid #d1e8d1}
+.sec-summary{display:flex;align-items:center;gap:10px;padding:16px 16px;font-size:16px;font-weight:600;cursor:pointer;list-style:none;color:#1a1a2e}
+.sec-summary::-webkit-details-marker{display:none}
+.sec-num{display:inline-flex;width:32px;height:32px;border-radius:8px;color:#fff;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.sc0 .sec-num{background:#07C160}.sc1 .sec-num{background:#f59e0b}.sc2 .sec-num{background:#3b82f6}
+.sc3 .sec-num{background:#8b5cf6}.sc4 .sec-num{background:#ec4899}.sc5 .sec-num{background:#06b6d4}
+.sc6 .sec-num{background:#84cc16}.sc7 .sec-num{background:#f97316}
+.sec-arrow{font-size:13px;color:#aaa;margin-left:auto;transition:transform .2s}
+.sec-details[open] .sec-arrow{transform:rotate(180deg)}
+.sec-body{padding:0 16px 16px}
+
+.mod-callout{background:#e8fce8;border-left:4px solid #07C160;padding:15px 16px;border-radius:0 8px 8px 0;margin-bottom:14px;font-size:16px;line-height:1.75;color:#333}
+.mod-callout-label{font-size:14px;font-weight:700;color:#038a3f;margin-bottom:4px;letter-spacing:.5px}
+
+.evidence-card{padding:14px 14px;background:#f8faf9;border-radius:8px;margin-bottom:8px;border:1px solid #e8ece8;font-size:15px;color:#555;line-height:1.7}
+.evidence-label{font-size:13px;font-weight:700;color:#07C160;margin-bottom:6px;letter-spacing:.5px}
+
+.mod-info-box{margin:8px 0;padding:14px 14px;border-radius:8px;font-size:15px;line-height:1.7}
+.info-meaning{background:#f0f4ff;border:1px solid #c7d2fe;color:#3730a3}
+.info-risk{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+.info-mech{background:#fdf4ff;border:1px solid #e9d5ff;color:#6b21a8}
+.info-obs{background:#f0fdf4;border:1px solid #bbf7d0;color:#065f46}
+.info-label{font-size:13px;font-weight:700;margin-bottom:6px;letter-spacing:.5px}
+
+.mod-tracks{margin:10px 0}
+.mod-track-tag{display:inline-block;padding:4px 10px;margin:3px 4px 3px 0;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;color:#666}
+
+/* Chain */
+.chain-details{margin-bottom:8px;padding:15px;background:#faf5ff;border:1px solid #ede9fe;border-radius:10px}
+.chain-summary{font-size:16px;font-weight:700;color:#7c3aed;cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}
+.chain-summary::-webkit-details-marker{display:none}
+.chain-ctx-arrow{font-size:11px;margin-left:auto;transition:transform .2s;color:#a78bfa}
+.chain-details[open]>.chain-summary .chain-ctx-arrow{transform:rotate(180deg)}
+.chain-step-v{display:flex;align-items:flex-start;gap:10px;padding:8px 0}
+.chain-node{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0}
+.chain-node.c1{background:#3b82f6}.chain-node.c2{background:#06b6d4}.chain-node.c3{background:#8b5cf6}.chain-node.c4{background:#ec4899}
+.chain-step-body{flex:1;padding-top:2px}
+.chain-step-label{font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:2px}
+.chain-step-detail{font-size:15px;color:#666;line-height:1.6}
+.chain-arrow-connector{display:flex;justify-content:flex-start;padding:2px 0 2px 12px;color:#c4b5fd;font-size:16px;font-weight:700}
+
+/* Direction Matrix */
+.dir-group{margin-bottom:14px}
+.dir-group-header{padding:12px 14px;border-radius:10px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px;cursor:pointer}
+.dir-bullish .dir-group-header{background:#b7f0c7;color:#038a3f}
+.dir-caut-opt .dir-group-header{background:#cffafe;color:#0e7490}
+.dir-neutral .dir-group-header{background:#f3f4f6;color:#6b7280}
+.dir-cautious .dir-group-header{background:#ffedd5;color:#c2410c}
+.dir-bearish .dir-group-header{background:#fee2e2;color:#991b1b}
+.dir-group-count{font-size:13px;font-weight:400;opacity:.6}
+.dir-body{display:none}
+.dir-group.open .dir-body{display:block}
+.dir-card{padding:13px 14px;border-bottom:1px solid #e5e7eb;font-size:15px;line-height:1.6;background:#fff}
+.dir-card:last-child{border-bottom:none;border-radius:0 0 10px 10px}
+.dir-card:first-child{border-radius:10px 10px 0 0}
+.dir-card-name{font-weight:600;color:#1a1a2e;margin-bottom:3px}
+.dir-card-logic{font-size:15px;color:#555;line-height:1.6}
+.dir-card-meta{font-size:14px;color:#888;margin-top:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dir-card-meta span{display:inline-flex;align-items:center;gap:2px}
+.dir-score{font-family:monospace;font-weight:700}
+.dir-score.green{color:#07C160}
+.dir-score.red{color:#ef4444}
+.dir-extra{font-size:14px;color:#888;margin-top:4px;line-height:1.5}
+.dir-toggle{font-size:13px;color:#aaa;margin-left:auto;transition:transform .2s}
+.dir-group.open .dir-toggle{transform:rotate(180deg)}
+
+/* Fold cards */
+.fold-card{margin-bottom:10px}
+.fold-header{padding:15px 16px;background:#fff;border:1px solid #d1e8d1;border-radius:10px;font-size:16px;font-weight:600;color:#1a1a2e;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.fold-body{padding:14px 16px;font-size:15px;line-height:1.75;color:#555;display:none}
+.fold-card.open .fold-body{display:block}
+
+/* Glossary */
+.glossary-grid{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.glossary-term{padding:8px 12px;background:#fff;border:1px solid #d1e8d1;border-radius:6px;font-size:14px;line-height:1.5}
+.glossary-term strong{color:#07C160;margin-right:4px}
+
+.collapse-btn{display:block;width:100%;text-align:center;padding:10px;font-size:14px;color:#07C160;background:#e8fce8;border:1px solid #b7f0c7;border-radius:8px;cursor:pointer;margin-top:12px;font-weight:600}
+.collapse-btn:hover{background:#b7f0c7}
+
+p{margin:6px 0}
+strong{color:#1a1a2e}
+.watermark{text-align:center;font-size:11px;color:#bbb;padding:24px 0 8px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="h-tag">WEEKLY COMPASS</div>
+  <div class="h-title">AI周报：数据治理、基建交付成为本周Alpha验证主线 (2026-06-22 14:28)</div>
+  <div class="h-meta">June 22, 2026</div>
+</div>
+<div class="container">
+<div class="section">
+<div class="fold-card">
+<div class="fold-header">⓪ 上期判断验证 <span style="font-size:12px;color:#aaa">▾</span></div>
+<div class="fold-body"><div class="ver-card cautious">
+<div class="ver-card-body">
+<div class="ver-card-header">
+<div class="ver-card-judgment">AI基础设施资金与电力瓶颈</div>
+<div class="ver-card-status cautious">⚠️ 谨慎强化</div>
+</div>
+<div class="ver-card-evidence">6月18日DayOne Data Centres马来西亚项目融资扩张，说明银行信贷和项目融资成本已进入AI数据中心交付链。</div>
+<div class="ver-card-action">→ 谨慎强化；只确认融资/电力瓶颈延续，具体执行线见前瞻重点清单。</div>
+</div></div><div class="ver-card pending">
+<div class="ver-card-body">
+<div class="ver-card-header">
+<div class="ver-card-judgment">Agent/开发者工具链</div>
+<div class="ver-card-status pending">⏳ 待验证</div>
+</div>
+<div class="ver-card-evidence">本周未捕捉到Ona/Codex整合、企业部署或付费客户新增披露；不把上期逻辑自动上调。</div>
+<div class="ver-card-action">→ 等待验证；未因上期逻辑自动上调，继续看企业部署和付费证据。</div>
+</div></div><div class="ver-card confirmed">
+<div class="ver-card-body">
+<div class="ver-card-header">
+<div class="ver-card-judgment">AI数据/治理</div>
+<div class="ver-card-status confirmed">✅ 强化</div>
+</div>
+<div class="ver-card-evidence">6月19日美国第六巡回上诉法院允许俄亥俄州执行未成年人社交媒体家长同意法，平台责任从舆论风险转为合规义务。</div>
+<div class="ver-card-action">→ 强化；维持主要Alpha，具体触发线见前瞻重点清单。</div>
+</div></div><div class="ver-card risk-up">
+<div class="ver-card-body">
+<div class="ver-card-header">
+<div class="ver-card-judgment">地缘/出口管制</div>
+<div class="ver-card-status risk-up">🔴 风险升</div>
+</div>
+<div class="ver-card-evidence">本周未捕捉到直接改变出口管制或跨境AI审批判断的新文件；地缘变量继续作为风险约束。</div>
+<div class="ver-card-action">→ 风险升高；仅作为仓位和估值容错开关，不单独推出交易结论。</div>
+</div></div></div>
+</div></div>
+<div class="section">
+<div class="s-title"><span class="s-num">①</span>本周摘要</div>
+<p style="font-size:16px;line-height:1.8;color:#333">本周核心矛盾不是AI需求是否存在，而是利润池正被可验证变量重新分配。文末方向表确认的主要超额收益线索集中在AI数据/安全/治理、数据中心电力/散热/物理基建、AI资本开支/融资/估值周期；共同标准是必须拿出部署、收入、合规、融资或交付证据。主要风险来自AI监管与地缘变量，出口管制保持监控。因此，本期适合沿硬锚点跟踪，不适合追逐只有故事、没有验证节点的方向。</p>
+</div>
+<div class="section">
+<div class="s-title"><span class="s-num">②</span>本周主线</div>
+<div class="mainline-card">
+<div class="mainline-priority mlp1">1</div>
+<div class="mainline-body">
+<div class="mainline-name">AI数据/安全/治理</div>
+<div class="mainline-judgment">隐私审计、未成年人保护、DHS/ICE面部识别和AI招聘合规同时升温，治理工具从合规成本转为可预算需求。</div>
+<div class="mainline-caveat">🚫 不能把监管新闻本身等同于订单或收入。</div>
+</div>
+</div><div class="mainline-card">
+<div class="mainline-priority mlp2">2</div>
+<div class="mainline-body">
+<div class="mainline-name">数据中心电力/散热/物理基建</div>
+<div class="mainline-judgment">数据中心融资和电力需求仍在强化，但利率上行会压制基础设施估值。</div>
+<div class="mainline-caveat">🚫 不能把融资新闻等同于项目已经产生现金流。</div>
+</div>
+</div><div class="mainline-card">
+<div class="mainline-priority mlp3">3</div>
+<div class="mainline-body">
+<div class="mainline-name">AI资本开支/融资/估值周期</div>
+<div class="mainline-judgment">私人资本进入数据中心融资，说明AI资本开支叙事仍强；但利率和流动性决定估值持续性。</div>
+<div class="mainline-caveat">🚫 不能把特殊公司融资外推成全行业项目融资趋势。</div>
+</div>
+</div><div class="mainline-card">
+<div class="mainline-priority mlp4">4</div>
+<div class="mainline-body">
+<div class="mainline-name">云计算/模型托管/推理中间件</div>
+<div class="mainline-judgment">Agent生产环境、模型托管、沙箱权限和推理路由同时出现二级锚点，云中间层比泛应用更早承接企业AI预算。</div>
+<div class="mainline-caveat">🚫 应用层席位、中间件托管、流程自动化不能互相替代。</div>
+</div>
+</div><div class="mainline-card">
+<div class="mainline-priority mlpr">⚠</div>
+<div class="mainline-body">
+<div class="mainline-name">AI监管/出口管制/地缘风险</div>
+<div class="mainline-judgment">地缘能源变量、DHS/ICE面部识别、未成年人保护、AI招聘歧视诉讼和医疗AI监管路径说明政策风险正在实质化。</div>
+<div class="mainline-caveat">🚫 单条地缘新闻若未传导到价格和资金流，不应外推成长期重估。</div>
+</div>
+</div>
+</div>
+<div class="section">
+<div class="s-title"><span class="s-num">③</span>市场变量7日走势</div>
+<div class="nums-bar"><div class="num-chip"><div class="num-chip-val">$80.38</div><div class="num-chip-label">布伦特原油</div></div><div class="num-chip"><div class="num-chip-val">4.46%</div><div class="num-chip-label">10Y 收益率</div></div><div class="num-chip"><div class="num-chip-val">16.78</div><div class="num-chip-label">VIX</div></div></div><div style="margin-top:10px">
+<div style="font-size:12px;font-weight:600;color:#888;margin-bottom:8px">📈 7日趋势</div>
+<div class="trends-grid"><div class="trend-card">
+<div class="trend-name">布伦特原油</div>
+<div class="trend-val">79.85</div>
+<div class="trend-change trend-down">↓ 13.25 (-14.2%)</div>
+<div class="trend-spark"><svg viewBox="0 0 200 48" preserveAspectRatio="none">
+<polygon points="4.0,44 4.0,4.0 36.0,11.7 68.0,20.3 100.0,32.1 132.0,44.0 164.0,42.3 196.0,41.5 196.0,44" fill="rgba(239,68,68,0.06)"/>
+<polyline points="4.0,4.0 36.0,11.7 68.0,20.3 100.0,32.1 132.0,44.0 164.0,42.3 196.0,41.5" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+<div class="trend-labels"><span>06/10</span><span>06/18</span></div>
+</div><div class="trend-card">
+<div class="trend-name">美国10Y</div>
+<div class="trend-val">4.46</div>
+<div class="trend-change trend-down">↓ 0.09 (-2.0%)</div>
+<div class="trend-spark"><svg viewBox="0 0 200 48" preserveAspectRatio="none">
+<polygon points="4.0,44 4.0,4.0 36.0,37.3 68.0,27.3 100.0,30.7 132.0,44.0 164.0,24.0 196.0,34.0 196.0,44" fill="rgba(239,68,68,0.06)"/>
+<polyline points="4.0,4.0 36.0,37.3 68.0,27.3 100.0,30.7 132.0,44.0 164.0,24.0 196.0,34.0" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+<div class="trend-labels"><span>06/10</span><span>06/18</span></div>
+</div><div class="trend-card">
+<div class="trend-name">VIX</div>
+<div class="trend-val">16.40</div>
+<div class="trend-change trend-down">↓ 5.82 (-26.2%)</div>
+<div class="trend-spark"><svg viewBox="0 0 200 48" preserveAspectRatio="none">
+<polygon points="4.0,44 4.0,4.0 36.0,22.5 68.0,34.2 100.0,44.0 132.0,42.6 164.0,29.1 196.0,42.7 196.0,44" fill="rgba(239,68,68,0.06)"/>
+<polyline points="4.0,4.0 36.0,22.5 68.0,34.2 100.0,44.0 132.0,42.6 164.0,29.1 196.0,42.7" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+<div class="trend-labels"><span>06/10</span><span>06/18</span></div>
+</div><div class="trend-card">
+<div class="trend-name">纳指100ETF</div>
+<div class="trend-val">740.62</div>
+<div class="trend-change trend-up">↑ 46.93 (+6.8%)</div>
+<div class="trend-spark"><svg viewBox="0 0 200 48" preserveAspectRatio="none">
+<polygon points="4.0,44 4.0,44.0 36.0,25.4 68.0,22.0 100.0,4.0 132.0,15.2 164.0,21.1 196.0,6.7 196.0,44" fill="rgba(7,193,96,0.08)"/>
+<polyline points="4.0,44.0 36.0,25.4 68.0,22.0 100.0,4.0 132.0,15.2 164.0,21.1 196.0,6.7" fill="none" stroke="#07C160" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+<div class="trend-labels"><span>06/10</span><span>06/18</span></div>
+</div></div>
+<div style="font-size:10px;color:#bbb;margin-top:6px;text-align:center">06/10 · 06/11 · 06/12 · 06/15 · 06/16 · 06/17 · 06/18</div>
+</div>
+</div>
+<div class="section">
+
+<div class="s-title"><span class="s-num">④</span>前瞻重点清单</div>
+<div style="font-size:15px;color:#888;margin-bottom:14px;line-height:1.6">说明：上方主线回答"哪些方向重要"，本清单回答"未来1-2周如何验证、何时降权"。</div>
+<div class="dec-card A decA">  <!-- placeholder, overridden by ic below -->
+<div class="dec-card-dir"><span class="dec-idx">A</span>AI数据/安全/治理</div>
+<div class="dec-card-action">进入本周首要候选池；把研究拆成数据使用合规、AI审计、权限管理、隐私/未成年人保护四条线，只跟能转成企业预算的公司。</div>
+<div class="dec-card-rule">
+<div class="dec-trigger trigger-up">
+<span class="dec-trigger-icon">▲</span>
+<span class="dec-trigger-label">上调触发</span>
+<span class="dec-trigger-text">出现监管处罚、企业AI审计采购、数据使用审计合同、安全预算上修、平台责任规则落地，或公司披露AI安全产品收入/客户数。</span>
+</div>
+<div class="dec-trigger trigger-down">
+<span class="dec-trigger-icon">▼</span>
+<span class="dec-trigger-label">降权线</span>
+<span class="dec-trigger-text">连续两周只有政策讨论和舆论争议，没有处罚、采购、预算或产品改造证据，则退回观察。</span>
+</div>
+</div>
+<div class="dec-tickers">观察标的：<span>Palo Alto Networks(PANW)</span> · <span>CrowdStrike(CRWD)</span> · <span>Cloudflare(NET)</span></div>
+</div>
+<div class="dec-card A decB">  <!-- placeholder, overridden by ic below -->
+<div class="dec-card-dir"><span class="dec-idx">B</span>数据中心电力/散热/物理基建</div>
+<div class="dec-card-action">保留正向研究，但只跟交付链；把电力接入、PPA、散热设备订单、项目融资利差放在同一张监控表。</div>
+<div class="dec-card-rule">
+<div class="dec-trigger trigger-up">
+<span class="dec-trigger-icon">▲</span>
+<span class="dec-trigger-label">上调触发</span>
+<span class="dec-trigger-text">数据中心贷款利差收窄、PPA签署、电力接入获批、散热/电力设备订单确认，或云厂商CapEx继续上修。</span>
+</div>
+<div class="dec-trigger trigger-down">
+<span class="dec-trigger-icon">▼</span>
+<span class="dec-trigger-label">降权线</span>
+<span class="dec-trigger-text">融资利差走阔、项目延期、电力审批受阻、云厂商CapEx指引下修时，下调基建链容错率。</span>
+</div>
+</div>
+<div class="dec-tickers">观察标的：<span>Vertiv(VRT)</span> · <span>Eaton(ETN)</span> · <span>Schneider Electric(SU.PA)</span></div>
+</div>
+<div class="dec-card A decC">  <!-- placeholder, overridden by ic below -->
+<div class="dec-card-dir"><span class="dec-idx">C</span>AI资本开支/融资/估值周期</div>
+<div class="dec-card-action">作为估值上限校准线；利率偏高时优先看现金流、订单和交付可见度，压低纯远期叙事权重。</div>
+<div class="dec-card-rule">
+<div class="dec-trigger trigger-up">
+<span class="dec-trigger-icon">▲</span>
+<span class="dec-trigger-label">上调触发</span>
+<span class="dec-trigger-text">超大规模云厂商CapEx维持/上修，基础设施基金或私募信贷融资条款改善，数据中心债务成本下降。</span>
+</div>
+<div class="dec-trigger trigger-down">
+<span class="dec-trigger-icon">▼</span>
+<span class="dec-trigger-label">降权线</span>
+<span class="dec-trigger-text">10Y收益率上行且项目融资成本同步上升时，先降低高杠杆数据中心和长久期AI软件权重。</span>
+</div>
+</div>
+<div class="dec-tickers">观察标的：<span>Microsoft(MSFT)</span> · <span>Amazon(AMZN)</span> · <span>Alphabet(GOOGL)</span></div>
+</div>
+<div class="dec-card A decD">  <!-- placeholder, overridden by ic below -->
+<div class="dec-card-dir"><span class="dec-idx">D</span>AI商业化/云中间件</div>
+<div class="dec-card-action">拆分三条验证线：Copilot等应用层席位、AgentCore/Inference Router等中间件、UiPath/Salesforce等流程自动化；不把三者混写。</div>
+<div class="dec-card-rule">
+<div class="dec-trigger trigger-up">
+<span class="dec-trigger-icon">▲</span>
+<span class="dec-trigger-label">上调触发</span>
+<span class="dec-trigger-text">应用层披露付费席位/续约/ARPU，中间件披露客户部署/托管用量/推理毛利，流程自动化披露ROI/ARR贡献。</span>
+</div>
+<div class="dec-trigger trigger-down">
+<span class="dec-trigger-icon">▼</span>
+<span class="dec-trigger-label">降权线</span>
+<span class="dec-trigger-text">若只有发布会、非上市公司估值或试点案例，且没有使用量、续约、收入或毛利证据，则降回观察。</span>
+</div>
+</div>
+<div class="dec-tickers">观察标的：<span>Microsoft(MSFT)</span> · <span>Amazon(AMZN)</span> · <span>UiPath(PATH)</span> · <span>ServiceNow(NOW)</span> · <span>Salesforce(CRM)</span></div>
+</div>
+<div class="dec-card A decE">  <!-- placeholder, overridden by ic below -->
+<div class="dec-card-dir"><span class="dec-idx">E</span>宏观/地缘风险预算</div>
+<div class="dec-card-action">作为仓位和估值容错开关；只在价格和资金流确认后影响AI资产容忍度。</div>
+<div class="dec-card-rule">
+<div class="dec-trigger trigger-up">
+<span class="dec-trigger-icon">▲</span>
+<span class="dec-trigger-label">上调触发</span>
+<span class="dec-trigger-text">10Y、VIX、布伦特油价同向恶化，或出口/跨境AI审查升级并影响订单、融资或资金流。</span>
+</div>
+<div class="dec-trigger trigger-down">
+<span class="dec-trigger-icon">▼</span>
+<span class="dec-trigger-label">降权线</span>
+<span class="dec-trigger-text">单条地缘新闻未传导到价格、利率、VIX或资金流时，不外推成长期重估。</span>
+</div>
+</div>
+<div class="dec-tickers">观察标的：<span>10Y收益率</span> · <span>VIX</span> · <span>布伦特油价</span> · <span>NVDA</span> · <span>ASML</span></div>
+</div>
+<div style="margin-top:18px">
+<div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:8px">📐 三情景推演</div>
+<div class="scenario-grid"><div class="scenario-card sc-mild">
+<div class="scenario-label">🟢 缓和情景</div>
+缓和情景：若油价、VIX和10Y同步回落，且数据中心融资、并网或Agent部署继续出现硬锚，研究重心可从防守性治理扩展到基建交付和云中间层。
+</div><div class="scenario-card sc-base">
+<div class="scenario-label">🟡 基准情景</div>
+基准情景：若地缘新闻反复但市场变量没有同向恶化，维持硬锚验证，不把单条宏观新闻外推成AI赛道全面重估。
+</div><div class="scenario-card sc-worst">
+<div class="scenario-label">🔴 恶化情景</div>
+恶化情景：若油价、VIX和10Y同步上行，或出口/跨境审查升级并影响资金流，应压低高估值、长久期和收入未验证方向，保留治理、安全、电力效率和资产支持型基建的研究权重。
+</div></div>
+</div>
+</div>
+<div class="s-divider">
+<h2>细分板块分析</h2>
+<p>7大板块 · 逐模块拆解</p>
+</div>
+<div class="section">
+<details class="sec-details sc0">
+<summary class="sec-summary">
+<span class="sec-num">1</span>
+宏观环境与政策风向
+<span class="sec-arrow">▼</span>
+</summary>
+<div class="sec-body"><div class="mod-callout">
+<div class="mod-callout-label">📌 板块判断</div>
+本周宏观变量的价值不在单条地缘新闻，而在它是否同时推高油价、VIX和长端利率，从而压缩高估值AI资产的容错率。地缘缓和若没有传导到能源、利率和风险偏好，就不应被外推为AI赛道全面利好。
+</div>
+<div class="evidence-card">
+<div class="evidence-label">📋 关键依据</div>
+<div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月17日 三艘伊朗油轮突破美军封锁运载近500万桶原油：CNBC报道至少三艘伊朗油轮已突破美国海军在霍尔木兹海峡的封锁，为数月来首次；这些油轮装载近500万桶原油，显示伊朗成功绕过制裁出口石油；霍尔木兹海峡承担全球约20%的石油运输，该地区安全局势恶化可能推高国际油价及航运保险费</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月18日 美国海军结束对伊朗港口封锁：美国海军于2026年6月18日解除对伊朗港口和沿海地区的封锁；封锁解除指令由总统特朗普下达；解除封锁可能促使伊朗增加石油出口，从而压低全球油价</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月18日 美国解除伊朗港口封锁，启动60天最终谈判：美国已解除对伊朗港口的船舶进出封锁，允许船只自由进出伊朗港口和沿海地区；美伊双方宣布进入为期60天的最终协议谈判窗口；此举缓解了霍尔木兹海峡的航运中断风险，全球原油供应担忧下降</div>
+</div>
+<div class="mod-info-box info-meaning">
+<div class="info-label">💡 投资含义</div>
+本周宏观事实只提供风险预算开关，不提供直接AI交易信号。单次油轮、封锁或港口新闻本身不能推出利率或估值重估；只有当航运风险持续反映到布伦特油价、VIX和10Y收益率，并进一步影响数据中心电价、融资成本或科技股风险偏好时，才进入AI估值链条。 对个人美股投资者，宏观板块本周的动作是控制估值容错，而不是寻找单点事件交易。<br><br>现金流更清晰的美国本土AI基建、云托管和治理工具更值得跟踪；长久期、高估值、收入未验证的软件方向需要等待更硬的商业化数据。
+</div>
+<div class="mod-tracks"><div style="font-size:14px;font-weight:700;color:#888;margin-bottom:4px">📋 跟踪重点</div><span class="mod-track-tag">10Y收益率</span><span class="mod-track-tag">VIX</span><span class="mod-track-tag">布伦特原油</span><span class="mod-track-tag">出口管制/跨境审批</span><span class="mod-track-tag">数据中心电价和云厂商CapEx口径。</span></div></div>
+</details><details class="sec-details sc1">
+<summary class="sec-summary">
+<span class="sec-num">2</span>
+资本流向与估值逻辑
+<span class="sec-arrow">▼</span>
+</summary>
+<div class="sec-body"><div class="mod-callout">
+<div class="mod-callout-label">📌 板块判断</div>
+本周资本流向的重点不是“AI还热不热”，而是AI基建融资正在进入债务、项目贷款和私募信贷定价阶段。资金仍在流入，但要求更清楚的资产抵押、电力接入、利差补偿和退出路径。
+</div>
+<div class="evidence-card">
+<div class="evidence-label">📋 关键依据</div>
+<div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月18日 黑石旗下AirTrunk寻求43亿澳元贷款用于悉尼超大规模数据中心：黑石旗下AirTrunk寻求约43亿澳元（约30亿美元）的五年期贷款，用于悉尼一个功率需求超过400MW的超大规模数据中心（SYD3）；该交易标志着AI计算基础设施的债务融资规模显著扩大，并呈现转向项目特定债务和资产支持债券的趋势；</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月17日 AI数据中心融资来源多元化：Hyperscaler资产负债表、公共债券、私募信贷等多渠道并存：高盛预测2025-2030年AI和数据中心支出将达数万亿美元，形成庞大融资生态；</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月18日 SpaceX计划通过债务和股权融资至少200亿美元用于AI数据中心和太空基建：SpaceX计划进行首次债务与股权融资，目标至少200亿美元，主要依靠债务市场并追求投资级评级；分析师预测SpaceX到2031年净债务将超过4000亿美元，当前约130亿美元；</div>
+</div>
+<div class="mod-info-box info-meaning">
+<div class="info-label">💡 投资含义</div>
+AI基建融资不是一个机制。AirTrunk、DayOne这类数据中心项目融资更接近资产/合同支持型融资，债权人看重客户承诺、电力接入和现金流覆盖；SpaceX更接近公司信用和前沿太空基建融资，主要说明资本强度和融资胃口，不能直接外推为普通AI数据中心债务融资趋势。<br><br> 继续谨慎看好AI资本开支和数据中心交付链，但只把AirTrunk/DayOne/FERC这类项目融资、电力和交付硬锚作为主证据；SpaceX只保留为资本强度和远期期权观察，不作为上调数据中心链条的直接依据。
+</div>
+<div class="mod-tracks"><div style="font-size:14px;font-weight:700;color:#888;margin-bottom:4px">📋 跟踪重点</div><span class="mod-track-tag">数据中心贷款利差</span><span class="mod-track-tag">PPA（购电协议）</span><span class="mod-track-tag">FERC并网执行</span><span class="mod-track-tag">项目延期率</span><span class="mod-track-tag">云厂商CapEx指引</span><span class="mod-track-tag">10Y收益率。</span></div></div>
+</details><details class="sec-details sc2">
+<summary class="sec-summary">
+<span class="sec-num">3</span>
+产能瓶颈与供应链重构
+<span class="sec-arrow">▼</span>
+</summary>
+<div class="sec-body"><div class="mod-callout">
+<div class="mod-callout-label">📌 板块判断</div>
+本周产能瓶颈的核心不是GPU本身，而是电力、并网、贷款和施工排队能否把芯片变成可售算力。换句话说，AI供给瓶颈正在从“买到芯片”转向“把芯片接上电、装进机房并产生现金流”。
+</div>
+<div class="evidence-card">
+<div class="evidence-label">📋 关键依据</div>
+<div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月19日 FERC命令六大电网运营商改革大型负载并网规则：FERC命令六大区域电网运营商（PJM、MISO、SPP、CAISO、ISO-NE、NYISO）在60天内证明或修订大型负载并网电价规则；改革旨在加快AI数据中心等大型负载的互联和电力交付，同时防止不公平成本转移；</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月16日 Mission 300计划连接超5000万非洲人口电力，接近2030年目标：世界银行和非洲开发银行Mission 300计划已为40个国家超过5000万非洲人接入电力；坦桑尼亚新增750万电力连接，连接速度较此前提高五倍；埃塞俄比亚通过降低电网连接成本改革，新增电力连接460万人</div>
+</div>
+<div class="mod-info-box info-meaning">
+<div class="info-label">💡 投资含义</div>
+GPU采购只是投入，电力接入和项目融资才是投入转化为供给的阀门。若FERC并网改革和项目贷款推进顺利，散热、电力设备、工程交付和托管链条议价权上升；若并网排队或信贷约束恶化，GPU需求再强也会被卡在交付环节。 数据中心电力/散热/物理基建维持谨慎看好，但必须按交付链交易，而不是按AI口号交易。<br><br>Vertiv（VRT）、Eaton（ETN）、Schneider Electric（SU.PA）等观察锚应跟随订单、并网、PPA和融资条件变化。
+</div>
+<div class="mod-tracks"><div style="font-size:14px;font-weight:700;color:#888;margin-bottom:4px">📋 跟踪重点</div><span class="mod-track-tag">大型负载并网审批</span><span class="mod-track-tag">PPA</span><span class="mod-track-tag">散热/电力设备订单</span><span class="mod-track-tag">数据中心贷款利差</span><span class="mod-track-tag">项目延期率。</span></div></div>
+</details><details class="sec-details sc3">
+<summary class="sec-summary">
+<span class="sec-num">4</span>
+AI商业化落地与价值验证
+<span class="sec-arrow">▼</span>
+</summary>
+<div class="sec-body"><div class="mod-callout">
+<div class="mod-callout-label">📌 板块判断</div>
+本周商业化信号不是同一种东西，必须拆成三类：M365 Copilot席位属于应用层SaaS采购，Salesforce/UiPath更偏流程自动化与用量/ROI验证，DigitalOcean Inference Router和AgentCore更接近中间件、托管和推理成本治理。三类信号都重要，但不能互相替代。
+</div>
+<div class="evidence-card">
+<div class="evidence-label">📋 关键依据</div>
+<div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月15日 DigitalOcean发布Inference Router：自动优化AI推理成本与延迟的路由层：DigitalOcean发布Inference Router推理路由服务，通过小型语言模型解析请求意图，结合外部实时成本和延迟数据对候选模型排序，自动选择最优模型</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月16日 Salesforce豪赌按任务付费AI Agent模式：Salesforce推出Flex Credits消费计费模式和Headless 360跨平台嵌入方案，从按席位收费转向按任务消耗付费的AI Agent模式；Agentforce AWU季度环比增长111%至38亿；Slack AI使用量季度环比增长347%</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月16日 微软Copilot Cowork正式商用：企业Agent自动化工作流：2026年6月16日，微软Copilot Cowork正式面向Microsoft 365商用；</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月16日 印度三大IT巨头部署30万Microsoft 365 Copilot席位，年投入超1亿美元：三家印度IT公司（Infosys、TCS、Wipro）已累计部署30万Microsoft 365 Copilot席位，每家均超过10万席；每家公司每年向微软支付约3600万美元（每用户每月30美元），总年支出超1亿美元</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月16日 UiPath推出AI原生案件管理Maestro Case，显著提升企业流程自动化效率：UiPath发布Maestro Case，一款AI原生案件管理功能，可处理动态、长期、异常多的企业流程如争议解决和KYC；Maestro Case实现案件处理时间缩减60-80%，无需人工干预解决的案件数量增加3-5倍，SLA合规性提升超过25个百分点</div>
+</div>
+<div class="mod-info-box info-risk">
+<div class="info-label">🛡️ 风险控制</div>
+如果后续只有发布会、试点案例或估值新闻，而没有Copilot Credits消耗、AgentCore客户部署、UiPath流程ROI、AI功能独立付费率、云AI收入或推理毛利改善，则该方向降回观察。
+</div>
+<div class="mod-info-box info-meaning">
+<div class="info-label">💡 投资含义</div>
+商业化Alpha不在“又发布一个AI产品”，而在预算是否能落到可计费席位、可复用工作流、托管环境、推理成本治理或毛利改善上。Copilot席位证明应用层付费意愿，不能单独证明预算迁移到中间件；AgentCore/Inference Router证明工程底座成熟，仍需客户部署和收入验证；<br><br>UiPath/Salesforce则要看ROI是否转成续约和用量。 上调研究优先级的是云中间件和Agent工具链，不是泛AI应用。
+</div>
+<div class="mod-tracks"><div style="font-size:14px;font-weight:700;color:#888;margin-bottom:4px">📋 跟踪重点</div><span class="mod-track-tag">应用层看付费席位</span><span class="mod-track-tag">续约率和ARPU</span><span class="mod-track-tag">中间件看托管客户数</span><span class="mod-track-tag">推理毛利和单位成本</span><span class="mod-track-tag">流程自动化看ROI</span><span class="mod-track-tag">SLA改善</span><span class="mod-track-tag">ARR贡献和客户留存。</span></div></div>
+</details><details class="sec-details sc4">
+<summary class="sec-summary">
+<span class="sec-num">5</span>
+监管演进与合规风险
+<span class="sec-arrow">▼</span>
+</summary>
+<div class="sec-body"><div class="mod-callout">
+<div class="mod-callout-label">📌 板块判断</div>
+监管板块的投资含义不是“监管打压AI”，而是采购门槛上移。能证明数据使用合规、审计链条和用户保护的工具更容易拿预算；数据黑箱、跨境敏感和面向未成年人的应用应承受估值折价。
+</div>
+<div class="evidence-card">
+<div class="evidence-label">📋 关键依据</div>
+<div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月17日 FDA将AI放射成像软件归类为II类医疗器械，明确监管路径：美国FDA于2026年6月17日最终确定将带有预定变更控制计划（PCCP）的放射科机器学习定量成像软件归类为II类医疗器械，并附有特殊控制；新分类允许使用510(k)上市前通知途径，且包含PCCP机制，制造商可在预定义范围内预先获批未来算法变更</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月19日 联邦上诉法院裁定俄亥俄州可要求16岁以下儿童使用社交媒体需家长同意：美国第六巡回上诉法院以2-1裁定允许俄亥俄州执行《社交媒体家长通知法》，该法要求16岁以下用户创建或使用社交媒体账户必须获得家长同意；该裁决推翻了下级法院此前实施的禁令，法院认为法律旨在保护儿童免受线上伤害而非违宪限制言论自由</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月16日 Workday AI招聘工具歧视诉讼：加州反偏见法是否全国适用：2026年6月16日，旧金山联邦法官审理Workday AI招聘工具是否受加州FEHA约束的案件；原告Derek Mobley指控Workday的AI筛选工具对年龄超过40岁的黑人和残疾申请人存在歧视；Workday辩称FEHA不能适用于加州以外，否则违反商业条款和正当程序</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月18日 Amazon Bedrock AgentCore Harness 正式可用：数分钟内从创意到生产级AI Agent：Amazon Bedrock AgentCore Harness 于2026年6月18日正式可用，提供隔离环境、文件系统、Shell访问、多模型切换、网关/MCP工具调用、记忆及CloudWatch追踪等能力</div>
+</div>
+<div class="mod-info-box info-meaning">
+<div class="info-label">💡 投资含义</div>
+监管正在从抽象伦理问题变成上线资格问题。企业采购方会要求供应商提供数据来源、用途透明度、责任记录和持续监控能力；这把AI治理、安全、权限管理和审计从可选功能推向刚需预算。 AI数据/安全/治理维持本周最清晰的Alpha方向之一，但要区分“安全叙事”与“合规预算”。<br><br>真正值得加权的是能进入采购流程、审计流程或平台责任链条的公司。
+</div>
+<div class="mod-tracks"><div style="font-size:14px;font-weight:700;color:#888;margin-bottom:4px">📋 跟踪重点</div><span class="mod-track-tag">数据使用合规执法</span><span class="mod-track-tag">AI审计采购</span><span class="mod-track-tag">平台未成年人保护规则</span><span class="mod-track-tag">AI招聘歧视诉讼</span><span class="mod-track-tag">DHS/ICE面部识别合规</span><span class="mod-track-tag">FDA医疗AI路径。</span></div></div>
+</details><details class="sec-details sc5">
+<summary class="sec-summary">
+<span class="sec-num">6</span>
+前沿技术与学术风向
+<span class="sec-arrow">▼</span>
+</summary>
+<div class="sec-body"><div class="mod-callout">
+<div class="mod-callout-label">📌 板块判断</div>
+本板块合并预商业化技术与AI研究动态，只讨论可能改变中长期投资假设的软硬件、论文和研究机构信号；论文、原型和实验结果不直接等同于商业化收入。
+</div>
+<div class="evidence-card">
+<div class="evidence-label">📋 事实发现</div>
+<div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 本周前沿技术仍不构成短线交易催化，但它提供了一个值得跟踪的工程路线：AI正在从纯软件模型走向“数据生成 → 物理设计 → 仿真验证 → 真实部署”的闭环。这个闭环若被证明可复制，长期受益方向会从单纯模型能力扩展到机器人硬件设计、仿真平台、传感器/执行器和边缘推理。</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 06月18日 arXiv预印本《生成机器人手：从人类演示数据到物理体》（信息池未提供作者/机构）：研究利用超过400万帧人类日常操作指尖运动数据来优化机器人手的物理设计；研究生成了6自由度通用手和采用空间四杆仿生关节的低自由度任务专用手。量子/SAT等弱相关研究保留在学术低权重雷达。</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 上方“生成机器人手”论文同时具有学术意义：它把人类演示数据用于硬件形态搜索；后续只有出现复现、开源、真实试点或采购协议时才提高权重。</div><div style="font-size:15px;color:#555;padding:5px 0;border-bottom:1px solid #f0f0f0">• 本周学术信号更像远期雷达。真正值得保留的是可能改变成本、可靠性、数据需求或合规预算的方法论，而不是论文数量本身。</div>
+</div>
+<div class="mod-info-box info-mech">
+<div class="info-label">⚙️ 机制拆解</div>
+这类信号的价值不在于马上卖产品，而在于改变研发成本曲线。若人类演示数据可以反向约束机器人手的物理设计，硬件形态探索就可能从“工程师试错”变成“数据驱动筛选”；若再叠加仿真到真实迁移和端侧推理，机器人公司有机会缩短原型迭代周期。但只要没有真实客户试点、采购协议或可复现硬件指标，它仍应停留在期权层。<br><br>
+</div>
+<div class="mod-info-box info-meaning">
+<div class="info-label">💡 投资含义</div>
+本板块的价值是提前观察“未来可能改变成本曲线、可靠性或新产品形态”的信号，而不是抢跑商业化。只有当论文/原型进入可复现基准、客户试点、开源采用、临床/监管登记或明确采购里程碑时，才上调到方向表的核心证据。 关键风险与假设：预商业化技术最大风险不是新闻真假，而是从实验到产品的转化率、成本、监管路径和客户付费验证。<br><br>若后续没有复现、采购、部署或单位经济数据，本板块应保持低权重，不参与短期评级上调。
+</div></div>
+</details><details class="sec-details sc6">
+<summary class="sec-summary">
+<span class="sec-num">7</span>
+其他信号与边缘观察
+<span class="sec-arrow">▼</span>
+</summary>
+<div class="sec-body"><div class="mod-callout">
+<div class="mod-callout-label">📌 板块判断</div>
+本周边缘信号主要来自医疗AI。它们更偏垂直行业渗透和单股线索，尚不足以外推到AI软件或算力主线；真正值得跟踪的是平台级数据合作、支付方采用和可审计收入。
+</div>
+<div class="evidence-card" style="background:#f0fdf4;border-color:#bbf7d0">
+<div class="evidence-label" style="color:#038a3f">🔍 关键发现</div>
+<div style="font-size:15px;color:#333;line-height:1.7">06月17日 迈向自主医疗人工智能代理：MIRA系统在沙盒EHR环境中诊断和治疗决策表现优于医生：MIRA是一个在沙盒EHR环境中运行的自主AI代理，能模拟医生完整临床工作流，包括病史采集、检查开单、诊断和治疗决策；在574例来自MIMIC-IV的真实病例测试中，覆盖外科、内科和肿瘤科，MIRA的诊断准确率优于两组执业医生（一组为4名认证医师加4名住院医师，另一组为2名认证医师）。</div>
+</div>
+<div class="mod-info-box info-obs">
+<div class="info-label">👁️ 观察价值</div>
+该板块只收纳尚未归入核心板块、但可能被第二来源验证的边缘信号；已明确属于宏观、资本或监管的事实不在此重复展开。
+</div>
+<div class="mod-info-box info-meaning">
+<div class="info-label">💡 投资含义</div>
+保留为边缘观察，按医疗科技单股逻辑跟踪；除非后续出现通用AI平台收入、数据治理需求、大型平台合作或支付方采用，不外推到AI软件或算力主线。
+</div>
+<div class="mod-tracks"><div style="font-size:14px;font-weight:700;color:#888;margin-bottom:4px">📋 跟踪重点</div><span class="mod-track-tag"></span></div></div>
+</details>
+</div>
+<div class="section">
+<div class="s-title"><span class="s-num">⑦</span>本周综合方向指引</div>
+<div class="dir-group dir-bullish">
+<div class="dir-group-header">积极看好 <span class="dir-group-count">· 1个方向</span><span class="dir-toggle">▼</span></div>
+<div class="dir-body">
+<div class="dir-card">
+<div class="dir-card-name">AI数据/安全/治理</div>
+<div class="dir-card-logic">隐私审计、未成年人保护、DHS/ICE面部识别和AI招聘合规同时升温，治理工具从合规成本转为可预算需求。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">8</span></span>
+<span>风险 <span class="dir-score red">6</span></span>
+<span>置信 中-高</span>
+<span>Palo Alto Networks（PANW）、CrowdStrike（CRWD）、Cloudflare（NET）</span>
+</div>
+<div class="dir-extra">📊 监控：数据授权/隐私执法案例、AI审计采购、企业安全治理产品收入、合规预算上修。</div>
+<div class="dir-extra">❌ 反证：若监管停留在倡议且企业采购没有跟进，评级降为观察。</div>
+</div>
+</div>
+</div><div class="dir-group dir-bullish">
+<div class="dir-group-header">谨慎看好 <span class="dir-group-count">· 5个方向</span><span class="dir-toggle">▼</span></div>
+<div class="dir-body">
+<div class="dir-card">
+<div class="dir-card-name">数据中心电力/散热/物理基建</div>
+<div class="dir-card-logic">数据中心融资和电力需求仍在强化，但利率上行会压制基础设施估值。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">7</span></span>
+<span>风险 <span class="dir-score red">6</span></span>
+<span>置信 中</span>
+<span>Vertiv（VRT）、Eaton（ETN）、Schneider Electric（SU.PA）</span>
+</div>
+<div class="dir-extra">📊 监控：PPA签约、并网排队、数据中心贷款利差、机柜交付、液冷/UPS/电力设备订单。</div>
+<div class="dir-extra">❌ 反证：若电力项目延期或融资成本继续上行，评级下调。</div>
+</div><div class="dir-card">
+<div class="dir-card-name">AI资本开支/融资/估值周期</div>
+<div class="dir-card-logic">私人资本进入数据中心融资，说明AI资本开支叙事仍强；但利率和流动性决定估值持续性。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">7</span></span>
+<span>风险 <span class="dir-score red">7</span></span>
+<span>置信 中</span>
+<span>Microsoft（MSFT）、Amazon（AMZN）、Alphabet（GOOGL）</span>
+</div>
+<div class="dir-extra">📊 监控：Hyperscaler CapEx指引、项目融资利差、债券发行、REIT/私募信贷参与、10Y收益率。</div>
+<div class="dir-extra">❌ 反证：若CapEx指引下修或融资成本导致项目取消，评级下调。</div>
+</div><div class="dir-card">
+<div class="dir-card-name">云计算/模型托管/推理中间件</div>
+<div class="dir-card-logic">Agent生产环境、模型托管、沙箱权限和推理路由同时出现二级锚点，云中间层比泛应用更早承接企业AI预算。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">7</span></span>
+<span>风险 <span class="dir-score red">5</span></span>
+<span>置信 中</span>
+<span>Microsoft Azure（MSFT）、Amazon AWS（AMZN）、Google Cloud（GOOGL）</span>
+</div>
+<div class="dir-extra">📊 监控：云AI收入、模型托管用量、推理路由成本、企业客户数、推理毛利率。</div>
+<div class="dir-extra">❌ 反证：若企业部署停留在试点或云AI收入增速低于预期，评级下调。</div>
+</div><div class="dir-card">
+<div class="dir-card-name">先进封装/HBM</div>
+<div class="dir-card-logic">财务快照显示TSM/MU仍具基本面强度，但本期缺少封装或HBM新增事件，不能上调到积极看好。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">6</span></span>
+<span>风险 <span class="dir-score red">5</span></span>
+<span>置信 中</span>
+<span>TSMC/台积电（TSM）、Micron/美光（MU）、SK hynix（000660.KS）</span>
+</div>
+<div class="dir-extra">📊 监控：CoWoS产能、HBM价格/出货、封装设备订单、良率。</div>
+<div class="dir-extra">❌ 反证：若HBM价格环比下行或扩产快于需求，评级下调。</div>
+</div><div class="dir-card">
+<div class="dir-card-name">AI Agent/开发者工具链</div>
+<div class="dir-card-logic">Copilot Cowork正式商用、AgentCore生产环境和UiPath Maestro Case效率数据说明企业Agent开始进入可计费/可部署验证，但仍需收入和留存确认。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">6</span></span>
+<span>风险 <span class="dir-score red">5</span></span>
+<span>置信 中</span>
+<span>Microsoft（MSFT）、Amazon（AMZN）、UiPath（PATH）</span>
+</div>
+<div class="dir-extra">📊 监控：Agent部署数、Copilot/Codex用量、开发者留存、工作流自动化ROI、独立付费率。</div>
+<div class="dir-extra">❌ 反证：若部署停留在试点、使用量低于预期或无法转成续约/收入，降回观察。</div>
+</div>
+</div>
+</div><div class="dir-group dir-neutral">
+<div class="dir-group-header">观察等待 <span class="dir-group-count">· 6个方向</span><span class="dir-toggle">▼</span></div>
+<div class="dir-body">
+<div class="dir-card">
+<div class="dir-card-name">AI国防/自主系统/边缘智能</div>
+<div class="dir-card-logic">本期缺少可验证国防订单或边缘部署硬锚，相关机器人和数据使用信号只作为低权重观察。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">5</span></span>
+<span>风险 <span class="dir-score red">7</span></span>
+<span>置信 中</span>
+<span>Palantir（PLTR）、Anduril（非上市）、Kratos（KTOS）</span>
+</div>
+<div class="dir-extra">📊 监控：国防合同、边缘部署、试点转采购、合规审查、单位经济。</div>
+<div class="dir-extra">❌ 反证：若数据使用合规争议升级或试点无法规模化，评级下调。</div>
+</div><div class="dir-card">
+<div class="dir-card-name">前沿技术/预商业化期权</div>
+<div class="dir-card-logic">本期前沿技术主要作为低权重工程化雷达；只有出现原型公开、客户试点、采购协议或可复现工程指标，才可能从技术期权上调。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">5</span></span>
+<span>风险 <span class="dir-score red">8</span></span>
+<span>置信 低-中</span>
+<span>Tesla（TSLA）、NVIDIA（NVDA）、Figure AI（非上市）</span>
+</div>
+<div class="dir-extra">📊 监控：论文复现、原型演示、客户/临床验证、融资里程碑、专利/开源采用。</div>
+<div class="dir-extra">❌ 反证：若12个月内缺少可复现里程碑或商业验证，维持低权重。</div>
+</div><div class="dir-card">
+<div class="dir-card-name">大模型商业化/收入验证</div>
+<div class="dir-card-logic">本期未识别到新的模型收入硬锚，不支撑上调。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">5</span></span>
+<span>风险 <span class="dir-score red">5</span></span>
+<span>置信 中</span>
+<span>OpenAI（非上市）、Anthropic（非上市）、Microsoft（MSFT）</span>
+</div>
+<div class="dir-extra">📊 监控：API收入、ARR口径、付费客户、调用量、留存率、毛利率。</div>
+<div class="dir-extra">❌ 反证：若ARR估算下修或毛利率被推理成本压制，评级下调。</div>
+</div><div class="dir-card">
+<div class="dir-card-name">算力芯片/GPU</div>
+<div class="dir-card-logic">本周信息池没有新的GPU订单或供给事件；财务快照只支持观察，不授权新闻式强结论。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">5</span></span>
+<span>风险 <span class="dir-score red">6</span></span>
+<span>置信 中</span>
+<span>NVIDIA/英伟达（NVDA）、AMD（AMD）、台积电（TSM）</span>
+</div>
+<div class="dir-extra">📊 监控：GPU交期、云GPU租赁价格、HBM供应、订单取消率、毛利率。</div>
+<div class="dir-extra">❌ 反证：若云厂商CapEx指引下修或毛利率连续走弱，评级下调。</div>
+</div><div class="dir-card">
+<div class="dir-card-name">ASIC/推理加速</div>
+<div class="dir-card-logic">本期没有ASIC客户流片或订单级来源，不能因为行业推理叙事自动上调。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">4</span></span>
+<span>风险 <span class="dir-score red">6</span></span>
+<span>置信 低-中</span>
+<span>Broadcom/博通（AVGO）、Marvell（MRVL）、Amazon Trainium（亚马逊自研）</span>
+</div>
+<div class="dir-extra">📊 监控：ASIC流片/量产进度、推理TCO、客户设计导入、晶圆/封装产能。</div>
+<div class="dir-extra">❌ 反证：若定制芯片收入放缓且新增客户不足，维持低权重。</div>
+</div><div class="dir-card">
+<div class="dir-card-name">企业AI应用</div>
+<div class="dir-card-logic">本期缺少企业应用收入或留存新证据。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">4</span></span>
+<span>风险 <span class="dir-score red">5</span></span>
+<span>置信 中</span>
+<span>ServiceNow（NOW）、Salesforce（CRM）、Arlo Technologies（ARLO）</span>
+</div>
+<div class="dir-extra">📊 监控：付费席位、续约率、ARPU、客户ROI、部署周期。</div>
+<div class="dir-extra">❌ 反证：若订阅增长不能转化为利润率改善，维持观察。</div>
+</div>
+</div>
+</div><div class="dir-group dir-cautious">
+<div class="dir-group-header">风险升高 <span class="dir-group-count">· 1个方向</span><span class="dir-toggle">▼</span></div>
+<div class="dir-body">
+<div class="dir-card">
+<div class="dir-card-name">AI监管/出口管制/地缘风险</div>
+<div class="dir-card-logic">地缘能源变量、DHS/ICE面部识别、未成年人保护、AI招聘歧视诉讼和医疗AI监管路径说明政策风险正在实质化。</div>
+<div class="dir-card-meta">
+<span>机会 <span class="dir-score green">3</span></span>
+<span>风险 <span class="dir-score red">8</span></span>
+<span>置信 高</span>
+<span>Meta（META）、NVIDIA（NVDA）、ASML（ASML）</span>
+</div>
+<div class="dir-extra">📊 监控：跨境AI数据审查案例、出口限制法案文本、反垄断诉讼节点、平台责任规则执行进度。</div>
+<div class="dir-extra">❌ 反证：若监管执行降温且油价、VIX、利率同步改善，风险评级下调。</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section">
+<div class="fold-card">
+<div class="fold-header">⑧ 名词解释 <span style="font-size:13px;color:#aaa">▾</span></div>
+<div class="fold-body"><div class="glossary-grid"><div class="glossary-term"><strong>Alpha</strong> 超额收益机会，指相对市场共识可能产生额外收益的非共识判断。</div><div class="glossary-term"><strong>AI Agent（AI代理）</strong> 能分解目标、调用工具并连续执行多步骤任务的AI系统。</div><div class="glossary-term"><strong>ARR（年化经常性收入）</strong> 把当前订阅或经常性收入折算成一年的收入规模。</div><div class="glossary-term"><strong>API（应用程序接口）</strong> 软件之间调用能力或数据的标准接口。</div><div class="glossary-term"><strong>CapEx（资本开支）</strong> 用于建设数据中心、服务器、芯片、设备等长期资产的支出。</div><div class="glossary-term"><strong>HBM（高带宽内存）</strong> AI加速芯片常用的高性能内存。</div><div class="glossary-term"><strong>EUV（极紫外光刻）</strong> 先进芯片制造关键光刻技术。</div><div class="glossary-term"><strong>PPA（购电协议）</strong> 数据中心或企业与发电方签署的长期购电合同。</div><div class="glossary-term"><strong>VIX（波动率指数）</strong> 市场常用的风险偏好和波动率观察指标。</div><div class="glossary-term"><strong>10Y</strong> 美国10年期国债收益率，常用作长端利率和估值折现率锚点。</div></div></div>
+</div></div>
+<div class="section">
+<div class="fold-card">
+<div class="fold-header">⑨ 备注 <span style="font-size:13px;color:#aaa">▾</span></div>
+<div class="fold-body">- 同一事件多篇报道按事件簇处理：正文优先采用发布日期更新、Source Tier更高、事实字段更完整的代表来源；其它同类报道只用于提高置信度，不重复搬运事实。
+- 本报告不展示读者侧完整来源清单；内部溯源仍由Notion信息池、n8n执行数据和工作流日志保留。
+- 强事实只允许来自本期7天信息池、结构化财务快照、实时市场数据或被明确标记的历史参照；未入库信号不能支撑评级。
+- 评级含义：积极看好=本周有可溯源增量且Alpha/风险比有吸引力；谨慎看好=方向成立但仍需验证；观察等待=证据不足或等待验证；风险升高=风险主导；回避=风险显著压倒机会。
+- 历史年份处理：来源中出现的2025或2025-2030只作为原始来源的历史或预测口径，不写成未来催化。</div>
+</div></div>
+<div class="watermark">COMPASS · 67HAO JISHI</div>
+</div>
+<script>
+// Collapse buttons inside details
+document.querySelectorAll('details.sec-details,details.chain-details').forEach(function(d) {
+  var btn = document.createElement('button');
+  btn.className = 'collapse-btn';
+  btn.textContent = '收起 ▲';
+  btn.onclick = function(e) {
+    e.preventDefault(); e.stopPropagation();
+    d.open = false;
+    setTimeout(function(){ d.scrollIntoView({behavior:'smooth',block:'start'}); }, 50);
+  };
+  d.appendChild(btn);
+});
+// Fold cards — all collapsed by default, add collapse buttons
+document.querySelectorAll('.fold-card').forEach(function(c) {
+  var hdr = c.querySelector('.fold-header');
+  if (hdr) {
+    hdr.addEventListener('click', function(){ c.classList.toggle('open'); });
+  }
+  // Add collapse button inside fold-body
+  var body = c.querySelector('.fold-body');
+  if (body) {
+    var btn = document.createElement('button');
+    btn.className = 'collapse-btn';
+    btn.textContent = '收起 ▲';
+    btn.onclick = function(e) {
+      e.preventDefault(); e.stopPropagation();
+      c.classList.remove('open');
+    };
+    body.appendChild(btn);
+  }
+});
+// Direction groups — expand all except 观察等待/中性观望/谨慎看好/谨慎乐观
+document.querySelectorAll('.dir-group').forEach(function(g) {
+  var hdr = g.querySelector('.dir-group-header');
+  if (hdr && (hdr.textContent.includes('观察等待') || hdr.textContent.includes('中性观望') || hdr.textContent.includes('谨慎看好') || hdr.textContent.includes('谨慎乐观'))) {
+    g.classList.remove('open');
+  } else {
+    g.classList.add('open');
+  }
+  if (hdr) {
+    hdr.addEventListener('click', function(){ g.classList.toggle('open'); });
+  }
+});
+</script>
+</body>
+</html>
