@@ -1,0 +1,1538 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2026年7月12日周报</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #e8f6ec;
+      --surface: #ffffff;
+      --soft: #f7fbf8;
+      --line: #dfe8df;
+      --text: #1a1a2e;
+      --muted: #69746e;
+      --green: #07a85c;
+      --green-deep: #04713f;
+      --green-soft: #e8fce8;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --cyan: #0e7490;
+      --cyan-soft: #ecfeff;
+      --amber: #b7791f;
+      --amber-soft: #fffbeb;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --purple: #7c3aed;
+      --purple-soft: #faf5ff;
+      --gray: #6b7280;
+      --gray-soft: #f3f4f6;
+      --ink: #111827;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--page);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      letter-spacing: 0;
+      -webkit-text-size-adjust: 100%;
+    }
+    .shell {
+      width: min(100%, 680px);
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--page);
+      overflow: hidden;
+    }
+    .hero {
+      color: #fff;
+      padding: 20px 20px 18px;
+      background: linear-gradient(135deg, var(--green), var(--green-deep));
+    }
+    .eyebrow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: rgba(255,255,255,.72);
+      font-size: 11px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.22);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(22px, 6vw, 30px);
+      line-height: 1.35;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+    .hero-subtitle {
+      margin: 0;
+      color: rgba(255,255,255,.82);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 13px;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.26);
+      color: rgba(255,255,255,.82);
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    .hero-tag strong {
+      color: #b7f0c7;
+      font-size: 13px;
+    }
+    .dashboard {
+      padding: 16px 16px 0;
+    }
+    .dashboard-title,
+    .panel,
+    .nav,
+    .text-card,
+    .insight-card,
+    .opinion-card,
+    .chain-card,
+    .data-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .dashboard-title {
+      margin-bottom: 12px;
+      padding: 14px 16px;
+      border-left: 4px solid var(--green);
+      background: var(--green-soft);
+    }
+    .dashboard-title h2 {
+      margin: 0 0 4px;
+      color: var(--green-deep);
+      font-size: 17px;
+      line-height: 1.35;
+      border: 0;
+      padding: 0;
+    }
+    .dashboard-title span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .kpi-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .kpi {
+      flex: 1 1 calc(50% - 6px);
+      min-width: 120px;
+      min-height: 58px;
+      border-radius: 8px;
+      border: 1px solid rgba(7,168,92,.18);
+      background: rgba(255,255,255,.86);
+      padding: 8px 10px;
+    }
+    .kpi strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 21px;
+      line-height: 1;
+      color: var(--green-deep);
+    }
+    .kpi span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.28;
+      font-weight: 650;
+    }
+    .kpi.watch strong { color: var(--cyan); }
+    .kpi.neutral strong { color: var(--gray); }
+    .kpi.risk strong { color: var(--red); }
+    .kpi.missing strong { color: var(--amber); }
+    .rating-ratio {
+      margin: -2px 0 12px;
+      padding: 12px;
+      border: 1px solid rgba(7,168,92,.16);
+      border-radius: 8px;
+      background: rgba(255,255,255,.9);
+    }
+    .ratio-track {
+      display: flex;
+      width: 100%;
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #edf2ed;
+    }
+    .ratio-segment { display: block; min-width: 8px; }
+    .ratio-segment.good { background: var(--green); }
+    .ratio-segment.watch { background: var(--cyan); }
+    .ratio-segment.neutral { background: #9ca3af; }
+    .ratio-segment.risk { background: var(--red); }
+    .ratio-segment.avoid { background: #7f1d1d; }
+    .ratio-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+    .ratio-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .ratio-legend i {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gray);
+    }
+    .ratio-legend i.good { background: var(--green); }
+    .ratio-legend i.watch { background: var(--cyan); }
+    .ratio-legend i.neutral { background: #9ca3af; }
+    .ratio-legend i.risk { background: var(--red); }
+    .ratio-legend i.avoid { background: #7f1d1d; }
+    .panel {
+      margin-bottom: 12px;
+      padding: 14px;
+      border-left: 4px solid var(--green);
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 11px;
+    }
+    .panel-head h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.35;
+    }
+    .panel-head span {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .heat-panel { border-left-color: var(--purple); }
+    .heat-bucket { margin-bottom: 10px; }
+    .heat-bucket:last-child { margin-bottom: 0; }
+    .heat-bucket summary::-webkit-details-marker { display: none; }
+    .heat-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 8px 8px 0 0;
+      background: var(--gray-soft);
+      color: var(--gray);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      list-style: none;
+    }
+    .heat-label::after {
+      content: "展开";
+      margin-left: auto;
+      color: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      opacity: .65;
+    }
+    .heat-bucket[open] .heat-label::after { content: "已展开"; }
+    .heat-label b {
+      font-size: 11px;
+      font-weight: 700;
+      opacity: .78;
+    }
+    .heat-bucket.good .heat-label { background: #b7f0c7; color: var(--green-deep); }
+    .heat-bucket.watch .heat-label { background: var(--cyan-soft); color: var(--cyan); }
+    .heat-bucket.neutral .heat-label { background: var(--gray-soft); color: var(--gray); }
+    .heat-bucket.risk .heat-label { background: var(--red-soft); color: #991b1b; }
+    .heat-bucket.avoid .heat-label { background: #fee2e2; color: #7f1d1d; }
+    .heat-bucket.missing .heat-label { background: var(--amber-soft); color: #92400e; }
+    .heatmap {
+      display: grid;
+      grid-template-columns: 1fr;
+      border: 1px solid #f0f3f0;
+      border-top: 0;
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+    }
+    .heat-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 14px 1fr;
+      gap: 8px;
+      align-items: start;
+      min-height: 0;
+      padding: 10px 12px;
+      background: #fff;
+      border-top: 1px solid #f3f4f6;
+    }
+    .heat-card:first-child { border-top: 0; }
+    .heat-dot {
+      width: 8px;
+      height: 8px;
+      margin-top: 8px;
+      border-radius: 50%;
+      background: var(--gray);
+    }
+    .heat-card.good .heat-dot { background: var(--green); }
+    .heat-card.watch .heat-dot { background: var(--cyan); }
+    .heat-card.neutral .heat-dot { background: var(--gray); }
+    .heat-card.risk .heat-dot { background: var(--red); }
+    .heat-card.avoid .heat-dot { background: #7f1d1d; }
+    .heat-card.missing .heat-dot { background: var(--amber); }
+    .heat-card strong {
+      display: block;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 750;
+    }
+    .heat-main {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .heat-card em {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--gray-soft);
+      color: var(--muted);
+      font-size: 10px;
+      font-style: normal;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .heat-logic {
+      margin-top: 4px;
+      color: #4b5563;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .heat-stock {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+      margin-top: 7px;
+      color: #4b5563;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .heat-stock span {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 5px;
+      background: var(--gray-soft);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .heat-card.good em { background: var(--green-soft); color: var(--green-deep); }
+    .heat-card.watch em { background: var(--cyan-soft); color: var(--cyan); }
+    .heat-card.risk em,
+    .heat-card.avoid em { background: var(--red-soft); color: #991b1b; }
+    .heat-card.missing em { background: var(--amber-soft); color: #92400e; }
+    .priority-split {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .priority-group {
+      border-radius: 8px;
+      border: 1px solid #edf1ed;
+      overflow: hidden;
+      background: #fff;
+    }
+    .priority-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      background: #b7f0c7;
+      color: var(--green-deep);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .priority-label span {
+      display: inline-grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      font-size: 11px;
+      line-height: 1;
+    }
+    .risk-side .priority-label {
+      background: var(--red-soft);
+      color: #991b1b;
+    }
+    .risk-side .priority-label span {
+      background: var(--red);
+    }
+    .priority-row {
+      display: grid;
+      grid-template-columns: minmax(96px, 1.1fr) minmax(76px, .8fr) minmax(60px, .6fr);
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      border-top: 1px solid #f3f4f6;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .bar {
+      height: 7px;
+      border-radius: 999px;
+      background: #edf2ed;
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--green);
+    }
+    .priority-row.risk .bar i,
+    .priority-row.avoid .bar i { background: var(--red); }
+    .rating-text {
+      text-align: right;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .rating-text.good { color: var(--green-deep); }
+    .rating-text.watch { color: var(--cyan); }
+    .rating-text.risk,
+    .rating-text.avoid { color: #991b1b; }
+    .trend-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .trend-tile {
+      position: relative;
+      display: block;
+      min-height: 86px;
+      padding: 12px 12px 12px 38px;
+      border-radius: 8px;
+      border: 1px solid #e6efe8;
+      background: #f8faf9;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .trend-tile:active { transform: translateY(1px); }
+    .tile-icon {
+      position: absolute;
+      left: 12px;
+      top: 16px;
+      display: grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .trend-tile strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+    .trend-tile span {
+      display: block;
+      color: #56615c;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .trend-tile small {
+      display: block;
+      margin-top: 7px;
+      color: var(--green-deep);
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+    .nav {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      margin: 4px 16px 12px;
+      padding: 9px;
+      background: rgba(255,255,255,.78);
+      border-color: rgba(7,168,92,.18);
+    }
+    .nav a {
+      flex: 0 0 auto;
+      padding: 5px 10px;
+      border-radius: 14px;
+      background: var(--green-soft);
+      color: var(--green-deep);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    main {
+      padding: 0 16px 30px;
+    }
+    h2, h3, h4, h5, h6 {
+      letter-spacing: 0;
+      line-height: 1.35;
+      scroll-margin-top: 12px;
+    }
+    main > h2 {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 18px 0 10px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f8faf9;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--green);
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 850;
+    }
+    main > h2::before {
+      content: "§";
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: var(--green);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    main > h3 {
+      margin: 14px 0 8px;
+      color: var(--green-deep);
+      font-size: 16px;
+      font-weight: 800;
+    }
+    main > h4 {
+      margin: 12px 0 8px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .section-title.major-title {
+      display: block;
+      margin: 24px 0 14px;
+      padding: 16px 12px;
+      text-align: center;
+      border-left-width: 0;
+      border-color: rgba(7,168,92,.24);
+      background: linear-gradient(180deg, #ffffff, #f2fbf5);
+      color: var(--green-deep);
+      font-size: 22px;
+      font-weight: 900;
+    }
+    .section-title.major-title::before { content: none; }
+    p { margin: 0; }
+    .summary-card {
+      margin: 0 0 12px;
+      padding: 14px 15px;
+      border: 1px solid rgba(7,168,92,.28);
+      border-left: 4px solid var(--green);
+      border-radius: 8px;
+      background: var(--green-soft);
+    }
+    .summary-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: var(--green-deep);
+      font-size: 14px;
+      font-weight: 850;
+    }
+    .summary-label.summary-title {
+      justify-content: center;
+      margin-bottom: 10px;
+      font-size: 24px;
+      line-height: 1.25;
+      text-align: center;
+    }
+    .summary-label.summary-title strong {
+      font-weight: 900;
+    }
+    .summary-label span {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: var(--green);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .summary-card p {
+      color: #263b2f;
+      font-size: 16px;
+      line-height: 1.72;
+      font-weight: 650;
+    }
+    .summary-fold,
+    .glossary-fold,
+    .note-fold {
+      margin: 0 0 12px;
+      border: 1px solid rgba(14,116,144,.22);
+      border-left: 4px solid var(--cyan);
+      border-radius: 8px;
+      background: var(--cyan-soft);
+      overflow: hidden;
+    }
+    .glossary-fold {
+      border-color: rgba(124,58,237,.22);
+      border-left-color: var(--purple);
+      background: var(--purple-soft);
+    }
+    .note-fold {
+      border-color: rgba(107,114,128,.22);
+      border-left-color: var(--gray);
+      background: var(--gray-soft);
+    }
+    .summary-fold summary,
+    .glossary-fold summary,
+    .note-fold summary {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 12px;
+      cursor: pointer;
+      list-style: none;
+    }
+    .summary-fold summary::-webkit-details-marker,
+    .glossary-fold summary::-webkit-details-marker,
+    .note-fold summary::-webkit-details-marker,
+    .topic-summary::-webkit-details-marker { display: none; }
+    .summary-number {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: var(--cyan);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .glossary-fold .summary-number { background: var(--purple); }
+    .note-fold .summary-number { background: var(--gray); }
+    .summary-fold summary strong,
+    .glossary-fold summary strong,
+    .note-fold summary strong {
+      color: #155e75;
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 850;
+    }
+    .glossary-fold summary strong { color: #5b21b6; }
+    .note-fold summary strong { color: #374151; }
+    .summary-fold summary em,
+    .glossary-fold summary em,
+    .note-fold summary em,
+    .topic-summary em {
+      color: #0e7490;
+      font-size: 11px;
+      font-style: normal;
+      font-weight: 800;
+    }
+    .summary-fold[open] summary em::before,
+    .glossary-fold[open] summary em::before,
+    .note-fold[open] summary em::before,
+    .topic-section[open] .topic-summary em::before { content: "已展开"; }
+    .summary-fold[open] summary em,
+    .glossary-fold[open] summary em,
+    .note-fold[open] summary em,
+    .topic-section[open] .topic-summary em { font-size: 0; }
+    .summary-fold[open] summary em::before,
+    .glossary-fold[open] summary em::before,
+    .note-fold[open] summary em::before,
+    .topic-section[open] .topic-summary em::before { font-size: 11px; }
+    .summary-fold-body {
+      padding: 0 10px 10px;
+    }
+    .fold-actions {
+      display: flex;
+      justify-content: center;
+      padding: 4px 0 2px;
+    }
+    .fold-close {
+      min-width: 92px;
+      border: 1px solid rgba(17,24,39,.12);
+      border-radius: 999px;
+      background: #fff;
+      color: #4b5563;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 850;
+      padding: 9px 16px;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(17,24,39,.06);
+    }
+    .fold-close:active {
+      transform: translateY(1px);
+    }
+    .text-card,
+    .insight-card,
+    .opinion-card,
+    .chain-card,
+    .data-card {
+      margin: 0 0 10px;
+      padding: 12px;
+      box-shadow: none;
+    }
+    .text-card {
+      background: #fff;
+      color: #374151;
+      font-size: 15px;
+      line-height: 1.68;
+    }
+    .opinion-card {
+      border-left: 4px solid var(--green);
+      background: var(--green-soft);
+      color: #263b2f;
+    }
+    .opinion-card p {
+      color: #263b2f;
+      font-size: 15px;
+      line-height: 1.72;
+    }
+    .chain-grid {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 12px;
+    }
+    .chain-card {
+      border-left: 4px solid var(--blue);
+      background: var(--blue-soft);
+    }
+    .chain-card .card-label {
+      color: #1d4ed8;
+    }
+    .chain-card .card-icon {
+      background: var(--blue);
+      font-size: 9px;
+    }
+    .chain-card p {
+      color: #334155;
+      font-size: 15px;
+      line-height: 1.68;
+    }
+    .evidence-item {
+      margin: 0 0 10px;
+      padding: 12px;
+      border: 1px solid #dbe7df;
+      border-left: 4px solid var(--cyan);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .evidence-title {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      color: #123d32;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .evidence-pin {
+      flex: 0 0 22px;
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      background: var(--cyan);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 22px;
+      text-align: center;
+    }
+    .evidence-item p {
+      margin: 6px 0 0 30px;
+      color: #3f4d48;
+      font-size: 14px;
+      line-height: 1.62;
+    }
+    .evidence-item p b {
+      display: inline-block;
+      margin-right: 7px;
+      color: #60706a;
+      font-size: 12px;
+    }
+    .evidence-data { padding-bottom: 6px; border-bottom: 1px dashed #dce8e2; }
+    .evidence-source { color: #60706a !important; font-size: 12px !important; }
+    .evidence-meaning { color: #24493e !important; }
+    .evidence-validation { color: #8a5b12 !important; }
+    .topic-section {
+      margin: 0 0 14px;
+      padding: 12px 10px 4px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--green);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .topic-summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: start;
+      cursor: pointer;
+      list-style: none;
+    }
+    .topic-summary h3,
+    .topic-section > h3 {
+      margin: 0 0 10px;
+      padding: 7px 2px 9px;
+      border-bottom: 1px solid rgba(17,24,39,.08);
+      color: var(--ink);
+      font-size: 17px;
+      line-height: 1.45;
+      font-weight: 900;
+    }
+    .topic-summary em {
+      margin-top: 9px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .topic-body {
+      padding: 0;
+    }
+    .topic-section > h4 {
+      margin: 10px 0 8px;
+      color: #4b5563;
+      font-size: 14px;
+      font-weight: 850;
+    }
+    .topic-section .text-card,
+    .topic-section .insight-card,
+    .topic-section .opinion-card,
+    .topic-section .chain-card {
+      border-color: rgba(17,24,39,.08);
+    }
+    .topic-1 { border-left-color: var(--green); background: #f3fbf6; }
+    .topic-2 { border-left-color: var(--blue); background: #f3f7ff; }
+    .topic-3 { border-left-color: var(--cyan); background: #f0fbfc; }
+    .topic-4 { border-left-color: var(--purple); background: #faf7ff; }
+    .topic-5 { border-left-color: var(--amber); background: #fffaf0; }
+    .topic-6 { border-left-color: var(--red); background: #fff7f7; }
+    .glossary-grid {
+      display: grid;
+      gap: 8px;
+      padding: 0 0 4px;
+    }
+    .term-card {
+      padding: 10px;
+      border: 1px solid rgba(124,58,237,.12);
+      border-radius: 8px;
+      background: rgba(255,255,255,.78);
+    }
+    .term-card strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #5b21b6;
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 900;
+    }
+    .term-card p {
+      color: #4b5563;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .card-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 7px;
+      color: var(--green-deep);
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .card-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      font-size: 10px;
+      line-height: 1;
+    }
+    .insight-card {
+      background: #fff;
+    }
+    .insight-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .insight-list li {
+      position: relative;
+      padding: 8px 0 8px 19px;
+      border-top: 1px solid #f0f3f0;
+      color: #3f4944;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .insight-list li:first-child { border-top: 0; }
+    .insight-list li::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 18px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .insight-list a {
+      color: #215b3d;
+      text-decoration: none;
+      font-weight: 750;
+    }
+    .insight-list a::after {
+      content: "跳转";
+      display: inline-flex;
+      margin-left: 7px;
+      padding: 1px 6px;
+      border-radius: 5px;
+      background: var(--green-soft);
+      color: var(--green-deep);
+      font-size: 10px;
+      font-weight: 850;
+      vertical-align: 1px;
+    }
+    .card-grid {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 12px;
+    }
+    .data-card {
+      background: #fff;
+      border-left: 4px solid var(--purple);
+    }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+    .card-top h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    .rating-pill {
+      flex: 0 0 auto;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .rating-pill.good { background: var(--green-soft); color: var(--green-deep); }
+    .rating-pill.watch { background: var(--cyan-soft); color: var(--cyan); }
+    .rating-pill.neutral { background: var(--gray-soft); color: var(--gray); }
+    .rating-pill.risk,
+    .rating-pill.avoid { background: var(--red-soft); color: #991b1b; }
+    .rating-pill.missing { background: var(--amber-soft); color: #92400e; }
+    .direction-card p {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.62;
+    }
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+      padding-top: 8px;
+      border-top: 1px solid #f0f3f0;
+    }
+    .card-meta span {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--gray-soft);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+    .kv {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 8px;
+      padding: 7px 0;
+      border-top: 1px solid #f0f3f0;
+      font-size: 13px;
+    }
+    .kv:first-child { border-top: 0; }
+    .kv span {
+      color: var(--muted);
+    }
+    .kv strong {
+      color: #374151;
+      font-weight: 650;
+    }
+    .empty-note {
+      padding: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    code {
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #eef2f7;
+      color: #1f2937;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: .92em;
+    }
+    a { color: var(--blue); }
+    strong { color: var(--ink); }
+    hr {
+      border: 0;
+      height: 1px;
+      background: rgba(7,168,92,.18);
+      margin: 14px 0;
+    }
+    footer {
+      padding: 14px 16px 24px;
+      color: rgba(31,41,55,.46);
+      text-align: center;
+      font-size: 10px;
+    }
+    @media (min-width: 720px) {
+      .kpi { flex-basis: calc(20% - 6px); }
+      .trend-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .priority-split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card-grid.direction-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 390px) {
+      body { font-size: 15px; }
+      .hero { padding: 18px 16px 16px; }
+      .dashboard, main { padding-left: 12px; padding-right: 12px; }
+      .nav { margin-left: 12px; margin-right: 12px; }
+      .kpi { min-width: calc(50% - 6px); }
+      .priority-row { grid-template-columns: minmax(90px, 1fr) 62px 54px; }
+      .heat-card { grid-template-columns: 12px 1fr; }
+      .heat-card em { grid-column: 2; justify-self: start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div class="eyebrow"><span class="hero-badge">市场分化</span><span>2026-07-12 23:12</span></div>
+      <h1>2026年7月12日周报</h1>
+      <p class="hero-subtitle">AI Sector Weekly · 手机精读版</p>
+      <div class="hero-tags"><span class="hero-tag">评级方向 <strong>12</strong></span><span class="hero-tag">看好 <strong>2</strong></span><span class="hero-tag">谨慎乐观 <strong>3</strong></span><span class="hero-tag">风险/回避 <strong>3</strong></span></div>
+    </header>
+    <section class="dashboard">
+  <div class="dashboard-title"><h2>本周方向雷达</h2></div>
+  <div class="kpi-grid">
+    <div class="kpi total"><strong>12</strong><span>评级方向</span></div>
+    <div class="kpi good"><strong>2</strong><span>看好/积极看好</span></div>
+    <div class="kpi watch"><strong>3</strong><span>谨慎乐观/谨慎看好</span></div>
+    <div class="kpi neutral"><strong>4</strong><span>中性观察/观察等待</span></div>
+    <div class="kpi risk"><strong>3</strong><span>风险升高/回避</span></div>
+  </div>
+  <div class="rating-ratio" aria-label="本周方向评级数量比例">
+  <div class="ratio-track"><span class="ratio-segment good" style="width:16.7%" title="看好 2/12"></span><span class="ratio-segment watch" style="width:25.0%" title="谨慎乐观 3/12"></span><span class="ratio-segment neutral" style="width:33.3%" title="中性观察 4/12"></span><span class="ratio-segment risk" style="width:25.0%" title="风险升高 3/12"></span></div>
+  <div class="ratio-legend"><span><i class="good"></i>看好 2</span><span><i class="watch"></i>谨慎乐观 3</span><span><i class="neutral"></i>中性观察 4</span><span><i class="risk"></i>风险升高 3</span></div>
+</div>
+  <div class="panel heat-panel">
+    <div class="panel-head"><h3>核心方向评级</h3><span>含评级逻辑与代表标的</span></div>
+    <details class="heat-bucket good" open>
+  <summary class="heat-label"><span>看好/积极看好</span><b>2</b></summary>
+  <div class="heatmap"><article class="heat-cell heat-card good" title="数据中心电力/散热/物理基建: 积极看好">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>数据中心电力/散热/物理基建</strong><em>积极看好</em></div>
+    <p class="heat-logic">电网扩容需求获官方背书，但短期成本上升；核心催化为能源部60天公众评议期后的最终报告及后续立法进展。</p>
+    <div class="heat-stock"><span>代表标的</span>Constellation Energy(CEG)、AEP(AEP)、Vertiv(VRT)</div>
+  </div>
+</article>
+<article class="heat-cell heat-card good" title="AI Agent/开发者工具链: 积极看好">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>AI Agent/开发者工具链</strong><em>积极看好</em></div>
+    <p class="heat-logic">多行业落地的可验证、可量化案例陆续出现，从代码优化到客服自动化，证明了其明确的成本替代价值，正成为企业AI预算的核心流入地。</p>
+    <div class="heat-stock"><span>代表标的</span>Salesforce(CRM)、谷歌(GOOGL)、Snowflake(SNOW)</div>
+  </div>
+</article></div>
+  <div class="fold-actions"><button type="button" class="heat-close fold-close" data-fold-close>收起</button></div>
+</details>
+<details class="heat-bucket watch" open>
+  <summary class="heat-label"><span>谨慎乐观/谨慎看好</span><b>3</b></summary>
+  <div class="heatmap"><article class="heat-cell heat-card watch" title="云计算/模型托管/推理中间件: 谨慎看好">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>云计算/模型托管/推理中间件</strong><em>谨慎看好</em></div>
+    <p class="heat-logic">Oracle创纪录的RPO提供了最硬的未来收入证明，验证了基础设施需求的确定性。尽管模型层价格战可能影响部分收入，但AI工作负载总量的增长逻辑更强。</p>
+    <div class="heat-stock"><span>代表标的</span>ORCL, GOOGL</div>
+  </div>
+</article>
+<article class="heat-cell heat-card watch" title="先进封装/HBM: 谨慎看好">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>先进封装/HBM</strong><em>谨慎看好</em></div>
+    <p class="heat-logic">本周未出现足以改变评级的新增硬催化，延续上期判断；下期重点验证收入、订单、政策或市场验证是否改善。</p>
+    <div class="heat-stock"><span>代表标的</span>MU、TSM、ASML</div>
+  </div>
+</article>
+<article class="heat-cell heat-card watch" title="ASIC/推理加速: 谨慎看好">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>ASIC/推理加速</strong><em>谨慎看好</em></div>
+    <p class="heat-logic">本周未出现足以改变评级的新增硬催化，延续上期判断；下期重点验证收入、订单、政策或市场验证是否改善。</p>
+    <div class="heat-stock"><span>代表标的</span>AVGO、MRVL</div>
+  </div>
+</article></div>
+  <div class="fold-actions"><button type="button" class="heat-close fold-close" data-fold-close>收起</button></div>
+</details>
+<details class="heat-bucket neutral">
+  <summary class="heat-label"><span>中性观察/观察等待</span><b>4</b></summary>
+  <div class="heatmap"><article class="heat-cell heat-card neutral" title="前沿技术/预商业化期权: 观察等待">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>前沿技术/预商业化期权</strong><em>观察等待</em></div>
+    <p class="heat-logic">ZipDepth、LongE2V、Canvas360等技术进展均处于实验室阶段，无商业化信号或推理效率数据。</p>
+    <div class="heat-stock"><span>代表标的</span>待验证</div>
+  </div>
+</article>
+<article class="heat-cell heat-card neutral" title="算力芯片/GPU: 观察等待">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>算力芯片/GPU</strong><em>观察等待</em></div>
+    <p class="heat-logic">检索器覆盖率硬上限研究对Scaling Law构成远期理论压力，但仅限小样本实验，距离产业验证链路长。</p>
+    <div class="heat-stock"><span>代表标的</span>英伟达(NVDA)</div>
+  </div>
+</article>
+<article class="heat-cell heat-card neutral" title="企业AI应用: 观察等待">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>企业AI应用</strong><em>观察等待</em></div>
+    <p class="heat-logic">本周未出现足以改变评级的新增硬催化，延续上期判断；下期重点验证收入、订单、政策或市场验证是否改善。</p>
+    <div class="heat-stock"><span>代表标的</span>CRM、NOW、ADBE</div>
+  </div>
+</article>
+<article class="heat-cell heat-card neutral" title="AI国防/自主系统/边缘智能: 观察等待">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>AI国防/自主系统/边缘智能</strong><em>观察等待</em></div>
+    <p class="heat-logic">本周未出现足以改变评级的新增硬催化，延续上期判断；下期重点验证收入、订单、政策或市场验证是否改善。</p>
+    <div class="heat-stock"><span>代表标的</span>PLTR、LMT</div>
+  </div>
+</article></div>
+  <div class="fold-actions"><button type="button" class="heat-close fold-close" data-fold-close>收起</button></div>
+</details>
+<details class="heat-bucket risk" open>
+  <summary class="heat-label"><span>风险升高</span><b>3</b></summary>
+  <div class="heatmap"><article class="heat-cell heat-card risk" title="大模型商业化/收入验证: 风险升高">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>大模型商业化/收入验证</strong><em>风险升高</em></div>
+    <p class="heat-logic">定价战压力与监管合规成本同时上升，模型供应商利润率双向承压，仅拥价格+合规双优势者能维持竞争力。</p>
+    <div class="heat-stock"><span>代表标的</span>MSFT、GOOGL、META</div>
+  </div>
+</article>
+<article class="heat-cell heat-card risk" title="AI资本开支/融资/估值周期: 风险升高">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>AI资本开支/融资/估值周期</strong><em>风险升高</em></div>
+    <p class="heat-logic">本周两笔标志性债务融资印证了资产金融化趋势；后续需关注高收益债利差变化及下季财报中对融资成本的表述，以判断成本上升是否超过租金涨幅。</p>
+    <div class="heat-stock"><span>代表标的</span>WULF (TeraWulf)</div>
+  </div>
+</article>
+<article class="heat-cell heat-card risk" title="AI监管/出口管制/地缘风险: 风险升高">
+  <span class="heat-dot"></span>
+  <div class="heat-body">
+    <div class="heat-main"><strong>AI监管/出口管制/地缘风险</strong><em>风险升高</em></div>
+    <p class="heat-logic">美伊直接军事冲突（轰炸伊朗）标志着地缘风险急剧升级，短期风险溢价难以消散。核心验证节点为霍尔木兹海峡航运是否受到实质性干扰。</p>
+    <div class="heat-stock"><span>代表标的</span>美光(MU)</div>
+  </div>
+</article></div>
+  <div class="fold-actions"><button type="button" class="heat-close fold-close" data-fold-close>收起</button></div>
+</details>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>三条阅读线索</h3><span>点击跳转正文</span></div>
+    <div class="trend-grid"><a class="trend-tile" href="#2-产能瓶颈与供应链重构-德州电网大负荷并网队列暴露巨大可交付缺口-电力物理硬约束成为算力扩张最核心的供给侧瓶颈">
+  <span class="tile-icon">1</span>
+  <strong>基建交付线</strong>
+  <span>电力、并网、散热和自备发电决定算力能否按期交付。</span>
+  <small>点击跳转：2. 产能瓶颈与供应链重构：德州电网大负荷并网队列暴露巨大可交付缺口，电力物理硬约束成为算力扩张最核心的供给侧瓶颈</small>
+</a>
+<a class="trend-tile" href="#3-ai商业化落地与价值验证-ai基础设施需求经得起积压订单验证-但买方话语权从-抢容量-转向-算清账">
+  <span class="tile-icon">2</span>
+  <strong>利润验证线</strong>
+  <span>硬件增收不增利与企业AI预算天花板，是本周商业化压力的主轴。</span>
+  <small>点击跳转：3. AI商业化落地与价值验证：AI基础设施需求经得起积压订单验证，但买方话语权从“抢容量”转向“算清账”</small>
+</a>
+<a class="trend-tile" href="#5-资本流向与估值逻辑-ai数据中心通过长期租约撬动大规模债务融资-基建资产加速金融化">
+  <span class="tile-icon">3</span>
+  <strong>融资估值线</strong>
+  <span>CapEx、债务融资和BIS风险提示共同约束远期估值。</span>
+  <small>点击跳转：5. 资本流向与估值逻辑：AI数据中心通过长期租约撬动大规模债务融资，基建资产加速金融化</small>
+</a></div>
+  </div>
+</section>
+    <main>
+      <section class="summary-card" id="摘要-从缺芯到缺电-ai扩张进入-边建边算账-的分化期">
+  <div class="summary-label summary-title"><strong>本周摘要</strong></div>
+  <p>从缺芯到缺电，AI扩张进入“边建边算账”的分化期</p>
+</section>
+<h3 id="1-本周研判">1. 本周研判</h3>
+<article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>风险提示</strong></div>
+  <p>AI产业周期正从“全力冲刺建算力”切换至“边建边算账”：下游对ROI的审视已扩散至主流企业，上游电力硬约束却强化了稀缺资产的价值锚。当前注意力可按“60%瓶颈环节（电力、散热）+30%地缘尾部风险+10%模型合规分化”配置。未来1-3个月，能源部输电研究的公众反馈与云厂商Q2 AI收入兑现，将决定基建溢价能否继续跑赢地缘折价。</p>
+</article>
+<h4 id="2-与上期对比">2. 与上期对比</h4>
+<article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>评级变化与延续</strong></div>
+  <p>大模型商业化/收入验证由“观察等待”转为“风险升高”。数据中心电力/散热/物理基建、AI Agent/开发者工具链维持积极看好；云计算/模型托管/推理中间件、先进封装/HBM、ASIC/推理加速维持谨慎看好；AI资本开支/融资/估值周期、AI监管/出口管制/地缘风险维持风险升高；前沿技术、算力芯片/GPU、企业AI应用与AI国防等维持观察等待。
+上期Kioxia第十代NAND、Meta入云和Arena评测平台ARR均无后续验证；MIT Sloan研究只从另一环节提示AI辅助的创意同质化风险，不能视为对Align4D的直接验证。</p>
+</article>
+<h3 id="3-产业全景">3. 产业全景</h3>
+<article class="text-card"><p>AI产业已从“疯狂建仓库”转入“疏通最后一公里”：Oracle 6380亿美元RPO证明合同需求不弱，但ERCOT约410GW并网请求远超德州85.5GW历史峰值，变压器交期近14年，物理落地成为真正制约。美伊短暂交火又将布伦特油价推至约76美元、10年期美债收益率推至4.56%，形成估值压缩与能源成本抬升的双重压力。</p></article>
+<article class="text-card"><p>下游采购也从“抢容量”转向“算清账”。Kogan.com客服自动化率67%与AlphaEvolve商用，显示能量化替代人工的Agent更易获得预算；DeepSeek低价获客与Grok 4.5定价则说明通用模型层正在价格内卷，并叠加合规成本。</p></article>
+<h4 id="4-本周3个重要趋势信号">4. 本周3个重要趋势信号</h4>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>电网硬约束直接暴露</strong>：ERCOT 410GW并网请求对比85.5GW历史峰值，大型变压器交期达720周。电力设备、并网方案和表后直供资产获得稀缺性溢价，但项目延期与取消风险同步上升。</li><li><strong>Agent进入“替代工时”验证窗口</strong>：Salesforce Agentforce帮助Kogan.com自动处理67%客服咨询，Google Cloud AlphaEvolve正式商用。价值标准从“有没有AI”切换为“一个Agent能替代多少工时”。</li><li><strong>模型竞争转向“定价+合规”双维度</strong>：Grok 4.5每百万输出token仅6美元，同时美国国会把中国模型使用调查延伸至Cursor、Airbnb等私营企业。低价不再是唯一优势，合规溢价可能重塑模型选择。</li></ul></article>
+<h3 id="5-产业链传导与前瞻推演">5. 产业链传导与前瞻推演</h3>
+<section class="chain-grid"><article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>链条一：地缘冲击→利率与能源成本双升→估值、毛利与融资承压。</strong></div>
+  <p>10年期美债4.56%直接压缩高估值科技股倍数，新增电力成本侵蚀数据中心利润；TeraWulf 35亿美元高收益债与Cloud Capital 5.2亿美元CMBS又把信用利差传入项目IRR。若收益率持续高于4.5%，高杠杆开发商将系统性承压，云厂也会更偏好靠近电源、拥有PPA或可调度基荷电源的选址。</p>
+</article></section>
+<section class="chain-grid"><article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>链条二：SaaS预算→Agent采购→企业软件估值重锚。</strong></div>
+  <p>企业为验证AI投入而削减传统SaaS预算，Agentforce的67%自动化率又提供“少雇人、少买席位”的销售证据。若2026年下半年主流软件商订阅收入持续环比放缓，板块估值可能从“稳定订阅溢价”转向“AI替代折价”。</p>
+</article></section>
+<section class="chain-grid"><article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>链条三：资本开支货币化→基础设施金融化→利率敏感性上升。</strong></div>
+  <p>长租约支持的债务与CMBS拓宽资金池、加快项目落地，但也可能在未来2-3年高利率再融资时形成局部“类房地产周期”：硬件资产可用，融资结构却失衡。</p>
+</article></section>
+<article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>风险提示</strong></div>
+  <p><strong>情景框架</strong>：缓和情景为冲突1-2周内降级、布伦特回落至75美元以下；基准情景为有限冲突、油价75-80美元；恶化情景为海峡实质封锁、油价突破100美元，引发通胀、美债收益率、风险资产和供应链交付的连锁冲击。霍尔木兹属于原油通道风险，并非芯片产地风险；对亚洲硬件供应链的影响主要通过保险与全球航运成本间接传导。</p>
+</article>
+<h4 id="6-投资焦点与冷门机会">6. 投资焦点与冷门机会</h4>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>1-6个月优先方向</strong>：数据中心电力/散热/物理基建，以及AI Agent/开发者工具链。前者受电网并网和变压器交期支撑，后者受可量化成本替代案例支撑。</li><li><strong>谨慎方向</strong>：大模型商业化/收入验证与AI资本开支/融资/估值周期。前者面临价格战与合规双压，后者被利率和复杂债务结构放大风险。</li><li><strong>早期信号</strong>：EDF与Soluna的166MW风电直供PPA提供绕开电网的路径；美国国会调查若进入商业合同条款，将为本土模型商提供合规溢价。</li><li><strong>冷门机会——数据中心社区许可与选址服务</strong>：弗吉尼亚多个项目因社区反对和政治程序延期，社区关系、环境评估和选址谈判可能从隐性成本变成正式采购。可用Equinix、Digital Realty项目更新中的许可延期数量，以及州级公用事业委员会选址争议案例数来跟踪。</li></ul></article>
+<h2 class="section-title major-title" id="细分板块分析-2026-07-12">细分板块分析</h2>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>目录</strong></div><ul class="insight-list"><li><a href="#1-宏观环境与政策风向-美伊短暂交火推升利率与油价-ai估值与成本端面临压力测试">1. 宏观环境与政策风向</a></li><li><a href="#2-产能瓶颈与供应链重构-德州电网大负荷并网队列暴露巨大可交付缺口-电力物理硬约束成为算力扩张最核心的供给侧瓶颈">2. 产能瓶颈与供应链重构</a></li><li><a href="#3-ai商业化落地与价值验证-ai基础设施需求经得起积压订单验证-但买方话语权从-抢容量-转向-算清账">3. AI商业化落地与价值验证</a></li><li><a href="#4-学术界与研究机构观点-静默周-可靠学术信号缺席-前沿研究均处于远期验证阶段">4. 学术界与研究机构观点</a></li><li><a href="#5-资本流向与估值逻辑-ai数据中心通过长期租约撬动大规模债务融资-基建资产加速金融化">5. 资本流向与估值逻辑</a></li><li><a href="#6-其他信号与边缘观察-模型层竞争从技术路线向商业定价与地缘合规双维度分化">6. 其他信号与边缘观察</a></li><li><a href="#8-本周关键方向多空辩论">8. 本周关键方向多空辩论</a></li></ul></article>
+<details class="topic-section topic-1" open>
+  <summary class="topic-summary"><h3 id="1-宏观环境与政策风向-美伊短暂交火推升利率与油价-ai估值与成本端面临压力测试">1. 宏观环境与政策风向：美伊短暂交火推升利率与油价，AI估值与成本端面临压力测试</h3><em>展开</em></summary>
+  <div class="topic-body">
+    <h4 id="1-趋势研判">1. 趋势研判</h4>
+<article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>本节判断</strong></div>
+  <p>外部环境正从顺风转为压力测试。美伊冲突同时抬升油价与美债收益率，既压缩高估值科技股倍数，又侵蚀数据中心运营利润率；短期冲击显著，但尚不足以判定AI产业结构性逆转。</p>
+</article>
+<h4 id="2-关键事件与数据">2. 关键事件与数据</h4>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>美伊短暂交火推升美债收益率与油价</strong></div>
+  <p class="evidence-data"><b>核心数据</b>10年期美债收益率4.56%，布伦特原油76.01美元/桶，低于50日均线87.61美元。</p>
+  <p class="evidence-source"><b>来源</b>原报告汇总的Tier 1报道与实时市场数据，截至2026年7月12日。</p>
+  <p class="evidence-meaning"><b>投资含义</b>美国恢复轰炸伊朗并瞄准霍尔木兹航运能力，虽未封锁海峡，已形成“利率+成本”双杀压力。</p>
+  
+</article>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>美国能源部发布全国输电需求研究草案</strong></div>
+  <p class="evidence-data"><b>核心数据</b>数据中心和制造业扩张推动用电需求，约5%的高压力时段存在严重电网拥堵。</p>
+  <p class="evidence-source"><b>来源</b>美国能源部全国输电需求研究草案，Tier 1。</p>
+  <p class="evidence-meaning"><b>投资含义</b>长期扩容获得官方背书，但短期输电瓶颈仍会限制数据中心落地速度。</p>
+  
+</article>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>美光2500亿美元押注美国本土内存供应链</strong></div>
+  <p class="evidence-data"><b>核心数据</b>美光计划投资2500亿美元，并与环球晶圆签署5亿美元、10年硅晶圆协议，支持德州HBM4；营收414.56亿美元、环比增长73.7%，CapEx强度19%（2026Q3）。</p>
+  <p class="evidence-source"><b>来源</b>美光(MU)、环球晶圆(GlobalWafers)企业披露与原报告财务快照，Tier 2，截至2026Q3。</p>
+  <p class="evidence-meaning"><b>投资含义</b>本土化降低台海风险敞口，但巨额投资会压制短期自由现金流。</p>
+  
+</article>
+<h3 id="3-产业链传导">5. 产业链传导与前瞻推荐</h3>
+<section class="chain-grid"><article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>估值与融资成本传导</strong></div>
+  <p>冲突→油价与通胀预期→10年期美债4.56%→高估值科技股倍数承压。微软PE 36.3、距高点回撤30.7%；标普500期货7620.25、VIX 15.03，尚未恐慌但已开始计价不确定性。</p>
+</article>
+<article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>数据中心运营成本传导</strong></div>
+  <p>油价与天然气发电需求抬高边际电力成本；PPA只能锁住部分存量成本，新项目的毛利压力更大。</p>
+</article>
+<article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>地缘供应链“近岸化”加速</strong></div>
+  <p>美光投资显示本土生产已从加分项变成地缘去风险的必选项，芯片产能军备竞赛将令CapEx占比长期高位。</p>
+</article></section>
+<h4 id="4-方向指引">4. 方向指引</h4>
+<article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>风险提示</strong></div>
+  <p><strong>评级连续性说明</strong>：数据中心电力/散热/物理基建维持积极看好，AI监管/出口管制/地缘风险维持风险升高。<strong>趋势研判</strong>：未来2-4周重点监测WTI能否稳定在76美元以下；若突破85美元并接近50日均线，云服务商毛利率可能被系统重估。当前并网形势仍然严重，能源成本也在上升。市场还低估了电力审批建设需3-5年、数据中心建设仅约2年的周期错配，“建好机房等电”可能普遍化。</p>
+</article>
+    <div class="fold-actions"><button type="button" class="topic-close fold-close" data-fold-close>收起</button></div>
+  </div>
+</details>
+<details class="topic-section topic-2" open>
+  <summary class="topic-summary"><h3 id="2-产能瓶颈与供应链重构-德州电网大负荷并网队列暴露巨大可交付缺口-电力物理硬约束成为算力扩张最核心的供给侧瓶颈">2. 产能瓶颈与供应链重构：德州电网大负荷并网队列暴露巨大可交付缺口，电力物理硬约束成为算力扩张最核心的供给侧瓶颈</h3><em>展开</em></summary>
+  <div class="topic-body">
+    <h4 id="1-趋势研判-2">1. 趋势研判</h4>
+<article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>本节判断</strong></div>
+  <p>AI扩张已由芯片单一约束转为“电力供给+设备交付+社区许可”多极约束。ERCOT宣布容量与实际可交付容量相差数倍，变压器交期超过十年，是对“算力无限供给”叙事的强反证。证据强度中，核心数据来自DataCenterDynamics等行业分析，仍需官方项目落地数据持续验证。</p>
+</article>
+<h4 id="2-关键事件与数据-2">2. 关键事件与数据</h4>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>ERCOT电网并网队列暴露可交付容量巨幅缺口，变压器交期超14年</strong></div>
+  <p class="evidence-data"><b>核心数据</b>大负荷互连请求约410GW，德州历史峰值仅85.5GW；大型变压器交期720周。新规要求项目模型、调试计划与不可退费用。</p>
+  <p class="evidence-source"><b>来源</b>DataCenterDynamics汇总的ERCOT数据，Tier 3；设备交期仍需官方采购数据复核。</p>
+  <p class="evidence-meaning"><b>投资含义</b>无真实接入能力的规划项目风险陡升，供应链订单可能延期或取消。</p>
+  
+</article>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>美国能源部向AEP Texas提供32.6亿美元输电贷款</strong></div>
+  <p class="evidence-data"><b>核心数据</b>贷款支持约2800英里输电线路；AEP五年输电资本计划约780亿美元。</p>
+  <p class="evidence-source"><b>来源</b>美国能源部及AEP相关披露，Tier 2。</p>
+  <p class="evidence-meaning"><b>投资含义</b>长期电网投资加速，但数年的规划审批建设周期无法解决中短期拥堵，形成“长期利好、中短期无解”。</p>
+  
+</article>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>Nidec展出300kW机柜内液冷分配单元原型，计划2027年量产</strong></div>
+  <p class="evidence-data"><b>核心数据</b>兼容OCP标准，单机柜冷却能力300kW，计划2027年量产。</p>
+  <p class="evidence-source"><b>来源</b>Nidec产品披露与专业行业媒体，Tier 2。</p>
+  <p class="evidence-meaning"><b>投资含义</b>散热功率密度上限继续提高，但量产时间决定其短期难以贡献业绩。</p>
+  
+</article>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>社区反对成为AI数据中心选址的实质性障碍</strong></div>
+  <p class="evidence-data"><b>核心数据</b>弗吉尼亚多个超大规模项目因社区反对与政治程序面临多年延期，行业调查称社区审查正成为核心障碍。</p>
+  <p class="evidence-source"><b>来源</b>原报告汇总的专业行业调查，Tier 2。</p>
+  <p class="evidence-meaning"><b>投资含义</b>许可证风险与电力瓶颈叠加，系统性拉长交付周期，削弱巨额CapEx承诺的可兑现性。</p>
+  
+</article>
+<h3 id="3-产业链传导-2">5. 产业链传导与前瞻推荐</h3>
+<section class="chain-grid"><article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>电网设备与工程环节价值凸显</strong></div>
+  <p>并网能力比土地和建筑更稀缺，变压器、开关柜和并网方案供应商的议价权与订单可见度增强。Vertiv虽最新季度营收环比下降8%，仍凭电力管理与散热地位维持强势情绪（财务快照，截至2026Q1）。</p>
+</article>
+<article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>“表后直供”模式获得验证</strong></div>
+  <p>EDF与Masdar为Soluna签署166MW风电直供PPA，绕开公共电网瓶颈，利好分布式能源建设运营商并提高选址弹性。</p>
+</article>
+<article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>超大规模云商需平衡扩张与落地</strong></div>
+  <p>亚马逊在密苏里投入100亿美元建园区并用社区投入对冲反对，显示“社区许可”已进入总拥有成本；AWS更新SageMaker HyperPod简化推理部署，试图用软件效率抵消硬件交付延迟。</p>
+</article></section>
+<h4 id="4-方向指引-2">4. 方向指引</h4>
+<article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>本节判断</strong></div>
+  <p>电网扩容需求虽有政策与贷款支持，但短期并网、变压器和许可三重约束会继续拉大“宣布容量”与“可交付容量”的差距；判断能否兑现时，应优先核验真实接入能力、不可退费用与投产节点，而不是规划GW数。正式赛道结论见本页综合方向面板。</p>
+</article>
+    <div class="fold-actions"><button type="button" class="topic-close fold-close" data-fold-close>收起</button></div>
+  </div>
+</details>
+<details class="topic-section topic-3" open>
+  <summary class="topic-summary"><h3 id="3-ai商业化落地与价值验证-ai基础设施需求经得起积压订单验证-但买方话语权从-抢容量-转向-算清账">3. AI商业化落地与价值验证：AI基础设施需求经得起积压订单验证，但买方话语权从“抢容量”转向“算清账”</h3><em>展开</em></summary>
+  <div class="topic-body">
+    <h4 id="1-趋势研判-3">1. 趋势研判</h4>
+<article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>本节判断</strong></div>
+  <p>Oracle FY2026Q4 RPO达6380亿美元、环比增加850亿美元，基础设施需求已有合同约束，证据强度高。但企业软件预算正从传统SaaS转向AI，采购标准也从“有无AI”切换为ROI：商业化进入基础设施确定性与应用层价值筛选并存的分化期。</p>
+</article>
+<h4 id="2-关键事件与数据-3">2. 关键事件与数据</h4>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>Oracle AI云营收积压创新高</strong></div>
+  <p class="evidence-data"><b>核心数据</b>季度营收192亿美元、同比增长21%；IaaS收入同比增长93%，RPO达6380亿美元。</p>
+  <p class="evidence-source"><b>来源</b>Oracle企业披露与原报告财务数据，Tier 3，截至FY2026Q4。</p>
+  <p class="evidence-meaning"><b>投资含义</b>AI基础设施需求已转化为合同约束的预订单，未来收入可见度显著提高。</p>
+  
+</article>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>采购转向ROI，Google AlphaEvolve进入商用</strong></div>
+  <p class="evidence-data"><b>核心数据</b>多位AI高管确认买方更重成本与回报；Google Cloud于7月9日推出可自我迭代优化代码的AlphaEvolve。</p>
+  <p class="evidence-source"><b>来源</b>CNBC对AI高管的采访与Google Cloud官方公告，Tier 1。</p>
+  <p class="evidence-meaning"><b>投资含义</b>“囤算力”阶段退潮，能直接降本增效的编程、客服Agent成为新增支出焦点。</p>
+  
+</article>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>DeepSeek凭低价策略侵蚀份额</strong></div>
+  <p class="evidence-data"><b>核心数据</b>V4低价策略使其OpenRouter token份额在六个月内翻倍。</p>
+  <p class="evidence-source"><b>来源</b>原报告汇总的路透社与Semafor报道，Tier 2。</p>
+  <p class="evidence-meaning"><b>投资含义</b>模型差异化窗口收窄，按token计费面临结构性降价，缺乏规模优势的厂商毛利承压。</p>
+  
+</article>
+<article class="evidence-item">
+  <div class="evidence-title"><span class="evidence-pin">证</span><strong>Salesforce Agentforce案例与SaaS支出受挤压</strong></div>
+  <p class="evidence-data"><b>核心数据</b>Kogan.com使用Agentforce自动处理67%客户咨询；企业IT预算正从传统SaaS转向AI。</p>
+  <p class="evidence-source"><b>来源</b>Salesforce官方案例（Tier 1）与The Information预算报道（Tier 2）；自动化率为企业自报，尚缺独立财务验证。</p>
+  <p class="evidence-meaning"><b>投资含义</b>AI从辅助工具变为核心执行者，验证商业价值的同时侵蚀旧工作流软件份额。</p>
+  
+</article>
+<h3 id="3-产业链传导与前瞻推演">5. 产业链传导与前瞻推荐</h3>
+<section class="chain-grid"><article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>链条一：企业预算的结构性迁移加速</strong></div>
+  <p>财务高管为验证AI CapEx而削减传统SaaS；AlphaEvolve与Agentforce直接替代人力，进一步加速自动化采购。传统软件商可能遭遇比财报表面更深的周期下行，能证明成本替代比的AI应用则受益。</p>
+</article>
+<article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>链条二：模型层定价权的“下沉”与利润池的重构</strong></div>
+  <p>DeepSeek份额增长说明价格成为核心变量，模型层垄断利润被压缩，价值向低成本调用模型的应用商、性价比云服务和自研推理芯片转移；依赖高价API的模型厂商毛利持续承压。</p>
+</article>
+<article class="chain-card">
+  <div class="card-label"><span class="card-icon">链</span><strong>链条交汇与净效应</strong></div>
+  <p>预算迁移打开应用层空间，模型成本下降改善其毛利，能解决具体场景并替代人工的原生AI应用迎来需求与基本面双击。云服务商虽受单价压力，但Oracle积压订单说明工作负载总量增长仍是主导逻辑。</p>
+</article></section>
+    <div class="fold-actions"><button type="button" class="topic-close fold-close" data-fold-close>收起</button></div>
+  </div>
+</details>
+<details class="topic-section topic-4" open>
+  <summary class="topic-summary"><h3 id="4-学术界与研究机构观点-静默周-可靠学术信号缺席-前沿研究均处于远期验证阶段">4. 学术界与研究机构观点：静默周——可靠学术信号缺席，前沿研究均处于远期验证阶段</h3><em>展开</em></summary>
+  <div class="topic-body">
+    <article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>本节判断</strong></div>
+  <p>Grok检索包确认，7月5日至12日没有可核对的同行评议论文、顶会官方日程或权威机构报告形成可信投资指引。7篇预印本与研究均处于实验室或理论阶段，缺少收入、客户和CapEx反馈，不能用于短期配置。</p>
+</article>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>唯一值得深挖的AI Agent技能路由研究</strong>：在1898个双语技能语料库中，单次检索覆盖率52.9%，理论最优方法也仅63.6%。研究将瓶颈归因于语料冗余与命名不匹配，而非算法不够先进，因此对“能力随数据无限增长”的Scaling Law构成远期理论约束。</li><li><strong>产业含义必须经过三道验证</strong>：先在公开、更大规模与更多语种基准复现；再观察领先模型是否出现实际能力边际递减；最后确认资本开支因此调整。缺一环，都不能把理论上限直接外推为芯片需求见顶。</li><li><strong>证据强度低</strong>：研究仅12个案例、单一私有语料库、英韩双语且置信区间较宽。来源为原报告收录的预印本研究，尚未同行评议，论文题名与作者未在原文展开。</li><li><strong>其他研究不能被一笔带过</strong>：MIT Sloan的实验提示生成式AI虽提高个体创造力，却降低群体创意多样性并减少突破性异常值；ZipDepth轻量视觉模型、UniClawBench Agent评估基准、量子神经网络训练动态分析也提供能力边界坐标。但它们均处于预商业化阶段，尚无收入确认、客户牵引或资本开支证据，属于远期期权而非当期投资信号。</li></ul></article>
+    <div class="fold-actions"><button type="button" class="topic-close fold-close" data-fold-close>收起</button></div>
+  </div>
+</details>
+<details class="topic-section topic-5" open>
+  <summary class="topic-summary"><h3 id="5-资本流向与估值逻辑-ai数据中心通过长期租约撬动大规模债务融资-基建资产加速金融化">5. 资本流向与估值逻辑：AI数据中心通过长期租约撬动大规模债务融资，基建资产加速金融化</h3><em>展开</em></summary>
+  <div class="topic-body">
+    <article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>风险提示</strong></div>
+  <p>本周两笔交易完成了对AI基建资产的资本市场资格认证：机构开始把超大规模数据中心视为能产生稳定现金流的“数字基础设施不动产”，而非高风险初创项目。租约信用与现金流可预测性，正在成为融资能力和资产定价的核心锚。</p>
+</article>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>TeraWulf</strong>：拟通过约35亿美元债务，在肯塔基建设AI数据中心并租给Anthropic 20年；摩根士丹利(Morgan Stanley, MS)预计牵头，结构可能含高收益债。WULF股价随消息发酵明显走强。</li><li><strong>Cloud Capital项目</strong>：以弗吉尼亚80MW数据中心为抵押发行5.2亿美元CMBS；租户为AA级超大规模云商，年化租金约6510万美元。来源：DataCenterDynamics，Tier 2，事件日期2026年7月9日至10日。</li><li><strong>资本渠道的结构变化</strong>：融资从股权与科技巨头表内现金扩展至固定收益资金池。锁定优质长期租户的开发商不再只是“重资产包袱”，而成为可证券化、可退出的现金流产品；缺乏信用锚的规划项目则面对更高风险溢价。</li><li><strong>双刃剑与方向判断</strong>：高收益债和CMBS也使项目估值更依赖利率与信用利差。10年期美债4.56%若长期高位，融资成本将侵蚀回报并挤压高杠杆开发商。融资渠道拓宽是积极信号，但市场低估结构复杂性，AI资本开支/融资/估值周期维持“风险升高”。</li></ul></article>
+    <div class="fold-actions"><button type="button" class="topic-close fold-close" data-fold-close>收起</button></div>
+  </div>
+</details>
+<details class="topic-section topic-6" open>
+  <summary class="topic-summary"><h3 id="6-其他信号与边缘观察-模型层竞争从技术路线向商业定价与地缘合规双维度分化">6. 其他信号与边缘观察：模型层竞争从技术路线向商业定价与地缘合规双维度分化</h3><em>展开</em></summary>
+  <div class="topic-body">
+    <article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>本节判断</strong></div>
+  <p>两个边缘信号正在交汇：美国监管从芯片管制延伸到模型使用，头部模型则分化为高价锚与低价挑战者。企业选型因此同时比较性能、token成本和潜在合规代价。</p>
+</article>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>第一个信号：国会调查正在改变企业模型选型的隐性成本。</strong> 美国众议院国土安全委员会和特别委员会向Cursor、Airbnb发函，调查其使用中国模型的情况，触角首次延伸至私营应用公司。来源：原报告汇总的本周报道；具体媒体与Tier未在本节注明。当前部分联邦机构已禁用某些中国模型，但私营企业尚未被普遍禁止，开源模型普及也使全面禁令复杂化。</li><li><strong>不是“禁令将至”，而是合规溢价出现</strong>：企业还要评估国会质询、合同调整与客户流失风险，这可能给本土供应商定价缓冲。若调查只停留在询问函而无实质法案，合规溢价会快速消退，价格重新成为主导。</li><li><strong>第二个信号值得结合全局重新理解：Grok 4.5的定价策略本质上是“Opus级能力、Luna级价格”的激进卡位。</strong> 每百万输入token 2美元、输出token 6美元；Anthropic Opus 4.7为5/25美元，OpenAI Luna为1/6美元。高端模型试图维持5/25-30美元锚，挑战者在低价带以接近性能施压。来源：原报告模型定价对比，未注明具体定价页与抓取时间。</li></ul></article>
+<article class="opinion-card">
+  <div class="card-label"><span class="card-icon">◆</span><strong>趋势研判</strong></div>
+  <p>模型竞争从能力军备扩展为定价与合规双维度。有能力同时满足低价与合规的供应商占优；小型开发者会最先受益于低于10美元/百万输出token的同等能力选项。后续观察OpenAI GPT-5.6定价与国会调查是否进入听证或立法。</p>
+</article>
+    <div class="fold-actions"><button type="button" class="topic-close fold-close" data-fold-close>收起</button></div>
+  </div>
+</details>
+<details class="topic-section topic-1 debate-topic">
+  <summary class="topic-summary"><h3 id="8-本周关键方向多空辩论">8. 本周关键方向多空辩论</h3><em>展开</em></summary>
+  <div class="topic-body">
+    <article class="text-card"><p>以下对本周具方向性评级（积极看好、谨慎看好、风险升高或回避）的赛道，保留多方、空方、裁决及可证伪条件，供读者对照反方视角。</p></article>
+<h4 id="1-数据中心电力-散热-物理基建-积极看好">1. 数据中心电力/散热/物理基建（积极看好）</h4>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>多方</strong>：能源部输电研究确认数据中心驱动的需求，跨区输电将获政策优先支持。</li><li><strong>空方</strong>：油价上行抬高边际运营成本，可能削弱云厂新建项目意愿。</li><li><strong>裁决</strong>：结构性扩容需求强于周期性成本冲击，维持积极看好；若WTI突破85美元并维持一个季度，下修至谨慎看好。</li></ul></article>
+<h4 id="2-ai-agent-开发者工具链-积极看好">2. AI Agent/开发者工具链（积极看好）</h4>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>多方</strong>：Kogan.com 67%自动化率提供可量化ROI，证明Agent能承担核心生产任务。</li><li><strong>空方</strong>：案例仍缺续约率、客单价和普遍性，The Information提示不少证据仍偏厂商个案。</li><li><strong>裁决</strong>：Agentforce与AlphaEvolve构成季度级进展，维持积极看好；若CRM/GOOGL下轮财报的AI ARR显著不及预期，下调至观察等待。</li></ul></article>
+<h4 id="3-云计算-模型托管-推理中间件-谨慎看好">3. 云计算/模型托管/推理中间件（谨慎看好）</h4>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>多方</strong>：Oracle FY2026Q4 IaaS同比增长93%、RPO 6380亿美元，是合同锁定的未来收入。</li><li><strong>空方</strong>：DeepSeek低价与出口管制构成扰动，Oracle PE 41.8的估值已含溢价（财务快照）。</li><li><strong>裁决</strong>：硬订单压倒远期扰动，维持谨慎看好；若脱钩政策落地或IaaS增速骤降，下调至观察等待。</li></ul></article>
+<h4 id="4-大模型商业化-收入验证-风险升高">4. 大模型商业化/收入验证（风险升高）</h4>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>多方</strong>：推理成本下降可能通过杰文斯悖论扩大总用量。</li><li><strong>空方</strong>：价格战侵蚀毛利，模型来源监管又提高合规与市场分割成本。</li><li><strong>裁决</strong>：当前利润池不清晰且政策扰动上升，维持风险升高；若独立模型厂商披露明确盈利改善路径，可升至谨慎看好。</li></ul></article>
+<h4 id="5-ai资本开支-融资-估值周期-风险升高">5. AI资本开支/融资/估值周期（风险升高）</h4>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>多方</strong>：长期租约与AA级租户让数据中心接入CMBS和高收益债市场，拓宽融资并支持估值。</li><li><strong>空方</strong>：复杂债务把资产与10年期美债及信用利差绑定，高杠杆项目的融资与再融资风险上升。</li><li><strong>裁决</strong>：渠道拓宽不抵消被低估的利率敏感性，维持风险升高；若下季融资成本已显著侵蚀IRR，上调风险等级至回避。</li></ul></article>
+<h4 id="6-ai监管-出口管制-地缘风险-风险升高">6. AI监管/出口管制/地缘风险（风险升高）</h4>
+<article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>多方</strong>：美光本土化投资提前规避风险，长期提高HBM供应链安全性。</li><li><strong>空方</strong>：冲突若扩大，风险资产可能无差别下跌；海峡封锁、能源飙升与衰退会迫使AI CapEx中断。</li><li><strong>裁决</strong>：地缘不确定性仍是主要下行驱动力，维持风险升高；VIX若从15.03升至25以上，是风险加剧的直接信号。</li></ul></article>
+    <div class="fold-actions"><button type="button" class="topic-close fold-close" data-fold-close>收起</button></div>
+  </div>
+</details>
+<details class="glossary-fold">
+  <summary><span class="summary-number">名</span><strong>名词解释</strong><em>展开</em></summary>
+  <div class="summary-fold-body">
+    <section class="glossary-grid"><article class="term-card"><strong>GPU</strong><p>图形处理器，当前也是AI训练和推理中最核心的通用算力芯片。</p></article>
+<article class="term-card"><strong>ASIC</strong><p>为特定任务定制的芯片，通常用于降低推理成本或提升特定场景效率。</p></article>
+<article class="term-card"><strong>HBM</strong><p>高带宽内存，是先进AI芯片和先进封装中的关键供给瓶颈之一。</p></article>
+<article class="term-card"><strong>AI Agent</strong><p>能拆解任务、调用工具并连续执行步骤的AI应用形态。</p></article>
+<article class="term-card"><strong>CapEx</strong><p>资本开支，指企业用于数据中心、服务器、电力等长期资产的投入。</p></article>
+<article class="term-card"><strong>ARR</strong><p>年度经常性收入，常用于衡量订阅软件或云服务的收入质量。</p></article>
+<article class="term-card"><strong>API</strong><p>应用程序接口，AI语境下常指模型能力对外调用和计费的入口。</p></article>
+<article class="term-card"><strong>先进封装</strong><p>把芯片、内存和互连结构高密度组合的制造技术，是AI芯片性能提升关键环节。</p></article>
+<article class="term-card"><strong>推理</strong><p>模型完成实际回答、生成或判断的运行过程，区别于前期训练。</p></article></section>
+    <div class="fold-actions"><button type="button" class="glossary-close fold-close" data-fold-close>收起</button></div>
+  </div>
+</details>
+<details class="note-fold">
+  <summary><span class="summary-number">备</span><strong>备注</strong><em>展开</em></summary>
+  <div class="summary-fold-body">
+    <article class="insight-card"><div class="card-label"><span class="card-icon">◆</span><strong>要点</strong></div><ul class="insight-list"><li><strong>信源分级</strong>：Tier 1包括Bloomberg、Reuters、WSJ、FT、CNBC、SEC、公司公告及Nature/Science；Tier 2为专业行业媒体；Tier 3为聚合站、博客、社交媒体及未署名分析。</li><li><strong>评级含义</strong>：积极/谨慎看好代表正面信号，观察等待代表证据不足，风险升高/回避代表负面主导；标的仅作方向参考。</li><li><strong>市场验证</strong>：✅共振代表产业趋势与价格同向，⚠️背离代表市场尚未定价或逻辑存在盲点。</li></ul></article>
+    <div class="fold-actions"><button type="button" class="note-close fold-close" data-fold-close>收起</button></div>
+  </div>
+</details>
+    </main>
+    <footer>Generated from Markdown · QA checked</footer>
+  </div>
+  <script>
+    document.addEventListener("click", function (event) {
+      const button = event.target.closest("[data-fold-close]");
+      if (!button) return;
+      const details = button.closest("details");
+      if (!details) return;
+      const summary = details.querySelector("summary");
+      details.open = false;
+      if (summary) {
+        summary.scrollIntoView({ behavior: "smooth", block: "start" });
+        summary.focus?.();
+      }
+    });
+  </script>
+</body>
+</html>
