@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>美股AI赛道周报 · 2026-07-19</title>
+<style>
+:root{
+  --bg:#0b0e14; --bg2:#11151f; --card:#161b28; --card2:#1c2233;
+  --line:#262e42; --txt:#e8ecf4; --txt2:#9aa4b8; --txt3:#6b7488;
+  --red:#f4536a; --green:#2fbf8f; --amber:#f5a623; --blue:#4f8ff7;
+  --purple:#9b6cf3; --cyan:#3cc8d8;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.75;padding-bottom:60px}
+.wrap{max-width:720px;margin:0 auto;padding:0 14px}
+
+header{padding:26px 0 18px;background:linear-gradient(180deg,#141a2b 0%,var(--bg) 100%);border-bottom:1px solid var(--line)}
+.tag{display:inline-block;font-size:11px;letter-spacing:2px;color:var(--cyan);border:1px solid rgba(60,200,216,.35);border-radius:20px;padding:3px 12px;margin-bottom:12px}
+h1{font-size:23px;font-weight:700;line-height:1.4}
+.sub{color:var(--txt3);font-size:12px;margin-top:8px}
+.core-judge{margin-top:16px;background:linear-gradient(135deg,rgba(79,143,247,.12),rgba(155,108,243,.10));border:1px solid rgba(79,143,247,.3);border-radius:14px;padding:16px}
+.core-judge .label{font-size:12px;color:var(--blue);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.core-judge p{font-size:14.5px;line-height:1.85}
+.core-judge .hl{color:var(--amber);font-weight:600}
+
+.nav{position:sticky;top:0;z-index:50;background:rgba(11,14,20,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap;padding:10px 14px;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{display:inline-block;font-size:12.5px;color:var(--txt2);text-decoration:none;padding:5px 12px;border-radius:16px;margin-right:4px;background:var(--card);border:1px solid var(--line)}
+.nav a:active{background:var(--card2)}
+
+section{margin-top:26px}
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;cursor:pointer;user-select:none}
+.sec-num{width:26px;height:26px;border-radius:8px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--cyan);flex-shrink:0}
+.sec-head h2{font-size:18px;font-weight:700;flex:1}
+.arrow{color:var(--txt3);font-size:13px;transition:transform .25s}
+section.collapsed .arrow{transform:rotate(-90deg)}
+section.collapsed .sec-body{display:none}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.card h3{font-size:15.5px;font-weight:700;margin-bottom:10px}
+.src{display:inline-block;font-size:10.5px;color:var(--txt3);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:1px 8px;margin-left:4px;vertical-align:middle}
+p+p{margin-top:10px}
+.label-row{display:flex;align-items:center;gap:8px;margin:12px 0 6px}
+.label-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.label-t{font-size:13px;font-weight:600}
+.small{font-size:13px;color:var(--txt2)}
+.verify{margin-top:12px;padding:10px 12px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-radius:10px;font-size:13px}
+.verify b{color:var(--amber)}
+.concl{margin-top:12px;padding:10px 12px;background:rgba(244,83,106,.08);border-left:3px solid var(--red);border-radius:0 10px 10px 0;font-size:13.5px}
+.concl.b{background:rgba(47,191,143,.08);border-left-color:var(--green)}
+.concl.b b{color:var(--green)}
+.concl.p{background:rgba(155,108,243,.09);border-left-color:var(--purple)}
+.concl.p b{color:var(--purple)}
+.concl b{color:var(--red)}
+mark{background:none;color:var(--amber);font-weight:600}
+mark.r{color:var(--red)}
+mark.g{color:var(--green)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat .v{font-size:20px;font-weight:800;font-family:"SF Mono",Menlo,monospace}
+.stat .k{font-size:11.5px;color:var(--txt3);margin-top:2px}
+.v.dn{color:var(--red)} .v.up{color:var(--green)} .v.nt{color:var(--txt2)}
+.bar-track{height:5px;background:var(--bg2);border-radius:3px;margin-top:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+
+.thermo{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 16px;margin-bottom:12px}
+.dial{position:relative;width:110px;height:110px;flex-shrink:0}
+.dial svg{transform:rotate(-90deg)}
+.dial .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dial .val .t{font-size:22px;font-weight:800;color:var(--cyan)}
+.dial .val .s{font-size:10px;color:var(--txt3)}
+.thermo-info{flex:1;font-size:13px;color:var(--txt2)}
+.thermo-info b{color:var(--txt)}
+.pill{display:inline-block;font-size:11px;border-radius:10px;padding:2px 9px;margin:3px 4px 0 0;border:1px solid var(--line);background:var(--bg2)}
+
+.flow{display:flex;flex-direction:column;margin-bottom:12px}
+.flow-node{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.flow-node .ft{font-size:13px;font-weight:700;margin-bottom:4px}
+.flow-node .fd{font-size:12.5px;color:var(--txt2)}
+.flow-arrow{text-align:center;color:var(--txt3);font-size:16px;line-height:1.6}
+.flow-node.c1{border-left:3px solid var(--green)}
+.flow-node.c2{border-left:3px solid var(--amber)}
+.flow-node.c3{border-left:3px solid var(--purple)}
+.flow-node.c4{border-left:3px solid var(--red)}
+.flow-node.end{border-left:3px solid var(--cyan);background:linear-gradient(135deg,rgba(60,200,216,.08),var(--card))}
+
+.zone{margin-bottom:10px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.zone-head{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13.5px;font-weight:700}
+.zone-body{padding:10px 14px;background:var(--card);font-size:13px;color:var(--txt2)}
+.chip{display:inline-block;font-size:12px;border-radius:8px;padding:2px 10px;margin:3px 4px 3px 0;background:var(--card2);border:1px solid var(--line);color:var(--txt)}
+.z1 .zone-head{background:rgba(244,83,106,.15);color:var(--red)}
+.z2 .zone-head{background:rgba(245,166,35,.15);color:var(--amber)}
+.z3 .zone-head{background:rgba(47,191,143,.15);color:var(--green)}
+.z4 .zone-head{background:rgba(79,143,247,.13);color:var(--blue)}
+
+.tl{position:relative;padding-left:22px;margin-bottom:12px}
+.tl::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-item::before{content:"";position:absolute;left:-20px;top:7px;width:10px;height:10px;border-radius:50%;background:var(--blue);border:2px solid var(--bg)}
+.tl-item.hot::before{background:var(--red)}
+.tl-date{font-size:12px;color:var(--cyan);font-weight:600;font-family:Menlo,monospace}
+.tl-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:6px}
+.tl-card h4{font-size:14.5px;font-weight:700;margin-bottom:8px}
+.qa{margin-top:8px;font-size:13px}
+.qa .q{color:var(--txt3);font-size:11.5px;font-weight:600;letter-spacing:1px}
+.impact{display:inline-block;font-size:11px;border-radius:8px;padding:2px 9px;margin-top:6px}
+.impact.r{background:rgba(244,83,106,.12);color:var(--red)}
+.impact.a{background:rgba(245,166,35,.12);color:var(--amber)}
+.impact.b{background:rgba(79,143,247,.12);color:var(--blue)}
+.reflect{margin-top:10px;padding:9px 12px;border-radius:10px;font-size:12.5px;background:var(--bg2);border:1px dashed var(--line)}
+.reflect b{color:var(--cyan)}
+
+.obs{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.obs-top{display:flex;align-items:flex-start;gap:10px}
+.obs-date{flex-shrink:0;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:6px 10px;text-align:center;min-width:64px}
+.obs-date .d{font-size:14px;font-weight:800;color:var(--cyan);font-family:Menlo,monospace}
+.obs-date .m{font-size:10px;color:var(--txt3)}
+.obs-title{font-size:14.5px;font-weight:700;padding-top:4px}
+.aux{display:inline-block;font-size:10.5px;color:var(--purple);border:1px solid rgba(155,108,243,.35);border-radius:8px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.obs-var{font-size:12.5px;color:var(--txt2);margin-top:8px}
+.scn{display:flex;gap:8px;margin-top:8px;font-size:12.5px;align-items:flex-start}
+.scn .ic{flex-shrink:0;border-radius:6px;padding:1px 8px;font-size:11px;font-weight:700;margin-top:2px}
+.scn.pos .ic{background:rgba(47,191,143,.16);color:var(--green)}
+.scn.neu .ic{background:rgba(154,164,184,.16);color:var(--txt2)}
+.scn.neg .ic{background:rgba(244,83,106,.16);color:var(--red)}
+.scn .tx{flex:1;color:var(--txt2)}
+.scn .tx b{color:var(--txt)}
+
+.risk{border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--line)}
+.risk.r1{background:rgba(244,83,106,.06);border-color:rgba(244,83,106,.3)}
+.risk.r2{background:rgba(47,191,143,.05);border-color:rgba(47,191,143,.3)}
+.risk.r3{background:rgba(155,108,243,.06);border-color:rgba(155,108,243,.35)}
+.risk h4{font-size:14.5px;margin-bottom:8px}
+.risk.r1 h4{color:var(--red)} .risk.r2 h4{color:var(--green)} .risk.r3 h4{color:var(--purple)}
+.risk ol{padding-left:20px;font-size:13.5px;color:var(--txt2)}
+.risk ol li{margin-bottom:6px}
+.risk .foot{margin-top:10px;font-size:12.5px;padding-top:8px;border-top:1px dashed var(--line);color:var(--txt2)}
+
+footer{margin-top:34px;padding:18px 0 8px;border-top:1px solid var(--line);font-size:11.5px;color:var(--txt3);line-height:1.8}
+.note{font-size:11.5px;color:var(--txt3);margin-top:4px}
+details{margin-top:10px}
+summary{font-size:12.5px;color:var(--blue);cursor:pointer;list-style:none}
+summary::before{content:"▸ "}
+details[open] summary::before{content:"▾ "}
+details .inner{font-size:13px;color:var(--txt2);padding:8px 0 0}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="tag">美股 AI 赛道周报</span>
+    <h1>需求已证实，定价看「转化」</h1>
+    <div class="sub">2026-07-19 · 本期不作跨期比较（无合格上一期）</div>
+    <div class="core-judge">
+      <div class="label">◆ 本周一句话判断</div>
+      <p>市场当前主要在交易「AI 需求已被证实、回调只是预期打满后的消化」，但本周强需求数据未能阻止价格回撤——TSMC 创季度新高的当天被抛售、费半进入技术性熊市——说明<span class="hl">边际定价变量已不再只有需求</span>。未来 1—2 周最可能主导定价的是需求向价格、毛利率与自由现金流转化的「<span class="hl">增长质量验证</span>」，而不是新的需求数据。</p>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <a href="#s2">关键矛盾</a>
+  <a href="#s3">主线暗线</a>
+  <a href="#s4">轮动图谱</a>
+  <a href="#s5">温度环境</a>
+  <a href="#s6">事件影响</a>
+  <a href="#s7">下周观察</a>
+  <a href="#s8">失效条件</a>
+</nav>
+
+<div class="wrap">
+
+<!-- ===== 市场速览 ===== -->
+<section id="s0">
+  <div class="sec-head" onclick="toggle(this)">
+    <div class="sec-num">览</div><h2>本周市场速览</h2><span class="arrow">▾</span>
+  </div>
+  <div class="sec-body">
+    <div class="grid">
+      <div class="stat"><div class="v dn">-20%</div><div class="k">费城半导体 · 较6月底高点入熊</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:var(--red)"></div></div></div>
+      <div class="stat"><div class="v dn">-15%+</div><div class="k">SK海力士 · 单日跌幅（有记录以来最大）</div><div class="bar-track"><div class="bar-fill" style="width:60%;background:var(--red)"></div></div></div>
+      <div class="stat"><div class="v dn">-8.92%</div><div class="k">SMH 周跌幅 · MA20下方约8.9%</div><div class="bar-track"><div class="bar-fill" style="width:36%;background:var(--red)"></div></div></div>
+      <div class="stat"><div class="v dn">-4.16%</div><div class="k">QQQ 周跌幅 · 跌破MA20</div><div class="bar-track"><div class="bar-fill" style="width:17%;background:var(--amber)"></div></div></div>
+      <div class="stat"><div class="v up">+24.9%</div><div class="k">VIX 周涨幅（7/16 VIXCLS 16.73）</div><div class="bar-track"><div class="bar-fill" style="width:62%;background:var(--green)"></div></div></div>
+      <div class="stat"><div class="v up">+14%+</div><div class="k">油价周涨幅 · 能源成本背景</div><div class="bar-track"><div class="bar-fill" style="width:56%;background:var(--green)"></div></div><div class="note">Brent 81.62 美元（7/13）</div></div>
+      <div class="stat"><div class="v up">+77%</div><div class="k">TSMC Q2 净利同比 · 创季度新高</div><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--green)"></div></div><div class="note">财报后仍跌 2.77%、连跌七个交易日</div></div>
+      <div class="stat"><div class="v nt">4.57%</div><div class="k">10年期美债（2年期 4.16% 周持平）</div><div class="bar-track"><div class="bar-fill" style="width:46%;background:var(--blue)"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 三个关键矛盾 ===== -->
+<section id="s2">
+  <div class="sec-head" onclick="toggle(this)">
+    <div class="sec-num">贰</div><h2>三个关键矛盾</h2><span class="arrow">▾</span>
+  </div>
+  <div class="sec-body">
+
+    <div class="card">
+      <h3>矛盾一 · 需求证实 <span style="color:var(--txt3)">vs</span> 价格下跌</h3>
+      <div class="label-row"><span class="label-dot" style="background:var(--blue)"></span><span class="label-t">现象</span></div>
+      <p class="small">TSMC Q2 净利同比 <mark class="g">+77%</mark>、2026 年营收指引上调至略超 40%、资本开支上调至 <mark>600亿—640亿美元</mark><span class="src">媒体</span>，官方 IR 披露 6 月营收同比 <mark class="g">+67.9%</mark>；但 TSM 财报后跌 <mark class="r">2.77%</mark>、连跌七个交易日<span class="src">媒体</span>，费城半导体指数较 6 月底高点回落 20% 进入技术性熊市<span class="src">媒体</span>。</p>
+      <div class="label-row"><span class="label-dot" style="background:var(--red)"></span><span class="label-t">矛盾所在</span></div>
+      <p class="small">强需求数据未能阻止价格回撤，说明<b style="color:var(--txt)">边际定价变量已不再只有需求</b>；估值、拥挤度、资本开支回报和利润率均可能参与定价。</p>
+      <div class="concl"><b>阶段性判断</b>：仅凭一周价格不能宣布「需求叙事失效」，但可以确认需求已不再是定价的充分条件——下一阶段的问题从「需求是否真实」变为「需求能转化成什么」。</div>
+      <div class="verify"><b>后续验证</b>：云厂商财报（Alphabet 7月22日起）对资本开支与回报的表述。</div>
+    </div>
+
+    <div class="card">
+      <h3>矛盾二 · 量的证实 <span style="color:var(--txt3)">vs</span> 价的收缩</h3>
+      <div class="label-row"><span class="label-dot" style="background:var(--blue)"></span><span class="label-t">现象</span></div>
+      <p class="small">TSMC 营收与出货创季度新高<span class="src">媒体</span>；同一周，韩国投资证券预计 SK 海力士季度营业利润可能低于一致预期约 8%，理由是 HBM 涨价慢于常规 DRAM 与 NAND<span class="src">单一券商预测·媒体</span>；SK 海力士单日收跌逾 <mark class="r">15%</mark>，媒体称其为有记录以来最大单日跌幅<span class="src">媒体</span>。</p>
+      <div class="label-row"><span class="label-dot" style="background:var(--red)"></span><span class="label-t">矛盾所在</span></div>
+      <p class="small">出货「量」被官方数据证实，而产品「价」在存储环节出现待验证分歧——<b style="color:var(--txt)">需求向价格的转化可能正在减速</b>。</p>
+      <div class="concl"><b>阶段性判断</b>：这目前只是来自一份券商预测的待验证假设，不能宣布行业性「量增利不增」已经形成；裁决只能交给业绩窗口。</div>
+      <div class="verify"><b>后续验证</b>：SK 海力士与美光业绩中的 HBM 定价与毛利率。</div>
+    </div>
+
+    <div class="card">
+      <h3>矛盾三 · 增长 <span style="color:var(--txt3)">vs</span> 现金流</h3>
+      <div class="label-row"><span class="label-dot" style="background:var(--blue)"></span><span class="label-t">现象</span></div>
+      <p class="small">TSMC 资本开支上调至 <mark>600亿—640亿美元</mark>、追加 1000 亿美元美国投资<span class="src">媒体</span>；媒体测算 Meta 按指引中值 Q2—Q4 季均需投入 <mark>384亿美元</mark>、若经营现金流维持 Q1 水平则自由现金流约转负 <mark class="r">62亿美元</mark><span class="src">媒体压力测试·非公司指引</span>。</p>
+      <div class="label-row"><span class="label-dot" style="background:var(--red)"></span><span class="label-t">矛盾所在</span></div>
+      <p class="small">资本开支既是需求的真实来源，也是现金流的消耗项——<b style="color:var(--txt)">「增长→自由现金流」的转化环节出现覆盖压力</b>。</p>
+      <div class="concl"><b>阶段性判断</b>：现金流覆盖是值得验证的新约束，按媒体压力测试口径不能写成现金流恶化已成事实；财报中的自由现金流将比资本开支总额更影响定价。</div>
+      <div class="verify"><b>后续验证</b>：Meta 7月29日 Q2 财报的经营现金流与资本开支。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 主线与暗线 ===== -->
+<section id="s3">
+  <div class="sec-head" onclick="toggle(this)">
+    <div class="sec-num">叁</div><h2>本周主线与市场暗线</h2><span class="arrow">▾</span>
+  </div>
+  <div class="sec-body">
+    <p class="small" style="margin-bottom:12px">主线 = 单一机制：<b style="color:var(--txt)">需求的转化质量</b>。</p>
+    <div class="flow">
+      <div class="flow-node c1">
+        <div class="ft">需求已被官方数据证实</div>
+        <div class="fd">TSMC Q2 净利 +77%、指引上调<span class="src">媒体</span>；官方 IR 月度 +67.9%。</div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node c2">
+        <div class="ft">第一环「需求 → 价格」出现待验证分歧</div>
+        <div class="fd">HBM 涨价慢于常规 DRAM<span class="src">单一券商预测·媒体</span>。</div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node c3">
+        <div class="ft">第二环「增长 → 现金流」出现覆盖压力</div>
+        <div class="fd">Meta 季均 384 亿美元投入与现金流缺口测算<span class="src">媒体压力测试</span>。</div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node c4">
+        <div class="ft">市场反应集中在前期涨幅最大、转化证据最弱的环节</div>
+        <div class="fd">费半 -20% 入熊、存储股回撤 15%—35%<span class="src">媒体</span>，而云软件相对抗跌。</div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node end">
+        <div class="ft">统一解释<span class="src">模型推断</span></div>
+        <div class="fd"><b style="color:var(--cyan)">边际定价变量开始从需求规模扩展为转化质量</b>——尚不足以确认主导框架已经改变。</div>
+      </div>
+    </div>
+    <details>
+      <summary>事实三层拆解（事实层 / 市场表现层 / 模型推断层）</summary>
+      <div class="inner">
+        <p><b style="color:var(--txt)">事实层</b>：TSMC 财报、券商预测、媒体测算。</p>
+        <p style="margin-top:6px"><b style="color:var(--txt)">市场表现层</b>：板块下跌与分化——周复盘的概括是「市场已把需求证实连同上行惊喜一并定价，TSMC 只兑现证实、未给额外惊喜，倍数只能向下」<span class="src">媒体分析</span>。这与转化质量框架互为表里：消化的是价格，重估的是转化。</p>
+        <p style="margin-top:6px"><b style="color:var(--txt)">模型推断层</b>：边际定价变量开始从需求规模扩展为转化质量——尚不足以确认主导框架已经改变。</p>
+      </div>
+    </details>
+    <div class="concl p" style="margin-top:12px"><b>辅助观察（不并入主线）</b>：联储官员文本显示 AI 资本开支可能推动部分价格上涨、可能影响通胀与利率判断<span class="src">官方原文</span>；「更高利率反过来压缩 AI 估值」是报告推断，并非官方已确认完整反身性。油价周涨逾 14%、周末伊朗暂停履行备忘录<span class="src">媒体</span>，作为能源成本背景。</div>
+    <div class="concl b"><b>暗线<span class="src">模型推断·尚未成为共识</span></b>：Kimi K3 若经 7月27日完整权重发布后的独立评测确认，推理成本下降可能改写「转化」的成本结构——同样的资本开支产出更多可用算力<span class="src">单一交易日证据·媒体</span>，仅作次级假设。</div>
+  </div>
+</section>
+<!-- ===== 轮动图谱 ===== -->
+<section id="s4">
+  <div class="sec-head" onclick="toggle(this)">
+    <div class="sec-num">肆</div><h2>AI 产业链轮动图谱</h2><span class="arrow">▾</span>
+  </div>
+  <div class="sec-body">
+
+    <div class="card">
+      <h3>本周迁移分析<span class="src">利润率、自由现金流与估值风险</span></h3>
+      <div class="label-row"><span class="label-dot" style="background:var(--red)"></span><span class="label-t">存储环节 · 利润风险向单价集中</span></div>
+      <p class="small">美光、Arm、英特尔自高点回撤超 <mark class="r">30%</mark>，SK 海力士跌逾 15%<span class="src">媒体</span>；直接原因是「需求→价格」转化承压——HBM 涨价慢于常规 DRAM<span class="src">单一券商预测·媒体</span>。<b style="color:var(--txt)">若业绩证实，存储从「产能稀缺溢价」转入「利润率验证折价」。</b></p>
+      <div class="label-row"><span class="label-dot" style="background:var(--amber)"></span><span class="label-t">代工环节 · 量已证实，资本开支与折旧压力后移</span></div>
+      <p class="small">TSMC 资本开支上调至 600亿—640亿美元、追加 1000 亿美元美国投资<span class="src">媒体</span>；市场当天抛售（TSM 财报后跌 2.77%），说明<b style="color:var(--txt)">投资者已开始为 2027 年之后的折旧与回报定价</b>，而非为当季营收定价。</p>
+      <div class="label-row"><span class="label-dot" style="background:var(--purple)"></span><span class="label-t">云厂商环节 · 现金流风险向资本开支强度最高者集中</span></div>
+      <p class="small">媒体测算 Meta 季均 384 亿美元投入对应自由现金流约转负<span class="src">媒体压力测试</span>；财报窗口中，<b style="color:var(--txt)">自由现金流与回报表述将比资本开支总额更影响估值</b>。</p>
+      <div class="label-row"><span class="label-dot" style="background:var(--green)"></span><span class="label-t">相对受益环节 · 现金流确定性较高的云软件</span></div>
+      <p class="small">WCLD、IGV 仍站上 MA20，与 WAIC 工程落地方向一致<span class="src">媒体现场报道</span>。<span class="src">口径边界：仅代表云软件定价，不外推 CapEx 链</span></p>
+    </div>
+
+    <div class="zone z1">
+      <div class="zone-head">▼ 深度调整区</div>
+      <div class="zone-body">
+        <span class="chip">半导体</span><span class="chip">AI 宽基</span>
+        <p style="margin-top:6px">SMH 周 <mark class="r">-8.92%</mark>、位于 MA20 下方约 8.9%；AIQ 破线。</p>
+      </div>
+    </div>
+    <div class="zone z2">
+      <div class="zone-head">◆ 高位分歧区</div>
+      <div class="zone-body">
+        <span class="chip">代工</span><span class="chip">存储</span>
+        <p style="margin-top:6px">量的证实 vs 价的收缩。</p>
+      </div>
+    </div>
+    <div class="zone z3">
+      <div class="zone-head">▲ 相对最强（不挂分区标签）</div>
+      <div class="zone-body">
+        <span class="chip">云软件 WCLD</span><span class="chip">IGV</span>
+        <p style="margin-top:6px">仍站上 MA20，现金流确定性较高。</p>
+      </div>
+    </div>
+    <div class="zone z4">
+      <div class="zone-head">● 中位观察区</div>
+      <div class="zone-body">
+        <span class="chip">公用事业/电力</span><span class="chip">大模型平台 QQQ</span>
+        <p style="margin-top:6px">QQQ 周 -4.16%、破 MA20。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 温度 ===== -->
+<section id="s5">
+  <div class="sec-head" onclick="toggle(this)">
+    <div class="sec-num">伍</div><h2>AI 交易环境温度</h2><span class="arrow">▾</span>
+  </div>
+  <div class="sec-body">
+    <div class="thermo">
+      <div class="dial">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="46" fill="none" stroke="#1c2233" stroke-width="10"/>
+          <circle cx="55" cy="55" r="46" fill="none" stroke="#3cc8d8" stroke-width="10" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="202"/>
+        </svg>
+        <div class="val"><div class="t">偏冷</div><div class="s">未判冰点</div></div>
+      </div>
+      <div class="thermo-info">
+        <b>核心层</b>：AIQ、SMH 双破 MA20；QQQ 周 -4.16% 破线；VIX 周 +24.9%。<br>
+        <b>结构层</b>：WCLD、IGV 站上 MA20 仅解释分化。
+        <div style="margin-top:6px">
+          <span class="pill">上涨占比 0.4</span>
+          <span class="pill">跑赢QQQ 0.6</span>
+          <span class="pill">站上MA20 0.4</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>宏观旁证 <span class="src">FRED</span></h3>
+      <div class="grid" style="margin-bottom:0">
+        <div class="stat"><div class="v nt">4.57%</div><div class="k">10年期（7/16）</div></div>
+        <div class="stat"><div class="v nt">4.16%</div><div class="k">2年期 · 周持平（7/16）</div></div>
+        <div class="stat"><div class="v nt">$81.62</div><div class="k">Brent（7/13）</div></div>
+        <div class="stat"><div class="v nt">$2.83</div><div class="k">Henry Hub（7/13）</div></div>
+      </div>
+      <p class="small" style="margin-top:12px"><b style="color:var(--txt)">不判冰点的理由</b>：软件相对强、VIX 绝对水平未极端、短端利率未再上行。</p>
+      <div class="concl b"><b>温度与核心判断的关系：支持</b>——领跌的是前期估值最贵、转化证据最弱的环节，现金流确定性环节相对抗跌，与「转化质量定价」的结构一致；但温度本身不证明该框架已成为主导。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 关键事件 ===== -->
+<section id="s6">
+  <div class="sec-head" onclick="toggle(this)">
+    <div class="sec-num">陆</div><h2>关键事件的影响</h2><span class="arrow">▾</span>
+  </div>
+  <div class="sec-body">
+    <div class="tl">
+
+      <div class="tl-item hot">
+        <div class="tl-date">7月16日</div>
+        <div class="tl-card">
+          <h4>① TSMC Q2 财报与指引</h4>
+          <span class="impact b">影响变量：「量」的确认与资本开支强度</span>
+          <div class="qa"><span class="q">改变了什么</span><br>需求被官方数据证实——净利同比 <mark class="g">+77%</mark>、2026 年营收指引上调至略超 40%、资本开支上调至 600亿—640亿美元<span class="src">媒体</span>，官方 IR 月度营收 <mark class="g">+67.9%</mark>。</div>
+          <div class="qa"><span class="q">为什么重要</span><br>它同时证实了需求和资本开支两端，使「转化」成为定价的剩余问题。</div>
+          <div class="reflect"><b>市场是否已反映：需求端已反映但仍下跌</b>——TSM 财报后跌 2.77%<span class="src">媒体</span>，说明定价变量已不止需求。</div>
+        </div>
+      </div>
+
+      <div class="tl-item hot">
+        <div class="tl-date">7月13—17日</div>
+        <div class="tl-card">
+          <h4>② 费半入熊与 SK 海力士暴跌</h4>
+          <span class="impact r">影响变量：板块估值锚</span>
+          <div class="qa"><span class="q">改变了什么</span><br>价格对「需求证实」投出否定票——费半较 6 月底高点回落 <mark class="r">20%</mark> 入熊<span class="src">媒体</span>，SK 海力士单日跌逾 15%，媒体称其为有记录以来最大单日跌幅<span class="src">媒体</span>。</div>
+          <div class="qa"><span class="q">为什么重要</span><br>「利多不涨」是定价变量迁移的直接证据。</div>
+          <div class="reflect"><b>市场是否已反映：价格端已大幅反映</b>（个股回撤 15%—35%），但公开归因仍分散在估值消化、季节性与 K3 叙事<span class="src">媒体</span>，尚未统一到转化质量。</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">7月13日</div>
+        <div class="tl-card">
+          <h4>③ HBM 单价预测</h4>
+          <span class="impact a">影响变量：存储利润率</span>
+          <div class="qa"><span class="q">改变了什么</span><br>「需求→价格」转化环节出现一个可验证的分歧信号——韩国投资证券预计 SK 海力士季度营业利润低于一致预期约 8%，理由是 HBM 涨价慢于常规 DRAM 与 NAND<span class="src">单一券商预测·媒体</span>。</div>
+          <div class="qa"><span class="q">为什么重要</span><br>若业绩证实，「量增利不增」将从假设变为定价主线。</div>
+          <div class="reflect"><b>市场是否已反映：现有数据不足以判断</b>——目前仅一份券商预测落盘，不能据此宣布行业性变化。</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">7月15日</div>
+        <div class="tl-card">
+          <h4>④ Meta 资本开支与现金流测算</h4>
+          <span class="impact a">影响变量：云厂商自由现金流</span>
+          <div class="qa"><span class="q">改变了什么</span><br>「增长→现金流」转化环节被量化为压力测试——媒体测算 Meta Q2—Q4 季均需投入 <mark>384亿美元</mark>、对应自由现金流约转负 <mark class="r">62亿美元</mark><span class="src">媒体压力测试·非公司指引</span>。</div>
+          <div class="qa"><span class="q">为什么重要</span><br>它把资本开支从利好叙事变为需要覆盖的约束。</div>
+          <div class="reflect"><b>市场是否已反映：尚未作为定价主线</b>——该测算为媒体情景假设，现金流覆盖仍待 7月29日 财报验证。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<!-- ===== 下周观察 ===== -->
+<section id="s7">
+  <div class="sec-head" onclick="toggle(this)">
+    <div class="sec-num">柒</div><h2>下周关键观察指标</h2><span class="arrow">▾</span>
+  </div>
+  <div class="sec-body">
+
+    <div class="obs">
+      <div class="obs-top">
+        <div class="obs-date"><div class="d">07-22</div><div class="m">盘后起</div></div>
+        <div class="obs-title">① 云厂商财报：资本开支与自由现金流</div>
+      </div>
+      <div class="obs-var">Alphabet 7月22日盘后、Meta 7月29日<span class="src">媒体</span> · 观察变量：指引与现金流覆盖</div>
+      <div class="scn pos"><div class="ic">增强</div><div class="tx">指引下修或现金流缺口扩大。</div></div>
+      <div class="scn neu"><div class="ic">中性</div><div class="tx">指引持平、现金流稳定。</div></div>
+      <div class="scn neg"><div class="ic">削弱</div><div class="tx">覆盖明显改善，「增长→现金流」约束解除，矛盾三改判为噪音。</div></div>
+    </div>
+
+    <div class="obs">
+      <div class="obs-top">
+        <div class="obs-date"><div class="d">窗口</div><div class="m">业绩期</div></div>
+        <div class="obs-title">② 存储业绩与 HBM 定价</div>
+      </div>
+      <div class="obs-var">SK 海力士 / 美光业绩窗口<span class="src">媒体</span> · 观察变量：HBM 单价与毛利率</div>
+      <div class="scn pos"><div class="ic">增强</div><div class="tx">单价压力被证实。</div></div>
+      <div class="scn neu"><div class="ic">中性</div><div class="tx">混排效应、指引持平。</div></div>
+      <div class="scn neg"><div class="ic">削弱</div><div class="tx">HBM 涨价重新加速，转化第一环压力证伪。</div></div>
+    </div>
+
+    <div class="obs">
+      <div class="obs-top">
+        <div class="obs-date"><div class="d">07-28</div><div class="m">至29日</div></div>
+        <div class="obs-title">③ FOMC 声明<span class="aux">辅助变量：折现率</span></div>
+      </div>
+      <div class="obs-var">观察变量：能源或 AI 相关涨价是否写入声明</div>
+      <div class="scn pos"><div class="ic">增强</div><div class="tx">写入声明或点阵上移，抬高转化的资本成本。</div></div>
+      <div class="scn neu"><div class="ic">中性</div><div class="tx">措辞模糊。</div></div>
+      <div class="scn neg"><div class="ic">削弱</div><div class="tx">明确淡化通胀，折现率背景转松。</div></div>
+    </div>
+
+    <div class="obs">
+      <div class="obs-top">
+        <div class="obs-date"><div class="d">持续</div><div class="m">跟踪</div></div>
+        <div class="obs-title">④ 油价与备忘录走向<span class="aux">辅助变量：能源成本</span></div>
+      </div>
+      <div class="obs-var">观察变量：Brent 与备忘录状态<span class="src">媒体</span></div>
+      <div class="scn pos"><div class="ic">增强</div><div class="tx">Brent 站稳 85 美元上方，或备忘录正式终止。</div></div>
+      <div class="scn neu"><div class="ic">中性</div><div class="tx">对峙延续。</div></div>
+      <div class="scn neg"><div class="ic">削弱</div><div class="tx">备忘录恢复、Brent 回落至 70 美元下方，能源成本背景消退。</div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 失效条件 ===== -->
+<section id="s8">
+  <div class="sec-head" onclick="toggle(this)">
+    <div class="sec-num">捌</div><h2>最大风险及判断失效条件</h2><span class="arrow">▾</span>
+  </div>
+  <div class="sec-body">
+    <div class="risk r1">
+      <h4>判断证伪</h4>
+      <ol>
+        <li>云厂商现金流覆盖改善且资本开支指引不下修；</li>
+        <li>HBM 单价分歧被证实为个案混排；</li>
+        <li>存储业绩与毛利率全面超预期。</li>
+      </ol>
+      <div class="foot">任一成立 → 「增长质量框架」退回为普通的估值消化。三条分别对应矛盾三、矛盾二与第 1 节核心判断。</div>
+    </div>
+    <div class="risk r2">
+      <h4>判断强化</h4>
+      <ol>
+        <li>云厂商财报确认现金流缺口或指引下修；</li>
+        <li>SK 海力士 / 美光证实 HBM 单价压力；</li>
+        <li>FOMC 把能源或 AI 相关涨价写入声明<span class="src">辅助变量，抬高转化的资本成本</span>。</li>
+      </ol>
+      <div class="foot">任一成立 → 转化质量成为主导定价变量。</div>
+    </div>
+    <div class="risk r3">
+      <h4>框架升级（需重写判断而非微调）</h4>
+      <ol>
+        <li>FOMC 实际加息或点阵大幅上移 → 从「转化质量重估」升级为「资本成本系统性收紧」；</li>
+        <li>多家云厂商同步下修资本开支 → 从「转化质量」升级为「需求侧重新定价」，第 4 节迁移分析全部重写。</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>本页面内容整理自《美股AI赛道周报（2026-07-19）》，忠于原文核心观点与数据，未加入外部观点。</p>
+  <p style="margin-top:6px"></p>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+function toggle(el){
+  el.parentElement.classList.toggle('collapsed');
+}
+document.querySelectorAll('.nav a').forEach(function(a){
+  a.addEventListener('click',function(){
+    var t=document.querySelector(a.getAttribute('href'));
+    if(t){ t.classList.remove('collapsed'); }
+  });
+});
+</script>
+</body>
+</html>
