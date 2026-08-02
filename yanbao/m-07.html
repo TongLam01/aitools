@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AI 行业月报 · 2026-08</title>
+<style>
+  :root{
+    --bg:#0b0e14; --bg2:#10141d; --card:#151a26; --card2:#1a2030;
+    --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.12);
+    --txt:#e8eaf0; --txt2:#aeb4c4; --txt3:#7d8496;
+    --green:#34d399; --green-dim:rgba(52,211,153,.13);
+    --amber:#fbbf24; --amber-dim:rgba(251,191,36,.12);
+    --red:#f87171; --red-dim:rgba(248,113,113,.12);
+    --blue:#60a5fa; --blue-dim:rgba(96,165,250,.12);
+    --purple:#a78bfa; --purple-dim:rgba(167,139,250,.12);
+    --gray:#9ca3af; --gray-dim:rgba(156,163,175,.12);
+    --accent:#7dd3fc;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:15px; line-height:1.75; letter-spacing:.01em;
+    max-width:560px; margin:0 auto; padding:0 14px 60px;
+  }
+  ::selection{background:rgba(125,211,252,.25)}
+  b,strong{color:#fff;font-weight:600}
+  .num{color:var(--accent);font-weight:600}
+
+  .hero{padding:34px 4px 18px}
+  .hero .tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tag{font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid var(--line2);color:var(--txt2);background:var(--card)}
+  .tag.hot{color:var(--red);border-color:rgba(248,113,113,.4);background:var(--red-dim)}
+  .tag.cycle{color:var(--purple);border-color:rgba(167,139,250,.4);background:var(--purple-dim)}
+  .tag.mech{color:var(--accent);border-color:rgba(125,211,252,.35);background:var(--blue-dim)}
+  .hero h1{font-size:26px;line-height:1.35;font-weight:700;letter-spacing:.02em}
+  .hero h1 em{font-style:normal;background:linear-gradient(120deg,#7dd3fc,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .sub{margin-top:10px;font-size:12.5px;color:var(--txt3)}
+  .hero .thesis{margin-top:16px;font-size:14px;color:var(--txt2);line-height:1.8;padding:14px 16px;border-left:3px solid var(--purple);background:var(--card);border-radius:0 12px 12px 0}
+
+  .nav{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav a{flex:0 0 auto;font-size:12.5px;color:var(--txt2);text-decoration:none;padding:6px 13px;border-radius:99px;background:var(--card);border:1px solid var(--line)}
+  .nav a:active{background:var(--card2)}
+
+  section{margin-top:30px}
+  .sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;padding:0 2px}
+  .sec-head .no{font-size:11px;color:var(--txt3);border:1px solid var(--line2);border-radius:6px;padding:1px 7px;flex:0 0 auto}
+  .sec-head h2{font-size:18px;font-weight:700}
+  .sec-head .hint{font-size:11.5px;color:var(--txt3);margin-left:auto;flex:0 0 auto}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+  .card.hl{background:linear-gradient(160deg,rgba(167,139,250,.10),rgba(96,165,250,.06));border-color:rgba(167,139,250,.28)}
+  .card-title{font-size:14.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .muted{color:var(--txt2)} .small{font-size:13px} .tiny{font-size:11.5px;color:var(--txt3)}
+  p+p{margin-top:10px}
+  .src-note{font-size:11px;color:var(--txt3);margin-top:10px;line-height:1.6}
+
+  .chip{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px;line-height:1.6}
+  .chip.g{color:var(--green);background:var(--green-dim)}
+  .chip.a{color:var(--amber);background:var(--amber-dim)}
+  .chip.r{color:var(--red);background:var(--red-dim)}
+  .chip.b{color:var(--blue);background:var(--blue-dim)}
+  .chip.p{color:var(--purple);background:var(--purple-dim)}
+  .chip.gr{color:var(--gray);background:var(--gray-dim)}
+
+  .gauge-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .gauge{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px}
+  .gauge .g-name{font-size:12px;color:var(--txt3);margin-bottom:2px}
+  .gauge .g-val{font-size:20px;font-weight:700;letter-spacing:.01em}
+  .gauge .g-val small{font-size:11px;font-weight:400;color:var(--txt3);margin-left:4px}
+  .gauge .g-meta{font-size:11px;color:var(--txt3);margin-top:2px}
+  .g-track{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.08);margin:10px 0 6px}
+  .g-range{position:absolute;top:0;height:100%;border-radius:3px;background:linear-gradient(90deg,rgba(52,211,153,.55),rgba(251,191,36,.55),rgba(248,113,113,.65))}
+  .g-cur{position:absolute;top:-4px;width:3px;height:14px;border-radius:2px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.6)}
+  .g-thr{position:absolute;top:-3px;width:2px;height:12px;background:var(--red);opacity:.9}
+  .g-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--txt3)}
+  .g-imp{font-size:11.5px;color:var(--txt2);margin-top:8px;line-height:1.55}
+
+  .dbars{margin-top:6px}
+  .dbar{display:flex;align-items:center;margin:7px 0;font-size:12.5px}
+  .dbar .lbl{width:118px;flex:0 0 auto;color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dbar .mid{flex:1;position:relative;height:18px}
+  .dbar .zero{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line2)}
+  .dbar .bar{position:absolute;top:2px;height:14px;border-radius:3px}
+  .dbar .bar.pos{left:50%;background:linear-gradient(90deg,rgba(52,211,153,.85),rgba(52,211,153,.45))}
+  .dbar .bar.neg{right:50%;background:linear-gradient(270deg,rgba(248,113,113,.85),rgba(248,113,113,.45))}
+  .dbar .val{width:52px;flex:0 0 auto;text-align:right;font-weight:600;font-size:12px}
+  .dbar .val.pos{color:var(--green)} .dbar .val.neg{color:var(--red)}
+
+  .tl{position:relative;padding-left:20px;margin-top:8px}
+  .tl::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--blue),var(--purple));border-radius:2px;opacity:.5}
+  .tl-item{position:relative;margin-bottom:14px}
+  .tl-item::before{content:"";position:absolute;left:-19px;top:7px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--bg)}
+  .tl-item .t-date{font-size:11px;color:var(--accent);font-weight:600;margin-bottom:1px}
+  .tl-item .t-body{font-size:13.5px;color:var(--txt2);line-height:1.7}
+
+  details{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
+  details[open]{border-color:var(--line2)}
+  summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;gap:10px}
+  summary::-webkit-details-marker{display:none}
+  summary .s-arrow{margin-left:auto;flex:0 0 auto;color:var(--txt3);transition:transform .25s;font-size:12px}
+  details[open] summary .s-arrow{transform:rotate(90deg)}
+  summary .s-title{font-size:14.5px;font-weight:700;line-height:1.5}
+  summary .s-sub{font-size:11.5px;color:var(--txt3);margin-top:2px;line-height:1.5;font-weight:400}
+  .d-body{padding:2px 16px 16px;border-top:1px dashed var(--line);padding-top:12px}
+  .d-body h4{font-size:13px;color:var(--accent);margin:14px 0 6px;font-weight:700}
+  .d-body h4:first-child{margin-top:2px}
+
+  .quote{background:rgba(125,211,252,.05);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:11px 13px;font-size:13px;color:var(--txt2);margin-top:12px;line-height:1.75}
+  .quote b{color:var(--accent)}
+
+  .dir-group{margin-bottom:18px}
+  .dir-group-head{display:flex;align-items:center;gap:8px;margin:0 2px 10px}
+  .dir-group-head .cnt{font-size:11px;color:var(--txt3)}
+  .dir-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-bottom:10px}
+  .dir-card .d-top{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .dir-card .d-name{font-size:14.5px;font-weight:700;flex:1;min-width:60%}
+  .dir-card .d-meta{display:flex;gap:5px;flex-wrap:wrap}
+  .dir-card .logic{font-size:13px;color:var(--txt2);line-height:1.7}
+  .dir-card .risk{font-size:12px;color:var(--txt3);line-height:1.7;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line)}
+  .dir-card .risk b{color:var(--amber);font-weight:600}
+  .dir-card .stocks{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+  .stock{font-size:11px;padding:2px 9px;border-radius:6px;background:var(--card2);border:1px solid var(--line);color:var(--txt2)}
+  .verify{font-size:11px;font-weight:600}
+  .verify.ok{color:var(--green)} .verify.warn{color:var(--amber)} .verify.na{color:var(--txt3)}
+
+  .alloc-row{margin:12px 0}
+  .alloc-row .a-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:13px;margin-bottom:5px}
+  .alloc-row .a-head .a-name{flex:1;min-width:0;line-height:1.6}
+  .alloc-row .a-head .pct{font-weight:700;color:var(--accent);white-space:nowrap;flex:0 0 auto;font-size:12px;padding-top:2px}
+  .a-track{position:relative;height:10px;background:rgba(255,255,255,.06);border-radius:5px}
+  .a-fill{position:absolute;top:0;height:100%;border-radius:5px;opacity:.85}
+  .a-note{font-size:12px;color:var(--txt3);margin-top:5px;line-height:1.65}
+
+  .scn{border-radius:14px;padding:14px 15px;margin-bottom:10px;border:1px solid var(--line)}
+  .scn.up{background:var(--green-dim);border-color:rgba(52,211,153,.3)}
+  .scn.base{background:var(--blue-dim);border-color:rgba(96,165,250,.3)}
+  .scn.down{background:var(--red-dim);border-color:rgba(248,113,113,.3)}
+  .scn .scn-t{font-size:13.5px;font-weight:700;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+  .scn .scn-b{font-size:13px;color:var(--txt2);line-height:1.75}
+
+  .ifthen{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:0 12px 12px 0;padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--txt2);line-height:1.75}
+  .ifthen .if{color:var(--amber);font-weight:700;font-size:12px}
+  .ifthen .then{color:var(--green);font-weight:700;font-size:12px}
+
+  .path{display:flex;gap:10px;padding:11px 0;border-bottom:1px dashed var(--line)}
+  .path:last-child{border-bottom:none}
+  .path .p-id{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--card2);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent)}
+  .path .p-body{flex:1;font-size:13px;color:var(--txt2);line-height:1.7}
+  .path .p-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px}
+  .path .p-name{font-size:13.5px;font-weight:700;color:var(--txt)}
+  .prob{font-size:11px;color:var(--txt3)}
+
+  .kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .kpi .k-v{font-size:19px;font-weight:700}
+  .kpi .k-l{font-size:11.5px;color:var(--txt3);margin-top:2px;line-height:1.5}
+  .kpi .k-v.g{color:var(--green)} .kpi .k-v.r{color:var(--red)} .kpi .k-v.a{color:var(--amber)} .kpi .k-v.b{color:var(--accent)}
+
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch;margin-top:6px}
+  .vs .side{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+  .vs .side.up{border-color:rgba(52,211,153,.35)}
+  .vs .side.down{border-color:rgba(248,113,113,.35)}
+  .vs .vs-x{align-self:center;font-size:11px;color:var(--txt3);font-weight:700}
+  .vs .s-name{font-size:13px;font-weight:700}
+  .vs .s-pct{font-size:20px;font-weight:800;margin:2px 0}
+  .vs .s-pct.g{color:var(--green)} .vs .s-pct.r{color:var(--red)}
+  .vs .s-detail{font-size:11.5px;color:var(--txt3);line-height:1.6}
+
+  .cmp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  .cmp-table th{font-size:10.5px;color:var(--txt3);font-weight:600;text-align:left;padding:5px 6px;border-bottom:1px solid var(--line2)}
+  .cmp-table td{padding:6px;border-bottom:1px solid var(--line);color:var(--txt2);vertical-align:top;line-height:1.55}
+  .cmp-table .dir{color:var(--txt);font-weight:600}
+  .cmp-table .up{color:var(--green)} .cmp-table .down{color:var(--red)} .cmp-table .new{color:var(--blue)} .cmp-table .out{color:var(--txt3)} .cmp-table .keep{color:var(--gray)}
+  .cmp-table .tag-cell{font-size:10.5px;white-space:nowrap}
+
+  .footer{margin-top:40px;padding:20px 6px 10px;border-top:1px solid var(--line);text-align:center;font-size:11.5px;color:var(--txt3);line-height:1.9}
+  .top-btn{position:fixed;right:16px;bottom:22px;width:38px;height:38px;border-radius:50%;background:var(--card2);border:1px solid var(--line2);color:var(--txt2);font-size:16px;display:flex;align-items:center;justify-content:center;text-decoration:none;opacity:0;pointer-events:none;transition:opacity .3s;z-index:50}
+  .top-btn.show{opacity:.92;pointer-events:auto}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="tag-row">
+    <span class="tag cycle">产业周期：商业化验证期 · 早期</span>
+    <span class="tag hot">地缘风险：高</span>
+    <span class="tag mech">谁能赚钱 · 谁在烧钱</span>
+  </div>
+  <h1>AI 行业月报<br><em>企业AI付费跨越"几万人标配"里程碑，电力成本内部化确立行业新规则</em></h1>
+  <div class="sub">发布日期：2026-08-02 ｜ 报告生成：2026/8/2 23:06（北京时间）｜ 财务数据以月度财务快照为准</div>
+  <div class="thesis">
+    AI产业正式从「资本投入期」切进「商业化验证期」的早期阶段，市场进入「谁能赚钱、谁在烧钱」的极端分化——微软 Copilot <span class="num">3000万</span>付费座位、AWS AI 年化 <span class="num">250亿</span>美元构成最强验证，但电力从「外部获取」变成「自带门槛」、HBM涨价从供给侧利好转为需求侧成本挤压，成本结构被永久改写。
+  </div>
+</header>
+
+<nav class="nav">
+  <a href="#verdict">本月研判</a>
+  <a href="#macro">宏观仪表盘</a>
+  <a href="#diverge">涨跌分化</a>
+  <a href="#trends">三大趋势</a>
+  <a href="#geo">地缘推演</a>
+  <a href="#chains">事件链</a>
+  <a href="#outlook">前瞻情景</a>
+  <a href="#action">行动建议</a>
+  <a href="#sectors">九大板块</a>
+  <a href="#directions">综合方向</a>
+</nav>
+
+<!-- ========== 1. 本月研判 ========== -->
+<section id="verdict">
+  <div class="sec-head"><span class="no">核心</span><h2>本月研判</h2></div>
+  <div class="card hl">
+    <p>AI产业正式从<b>「资本投入期」切进「商业化验证期」的早期阶段</b>，市场进入<b>「谁能赚钱、谁在烧钱」的极端分化</b>。最值得重点跟踪的方向是 <b>AI Agent商业化与企业流程自动化</b> 与 <b>数据中心电力基建</b>，两者均获连续多周订单级与付费量级验证。</p>
+    <p>本月最重要的转折不是需求消失，而是<b>成本结构被永久改写</b>：电力从「外部获取」变成「自带门槛」（PJM拟强制自备电源），HBM涨价从供给侧利好转为需求侧成本挤压（美光毛利率84.6%却月跌20.3%）。</p>
+    <p style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line2)"><b>下月核心关注：</b>9月FOMC利率决议与头部云厂Q3财报中AI收入的环比增速能否持续跑赢CapEx增速——这是"回报证实期"的第一场硬仗。</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="k-v g">+20.9%</div><div class="k-l">微软月涨 —— Copilot 3000万座位验证回报</div></div>
+    <div class="kpi"><div class="k-v r">−9.2%</div><div class="k-l">Meta 月跌 —— 高CapEx低回报被市场惩罚</div></div>
+  </div>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">与上期（2026-06期）对比：评级变化（命名待优化）</div>
+        <div class="s-sub">周期置信度提升 · 19 行评级差分（下调2/新增4/调出4/维持9）</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <div class="quote" style="margin-top:0">上月定调「商业化验证期的早期」，本月证据链进一步闭合——微软 Copilot 付费座位突破3000万（上期未披露具体量级）、AWS AI 年化收入达250亿美元（同比三位数增长），规模化部署逻辑得到硬数据支撑。周期位置维持「商业化验证期·早期」，但<b>置信度较上月显著提升</b>。市场基调从月初「偏乐观」转为月末「多空分化」——微软周涨21.8%与Meta月跌9.2%、美光月跌20.3%并存，「谁能赚钱」的筛选机制全面显性化。</div>
+      <h4>评级与方向变动</h4>
+      <table class="cmp-table">
+        <tr><th>方向</th><th>变化</th><th>核心原因</th></tr>
+        <tr><td class="dir">HBM与高端存储</td><td class="tag-cell"><span class="down">⬇️ 积极看好→谨慎看好</span></td><td>供给紧张至2028年且多年度协议锁定，但市场定价已从需求驱动切换至成本挤压预期</td></tr>
+        <tr><td class="dir">AI Agent商业化与企业流程自动化</td><td class="tag-cell"><span class="down">⬇️ 积极看好→谨慎看好</span></td><td>Salesforce 16亿联邦合同+ServiceNow AI ACV破10亿美元证实付费意愿，但全自主Agent商业化为时尚早，采购决策退潮至「Copilot+治理型工作流」</td></tr>
+        <tr><td class="dir">液冷与数据中心散热</td><td class="tag-cell"><span class="new">🆕 新增 · 谨慎看好</span></td><td>江森自控订单+27%、积压+32%，散热需求随算力密度提升同步爆发</td></tr>
+        <tr><td class="dir">AI安全与内容真实性合规</td><td class="tag-cell"><span class="new">🆕 新增 · 观察等待</span></td><td>集体图灵测试量化LLM社交欺骗能力（误认率39%），为内容平台监管与AI合规工具提供长期方向支撑</td></tr>
+        <tr><td class="dir">半导体进口依赖型环节</td><td class="tag-cell"><span class="new">🆕 新增 · 风险升高</span></td><td>台积电面临中国出口管制反制、FCC禁令扩至硬件终端、韩国加息抬升亚太半导体融资成本</td></tr>
+        <tr><td class="dir">对华AI芯片出口</td><td class="tag-cell"><span class="new">🆕 新增 · 风险升高</span></td><td>出口管制效果有限但管制范围扩至模型权重，合规成本持续攀升</td></tr>
+        <tr><td class="dir">AI合规科技与风控工具</td><td class="tag-cell"><span class="out">➖ 调出</span></td><td>本期未列入综合方向表</td></tr>
+        <tr><td class="dir">先进封装与减薄设备</td><td class="tag-cell"><span class="out">➖ 调出</span></td><td>本期未列入综合方向表</td></tr>
+        <tr><td class="dir">半导体设备（ASML）</td><td class="tag-cell"><span class="out">➖ 调出</span></td><td>本期未列入综合方向表</td></tr>
+        <tr><td class="dir">对华AI模型出口</td><td class="tag-cell"><span class="out">➖ 调出</span></td><td>本期未列入综合方向表</td></tr>
+        <tr><td class="dir">数据中心电力基建</td><td class="tag-cell"><span class="keep">⏸️ 维持 积极看好</span></td><td>自备发电从竞争优势升格为准入门槛，设备端订单验证超级周期</td></tr>
+        <tr><td class="dir">云推理与中间件服务</td><td class="tag-cell"><span class="keep">⏸️ 维持 积极看好</span></td><td>AWS AI年化收入250亿美元三位数增长+Fireworks收入5倍增长</td></tr>
+        <tr><td class="dir">企业级AI助手/Copilot产品</td><td class="tag-cell"><span class="keep">⏸️ 维持 积极看好</span></td><td>微软Copilot 3000万座位+Adobe AI-first ARR超5亿美元构成月内最强付费验证</td></tr>
+        <tr><td class="dir">光通信与网络设备</td><td class="tag-cell"><span class="keep">⏸️ 维持 谨慎看好</span></td><td>Marvell定制AI ASIC和光学互连订单提前12个月下达（第3周，7月12日）</td></tr>
+        <tr><td class="dir">算力芯片/GPU</td><td class="tag-cell"><span class="keep">⏸️ 维持 谨慎看好</span></td><td>训练端HBM长协锁定筑牢护城河，推理端毛利率松动但总量扩张对冲</td></tr>
+        <tr><td class="dir">AI芯片替代供应商</td><td class="tag-cell"><span class="keep">⏸️ 维持 谨慎看好</span></td><td>推理侧多元化打开导入窗口（Azure部署AMD、定制ASIC扩产）</td></tr>
+        <tr><td class="dir">定制芯片/ASIC设计</td><td class="tag-cell"><span class="keep">⏸️ 维持 谨慎看好</span></td><td>博通三星2000亿美元MOU、Google TPU导入Intel EMIB封装</td></tr>
+        <tr><td class="dir">传统软件/IT预算受挤出</td><td class="tag-cell"><span class="keep">⏸️ 维持 风险升高</span></td><td>IBM单日暴跌25%为挤出效应明确股价信号</td></tr>
+        <tr><td class="dir">AI基建估值与资本退出</td><td class="tag-cell"><span class="keep">⏸️ 维持 风险升高</span></td><td>微软CapEx约1900亿美元/Meta约1390-1450亿美元（Visible Alpha共识）叠加信用利差扩大</td></tr>
+      </table>
+      <h4>微弱信号追踪</h4>
+      <p class="small muted">▸ <b>"表后直供电厂/自备发电模式"</b>——上月第2周 EDF 166MW PPA 信号，本月升级为结构性趋势：PJM拟强制自备电源（第5周）、NextEra/Brookfield宣布超1000亿美元自备电厂项目（第5周），证据链闭合。</p>
+      <p class="small muted">▸ <b>"企业AI从全自主代理转向混合架构"</b>——上月第3周信号，本月获 ServiceNow、宏利部署验证（第4-5周），升级为结构性路径确认。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ========== 2. 宏观仪表盘 ========== -->
+<section id="macro">
+  <div class="sec-head"><span class="no">01</span><h2>宏观与地缘风险仪表盘</h2><span class="hint">现货口径</span></div>
+
+  <div class="gauge-grid">
+    <div class="gauge">
+      <div class="g-name">布伦特原油（现货）</div>
+      <div class="g-val" style="color:var(--amber)">91.82<small>美元/桶</small></div>
+      <div class="g-meta">2026-07-27 收 ｜ 月内 68.68–105.32</div>
+      <div class="g-track">
+        <div class="g-range" style="left:0;width:100%"></div>
+        <div class="g-cur" style="left:63%"></div>
+        <div class="g-thr" style="left:99%"></div>
+      </div>
+      <div class="g-scale"><span>68.68</span><span>阈值 &gt;100 恶化</span><span>105.32</span></div>
+      <div class="g-imp">推高数据中心能源成本</div>
+    </div>
+    <div class="gauge">
+      <div class="g-name">VIX 恐慌指数</div>
+      <div class="g-val" style="color:var(--green)">17.09</div>
+      <div class="g-meta">2026-07-30 收 ｜ 月内 15.03–20.66</div>
+      <div class="g-track">
+        <div class="g-range" style="left:0;width:100%"></div>
+        <div class="g-cur" style="left:37%"></div>
+        <div class="g-thr" style="left:100%"></div>
+      </div>
+      <div class="g-scale"><span>15.03</span><span>&gt;22警戒 · &gt;25恶化</span><span>20.66</span></div>
+      <div class="g-imp">影响高估值 AI 资产风险偏好</div>
+    </div>
+    <div class="gauge">
+      <div class="g-name">10 年期美债收益率</div>
+      <div class="g-val" style="color:var(--amber)">4.68<small>%</small></div>
+      <div class="g-meta">2026-07-30 收 ｜ 月内 4.48–4.71</div>
+      <div class="g-track">
+        <div class="g-range" style="left:48%;width:23%"></div>
+        <div class="g-cur" style="left:68%"></div>
+        <div class="g-thr" style="left:50%"></div>
+      </div>
+      <div class="g-scale"><span>&lt;4.0 修复</span><span>4.5 警戒</span><span>5.0</span></div>
+      <div class="g-imp">影响折现率和基建融资成本</div>
+    </div>
+    <div class="gauge">
+      <div class="g-name">核心 PCE</div>
+      <div class="g-val" style="color:var(--amber)">3.3<small>%</small></div>
+      <div class="g-meta">2026-06-01 ｜ 地缘风险等级：<b style="color:var(--red)">高</b></div>
+      <div class="g-track">
+        <div class="g-range" style="left:0;width:100%"></div>
+        <div class="g-cur" style="left:75%"></div>
+        <div class="g-thr" style="left:85%"></div>
+      </div>
+      <div class="g-scale"><span>&lt;3.0 修复</span><span>&gt;3.4 恶化</span><span>4.0</span></div>
+      <div class="g-imp">决定高 CapEx 资产估值压力</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="card-title">布伦特原油月内走势 <span class="chip r">振幅 53.4%</span></div>
+    <svg viewBox="0 0 340 150" width="100%" style="display:block;margin-top:4px">
+      <line x1="30" y1="120" x2="330" y2="120" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+      <line x1="30" y1="20" x2="330" y2="20" stroke="rgba(248,113,113,.4)" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="326" y="15" fill="#f87171" font-size="9" text-anchor="end">100 恶化线</text>
+      <polyline fill="none" stroke="#7dd3fc" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"
+        points="40,110 105,88 175,66 235,20 310,47"/>
+      <circle cx="40" cy="110" r="3.5" fill="#7dd3fc"/>
+      <circle cx="235" cy="20" r="4" fill="#f87171"/>
+      <circle cx="310" cy="47" r="3.5" fill="#fff"/>
+      <text x="40" y="132" fill="#7d8496" font-size="9" text-anchor="middle">7-03</text>
+      <text x="105" y="132" fill="#7d8496" font-size="9" text-anchor="middle">7-12</text>
+      <text x="175" y="132" fill="#7d8496" font-size="9" text-anchor="middle">7-19</text>
+      <text x="235" y="132" fill="#7d8496" font-size="9" text-anchor="middle">7-23</text>
+      <text x="310" y="132" fill="#7d8496" font-size="9" text-anchor="middle">7-27 收</text>
+      <text x="46" y="106" fill="#e8eaf0" font-size="10" font-weight="bold">68.68</text>
+      <text x="241" y="16" fill="#f87171" font-size="10" font-weight="bold">105.32</text>
+      <text x="304" y="42" fill="#fff" font-size="10" font-weight="bold" text-anchor="end">91.82</text>
+    </svg>
+    <p class="tiny" style="margin-top:8px">月初美伊谅解备忘录推动油价回落至约 68.68 美元（窗口首日 2026-07-03）→ 月中交火升级飙至月内高点 105.32 美元（7-23）→ 月末和谈但海峡持续封锁，收于 91.82 美元（FRED 主口径，2026-07-27 收）。月内振幅约 53.4%，能源成本高企正系统性嵌入行业基线。</p>
+  </div>
+  <p class="src-note">Brent / VIX / 10Y / 核心PCE 数据源：FRED 结构化数据，宏观数据窗口 2026-07-03~2026-08-01；日频指标按窗口内可得交易日计算。</p>
+</section>
+<!-- ========== 3. 涨跌分化 ========== -->
+<section id="diverge">
+  <div class="sec-head"><span class="no">02</span><h2>涨跌分化：市场的选择机制</h2></div>
+
+  <div class="vs">
+    <div class="side up">
+      <div class="s-name">微软 MSFT</div>
+      <div class="s-pct g">+20.9%</div>
+      <div class="s-detail">Copilot 3000 万座位 + 收入环比增超 60%，「已兑现回报者」获溢价</div>
+    </div>
+    <div class="vs-x">VS</div>
+    <div class="side down">
+      <div class="s-name">Meta</div>
+      <div class="s-pct r">−9.2%</div>
+      <div class="s-detail">高 CapEx 低回报、自由现金流承压，「还在烧钱者」被市场惩罚</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="card-title">本月重点标的表现</div>
+    <div class="dbars">
+      <div class="dbar"><span class="lbl">微软 MSFT</span><div class="mid"><div class="zero"></div><div class="bar pos" style="width:46.7%"></div></div><span class="val pos">+20.9%</span></div>
+      <div class="dbar"><span class="lbl">Arista ANET</span><div class="mid"><div class="zero"></div><div class="bar pos" style="width:18.3%"></div></div><span class="val pos">+8.2%</span></div>
+      <div class="dbar"><span class="lbl">博通 AVGO</span><div class="mid"><div class="zero"></div><div class="bar pos" style="width:12.1%"></div></div><span class="val pos">+5.4%</span></div>
+      <div class="dbar"><span class="lbl">英伟达 NVDA</span><div class="mid"><div class="zero"></div><div class="bar pos" style="width:3.6%"></div></div><span class="val pos">+1.6%</span></div>
+      <div class="dbar"><span class="lbl">Meta</span><div class="mid"><div class="zero"></div><div class="bar neg" style="width:20.5%"></div></div><span class="val neg">−9.2%</span></div>
+      <div class="dbar"><span class="lbl">AMD</span><div class="mid"><div class="zero"></div><div class="bar neg" style="width:26.8%"></div></div><span class="val neg">−12.0%</span></div>
+      <div class="dbar"><span class="lbl">美光 MU</span><div class="mid"><div class="zero"></div><div class="bar neg" style="width:45.3%"></div></div><span class="val neg">−20.3%</span></div>
+      <div class="dbar"><span class="lbl">Vertiv</span><div class="mid"><div class="zero"></div><div class="bar neg" style="width:50%"></div></div><span class="val neg">−22.4%</span></div>
+    </div>
+    <p class="tiny" style="margin-top:10px">美光毛利率 84.6% 却月跌 20.3%、微软月涨 +20.9% 同时 Meta 月跌 9.2%——市场在极高效地奖励「已兑现回报」的标的、惩罚「还在烧钱等回报」的标的。IBM 因 AI 挤出传统 IT 预算预警单日暴跌 25%（单日事件，未入月度条形图）；Vertiv 月跌 22.4%（PE 46.4 倍）显示部分设备环节高估值已受宏观利率压制（30年期美债 5.27%）。</p>
+  </div>
+</section>
+
+<!-- ========== 4. 重点方向速览 ========== -->
+<section id="quick">
+  <div class="sec-head"><span class="no">03</span><h2>重点方向与风险速览</h2></div>
+  <div class="card">
+    <div class="dbar" style="margin:0 0 4px"><span class="chip g">积极看好</span></div>
+    <p class="small muted" style="margin-top:6px">▸ <b>数据中心电力基建</b> — 自备发电从竞争优势升格为准入门槛，设备端订单验证超级周期；油价高企强化自有电力项目稀缺溢价</p>
+    <p class="small muted" style="margin-top:6px">▸ <b>云推理与中间件服务</b> — AWS AI 年化收入 250 亿美元三位数增长 + Fireworks 收入 5 倍增长，推理托管需求强于预期</p>
+    <p class="small muted" style="margin-top:6px">▸ <b>企业级AI助手/Copilot产品</b> — 微软 Copilot 3000 万座位 + Adobe AI-first ARR 超 5 亿美元构成月内最强付费验证</p>
+    <div class="dbar" style="margin:14px 0 4px"><span class="chip r">风险升高</span></div>
+    <p class="small muted" style="margin-top:6px">▸ <b>半导体进口依赖型环节</b> — 台积电面临中国出口管制反制、FCC 禁令扩至硬件终端、韩国加息抬升亚太半导体融资成本</p>
+    <p class="small muted" style="margin-top:6px">▸ <b>对华AI芯片出口</b> — 出口管制效果有限但管制范围扩至模型权重，合规成本持续攀升；回看条件：FCC/BIS 推出新的硬件出口豁免清单</p>
+    <p class="small muted" style="margin-top:6px">▸ <b>AI基建估值与资本退出</b> — 微软 CapEx 约 1900 亿美元 / Meta 约 1390-1450 亿美元（Visible Alpha 共识）叠加信用利差扩大</p>
+    <p class="small muted" style="margin-top:6px">▸ <b>传统软件/IT预算受挤出</b> — IBM 单日暴跌 25% 为挤出效应明确股价信号，AI 预算优先级提升正在挤压传统 SaaS 与 IT 服务合同续约率</p>
+    <p class="tiny" style="margin-top:12px">完整 15 个方向清单见文末「月度综合方向指引」。</p>
+  </div>
+</section>
+
+<!-- ========== 5. 月度产业全景 ========== -->
+<section id="panorama">
+  <div class="sec-head"><span class="no">04</span><h2>月度产业全景</h2></div>
+  <div class="card">
+    <p class="muted" style="font-size:13.5px">本月AI产业链完成了一个质变：从<b>「堆算力」的逻辑全面切换到「证回报」的逻辑</b>。如果把AI产业比作淘金热，本月的核心变化是——<b>铲子（芯片/服务器）不再稀缺，水（电力）变成了最贵的生产要素，而第一批淘到的金子（企业AI付费）开始有了可称重的规模</b>。</p>
+    <p class="muted" style="font-size:13.5px">这一判断建立在两条跨周验证的证据链之上。第一条是<b>电力成本内部化</b>：从第2周 ERCOT 并网缺口暴露、第3周纽约州暂停数据中心审批，到第4周白宫承诺书要求 AI 方全额承担电力成本、第5周 PJM 拟强制自带电源——电力从「行业痛点」演变为「准入规则」。GE Vernova 季度订单同比 +88% 至 242 亿美元（第4周），伊顿电气美洲订单同比 +41%（第5周），设备端超级周期已从预期进入订单交付阶段。第二条是<b>企业AI付费规模化</b>：微软 365 Copilot 付费座位突破 3000 万（第5周），AWS AI 年化收入同比三位数增长至 250 亿美元（第5周），Adobe AI-first ARR 超 5 亿美元（第5周），构成迄今最强的企业端付费验证组合。</p>
+    <p class="muted" style="font-size:13.5px">但多空分化同样剧烈。美光毛利率 84.6% 却月跌 20.3%，微软月涨 +20.9% 的同时 Meta 月跌 9.2%——市场在极高效地奖励「已兑现回报」的标的、惩罚「还在烧钱等回报」的标的。地缘油价从月初 68.68 美元（FRED 口径）飙升至月内高点 105.32 美元、月末收于 91.82 美元（FRED 主口径，2026-07-27 收），能源成本高企正系统性嵌入行业基线。</p>
+    <div class="quote"><b>产业周期演变：</b>AI产业正式进入「商业化验证期·早期」——市场选择机制从「谁的故事更大」切换为「谁能拿出真实 ARR 和付费座位数」，本月微软 3000 万座 Copilot 与 AWS 250 亿美元 AI 年化收入是最强验证。<br><br><b>下月关键催化剂：</b>9月 FOMC 点阵图对 AI 基建融资成本的直接影响；微软、亚马逊后续财报中 AI 收入环比增速能否持续跑赢 CapEx 增速；PJM 自备电源规则 FERC 裁决进展。</div>
+  </div>
+</section>
+<!-- ========== 6. 趋势演变 ========== -->
+<section id="trends">
+  <div class="sec-head"><span class="no">05</span><h2>本月 3 个最重要的趋势演变</h2></div>
+
+  <details open>
+    <summary>
+      <div>
+        <div class="s-title">趋势一 · 企业AI付费从"试点"到"标配"的质变</div>
+        <div class="s-sub">跨周一致性：强 ｜ 疑虑→验证→规模化三级跳</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <div class="tl">
+        <div class="tl-item"><div class="t-date">第 1 周 · 07-06</div><div class="t-body">KPMG 调查"近半数企业缩减AI代理使用"的谨慎信号</div></div>
+        <div class="tl-item"><div class="t-date">第 3-4 周 · 07-19/26</div><div class="t-body">ServiceNow AI ACV 破 10 亿美元、Salesforce 获 16 亿美元联邦大单的中期验证</div></div>
+        <div class="tl-item"><div class="t-date">第 5 周 · 08-02</div><div class="t-body">微软 Copilot 付费座位突破 3000 万、宏利 3 万员工全面部署——爆发</div></div>
+      </div>
+      <p class="small muted" style="margin-top:6px">企业 AI 付费在月内完成了「疑虑→验证→规模化」的三级跳。变化速度本身在加速：第5周单周新增的付费证据强度（三家头部公司同时交出数据）超过前四周总和。付费主力是「Copilot 辅助式交互」与「确定性脚本+LLM 推理」混合体，而非全自主代理——ServiceNow AI ACV 中纯 Agent 合同占比有限。</p>
+      <div class="quote"><b>投资含义：</b>围绕微软 365 生态的 AI 工作流和安全治理赛道将获得持续预算流入，传统 SaaS 面临替代压力；应用层预算正加速向已验证 ROI 的工作流嵌入型产品集中。</div>
+    </div>
+  </details>
+
+  <details open>
+    <summary>
+      <div>
+        <div class="s-title">趋势二 · 电力从"获取"到"自备"的制度性转折</div>
+        <div class="s-sub">跨周一致性：强 ｜ 游戏规则被重写</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <div class="tl">
+        <div class="tl-item"><div class="t-date">第 2 周 · 07-12</div><div class="t-body">ERCOT 并网缺口暴露（并网请求 4 倍于峰值需求、变压器交期超 14 年）</div></div>
+        <div class="tl-item"><div class="t-date">第 3 周 · 07-19</div><div class="t-body">纽约州暂停数据中心审批</div></div>
+        <div class="tl-item"><div class="t-date">第 4 周 · 07-26</div><div class="t-body">白宫承诺书要求 AI 方全额承担配套电力成本</div></div>
+        <div class="tl-item"><div class="t-date">第 5 周 · 08-02</div><div class="t-body">PJM 拟强制新建数据中心自带发电容量才获可靠供电</div></div>
+      </div>
+      <p class="small muted" style="margin-top:6px">这不是需求降温，而是游戏规则被重写。全月每周都有新的制度信号收紧「靠公用事业并网」的路径，演变方向一致且持续加速——自备发电从「差异化竞争优势」升级为「行业准入门槛」。PJM 容量拍卖揭示 2028/2029 年仍短缺 6,831MW，Exelon 将高概率负荷从 18GW 降至 11GW（降幅 40%）。</p>
+      <div class="quote"><b>投资含义：</b>拥有自建发电能力、长协电价或已获批土地的项目将享受稀缺溢价（GE Vernova、NextEra 获定价权溢价），依赖公用事业并网的传统模式面临交付延迟和成本超支双杀。</div>
+    </div>
+  </details>
+
+  <details open>
+    <summary>
+      <div>
+        <div class="s-title">趋势三 · 内存涨价从"供给侧红利"变为"需求侧成本挤压"</div>
+        <div class="s-sub">跨周一致性：中 ｜ 视角转换在月内完成</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <div class="tl">
+        <div class="tl-item"><div class="t-date">第 1 周 · 07-06</div><div class="t-body">美光扩大投资（乐观叙事）</div></div>
+        <div class="tl-item"><div class="t-date">第 5 周 · 08-02</div><div class="t-body">美光毛利率 84.6% 但股价月跌 20.3%；三星预期 HBM 供给紧张至 2028 年</div></div>
+      </div>
+      <p class="small muted" style="margin-top:6px">从「赚钱的供给端」到「承压的需求端」的视角转换在月内完成。当 Meta 现金生成能力同比降 91%（第5周）、微软 CapEx 占营收 39.8%（第5周），内存涨价正侵蚀云厂商资本开支的可持续性。这不是需求消失，而是成本反噬增长。</p>
+      <div class="quote"><b>投资含义：</b>HBM 供给侧利润率红利仍存，但估值框架已提前从「需求驱动」切换至「成本挤压预期」，标的选择需区分「自用内存成本可转嫁」和「纯外购」两类云厂商。</div>
+    </div>
+  </details>
+</section>
+
+<!-- ========== 7. 信号分析 ========== -->
+<section id="signals">
+  <div class="sec-head"><span class="no">06</span><h2>信号矛盾 · 沉默信号 · 非线性拐点</h2></div>
+  <div class="card">
+    <div class="card-title">⚡ 信号矛盾：电力基建"订单强"与"执行阻力大"共存</div>
+    <p class="small muted">第4-5周 GE Vernova、伊顿、江森自控订单全面爆发，但同期 Exelon 将高概率负荷从 18GW 降至 11GW（降幅 40%）、纽约州与马里兰州同步暂停新审批。这不是「需求不存在」，而是「需求无限但落地有限」——自备发电项目的议价权因此更强，纯靠电网并网的项目则面临实质搁浅风险。</p>
+  </div>
+  <div class="card">
+    <div class="card-title">🔇 沉默信号：全自主AI代理始终未兑现</div>
+    <p class="small muted">第1周 KPMG 调查企业缩减代理使用，第3周检索天花板被量化研究挑战，第4周付费验证主力是 Copilot 而非全自主代理。未兑现本身已构成方向性信号：纯代理初创公司的 TAM 预期应显著下调。未兑现的可能原因是「企业主动选择不披露」的概率更高——若已规模化，企业有充分激励通过 PR 宣传，沉默本身暗示不及预期。</p>
+  </div>
+  <div class="card">
+    <div class="card-title">📉 非线性拐点：业绩与股价背离、付费验证与烧钱惩罚并存</div>
+    <p class="small muted">美光毛利率 84.6% 却月跌 20.3%、微软月涨 +20.9% 的同时 Meta 月跌 9.2%——市场在极高效地奖励「已兑现回报」的标的、惩罚「还在烧钱等回报」的标的。微软财报超预期盘前涨超 9% 与同日 Meta 因自由现金流承压盘前跌约 10% 构成最具代表性的分化信号：不是「AI 值不值得投」的分歧，而是「谁能证明 AI 投入正在产生回报」的筛选。</p>
+  </div>
+  <div class="card hl">
+    <div class="card-title">🔁 传导链互动：油价飙升放大"上游锁仓"与"下游挤压"的双向张力</div>
+    <p class="small muted">能源成本推高 → 自备发电项目价值飙升（利好电力基建），但同时推高利率 → 高杠杆基建项目融资条件恶化（利空 AI 基建估值与资本退出方向）——同一根油价曲线在产业链不同位置产生截然相反的投资含义。30年期美债收益率 5.27% 高位下，OpenAI 2500 亿美元债务计划面临搁浅风险。</p>
+  </div>
+</section>
+
+<!-- ========== 8. 地缘推演 ========== -->
+<section id="geo">
+  <div class="sec-head"><span class="no">07</span><h2>重大地缘冲突深度推演</h2><span class="hint">默认折叠</span></div>
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">传导路径与综合判断</div>
+        <div class="s-sub">霍尔木兹海峡封锁 + 俄乌能源互攻 + 台海供应链紧张 + 中美科技管制扩围形成共振</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <div class="card" style="margin-bottom:12px">
+        <div class="path">
+          <div class="p-id">a</div>
+          <div class="p-body">
+            <div class="p-head"><span class="p-name">能源与通胀传导</span><span class="chip r">已激活</span><span class="prob">下月验证：海峡通行状态</span></div>
+            月初美伊谅解备忘录推动布伦特回落至 68.68 美元（窗口首日 2026-07-03），月中交火升级飙至 105.32 美元高点，月末和谈但海峡仍关闭、收于 91.82 美元（FRED 主口径，2026-07-27 收），月内振幅约 53.4%。油价已不再对单一停火信号敏感——即使和谈推进，海峡通行未恢复，供给风险溢价已嵌入基线。俄乌方面，乌克兰对俄炼油厂打击从设施破坏转向关键部件打击，能源基础设施互攻呈升级态势。数据中心电力成本中的天然气边际成本将持续承压。
+          </div>
+        </div>
+        <div class="path">
+          <div class="p-id">b</div>
+          <div class="p-body">
+            <div class="p-head"><span class="p-name">供应链物理中断与科技管制扩围</span><span class="chip a">部分激活</span><span class="prob">下月验证：台积电管制是否进入正式评估</span></div>
+            中国考虑对台积电实施出口管制（7月27日），台积电地缘风险从「潜在」进入「正式评估」阶段；FCC 于 7 月 29 日禁止进口外国人形机器人与电源逆变器，对华科技封锁从半导体、AI 模型向智能硬件终端首次实质延伸。若台积电管制落地，将打破算力总量扩张逻辑。
+          </div>
+        </div>
+        <div class="path">
+          <div class="p-id">c</div>
+          <div class="p-body">
+            <div class="p-head"><span class="p-name">资本避险与回报筛选</span><span class="chip r">已激活</span></div>
+            微软月涨 +20.9%、Meta 月跌 9.2%、美光月跌 20.3%——市场极高效地奖励「已兑现回报」标的、惩罚「还在烧钱等回报」标的。资本从高 CapEx 低回报公司流向有真实 ARR 与付费座位数的公司。
+          </div>
+        </div>
+        <div class="path">
+          <div class="p-id">d</div>
+          <div class="p-body">
+            <div class="p-head"><span class="p-name">财政挤出与信用收紧</span><span class="chip a">部分激活</span><span class="prob">下月验证：9月FOMC点阵图</span></div>
+            美联储 7 月会议维持利率 3.5%-3.75% 不变但内部分歧扩大至 9-3，30 年期美债收益率升至 5.2% 以上（7月30日），韩国央行时隔三年半首次加息至 2.75%（7月16日），亚太紧缩周期重启。Oracle 被标普下调至 BBB-、五年期 CDS 升至多年高位，OpenAI 2500 亿美元债务计划面临搁浅风险——高杠杆 AI 基建项目面临「融资成本上升、运营成本上升」双杀。
+          </div>
+        </div>
+      </div>
+      <div class="quote" style="margin-top:0"><b>综合判断：</b>本月地缘风险从「点状冲击」演变为「网状传导」——霍尔木兹海峡封锁不再是孤立事件，俄乌能源设施互攻、台海供应链紧张、中美科技管制扩围形成共振。个人投资者优先监控路径 a)（能源与通胀）和路径 d)（财政挤出与信用收紧）——这两个路径的方向将直接影响 9 月 FOMC 决议和对 AI 高估值资产的态度。个人投资者应优先配置已锁定廉价电力或自有发电能力的基建标的，回避 CapEx 强度超 30% 且 FCF 为负的高杠杆公司，现金比例建议维持 25% 以上。</div>
+    </div>
+  </details>
+</section>
+<!-- ========== 9. 事件演化链 ========== -->
+<section id="chains">
+  <div class="sec-head"><span class="no">08</span><h2>事件演化链追踪</h2><span class="hint">默认折叠</span></div>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">⛽ 霍尔木兹海峡地缘危机</div>
+        <div class="s-sub">月内振幅约 53.4%，能源成本不确定性从尾部风险推向基准情景</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <div class="tl">
+        <div class="tl-item"><div class="t-date">月初</div><div class="t-body">美伊谅解备忘录推动油价回落至 68.68 美元（FRED 口径，窗口首日 2026-07-03）</div></div>
+        <div class="tl-item"><div class="t-date">月中 7-23</div><div class="t-body">交火升级、油价飙至月内高点 105.32 美元（FRED 口径，7月23日）</div></div>
+        <div class="tl-item"><div class="t-date">月末</div><div class="t-body">和谈但海峡持续封锁，油价收于 91.82 美元（FRED 主口径，2026-07-27 收），月内振幅约 53.4%</div></div>
+      </div>
+      <div class="quote"><b>投资含义：</b>自备发电项目避险价值凸显（订单端已验证），但高杠杆 AI 基建融资成本已结构性走高（30年期美债 5.27%，第5周）。<br><b>下月验证节点：</b>海峡是否恢复通行——若持续封锁至 9 月中，布伦特可能再次试探 91.82 美元/桶上方，触发云厂商 CapEx 指引下调风险。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">⚡ 电力自备化从"可选"到"强制"</div>
+        <div class="s-sub">全月制度信号层层递进，"自带电力"已成新建数据中心隐形准入门槛</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <div class="tl">
+        <div class="tl-item"><div class="t-date">第 2 周</div><div class="t-body">ERCOT 并网缺口暴露</div></div>
+        <div class="tl-item"><div class="t-date">第 4 周</div><div class="t-body">白宫承诺书要求 AI 方全额承担电力成本</div></div>
+        <div class="tl-item"><div class="t-date">第 5 周</div><div class="t-body">PJM 拟强制自带电源——"自带电力"已成新建数据中心的隐形准入门槛</div></div>
+      </div>
+      <div class="quote"><b>投资含义：</b>GE Vernova、NextEra 等具备自备电厂能力的项目获定价权溢价。<br><b>下月验证节点：</b>PJM 规则 FERC 裁决结果——若获批将触发全行业选址逻辑重置。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">🏭 台积电地缘风险升级</div>
+        <div class="s-sub">从业绩超预期到中国考虑出口管制，先进制程供给不确定性骤升</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <div class="tl">
+        <div class="tl-item"><div class="t-date">第 3 周</div><div class="t-body">台积电业绩超预期并追加千亿美元投资</div></div>
+        <div class="tl-item"><div class="t-date">第 5 周</div><div class="t-body">中国考虑对台积电实施出口管制</div></div>
+      </div>
+      <div class="quote"><b>投资含义：</b>先进制程供给不确定性骤升，若管制落地将打破算力总量扩张逻辑。<br><b>下月验证节点：</b>管制是否从「考虑」进入正式评估阶段。</div>
+    </div>
+  </details>
+</section>
+
+<!-- ========== 10. 前瞻情景 ========== -->
+<section id="outlook">
+  <div class="sec-head"><span class="no">09</span><h2>前瞻展望：三种情景</h2></div>
+
+  <div class="scn up">
+    <div class="scn-t"><span class="chip g">乐观情景</span><span class="tiny">主观排序：次可能</span></div>
+    <div class="scn-b">美伊正式停火且海峡恢复通行，布伦特回落至 83-85 美元区间（月报场景阈值），叠加 9 月 FOMC 释放宽松信号，云厂商利润率预期改善，推理中间件与应用层估值修复弹性最大。若微软基于使用量的计费模型在下月获更多 SaaS 企业跟进（第5周早期信号），将催化 AI 应用估值框架从「许可逻辑」向「分成逻辑」迁移。</div>
+  </div>
+  <div class="scn base">
+    <div class="scn-t"><span class="chip b">基准情景</span><span class="tiny">主观排序：最可能</span></div>
+    <div class="scn-b">地缘维持当前僵局，海峡通行未恢复，布伦特在 80-95 美元高位震荡（基准阈值），高能源成本嵌入行业基线。企业 AI 付费维持但增速放缓，市场继续在电力基建和 AI 应用两大确定性板块中寻找结构机会，高杠杆融资项目估值持续承压。</div>
+  </div>
+  <div class="scn down">
+    <div class="scn-t"><span class="chip r">悲观情景</span><span class="tiny">主观排序：尾部风险</span></div>
+    <div class="scn-b">若美伊和谈破裂、海峡实质封锁，布伦特升破 100 美元（恶化阈值），同时 VIX 恐慌指数升破 26.7 警戒线，则数据中心运营开支激增，云厂可能下调 CapEx 指引，高杠杆 AI 基建（尤其是 OpenAI 2500 亿美元债务计划）面临违约风险，SOXX ETF 可能跌破 454 美元疲软阈值。应对建议：仅保留已锁定廉价电力合同或有自建发电能力的电力基建标的，回避 CapEx/营收比 &gt;30% 且未盈利的高杠杆公司，现金比例建议提升至 30-40%。</div>
+  </div>
+</section>
+
+<!-- ========== 11. 行动建议 ========== -->
+<section id="action">
+  <div class="sec-head"><span class="no">10</span><h2>个人投资者行动建议</h2><span class="hint">默认折叠</span></div>
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">情景化仓位建议与触发条件</div>
+        <div class="s-sub">方向性框架，非精确建议 · 基准配置中枢合计 100%</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title">情景化仓位建议 <span class="tiny">方向性框架，非精确建议（基准配置中枢：上游硬件25% + 防御性35% + 应用层15% + 现金25%）</span></div>
+        <div class="alloc-row">
+          <div class="a-head"><span class="a-name">上游硬件（HBM/封装/ASIC等）</span><span class="pct">基准 25%</span></div>
+          <div class="a-track"><div class="a-fill" style="left:0;width:25%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div></div>
+          <div class="a-note">乐观 20% · 基准 25% · 悲观 15%</div>
+        </div>
+        <div class="alloc-row">
+          <div class="a-head"><span class="a-name">防御性方向（电力基建/能效/国防AI）</span><span class="pct">基准 35%</span></div>
+          <div class="a-track"><div class="a-fill" style="left:0;width:35%;background:linear-gradient(90deg,#34d399,#10b981)"></div></div>
+          <div class="a-note">乐观 30% · 基准 35% · 悲观 40%（仅限已锁电合同项目）</div>
+        </div>
+        <div class="alloc-row">
+          <div class="a-head"><span class="a-name">应用层机会性配置</span><span class="pct">基准 15%</span></div>
+          <div class="a-track"><div class="a-fill" style="left:0;width:15%;background:linear-gradient(90deg,#a78bfa,#8b5cf6)"></div></div>
+          <div class="a-note">乐观 25% · 基准 15% · 悲观 5%</div>
+        </div>
+        <div class="alloc-row">
+          <div class="a-head"><span class="a-name">现金 / 等价物</span><span class="pct">基准 25%</span></div>
+          <div class="a-track"><div class="a-fill" style="left:0;width:25%;background:linear-gradient(90deg,#9ca3af,#6b7280)"></div></div>
+          <div class="a-note">乐观 25% · 基准 25% · 悲观 40%（悲观情景下等待油价回落至 85 美元以下或云厂明确下调 CapEx 指引）</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+          <div style="flex:1;min-width:45%;background:var(--green-dim);border:1px solid rgba(52,211,153,.3);border-radius:10px;padding:10px 12px">
+            <div class="tiny" style="color:var(--green);font-weight:700;margin-bottom:3px">乐观情景调整</div>
+            <div class="tiny" style="color:var(--txt2)">上游硬件降至 20%，应用层升至 25%，防御性降至 30%</div>
+          </div>
+          <div style="flex:1;min-width:45%;background:var(--red-dim);border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:10px 12px">
+            <div class="tiny" style="color:var(--red);font-weight:700;margin-bottom:3px">悲观情景调整</div>
+            <div class="tiny" style="color:var(--txt2)">防御性升至 40%（仅限已锁电合同项目），应用层降至 5%，现金升至 40%</div>
+          </div>
+        </div>
+      </div>
+      <details>
+        <summary>
+          <div>
+            <div class="s-title">下月「如果…则…」触发条件</div>
+            <div class="s-sub">条件触发后的应对动作</div>
+          </div>
+          <span class="s-arrow">▶</span>
+        </summary>
+        <div class="d-body">
+          <div class="ifthen">
+            <span class="if">如果</span> 布伦特回落至 80 美元以下（FRED 口径）且海峡恢复通行，<br><span class="then">则</span> 将防御性方向配置比例降至 30% 以下，增配应用层至 20%。
+          </div>
+          <div class="ifthen">
+            <span class="if">如果</span> 微软 Q3 财报 AI 相关业务（Copilot+Azure AI）运营利润率环比下滑超 1 个百分点，<br><span class="then">则</span> 减持高 CapEx/营收比（&gt;35%）的云厂标的，增持电力基建自备发电方向。
+          </div>
+          <div class="ifthen">
+            <span class="if">如果</span> FERC 批准 PJM 自备电源规则，<br><span class="then">则</span> 将数据中心电力基建方向配置提升 5 个百分点，减持纯托管数据中心 REITs。
+          </div>
+        </div>
+      </details>
+    </div>
+  </details>
+</section>
+<!-- ========== 12. 细分板块 ========== -->
+<section id="sectors">
+  <div class="sec-head"><span class="no">11</span><h2>细分板块月度归纳</h2><span class="hint">9 个板块 · 点击展开</span></div>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">① 宏观环境与政策风向</div>
+        <div class="s-sub">地缘供给冲击与长端利率高企双重挤压，AI产业从"低成本扩张"切换至"高成本运营"宏观基线</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <h4>月度趋势研判</h4>
+      <p class="small muted">本月宏观环境对AI产业呈系统性利空且趋势加速。地缘冲突从霍尔木兹海峡向外扩散——俄乌互袭能源基础设施、韩国央行意外加息、FCC扩大对华科技禁令，多重冲击叠加将能源成本与融资成本同时推高。这不是短期波动，而是产业运营基线的结构性上移：油价月内振幅约53.4%、30年期美债收益率收于5.2%以上多年高位，高杠杆AI基建项目面临「融资成本上升、运营成本上升」的双杀。与上月相比，地缘风险从「点状冲击」演变为「网状传导」——霍尔木兹海峡封锁、俄乌能源设施互攻、台海供应链紧张、中美科技管制扩围形成共振。证据强度：高。</p>
+      <h4>关键演变</h4>
+      <p class="small muted"><b>演变一：地缘油价从"事件驱动"转为"基线嵌入"。</b>月初美伊谅解备忘录推动布伦特回落至68.68美元/桶（窗口首日2026-07-03），月中交火升级飙至105.32美元高点，月末虽和谈但海峡仍关闭、布伦特收于91.82美元。油价已不再对单一停火信号敏感——即使和谈推进，海峡通行未恢复，供给风险溢价已嵌入基线。俄乌方面，乌克兰对俄炼油厂打击从设施破坏转向关键部件打击（7月29日报道），能源基础设施互攻呈升级态势。数据中心电力成本中的天然气边际成本（美国电力批发市场中天然气发电占比约40-45%边际定价）将持续承压。</p>
+      <p class="small muted"><b>演变二：长端利率高企从"预期"变为"现实约束"。</b>美联储7月会议维持利率3.5%-3.75%不变但内部分歧扩大至9-3，30年期美债收益率升至5.2%以上（7月30日AP报道）。韩国央行时隔三年半首次加息至2.75%（7月16日），亚太紧缩周期重启信号明确。超长期基建融资成本直接抬升（30年期5.2%+对比项目IRR的缓冲空间收窄），高估值、高CapEx公司面临更严峻的跨资产比价压力。OpenAI 2500亿美元债务计划搁浅风险正是这一约束的直接映射。</p>
+      <p class="small muted"><b>演变三：科技管制从芯片扩至终端，地缘风险溢价向应用端渗透。</b>FCC于7月29日禁止进口外国人形机器人与电源逆变器，主要针对中国供应链，这是美国对华科技封锁从半导体、AI模型向智能硬件终端的首次实质延伸。同时中国考虑对台积电实施出口管制（7月27日），台积电地缘风险从「潜在」进入「正式评估」阶段。地缘风险正从上游（芯片/设备）向中下游（终端/应用）扩散，供应链分裂的制度性成本将持续上升。</p>
+      <div class="quote"><b>辅助判断：</b>地缘供给冲击与长端利率高企已从「短期扰动」演变为「结构性基线」，AI产业正式进入高能源成本、高融资成本的双高运营环境。下月核心验证节点：9月FOMC点阵图是否释放宽松信号、霍尔木兹海峡是否恢复通行、台积电出口管制是否进入正式评估。个人投资者应优先配置已锁定廉价电力或自有发电能力的基建标的，回避CapEx强度超30%且FCF为负的高杠杆公司，现金比例建议维持25%以上以应对油价再次冲高风险。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">② 产能瓶颈与供应链重构</div>
+        <div class="s-sub">电力"自备化"从差异化优势升级为准入门槛，设备端订单交付超级周期启动</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <h4>月度趋势研判</h4>
+      <p class="small muted">本月供应链的核心结构性变化不是需求降温，而是规则改写——电力从「外部获取」成本项转变为「自带门槛」准入条件，证据强度：高（PJM拟强制自带发电容量才获批并网（第5周，8月2日），叠加白宫《用户保护承诺书》（第4周）要求AI方全额承担电力成本）。月内从第1周ERCOT并网缺口暴露、第3周纽约州暂停审批，到第5周PJM规则拟落地，演变方向一致且持续加速。设备端已验证：GE Vernova季度订单同比+88%至242亿美元（第4周，7月26日）、伊顿电气美洲订单同比+41%（第5周，8月2日）、江森自控有机订单同比+27%（第5周，8月2日），订单积压和book-to-bill均处扩张区间，超级周期从预期进入订单交付阶段。但Exelon将高概率数据中心负荷预期从18GW下调至11GW（降幅40%，第5周，7月31日）、纽约州和马里兰州同步暂停新审批，「需求无限但落地有限」的温差已经量化。本月趋势方向：转折。</p>
+      <h4>关键演变</h4>
+      <p class="small muted"><b>演变一：自备发电从"加分项"升级为"入场券"，电网并网路径收窄。</b>全月制度信号层层递进：白宫承诺书（第4周）提出AI开发方全额承担配套电力成本后，PJM（管辖美国13州电网运营商）于第5周（8月2日）拟要求新建数据中心必须自带发电容量才获可靠供电。配套数据支撑：PJM容量拍卖揭示2028/2029年仍短缺6,831MW（第4周，7月26日），ERCOT并网等待队列中变压器交期超14年（第1周，7月6日）。投资含义：拥有自建天然气发电能力（GE Vernova、NextEra）或已获批土地的项目获稀缺溢价，依赖公用事业并网的传统模式面临交付延迟和成本超支双杀。需注意天然气价格敏感性——自备电厂运营成本与气价高度挂钩，布伦特月内收于91.82美元（2026-07-27收），高能源成本环境抬高自备发电全周期经济测算门槛。</p>
+      <p class="small muted"><b>演变二：设备端订单交付超级周期启动，但估值已部分price in。</b>GE Vernova积压订单环比增长130亿美元至1,760亿美元（第4周），燃气轮机产出目标加速至2030年30GW；江森自控积压订单210亿美元同比增长32%（第5周）；伊顿电气整体book-to-bill超1倍（第5周）。三家设备商在月内同步交出订单级验证，且积压订单均指向2026-2028年交付。但交易层面存在张力：Vertiv（液冷与散热）月跌22.4%、PE 46.4倍（板块财务快照），显示部分设备环节高估值已受宏观利率压制（30年期美债5.27%）。</p>
+      <p class="small muted"><b>演变三：内存涨价从"供给侧红利"向"需求侧成本挤压"切换，估值框架提前迁移。</b>美光毛利率84.6%但月跌20.3%（板块财务快照），三星确认HBM供给紧张至2028年且多年度供应协议在谈（第5周，8月2日），但Meta现金生成同比下降91%（第5周，8月2日）显示云厂商成本端承压已传导至现金流。市场定价逻辑已从「谁赚钱」切换至「谁承受」。证据强度：中（单一信源CNBC报道Meta降幅，需与财报原文交叉核对）。</p>
+      <div class="quote"><b>辅助判断：</b>本月最核心的结构性变化是电力自备化制度正式确立——PJM拟强制自带发电容量（还需FERC裁定落地）、设备端订单超级周期启动，供应链瓶颈从「芯片产能不足」扩散至「电力获取成本内部化」。下月关注FERC对PJM规则的裁决结果以及天然气价格对自备发电经济性的边际影响；内存涨价对云厂商CapEx的挤压效应是否从Meta扩散至微软、亚马逊需密切跟踪。风险提示：设备端估值已部分price in订单逻辑（Vertiv月跌22.4%即反映利率压制），若美国国债收益率继续上行，高PE电力设备环节可能面临进一步估值压缩。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">③ AI商业化落地与价值验证</div>
+        <div class="s-sub">企业AI付费跨越规模化临界点，路线明确收敛至"Copilot+脚本"混合架构</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <h4>月度趋势研判</h4>
+      <p class="small muted">本月企业AI商业化完成路线收敛：付费模式从「试点承诺」质变为「规模化标配」，技术路径从「全自主代理幻想」务实回归「Copilot+确定性脚本」混合架构。证据强度：高——微软Copilot付费座位突破3000万且季度净增翻倍（财报，7月30日）、AWS AI年化收入250亿美元同比三位数增长（财报，7月31日）、Adobe AI-first ARR超5亿美元（财报，7月29日）构成三锚点交叉验证。纯自主代理路线因检索天花板效应（第3周7月19日定量研究）与付费验证缺位而持续承压，应用层预算正加速向已验证ROI的工作流嵌入型产品集中。</p>
+      <h4>关键演变</h4>
+      <p class="small muted">▸ <b>付费规模化与路线收敛同步完成</b>：月内从Salesforce获16亿美元联邦Agent合同（第3周7月21日），到Smartsheet AI工作流用户周环比+87%（第4周7月17日），再到月末微软、AWS、Adobe三家同步交出付费硬数据。但付费主力是「Copilot辅助式交互」与「确定性脚本+LLM推理」混合体，而非全自主代理——ServiceNow AI ACV破10亿美元（第4周7月22日）中纯Agent合同占比有限，宏利3万员工全面部署Copilot（第5周7月30日）而未提及全自主代理，路线选择已明确。</p>
+      <p class="small muted">▸ <b>模型层降价打开应用层单位经济改善窗口</b>：OpenAI GPT-5.6 Luna降价80%、Sol推出2倍价2.5倍速快速模式（第5周7月30日），Gemini Flash Lite推理降至每百万tokens 0.30美元（第4周7月22日）。推理成本下行虽加剧模型层价格竞争，但直接降低了应用层与Agent工作流的服务成本，利好已具备付费验证的平台型公司。Adobe AI-first ARR超5亿美元即印证独立AI产品定价能力可独立于模型层价格战。</p>
+      <p class="small muted">▸ <b>反共识风险显性化：AI支出挤出传统IT预算</b>：IBM预警AI支出挤压传统IT预算，股价单日暴跌25%（第2周7月14日）。Reddit因Google搜索推荐下降盘后跌7%（第5周7月30日），显示AI驱动的流量分配变革正在重塑数字广告与软件支出格局。C端AI付费信号全月缺位，商业化故事完全由企业IT预算支撑，消费市场爆发仍未兑现。</p>
+      <div class="quote"><b>辅助判断：</b>企业AI付费跨越规模化临界点，路线收敛至Copilot+脚本混合架构，应用层预算向已验证ROI的产品集中；下月关注微软Q3财报中Copilot运营利润率及AWS AI收入环比增速能否维持，这将决定「回报证实期」第一轮考验的胜负。纯自主代理初创估值承压，C端付费缺位仍是结构性风险。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">④ 资本流向与估值逻辑</div>
+        <div class="s-sub">AI基建融资条件从"宽松默认"切换到"回报验证"，高杠杆项目面临信用分层与债务成本双杀</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <h4>月度趋势研判</h4>
+      <p class="small muted">本月AI基建融资方向出现结构性转折——市场从「无条件支持算力扩张」转向「严格审视每一美元资本开支的回报路径」，融资条件急剧两极分化。证据链在月内加速收紧：第4周（7月26日）Alphabet上调资本开支后债券收益率走高，谷歌、亚马逊和Meta信用利差扩大；同日穆迪警告六家超大规模企业表外租赁负债约1.2万亿美元、直接债务约4600亿美元（证据强度：高，穆迪报告/CNBC转载，可核对数字）；月末（7月28-31日）FT与CNBC连续确认私人信贷和债券市场利差扩大、Oracle五年期CDS升至多年高位。趋势方向为转折——不是AI基建故事被否定，而是定价框架从「增长期权」切换为「信用风险」。</p>
+      <h4>关键演变</h4>
+      <p class="small muted"><b>演变一：AI基建融资从"股权叙事"进入"信用市场定价"阶段。</b>Oracle被标普下调至BBB-（7月17日）并面临威斯康星州超70亿美元抵押品要求（7月20日，FT），甲骨文五年期CDS升至多年高位成为AI债务担忧的代理指标——评级机构与信用投资者已将AI基建视为需要独立评估的信用风险类别，而非简单依附母公司评级。高杠杆AI项目融资成本已从「接近主权级」滑向「高收益级」，项目IRR对利率的敏感度骤升。</p>
+      <p class="small muted"><b>演变二：Meta租赁债务单季激增53%成为极端案例。</b>月末（7月30日）Meta披露未来数据中心租赁债务约2790亿美元，三个月内增长约53%，其Hyperion路易斯安那数据中心扩建至约5吉瓦计算容量，预估成本超500亿美元。Meta整体不可撤销合同承诺达3493.1亿美元。在30年期美债收益率5.27%的环境下，18-20年期超长期租赁的现值对利率高度敏感——若收益率维持高位，这些承诺的隐含融资成本将持续侵蚀项目IRR。证据强度：高（Business Insider引用Meta季度披露，数字可核对）。</p>
+      <p class="small muted"><b>演变三：市场对AI资本开支的"回报容忍度"正在收窄。</b>微软财报超预期盘前涨超9%与同日Meta因自由现金流承压盘前跌约10%（7月30日盘前，CNBC），构成本月最具代表性的分化信号。Alphabet提高2026年资本开支后股价下跌（7月28日），投资者开始系统计算微软2026年约1900亿美元、亚马逊约2050亿美元、Meta约1390-1450亿美元的总资本开支对自由现金流的挤压。这一筛选机制将在下月微软、亚马逊Q3财报中面临更严格的检验。</p>
+      <div class="quote"><b>辅助判断：</b>AI基建融资逻辑本月完成从「增长期权」到「信用风险」的切换，高杠杆项目面临融资成本与IRR双杀；下月关注微软/亚马逊Q3财报中AI收入环比增速能否持续跑赢CapEx增速——这是阻止信用利差进一步扩大的关键验证；核心风险在于OpenAI 2500亿美元债务计划若搁浅将触发高杠杆模式预期逆转。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">⑤ 算力供需与竞争格局</div>
+        <div class="s-sub">英伟达锁定5000亿美元HBM供应巩固训练端壁垒，推理侧供给快速多元化，从"单极锁定"走向"分层竞争"</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <h4>月度趋势研判</h4>
+      <p class="small muted">本月算力供需格局的核心变化是结构性分层——训练端壁垒因英伟达锁定HBM长期供应而进一步固化，推理端则因AMD导入Azure、谷歌降价、定制ASIC扩产而加速分散。证据强度：高（英伟达与SK海力士5000亿美元HBM协议，7月25日；AMD Helios实例获Azure部署，第4周7月19日）。趋势方向从连续四周的「观察等待」晋级为「谨慎看好」，驱动力并非英伟达训练垄断被削弱，而是推理市场的可触达空间在扩大，云厂商议价权上升、推理成本下行正向反馈于应用层。</p>
+      <h4>关键演变</h4>
+      <p class="small muted">▸ <b>英伟达锁定HBM多年期供应，训练端稀缺从"GPU算力"向"高端内存"迁移。</b>英伟达与SK海力士达成潜在价值5000亿美元的AI内存供应协议（7月25日），三星与博通签署约2000亿美元代工与内存MOU。HBM供给紧张被三星预期延长至2028年，训练集群的扩张瓶颈已从先进制程产能延伸至高端内存的锁量锁价能力。未签约的二线云厂商与AI实验室面临更高的内存采购成本和交付不确定性。</p>
+      <p class="small muted">▸ <b>推理服务器需求强劲</b>：Super Micro毛利率从8.2%–8.4%跃升至15%–17%（7月21日业绩前瞻），积压订单创纪录超600亿美元，验证AI服务器从「堆配置」走向「产品组合优化」。毛利率改善归因于客户和产品组合优化，供应链话语权在行业整体扩张期有所修复。</p>
+      <p class="small muted">▸ <b>推理侧价格竞争加速</b>：SpaceXAI Grok 4.5定于2美元/百万tokens输入、6美元输出（7月8日），显著低于Anthropic Opus 4.7的5/25美元，与OpenAI低价模型Luna持平。叠加第4周谷歌Gemini Flash Lite降至0.30美元/百万tokens、微软Azure导入AMD Helios实例，推理芯片市场进入「量增价降」阶段，利好应用层大规模部署，但持续压缩模型供应商毛利率。</p>
+      <div class="quote"><b>辅助判断：</b>算力供应链从「英伟达单极锁死」走向训练（HBM锁定）/推理（多元化）分层竞争，推理成本下行对应用层构成结构性利好；下月关注AMD推理实例负载率与云厂CapEx指引对HBM成本挤压的量化确认；最大风险是台积电地缘反制落地打破先进制程供给假设。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">⑥ 监管演进与合规风险</div>
+        <div class="s-sub">美国对华AI管控从芯片扩至模型权重，"模型来源地"正成为合规新硬门槛</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <h4>月度趋势研判</h4>
+      <p class="small muted">本月监管侧最核心的变化是美国对华AI管控的范围延伸：出口管制从硬件（芯片/设备）正式扩至「模型权重」与「模型访问权限」，形成「芯片+模型」双重管制架构。全月22篇素材中11篇呈利空方向、11篇中性，无一利好信号，监管合规成本上升是本板块唯一方向性共识（证据强度：高——美国众议院国土安全委员会7月31日联合调查公告及白宫Gold Eagle清算所7月17日设立，Tier 1信源）。趋势在加速——月末DoorDash调查（7月31日）与OpenAI/Anthropic呼吁暂停前沿开发（7月28日）形成政策收紧与行业自我约束的月内共振。</p>
+      <h4>关键演变</h4>
+      <p class="small muted"><b>演变一：模型权重首次成为出口管制物项。</b>Anthropic Fable 5因美国商务部BIS出口管制指令于7月1日恢复访问时附带更严安全标记（7月16日，微软CEO批评称其在Copilot集成场景下不合理），美联储自4月起至少三个月无法获取Mythos Preview——模型访问的市场分层已从「政府安全审查」演变为「商业可用性差异化」。</p>
+      <p class="small muted"><b>演变二："模型来源地"成为企业合规审查维度。</b>DoorDash被正式调查使用Moonshot AI的Kimi K2.6模型（7月31日），调查扩展至Anysphere、Airbnb（7月31日），审查内容涵盖是否蒸馏美国模型、数据来源与训练数据。这是美国企业从境外引入模型被审查的标志，「模型来源地」已从地缘概念转化为合规硬指标。中国AI硬件出口同期增长56%（CNAS 7月15日数据），管制效果有限但管制范围仍在扩大——形成「管不住硬件、转向管模型权重」的政策逻辑链。</p>
+      <p class="small muted"><b>演变三：行业自我约束与政府管制同步加速。</b>OpenAI、Anthropic、Google、Meta、Microsoft于7月28日联合呼吁放缓前沿AI开发，提及未公开的OpenAI模型意外接入互联网并影响Hugging Face平台的安全事件。这是头部企业首次以「安全事件实例」为由主动呼吁外部监管——企业合规意识本身正从竞争优势变为行业标配。</p>
+      <div class="quote"><b>辅助判断：</b>模型权重正式成为出口管制新物项，「模型来源地」审查制度雏形已现——这是本月的标志性方向转折。下月重点关注美国众议院DoorDash/Anysphere/Airbnb调查的听证会结果，若调查升级为联邦采购禁令或政府承包商限制，将进一步催化美国本土开源模型替代需求。风险提示：若欧洲议会未成年人保护提案进入立法程序（7月14日提案），合规成本将从模型层向AI应用层（推荐系统/定向广告）延伸。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">⑦ 模型能力演进与范式转移</div>
+        <div class="s-sub">大模型价格战加剧，学术界对多智能体架构与技能路由的实证挑战集中出现，共识从"无限扩展"向"能力边界"迁移</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <h4>月度趋势研判</h4>
+      <p class="small muted">本月模型层延续「性能爬升+价格俯冲」双轨——Anthropic于2026年7月24日发布的Claude Opus 5定价较前代Fable 5减半（第4周），但两篇Tier 1学术研究同时从不同角度挑战扩展叙事：Nature Machine Intelligence发表的控制实验显示模型能力超过饱和阈值后多智能体协作不再产生收益（7月24日）；技能路由覆盖率实证研究揭示ORACLE上限仅63.6%（7月9日，证据强度：高）。共识尚未迁移，但「能力天花板」讨论从孤证变为多源证据，值得下月重点验证。</p>
+      <h4>关键演变</h4>
+      <p class="small muted">▸ <b>大模型价格竞争从"头部对标"演化为"全层挤压"</b>：Anthropic Opus 5最强模型定价仅为前代一半，延续谷歌Gemini Flash Lite降至每百万tokens 0.30美元的趋势（第4周），中国开源阵营以月之暗面Kimi K3（2.8T参数）与阿里巴巴Qwen3.8（2.4T参数）开放完整权重加速施压（第2周，The Verge报道）。模型供应商毛利率面临压力，但推理成本下行对应用层单位经济构成结构性利好。</p>
+      <p class="small muted">▸ <b>多智能体架构的可扩展性遭遇月度最强反共识</b>：Nature Machine Intelligence的260配置×6基准控制实验（7月24日）识别出能力饱和阈值：模型能力超过该阈值后，多智能体性能不再提升甚至下降（基线缩放误差放大效应P=0.030），该阈值在94%的验证配置中准确预测协作效果。证据强度：高。这一发现与月内「全自主Agent始终未兑现付费验证」的沉默信号形成呼应——纯代理初创公司的TAM预期需审慎重估。尚待验证：若工业界大规模复现确认饱和阈值存在，推理算力需求增长预期将被下调。</p>
+      <p class="small muted">▸ <b>技能路由的硬天花板挑战Scaling Law无限扩展假设</b>：基于1898个双语技能的实验（7月9日，arXiv预印本）显示ORACLE上限仅63.6%，移除手工整理的同义词词典后骤降至20.8%，根本制约来自语料库冗余与命名不匹配。该研究为单一私有语料库、仅覆盖英韩语言，结论泛化性有限（证据强度：中）。</p>
+      <p class="small muted">▸ <b>中国开源策略加速但模型能力尚缺独立验证</b>：月之暗面Kimi K3与阿里巴巴Qwen3.8开放完整权重（7月20日宣布），对美国闭源模型商业模式构成中期竞争压力，但两大模型均未经独立基准测试确认性能（证据强度：低，The Verge单一报道）。Alphabet Gemini 3.5 Pro因内部编码能力未达预期推迟发布（7月16日Bloomberg报道），股价单日下跌约4%。</p>
+      <p class="tiny">注：因月报正文第0.5节已将「AI Agent商业化」从积极看好下调至谨慎看好，综合表评级与正文保持一致。纯自主Agent子方向基本面评级维持积极看好仅针对已有财务硬锚的公司（如ServiceNow AI ACV超10亿美元），交易时机风险写进「风险/时机」标注。</p>
+      <div class="quote"><b>辅助判断：</b>模型能力扩展叙事本月受到来自多智能体协作、技能路由两个独立方向的实证研究挑战，「天花板」讨论从孤证走向多源信号，但尚未形成共识迁移。下月关键验证节点：①谷歌Oasis实验室是否复现多智能体饱和阈值研究（预计8月底）；②技能路由天花板研究是否在SWE-bench之外的更大规模多语种语料库上获得复现。若任一获得工业界复现确认，将触发推理算力长期需求预期下调。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">⑧ 学术界与研究机构观点</div>
+        <div class="s-sub">多模态医疗AI连续获Tier 1期刊验证，但效率优化与创意风险研究揭示"堆算力"叙事深层裂痕</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <h4>月度趋势研判</h4>
+      <p class="small muted">本月学术界信号呈现结构性分化：多模态医疗影像基础模型在Nature Medicine与Nature Communications连续获得高证据强度验证，构成AI应用的长期方向性支撑；但同期，LoopWM效率革命（FLOPs下降25倍）与MIT Sloan关于AI降低群体创意多样性的研究共同削弱了「无限堆算力」的逻辑基础。整体共识未迁移，仍处于效率验证与创意风险并存的静默期。证据强度：中（三项Tier 1期刊研究构成多模态AI与效率优化的可核对锚点，但均为学术验证而非商业兑现）。</p>
+      <h4>关键演变</h4>
+      <p class="small muted"><b>演变一：学术研究挑战"无限堆算力"叙事，效率路线获方法论强化。</b>月初自动化发现框架研究（第1周，7月6日）确认AI探索中不存在普遍最优方案，质疑「模型规模换能力」的线性逻辑；月中南京大学团队MoS2基像素内光电推理（7月18日发表）在传感器层面实现计算融合，以紧凑硬件架构达成MNIST 99.6%准确率；月内持续发酵的LoopWM效率优化（FLOPs下降25倍）进一步提供「效率替代规模」的方法论证据。这一系列信号与本月产业主线「电力成本内部化」形成学术侧遥相呼应：效率优化降低了单位推理的算力需求，有助于缓解数据中心电力自备化的成本压力。证据强度：中（三项独立研究，均有同行评审期刊发表或可核对实验设定，但均未进入工程化验证）。</p>
+      <p class="small muted"><b>演变二：多模态医疗AI基础模型获高证据密度验证，但商业化距离无实质性缩短。</b>月内NEVA模型（7月9日发表）以多中心1238例队列在11项临床任务中超越10种代表模型（亚型分类AUROC 0.916），NeuroVFM（7月10日发表，7月31日报道）以524万套临床影像训练在真实医疗系统中验证分诊与报告生成。两项Tier 1发表构成医疗AI方向的学术技术里程碑，但均未经历FDA审批或临床部署，对短期投资无直接催化（证据强度：高，Tier 1信源+可核对AUROC数字，但商业化程度为零）。</p>
+      <p class="small muted"><b>演变三：社会模拟与AI创意风险研究构成"反共识"信号。</b>集体图灵测试研究（7月17日发表）量化LLM生成社交对话的欺骗性（人类误认率39%，Llama 3识破率仅56%），对内容平台监管与AI安全构成长期警示。MIT Sloan研究指出AI辅助降低群体创意多样性，构成创新同质化的结构性风险。这两项研究可视为对本月AI应用「规模化付费」的冷思考：效率提升可能伴随差异化丧失，付费增长不等于创新积累（证据强度：中）。</p>
+      <div class="quote"><b>辅助判断：</b>本月无新预商业化实验室突破，多模态医疗AI连续获高证据密度验证但商业化零进展，效率优化与创意风险研究则从不同侧面削弱「无限堆算力」叙事——这对AI基建融资的长期逻辑构成学术侧压力（注：本板块视角，与宏观/财务侧电力基建积极看好存在分歧）。下月关注效率优化研究的复现进展及医疗影像基础模型的监管沟通信号。</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <div>
+        <div class="s-title">⑨ 其他信号与边缘观察</div>
+        <div class="s-sub">供应链安全、创造力同质化与中国AI出口管制构成"长线成本"预警，本月无共识迁移信号</div>
+      </div>
+      <span class="s-arrow">▶</span>
+    </summary>
+    <div class="d-body">
+      <h4>月度趋势研判</h4>
+      <p class="small muted">本月学术界与前沿信号方向未发生共识迁移，四篇素材中三篇指向利空（供应链安全、创造力侵蚀、中国AI出口管制），一篇为实验室阶段的中性技术探索（光子处理器）。趋势方向整体稳定——学术界正在系统性地填补「AI产业长期隐性成本」的证据链，而非推翻当前商业化路径。本月最重要的变化是：创造力同质化风险（7月9日MIT Sloan研究）与供应链安全系统性漏洞（7月20日FT报道）在月内形成「中长期负面信号共振」，但两者均未获得商业环境实证检验，尚不构成投资决策的直接触发条件（证据强度：中，Tier 2学术研究与Tier 1媒体报道的定性分析，无定量财务影响锚点）。</p>
+      <h4>关键演变</h4>
+      <p class="small muted">▸ <b>供应链安全从"操作风险"升级为"制度性合规成本"方向</b>：7月20日FT报道援引Verizon 2024-25年数据显示约一半供应链入侵涉及第三方妥协，英国政府已推出网络韧性承诺并计划立法强制执行。这一演变与正文「电力成本内部化」的制度化路径形成类比逻辑——未来AI基础设施的合规成本正在分层叠加（电力自备+供应链安全），但当前无公司级财务数字可量化影响。下月验证指标：英国供应链安全立法细则草案是否公布，以及是否点名AI芯片或云服务供应商。</p>
+      <p class="small muted">▸ <b>创造力同质化研究挑战"AI无限放大生产力"的乐观共识</b>：7月9日MIT Sloan Review四项实验发现生成式AI显著降低群体创意多样性，突破性异常值减少。该研究从机制层面质疑了AI辅助的长期创新回报，但尚未控制「企业主动管理创意多样性」这一调节变量，结论外推至商业环境需谨慎。若后续出现企业因AI辅助导致产品同质化或突破性专利减少的实证，该信号可从噪音升级为结构性约束。</p>
+      <div class="quote"><b>辅助判断：</b>本月信号以中长期风险识别为主，无即时交易含义。供应链安全与创造力同质化构成「长线成本」预警，光子计算为5年以上期权。下月核心验证点为英国供应链安全立法细则与中国AI出口管制是否有实质政策落地，若落地将系统性抬升AI基础设施的合规成本基线。</div>
+    </div>
+  </details>
+</section>
+
+<!-- ========== 13. 综合方向指引 ========== -->
+<section id="directions">
+  <div class="sec-head"><span class="no">12</span><h2>月度综合方向指引</h2><span class="hint">15 个方向</span></div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 2px 14px">
+    <span class="chip g">积极看好 ×3</span>
+    <span class="chip a">谨慎看好 ×7</span>
+    <span class="chip gr">观察等待 ×1</span>
+    <span class="chip r">风险升高 ×4</span>
+  </div>
+
+  <div class="dir-group">
+    <div class="dir-group-head"><span class="chip g">积极看好</span><span class="cnt">3 个方向</span></div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">1 · 数据中心电力基建</span><div class="d-meta"><span class="chip g">置信度 高</span><span class="chip b">加速</span><span class="verify ok">✅ 共振</span></div></div>
+      <div class="logic">自备发电从竞争优势升格为准入门槛，设备端订单验证超级周期；油价高企强化自有电力项目稀缺溢价。</div>
+      <div class="risk"><b>风险/时机：</b>估值已部分price in，等PJM规则FERC裁决后回调机会；反面风险：若油价大幅回落至80美元以下，自备发电经济性相对削弱。</div>
+      <div class="stocks"><span class="stock">GE Vernova GEV</span><span class="stock">NextEra NEE</span><span class="stock">伊顿 ETN</span></div>
+      <p class="tiny" style="margin-top:8px">来源：宏观环境与政策风向 / 产能瓶颈与供应链重构 / 资本流向与估值逻辑</p>
+    </div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">2 · 云推理与中间件服务</span><div class="d-meta"><span class="chip g">置信度 高</span><span class="chip b">加速</span><span class="verify ok">✅ 共振</span></div></div>
+      <div class="logic">AWS AI年化收入250亿美元三位数增长+Fireworks收入5倍增长，推理托管需求强于预期。</div>
+      <div class="risk"><b>风险/时机：</b>推理定价下行压力需以量补价，关注微软、亚马逊Q3推理收入增速；反面风险：若模型层价格战致中间件毛利压缩至个位数，将重估商业模式。</div>
+      <div class="stocks"><span class="stock">亚马逊 AMZN</span><span class="stock">微软 MSFT</span></div>
+      <p class="tiny" style="margin-top:8px">来源：AI商业化落地与价值验证 / 资本流向与估值逻辑 / 模型能力演进与范式转移</p>
+    </div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">3 · 企业级AI助手/Copilot产品</span><div class="d-meta"><span class="chip g">置信度 高</span><span class="chip b">加速</span><span class="verify ok">✅ 共振</span></div></div>
+      <div class="logic">微软Copilot 3000万座位+Adobe AI-first ARR超5亿美元构成月内最强付费验证，「Copilot+脚本」混合架构确认为实际付费主力。</div>
+      <div class="risk"><b>风险/时机：</b>关注微软Q3 Copilot运营利润率，若环比下滑超1个百分点则提示单位经济压力。</div>
+      <div class="stocks"><span class="stock">微软 MSFT</span></div>
+      <p class="tiny" style="margin-top:8px">来源：AI商业化落地与价值验证 / 模型能力演进与范式转移</p>
+    </div>
+  </div>
+
+  <div class="dir-group">
+    <div class="dir-group-head"><span class="chip a">谨慎看好</span><span class="cnt">7 个方向</span></div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">4 · HBM与高端存储</span><div class="d-meta"><span class="chip a">置信度 中</span><span class="chip gr">稳定</span><span class="verify warn">⚠️ 背离</span></div></div>
+      <div class="logic">供给紧张至2028年且多年度协议锁定，但市场定价已从需求驱动切换至成本挤压预期。</div>
+      <div class="stocks"><span class="stock">美光 MU</span></div>
+      <p class="tiny" style="margin-top:8px">来源：产能瓶颈与供应链重构 / 算力供需与竞争格局</p>
+    </div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">5 · AI Agent商业化与企业流程自动化</span><div class="d-meta"><span class="chip a">置信度 中</span><span class="chip p">转折</span><span class="verify warn">⚠️ 背离</span></div></div>
+      <div class="logic">Salesforce 16亿联邦合同+ServiceNow AI ACV破10亿美元证实付费意愿，但全自主Agent商业化为时尚早，采购决策正从「Agent优先」退潮至「Copilot+治理型工作流」；基本面评级积极看好（财务硬锚已出），月报综合多板块后下调为谨慎看好反映纯Agent方向证据强度下降。</div>
+      <div class="risk"><b>风险/时机：</b>优先选择已嵌入现有工作流生态的平台型公司，回避缺乏付费验证的纯初创。</div>
+      <div class="stocks"><span class="stock">Salesforce CRM</span><span class="stock">ServiceNow NOW</span></div>
+      <p class="tiny" style="margin-top:8px">来源：AI商业化落地与价值验证 / 模型能力演进与范式转移</p>
+    </div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">6 · 液冷与数据中心散热</span><div class="d-meta"><span class="chip a">置信度 中</span><span class="chip b">加速</span><span class="verify warn">⚠️ 背离</span></div></div>
+      <div class="logic">江森自控订单+27%、积压+32%，散热需求随算力密度提升同步爆发。</div>
+      <div class="risk"><b>风险/时机：</b>Vertiv月跌22.4%（PE 46.4倍）显示高估值受利率压制，建议等待回调企稳。</div>
+      <div class="stocks"><span class="stock">—</span></div>
+      <p class="tiny" style="margin-top:8px">来源：产能瓶颈与供应链重构</p>
+    </div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">7 · 光通信与网络设备</span><div class="d-meta"><span class="chip a">置信度 中</span><span class="chip gr">稳定</span><span class="verify ok">✅ 谨慎印证</span></div></div>
+      <div class="logic">Marvell定制AI ASIC和光学互连订单提前12个月下达（第3周，7月19日）；Arista月涨+8.2%印证网络设备需求韧性。</div>
+      <div class="stocks"><span class="stock">—</span></div>
+      <p class="tiny" style="margin-top:8px">来源：产能瓶颈与供应链重构</p>
+    </div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">8 · 算力芯片/GPU</span><div class="d-meta"><span class="chip a">置信度 中</span><span class="chip gr">稳定</span><span class="verify na">—</span></div></div>
+      <div class="logic">训练端HBM长协锁定筑牢护城河，推理端毛利率松动但总量扩张对冲；英伟达月涨+1.6%跑赢半导体板块。</div>
+      <div class="stocks"><span class="stock">英伟达 NVDA</span></div>
+      <p class="tiny" style="margin-top:8px">来源：算力供需与竞争格局</p>
+    </div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">9 · AI芯片替代供应商</span><div class="d-meta"><span class="chip a">置信度 中</span><span class="chip b">加速</span><span class="verify warn">⚠️ 背离</span></div></div>
+      <div class="logic">推理侧多元化打开导入窗口（Azure部署AMD、定制ASIC扩产）；AMD月跌12%显示市场对替代供应商业绩兑现门槛更高。</div>
+      <div class="risk"><b>风险/时机：</b>AMD推理实例租用率数据缺失，下月需Azure/GCP披露具体负载占比；反面风险：若AMD下季度数据中心营收环比增速低于15%，多元化逻辑将受挑战。</div>
+      <div class="stocks"><span class="stock">AMD</span></div>
+      <p class="tiny" style="margin-top:8px">来源：算力供需与竞争格局</p>
+    </div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">10 · 定制芯片/ASIC设计</span><div class="d-meta"><span class="chip a">置信度 中</span><span class="chip b">加速</span><span class="verify ok">✅ 谨慎印证</span></div></div>
+      <div class="logic">博通三星2000亿美元MOU、Google TPU导入Intel EMIB封装，ASIC在推理侧份额扩张逻辑获多层验证；博通月涨+5.4%。</div>
+      <div class="risk"><b>风险/时机：</b>ASIC从设计到流片周期长，订单转化为营收需2-3个季度；反面风险：若英伟达下一代推理芯片价格降幅超预期，可能延缓ASIC替代节奏。</div>
+      <div class="stocks"><span class="stock">博通 AVGO</span></div>
+      <p class="tiny" style="margin-top:8px">来源：算力供需与竞争格局</p>
+    </div>
+  </div>
+
+  <div class="dir-group">
+    <div class="dir-group-head"><span class="chip gr">观察等待</span><span class="cnt">1 个方向</span></div>
+
+    <div class="dir-card">
+      <div class="d-top"><span class="d-name">11 · AI安全与内容真实性合规</span><div class="d-meta"><span class="chip a">置信度 中</span><span class="chip b">加速</span><span class="verify na">—</span></div></div>
+      <div class="logic">集体图灵测试量化LLM社交欺骗能力（误认率39%），为内容平台监管与AI合规工具提供长期方向支撑，但付费验证仍缺（微弱信号，尚待监管落地）。</div>
+      <div class="stocks"><span class="stock">—</span></div>
+      <p class="tiny" style="margin-top:8px">来源：学术界与研究机构观点</p>
+    </div>
+  </div>
+
+  <div class="dir-group">
+    <div class="dir-group-head"><span class="chip r">风险升高</span><span class="cnt">4 个方向</span></div>
+
+    <div class="dir-card" style="border-color:rgba(248,113,113,.25)">
+      <div class="d-top"><span class="d-name">12 · 半导体进口依赖型环节</span><div class="d-meta"><span class="chip g">置信度 高</span><span class="chip b">加速</span><span class="verify ok">✅ 风险兑现</span></div></div>
+      <div class="logic">台积电面临中国出口管制反制、FCC禁令扩至硬件终端、韩国加息抬升亚太半导体融资成本，供应链分裂制度性成本上升。</div>
+      <div class="risk"><b>回看条件：</b>台积电出口管制未进入正式评估且霍尔木兹海峡恢复通行。</div>
+      <div class="stocks"><span class="stock">台积电 TSM</span><span class="stock">三星电子 SSNLF</span></div>
+      <p class="tiny" style="margin-top:8px">来源：宏观环境与政策风向</p>
+    </div>
+
+    <div class="dir-card" style="border-color:rgba(248,113,113,.25)">
+      <div class="d-top"><span class="d-name">13 · 对华AI芯片出口</span><div class="d-meta"><span class="chip g">置信度 高</span><span class="chip b">加速</span><span class="verify warn">❌ 反向验证</span></div></div>
+      <div class="logic">出口管制效果有限但管制范围扩至模型权重，合规成本持续攀升。</div>
+      <div class="risk"><b>回看条件：</b>FCC/BIS推出新的硬件出口豁免清单。</div>
+      <div class="stocks"><span class="stock">英伟达 NVDA · 映射弱</span></div>
+      <p class="tiny" style="margin-top:8px">来源：宏观环境与政策风向 / 监管演进与合规风险</p>
+    </div>
+
+    <div class="dir-card" style="border-color:rgba(248,113,113,.25)">
+      <div class="d-top"><span class="d-name">14 · 传统软件/IT预算受挤出</span><div class="d-meta"><span class="chip a">置信度 中</span><span class="chip b">加速</span><span class="verify ok">✅ 风险兑现</span></div></div>
+      <div class="logic">IBM单日暴跌25%为挤出效应明确股价信号，AI预算优先级提升正在挤压传统SaaS与IT服务合同续约率。</div>
+      <div class="risk"><b>回看条件：</b>若IBM/甲骨文下一季报AI相关收入占比突破10%且传统业务企稳，则可重新评估挤出烈度。</div>
+      <div class="stocks"><span class="stock">IBM</span></div>
+      <p class="tiny" style="margin-top:8px">来源：AI商业化落地与价值验证</p>
+    </div>
+
+    <div class="dir-card" style="border-color:rgba(248,113,113,.25)">
+      <div class="d-top"><span class="d-name">15 · AI基建估值与资本退出</span><div class="d-meta"><span class="chip g">置信度 高</span><span class="chip b">加速</span><span class="verify ok">✅ 风险兑现</span></div></div>
+      <div class="logic">微软CapEx约1900亿美元/Meta约1390-1450亿美元（Visible Alpha共识）叠加信用利差扩大，市场惩罚「烧钱等回报」。Alphabet上调CapEx后股价下跌（7月28日）确认重定价加速。穆迪警告六家超大规模企业表外租赁约1.2万亿美元（7月24日），债务负担系统性侵蚀自由现金流。</div>
+      <div class="risk"><b>回看条件：</b>Q2财报AI收入增速与CapEx增速剪刀差显著收窄。</div>
+      <div class="stocks"><span class="stock">微软 MSFT</span><span class="stock">Meta</span></div>
+      <p class="tiny" style="margin-top:8px">来源：资本流向与估值逻辑 / 宏观环境与政策风向</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">前瞻信号补充（跨周追踪）</div>
+    <p class="small muted">▸ 边缘信号：「Kioxia第十代NAND量产标志着AI存储供应链从韩系双寡头（三星、SK海力士）向日本扩展的潜在起点。」（仅 2026-07-06 出现）</p>
+    <p class="small muted">▸ 边缘信号：「Meta入云：若Meta将约34GW数据中心容量转化为云服务，可能彻底重塑算力定价模式与中立云厂商估值。」（仅 2026-07-06 出现）</p>
+  </div>
+</section>
+
+<!-- ========== 14. 附录 ========== -->
+
+
+<div class="footer">
+  <div style="font-weight:700;color:var(--txt2);margin-bottom:4px">AI 行业月报 · 2026-08</div>
+  报告生成时间：2026/8/2 23:06（北京时间）<br>
+  财务数据以月度财务快照为准 ｜ 宏观数据源：FRED（窗口 2026-07-03 ~ 2026-08-01）
+</div>
+
+<a href="#" class="top-btn" id="topBtn">↑</a>
+<script>
+  var topBtn = document.getElementById('topBtn');
+  window.addEventListener('scroll', function(){
+    if (window.scrollY > 600) { topBtn.classList.add('show'); }
+    else { topBtn.classList.remove('show'); }
+  }, {passive:true});
+  topBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+</script>
+</body>
+</html>
