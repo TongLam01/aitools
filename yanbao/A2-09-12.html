@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A+版AI周报 · 2026-09-12</title>
+<style>
+:root{
+  --green:#07C160;--green-dark:#059048;--green-50:#EBF8F1;--green-100:#D5F1E2;
+  --blue:#2563EB;--blue-50:#F2F7FF;--blue-100:#DCE9FF;
+  --amber:#B45309;--amber-50:#FFF6E8;--amber-100:#FDE9C8;
+  --red:#DC2626;--red-50:#FEF1F1;--red-100:#FBDADA;
+  --bg:#F3F5F8;--card:#FFFFFF;
+  --text:#1B2333;--text2:#57606F;--text3:#98A1AF;
+  --line:#E8ECF2;--line2:#DDE3EB;
+  --r-lg:16px;--r-md:12px;--r-sm:9px;
+  --shadow:0 1px 2px rgba(23,32,54,.04),0 6px 20px rgba(23,32,54,.05);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;text-align:justify;-webkit-font-smoothing:antialiased;padding-bottom:56px}
+.container{max-width:640px;margin:0 auto;padding:14px 14px 0}
+strong{font-weight:700;color:var(--text)}
+
+/* ===== 页头 ===== */
+.header{position:relative;overflow:hidden;background:linear-gradient(140deg,#0CC569 0%,#06A452 55%,#048A46 100%);color:#fff;border-radius:20px;padding:26px 20px 30px}
+.header::before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.10);top:-90px;right:-60px}
+.header::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.07);bottom:-70px;left:-40px}
+.header .kicker{position:relative;font-size:11.5px;letter-spacing:.22em;opacity:.9;font-weight:700;margin-bottom:8px}
+.header h1{position:relative;font-size:21px;font-weight:800;line-height:1.55;letter-spacing:.2px;margin-bottom:8px}
+.header .h-sub{position:relative;font-size:13.5px;opacity:.92;line-height:1.65}
+.header .meta-row{position:relative;display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}
+.header .meta-item{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:3px 11px;font-size:11.5px;font-weight:600}
+
+/* ===== 区块通用 ===== */
+.section{background:var(--card);border-radius:var(--r-lg);padding:20px 16px 18px;margin-bottom:18px;box-shadow:var(--shadow);scroll-margin-top:14px}
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:15px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.sec-no{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;font-size:13px;font-weight:800;flex-shrink:0}
+.sec-title{font-size:17px;font-weight:800;letter-spacing:.3px;text-align:left;flex:1}
+.p-lead{font-size:15.5px;color:var(--text2);line-height:1.85}
+.muted-note{margin-top:10px;font-size:13px;color:var(--text3);line-height:1.7;background:#F8F9FB;border-radius:var(--r-sm);padding:10px 12px}
+
+/* ===== 01 核心研判 ===== */
+.conclusion-card{background:linear-gradient(160deg,var(--green-50),#F5FCF8);border:1px solid var(--green-100);border-radius:var(--r-md);padding:15px 15px 13px;margin-bottom:13px;font-size:16px;line-height:1.85;color:var(--text2)}
+.conclusion-card .label{display:inline-block;background:var(--green);color:#fff;font-size:11px;font-weight:700;padding:3px 11px;border-radius:6px;margin-bottom:9px;letter-spacing:.5px}
+.conclusion-card b{color:var(--text)}
+.ev-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.ev-chip{font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#F7F9FB;border:1px solid var(--line);color:var(--text2)}
+.ev-chip b{color:var(--green-dark)}
+
+/* ===== 02 方向与代表标的 ===== */
+.dir-group{border-radius:14px;overflow:hidden;margin-bottom:12px;border:1px solid var(--line)}
+.dir-group:last-child{margin-bottom:0}
+.dir-group-title{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:800;padding:11px 14px}
+.dir-count{margin-left:auto;font-size:11px;font-weight:700;background:rgba(255,255,255,.65);padding:2px 9px;border-radius:999px;white-space:nowrap}
+.dg-bull{border-color:var(--green-100)}.dg-bull .dir-group-title{background:var(--green-100);color:#0B7A43}
+.dg-cautious{border-color:var(--amber-100)}.dg-cautious .dir-group-title{background:var(--amber-100);color:#9A4A08}
+.dg-wait{border-color:var(--line2)}.dg-wait .dir-group-title{background:#EDF0F4;color:var(--text2)}
+.dg-risk{border-color:var(--red-100)}.dg-risk .dir-group-title{background:var(--red-100);color:#B42318}
+.dir-card{padding:13px 14px;border-top:1px solid var(--line);background:var(--card)}
+.dg-bull .dir-card{background:#FBFEFC}.dg-cautious .dir-card{background:#FFFDF9}
+.dg-risk .dir-card{background:#FFFDFD}.dg-wait .dir-card{background:#FCFDFE}
+.dir-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+.dir-name{font-size:15.5px;font-weight:800;text-align:left}
+.dir-star{color:var(--amber);font-size:13px}
+.stance-pill{font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:5px;white-space:nowrap}
+.pill-bull{background:var(--green-100);color:var(--green-dark)}
+.pill-cautious{background:var(--amber-100);color:#9A4A08}
+.pill-wait{background:#EDF0F4;color:var(--text2)}
+.pill-risk{background:var(--red-100);color:#B42318}
+.conf-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:#F2F4F7;color:var(--text2);white-space:nowrap}
+.conf-up{background:var(--green-50);color:var(--green-dark);border:1px solid var(--green-100)}
+.conf-warn{background:var(--amber-50);color:var(--amber);border:1px solid var(--amber-100)}
+.dir-logic{font-size:14.5px;color:var(--text2);line-height:1.8}
+.dir-stock{font-size:14.5px;color:var(--text2);line-height:1.8;background:#F7F9FB;border-radius:var(--r-sm);padding:9px 11px;margin-top:7px}
+.dir-stock b{color:var(--text)}
+.dir-stock .dk{font-size:11.5px;font-weight:800;color:var(--text3);display:block;margin-bottom:3px}
+
+/* ===== 03 跨期对比 ===== */
+.trend-row{display:flex;gap:9px;padding:11px 0;border-bottom:1px dashed var(--line);font-size:14.5px;color:var(--text2);line-height:1.8}
+.trend-row:last-child{border-bottom:none;padding-bottom:2px}
+.trend-row:first-child{padding-top:2px}
+.trend-ico{flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:3px}
+.ti-up{background:var(--green);color:#fff}
+.ti-same{background:#EDF0F4;color:#9AA3B0}
+.ti-warn{background:var(--amber-100);color:var(--amber)}
+.trend-row b{color:var(--text)}
+
+/* ===== 04 板块深度拆解（视觉三层上限） ===== */
+.sec-plain{background:transparent;box-shadow:none;border-radius:0;padding:0;margin-bottom:18px}
+.sec-plain>.sec-head{background:var(--card);border-radius:var(--r-lg);padding:16px 16px 14px;margin-bottom:16px;box-shadow:var(--shadow);border-bottom:none}
+
+/* 板块卡：独立白卡 + 左侧立场色条 + 轻量卡头 */
+.bk-card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);border:1px solid var(--line);border-left:3px solid var(--green);overflow:hidden;margin-bottom:16px}
+.bk-card.bk-cautious{border-left-color:var(--amber)}
+.bk-card.bk-risk{border-left-color:var(--red)}
+.bk-head{padding:13px 15px 11px;border-bottom:1px solid var(--line)}
+.bk-top{display:flex;align-items:flex-start;gap:8px}
+.bk-no{flex-shrink:0;font-size:12.5px;font-weight:800;color:var(--green-dark);padding-top:3px;letter-spacing:.3px}
+.bk-cautious .bk-no{color:var(--amber)}
+.bk-risk .bk-no{color:#B42318}
+.bk-name{flex:1;min-width:0;font-size:16.5px;font-weight:800;line-height:1.45;color:var(--text)}
+.bk-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.bk-body{padding:14px 15px 15px}
+
+/* 段内轻量标签（替代虚线分区，减卡片感） */
+.lbl{font-size:12.5px;font-weight:800;color:var(--text3);letter-spacing:.3px;margin:15px 0 8px}
+.lbl:first-child{margin-top:0}
+
+/* 折叠区（渐进式呈现：内容收起不删） */
+details.fold{margin-top:13px;border:1px solid var(--line);border-radius:var(--r-md);background:#FAFBFC}
+details.fold>summary{cursor:pointer;list-style:none;padding:10px 13px;font-size:13px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:7px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"▸";color:var(--text3);font-size:11px}
+details.fold[open]>summary::before{content:"▾"}
+details.fold>summary::after{content:"点击展开";margin-left:auto;font-size:11.5px;color:var(--text3);font-weight:600}
+details.fold[open]>summary::after{content:"收起"}
+.fold-body{padding:0 13px 13px;font-size:14px;color:var(--text2);line-height:1.8}
+.fold-body .fl-t{font-size:11.5px;font-weight:800;color:var(--text3);margin:11px 0 5px;display:block}
+.fold-body .fl-t:first-child{margin-top:0}
+
+/* 要点列表（正文级） */
+.pt-list{display:flex;flex-direction:column;gap:8px}
+.pt{display:flex;gap:8px;font-size:15px;line-height:1.8;color:var(--text2);text-align:left}
+.pt::before{content:"";flex-shrink:0;width:5px;height:5px;border-radius:50%;background:var(--green);margin-top:10px}
+.pt.neg::before{background:var(--red)}
+.pt.warn::before{background:var(--amber)}
+.pt.gray::before{background:#C3CBD5}
+.pt b{color:var(--text)}
+.pt .k{color:var(--text3);font-weight:700}
+
+/* 30 秒速览层 */
+.tldr{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:15px 16px;margin-bottom:18px}
+.tldr-h{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:800;margin-bottom:10px}
+.tldr-h .badge{background:var(--green);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:5px;letter-spacing:.3px}
+.tldr-row{display:flex;gap:11px;padding:9px 0;border-top:1px solid var(--line)}
+.tldr-k{flex-shrink:0;width:88px;font-size:13px;font-weight:800;color:var(--text2);line-height:1.7}
+.tldr-v{flex:1;min-width:0;font-size:14.5px;color:var(--text2);line-height:1.78}
+.tldr-v b{color:var(--text)}
+
+/* 兼容保留 */
+.judge-card{background:linear-gradient(160deg,var(--green-50),#F5FCF8);border:1px solid var(--green-100);border-radius:var(--r-md);padding:12px 14px;margin-bottom:12px;font-size:15.5px;line-height:1.85;color:var(--text2)}
+.judge-card .jt{display:inline-block;background:var(--green);color:#fff;font-size:11px;font-weight:700;padding:3px 11px;border-radius:6px;margin-bottom:8px;letter-spacing:.4px}
+.judge-card b{color:var(--text)}
+.ev-block{font-size:15.5px;color:var(--text2);line-height:1.85}
+.ev-block b{color:var(--text)}
+
+/* 指标格 */
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:11px 0}
+.kv-item{background:#F7F9FB;border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0}
+.kv-item.wide{grid-column:1/-1}
+.kv-label{font-size:12.5px;color:var(--text3);margin-bottom:3px;line-height:1.45}
+.kv-value{font-size:16px;font-weight:800;color:var(--text);line-height:1.35;word-break:break-word}
+.kv-value.pos{color:var(--green-dark)}.kv-value.neg{color:var(--red)}.kv-value.amber{color:var(--amber)}
+.kv-note{font-size:11.5px;color:var(--text3);margin-top:3px;line-height:1.55}
+
+/* 均线偏离双向条 */
+.dev-wrap{margin:11px 0}
+.dev-title{font-size:12.5px;font-weight:800;color:var(--text3);margin-bottom:7px}
+.dev-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.dev-row:last-child{margin-bottom:0}
+.dev-label{flex-shrink:0;width:80px;font-size:12.5px;color:var(--text2)}
+.dev-track{flex:1;height:12px;background:#F2F4F7;border-radius:6px;position:relative;overflow:hidden;min-width:0}
+.dev-track i{position:absolute;top:0;height:100%}
+.dev-track i.pos{background:var(--green);border-radius:0 6px 6px 0}
+.dev-track i.neg{background:var(--red);border-radius:6px 0 0 6px}
+.dev-axis{position:absolute;top:0;bottom:0;width:1.5px;background:var(--text3);left:50%;z-index:2}
+.dev-val{flex-shrink:0;width:64px;text-align:right;font-size:13.5px;font-weight:800;white-space:nowrap}
+.dev-val.pos{color:var(--green-dark)}.dev-val.neg{color:var(--red)}
+
+/* 实际 vs 预期对比条 */
+.cmp-pair{margin:11px 0}
+.cmp-line{display:flex;align-items:center;gap:9px;margin-bottom:6px;font-size:13.5px;color:var(--text2)}
+.cmp-line .cl-k{flex-shrink:0;width:88px;font-size:12.5px;color:var(--text3)}
+.cmp-bar{flex:1;height:11px;background:#F2F4F7;border-radius:6px;overflow:hidden;min-width:0}
+.cmp-bar i{display:block;height:100%;border-radius:6px}
+.cmp-bar i.actual{background:var(--green)}
+.cmp-bar i.expect{background:#C9D2DC}
+.cmp-line .cl-v{flex-shrink:0;width:74px;text-align:right;font-size:13px;font-weight:800;color:var(--text)}
+
+/* 口径澄清 */
+.caveat{background:#F8F9FB;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;margin:0;font-size:14px;color:var(--text2);line-height:1.78}
+.caveat .cv-t{display:block;font-size:11.5px;font-weight:800;color:var(--text3);margin-bottom:5px;letter-spacing:.3px}
+.caveat.warn{background:var(--amber-50);border-color:var(--amber-100)}
+.caveat.warn .cv-t{color:var(--amber)}
+.caveat b{color:var(--text)}
+
+/* 判断块 */
+.verdict-box{border-left:3px solid var(--green);background:#FBFEFC;border-radius:0 var(--r-sm) var(--r-sm) 0;padding:11px 13px;margin:0 0 11px;font-size:15px;color:var(--text2);line-height:1.8}
+.verdict-box .vb-t{display:block;font-size:11.5px;font-weight:800;color:var(--green-dark);margin-bottom:5px}
+.verdict-box b{color:var(--text)}
+
+/* 替代解释 / 灰块 */
+.alt-exp{background:#F8F9FB;border-radius:var(--r-sm);padding:11px 13px;margin:0 0 11px;font-size:14.5px;color:var(--text2);line-height:1.8}
+.alt-exp .ae-t{display:block;font-size:11.5px;font-weight:800;color:var(--text3);margin-bottom:5px}
+.alt-exp b{color:var(--text)}
+
+/* 反证 vs 监控 双栏 */
+.counter-box{display:grid;grid-template-columns:1fr;gap:8px;margin:0}
+@media(min-width:560px){.counter-box{grid-template-columns:1fr 1fr}}
+.ct-item{border-radius:var(--r-sm);padding:11px 12px;font-size:14px;line-height:1.78;color:var(--text2)}
+.ct-red{background:var(--red-50);border:1px solid var(--red-100)}
+.ct-blue{background:var(--blue-50);border:1px solid var(--blue-100)}
+.ct-item .ct-t{display:block;font-size:11.5px;font-weight:800;margin-bottom:5px}
+.ct-red .ct-t{color:var(--red)}
+.ct-blue .ct-t{color:var(--blue)}
+
+/* 证据层级 / 状态 / 置信度 徽章 */
+.e-tag{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:4px;vertical-align:1px;white-space:nowrap}
+.e1{background:var(--green-100);color:var(--green-dark)}
+.e3{background:var(--blue-100);color:var(--blue)}
+.e4{background:#EDF0F4;color:var(--text2)}
+.st-tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.st-new{background:var(--green-100);color:var(--green-dark)}
+.st-watch{background:var(--amber-100);color:var(--amber)}
+.st-ok{background:var(--blue-100);color:var(--blue)}
+
+/* ===== 05 非共识线索 ===== */
+.clue-card{background:var(--amber-50);border:1px solid var(--amber-100);border-radius:var(--r-md);padding:14px 15px;margin-bottom:11px}
+.clue-card:last-child{margin-bottom:0}
+.clue-card h4{font-size:15.5px;font-weight:800;margin-bottom:7px;line-height:1.55;text-align:left}
+.clue-card p{font-size:14.5px;color:var(--text2);line-height:1.8}
+.path-steps{margin-top:10px;padding-top:10px;border-top:1px dashed var(--amber-100)}
+.path-steps .ps-t{font-size:11.5px;font-weight:800;color:var(--amber);margin-bottom:5px;display:block}
+.path-step{position:relative;padding:3px 0 3px 15px;font-size:14px;color:var(--text2);line-height:1.75}
+.path-step::before{content:"";position:absolute;left:2px;top:12px;width:5px;height:5px;border-radius:50%;background:var(--amber)}
+
+/* ===== 06 研究前沿 ===== */
+.research-card{background:#FDFDFE;border:1px solid var(--line);border-radius:var(--r-md);padding:14px 15px;margin-bottom:11px}
+.research-card:last-child{margin-bottom:0}
+.rc-no{display:inline-block;background:var(--blue-50);color:var(--blue);border:1px solid var(--blue-100);font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:5px;margin-bottom:8px}
+.research-card h4{font-size:15.5px;font-weight:800;margin-bottom:7px;line-height:1.55;text-align:left}
+.research-card p{font-size:14.5px;color:var(--text2);line-height:1.8}
+
+/* ===== 07 验证日历 ===== */
+.timeline{position:relative;padding-left:22px;margin-top:6px}
+.timeline::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:var(--green-100)}
+.tl-node{position:relative;padding-bottom:17px}
+.tl-node:last-child{padding-bottom:0}
+.tl-node::before{content:"";position:absolute;left:-20px;top:4px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff;box-shadow:0 0 0 2px var(--green-100)}
+.tl-node.watch::before{background:var(--amber);box-shadow:0 0 0 2px var(--amber-100)}
+.tl-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px}
+.tl-date{font-size:14px;font-weight:800;color:var(--green-dark)}
+.tl-node.watch .tl-date{color:var(--amber)}
+.tl-body{font-size:14.5px;color:var(--text2);line-height:1.8}
+.tl-body .q{color:var(--text);font-weight:700}
+.tl-body .impact{display:block;margin-top:4px;font-size:13.5px;color:var(--text3);line-height:1.7}
+
+/* ===== 08 方法与边界 ===== */
+.method-card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:15px 16px;font-size:13px;color:var(--text3);line-height:1.8;margin-bottom:14px}
+.method-card .mc-t{font-size:13.5px;font-weight:800;color:var(--text2);margin-bottom:6px}
+.footer{text-align:center;padding:12px 0 6px;color:var(--text3);font-size:12.5px;line-height:1.8}
+.footer .f-title{font-weight:700;color:var(--text2)}
+
+/* 返回顶部 */
+.to-top{position:fixed;right:16px;bottom:22px;width:42px;height:42px;border-radius:50%;background:rgba(27,35,51,.85);color:#fff;border:none;font-size:16px;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.to-top.show{opacity:1;pointer-events:auto}
+
+@media(max-width:360px){
+  .section{padding:18px 13px 16px}
+  .sec-plain>.sec-head{padding:14px 13px 12px}
+  .header h1{font-size:19px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="kicker">AI WEEKLY · A+</div>
+    <h1>云订单兑现与模型效率冲击并存，高久期 AI 进入回报与利率验证窗口</h1>
+    <div class="h-sub">AI 投资仍在商业化验证期中期，但本周证据推动定价从「需求是否真实」向「订单/现金流能否覆盖资本开支、利率会不会压制估值」迁移。</div>
+    <div class="meta-row">
+      <span class="meta-item">观察期 2026-09-06—2026-09-12</span>
+      <span class="meta-item">判断窗口 未来 1—2 个月</span>
+      <span class="meta-item">生成于 2026-09-13</span>
+    </div>
+  </div>
+
+  <!-- ========== 30 秒速览 ========== -->
+<div class="tldr">
+  <div class="tldr-h"><span class="badge">30 秒速览</span>本周要点</div>
+  <div class="tldr-row">
+    <div class="tldr-k">本周阶段判断</div>
+    <div class="tldr-v">AI 投资仍在<b>商业化验证期中期</b>。定价重心从「需求是否真实」转向<b>订单与现金流能否覆盖资本开支、利率会否压制估值</b>。</div>
+  </div>
+  <div class="tldr-row">
+    <div class="tldr-k">最大结构变化</div>
+    <div class="tldr-v">甲骨文单季新签 AI 云合同超 <b>300 亿美元</b>，客户预付款覆盖当期资本开支，云计算方向首次获得<b>现金层面的验证</b>，置信度增强。</div>
+  </div>
+  <div class="tldr-row">
+    <div class="tldr-k">最大风险</div>
+    <div class="tldr-v">FOMC 前隐含<b>加息概率升至约 70%</b>、10 年期美债<b>逼近 5%</b>，高久期 AI 估值面临贴现率压制（资本开支/估值周期风险升高）。</div>
+  </div>
+  <div class="tldr-row">
+    <div class="tldr-k">最关键验证点</div>
+    <div class="tldr-v"><b>2026-09-15/16 FOMC 决议与点阵图</b>决定贴现率压力方向；其后看 AMD 11-03、QCOM 11-04 财报。</div>
+  </div>
+</div>
+
+<!-- ========== 01 本周核心研判 ========== -->
+<div class="section" id="s1">
+  <div class="sec-head"><span class="sec-no">01</span><span class="sec-title">本周核心研判</span></div>
+  <div class="conclusion-card">
+    <span class="label">核心结论</span>
+    本周证据推动定价从「需求是否真实」向「订单/现金流能否覆盖资本开支、利率会不会压制估值」迁移。甲骨文单季 AI 云合同超 <b>300 亿美元</b>（合同口径）、backlog <b>6640 亿美元</b>（未交付订单总量），客户预付款覆盖当期资本开支，构成云回报的<b>现金验证</b>；DeepSeek 低内存/低价主张触发 HBM/存储预期重估，FOMC 前隐含加息概率升至约 <b>70%</b>、10 年期美债逼近 <b>5%</b>。<br><br>
+    真正需要解决的不是 AI 需求是否强劲，而是<b>模型效率改善与利率上行是否会在未来 1—2 个月实质性改变 HBM/存储与高久期 AI 估值定价</b>。短期应更看重已由订单/现金流验证的云，跟踪 ASIC 长期框架的近期兑现，对存储/HBM 保持观望，并在 FOMC 前收敛高久期估值风险。
+  </div>
+  <div class="ev-chips">
+    <span class="ev-chip"><b>ORCL</b> 单季 AI 云合同 300 亿+、预付款覆盖 capex</span>
+    <span class="ev-chip"><b>DeepSeek</b> 低内存主张 → 三星/SK 海力士跌超 3%</span>
+    <span class="ev-chip"><b>加息概率</b> FOMC 前升至约 70%</span>
+    <span class="ev-chip"><b>10Y 美债</b> 逼近 5%（4.95%）</span>
+    <span class="ev-chip"><b>高通-亚马逊</b> 最高 600 亿采购框架</span>
+  </div>
+</div>
+
+<!-- ========== 02 方向与代表标的 ========== -->
+<div class="section" id="s2">
+  <div class="sec-head"><span class="sec-no">02</span><span class="sec-title">方向与代表标的</span></div>
+  <p class="p-lead" style="font-size:13px;color:var(--text3);margin-bottom:12px">按本期立场分档；★ 为本周重点方向。股价判断为源文口径（未来 1—2 个月），「仅产业判断」表示缺直接证据。</p>
+
+  <div class="dir-group dg-bull">
+    <div class="dir-group-title">🟢 看好<span class="dir-count">4</span></div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name"><span class="dir-star">★</span>云计算/模型托管/推理中间件</span>
+        <span class="stance-pill pill-bull">看好</span>
+        <span class="conf-tag conf-up">置信度增强</span>
+      </div>
+      <div class="dir-logic">上期积极看好，本周获 ORCL 财报验证，维持看好、置信度增强。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span><b>ORCL 看涨（低置信）</b>；MSFT/AMZN/GOOGL 仅产业判断</div>
+    </div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name"><span class="dir-star">★</span>先进封装/HBM</span>
+        <span class="stance-pill pill-bull">看好</span>
+        <span class="conf-tag conf-warn">短期受扰 · 长期维持</span>
+      </div>
+      <div class="dir-logic">上期积极看好，本周遭 DeepSeek 低内存情绪扰动，未推翻长期逻辑。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span>TSM 仅产业判断（缺直接证据）</div>
+    </div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name">算力芯片/GPU</span>
+        <span class="stance-pill pill-bull">看好</span>
+        <span class="conf-tag">维持 · 无新增直接证据</span>
+      </div>
+      <div class="dir-logic">维持看好，本周无新增直接证据。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span>NVDA 仅产业判断（缺直接证据）</div>
+    </div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name">数据中心电力/散热/物理基建</span>
+        <span class="stance-pill pill-bull">看好</span>
+        <span class="conf-tag conf-up">长期置信度增强</span>
+      </div>
+      <div class="dir-logic">维持看好，长期置信度增强。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span>暂无个股判断（本周证据均远期投运）</div>
+    </div>
+  </div>
+
+  <div class="dir-group dg-cautious">
+    <div class="dir-group-title">🟡 谨慎看好<span class="dir-count">2</span></div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name"><span class="dir-star">★</span>ASIC/推理加速</span>
+        <span class="stance-pill pill-cautious">谨慎看好</span>
+        <span class="conf-tag conf-up">长期置信度增强</span>
+      </div>
+      <div class="dir-logic">上期谨慎看好，本周获高通-亚马逊长期框架与 Marvell 管理层指引，长期置信度增强，短期评级维持。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span><b>QCOM 中性（低置信，仅长期框架）</b>；<b>MRVL 中性（低置信，未正式财报）</b>；AMD 仅产业判断</div>
+    </div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name">企业AI应用</span>
+        <span class="stance-pill pill-cautious">谨慎看好</span>
+        <span class="conf-tag conf-up">置信度增强 · 证据未上市</span>
+      </div>
+      <div class="dir-logic">维持谨慎看好，置信度增强但证据集中在未上市公司。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span>暂无个股判断</div>
+    </div>
+  </div>
+
+  <div class="dir-group dg-wait">
+    <div class="dir-group-title">⚪ 观察等待 · 其他<span class="dir-count">2</span></div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name">大模型商业化/收入验证</span>
+        <span class="stance-pill pill-wait">观察等待</span>
+        <span class="conf-tag conf-warn">DeepSeek 价格战增不确定性</span>
+      </div>
+      <div class="dir-logic">维持观察等待。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span>暂无个股判断</div>
+    </div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name">其他方向（AI数据/安全/治理、前沿技术、AI Agent、AI国防/边缘智能）</span>
+        <span class="stance-pill pill-wait">均维持上期判断</span>
+      </div>
+      <div class="dir-logic">本周无新增证据。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span>—（无新增证据）</div>
+    </div>
+  </div>
+
+  <div class="dir-group dg-risk">
+    <div class="dir-group-title">🔴 风险升高<span class="dir-count">2</span></div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name"><span class="dir-star">★</span>AI资本开支/融资/估值周期</span>
+        <span class="stance-pill pill-risk">风险升高</span>
+        <span class="conf-tag conf-up">置信度增强</span>
+      </div>
+      <div class="dir-logic">上期风险升高，本周 FOMC 前加息概率升至约 70%，风险升高置信度增强。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span>暂无个股判断（宏观风险）</div>
+    </div>
+
+    <div class="dir-card">
+      <div class="dir-head">
+        <span class="dir-name">AI监管/出口管制/地缘风险</span>
+        <span class="stance-pill pill-risk">风险升高</span>
+        <span class="conf-tag">维持</span>
+      </div>
+      <div class="dir-logic">维持风险升高。</div>
+      <div class="dir-stock"><span class="dk">未来 1—2 个月股价判断</span>暂无个股判断</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 03 跨期对比 ========== -->
+<div class="section" id="s3">
+  <div class="sec-head"><span class="sec-no">03</span><span class="sec-title">跨期对比（与上期结论对照）</span></div>
+  <div class="trend-row"><span class="trend-ico ti-up">↑</span><div>云计算/模型托管/推理中间件：上期积极看好，本周获 ORCL 验证，<b>维持看好、置信度增强</b>。</div></div>
+  <div class="trend-row"><span class="trend-ico ti-warn">⚠</span><div>先进封装/HBM：上期积极看好，本周遭 DeepSeek 低内存情绪扰动，未推翻，<b>短期置信度受扰、长期逻辑维持</b>。</div></div>
+  <div class="trend-row"><span class="trend-ico ti-up">↑</span><div>ASIC/推理加速：上期谨慎看好，本周获高通-亚马逊长期框架与 Marvell 管理层指引，<b>长期置信度增强，短期评级维持</b>。</div></div>
+  <div class="trend-row"><span class="trend-ico ti-warn">⚠</span><div>AI资本开支/融资/估值周期：上期风险升高，本周 FOMC 前加息概率升至约 70%，<b>风险升高置信度增强</b>。</div></div>
+  <div class="trend-row"><span class="trend-ico ti-same">→</span><div>企业AI应用、大模型商业化/收入验证、数据中心电力/物理基建等：<b>维持</b>，部分有远期证据但不足以改变短期判断。</div></div>
+</div>
+
+<!-- ========== 04 板块深度拆解 ========== -->
+<div class="sec-plain" id="s4">
+  <div class="sec-head"><span class="sec-no">04</span><span class="sec-title">板块深度拆解</span></div>
+
+  <!-- ===== 4.1 云计算 ===== -->
+  <div class="bk-card">
+    <div class="bk-head">
+      <div class="bk-top"><div class="bk-no">4.1</div><div class="bk-name">云计算/模型托管/推理中间件</div></div>
+      <div class="bk-tags"><span class="stance-pill pill-bull">看好</span><span class="conf-tag conf-up">置信度增强</span><span class="conf-tag">代表标的 ORCL</span></div>
+    </div>
+    <div class="bk-body">
+
+      <div class="judge-card">云需求景气仍在加速；本周真正新增的不是「需求再次确认」，而是<b>「合同预付款覆盖资本开支」的现金验证</b>。关键变量：FOMC 与云厂 AI 收入/合同转化能否持续匹配资本开支强度。</div>
+
+      <div class="lbl">关键证据</div>
+      <div class="pt-list">
+        <div class="pt"><span>板块内本周<b>仅甲骨文一条直接经营证据</b>，微软、亚马逊、谷歌无同口径数据——判断建立在单点之上。</span></div>
+        <div class="pt"><span>需求正从「意向」转为<b>现金承诺</b>：客户预付款覆盖当期资本开支，直接缓解市场对超大规模 AI 基建「高投入、无回款」的担忧。</span></div>
+      </div>
+      <div class="kv-grid">
+        <div class="kv-item"><div class="kv-label">单季新签 AI 云合同</div><div class="kv-value">300+ 亿$</div><div class="kv-note">合同口径，非当期收入</div></div>
+        <div class="kv-item"><div class="kv-label">未交付订单 backlog</div><div class="kv-value">6,640 亿$</div><div class="kv-note">未交付订单总量，含多年期合同选项</div></div>
+        <div class="kv-item"><div class="kv-label">自由现金流 FCF</div><div class="kv-value neg">-54 亿$</div><div class="kv-note">仍为负，但好于预期 -95.6 亿</div></div>
+        <div class="kv-item"><div class="kv-label">预付款覆盖资本开支</div><div class="kv-value pos">113.6 亿$</div><div class="kv-note">当期 capex 由客户预付款覆盖</div></div>
+        <div class="kv-item wide"><div class="kv-label">FY27 指引（上调）</div><div class="kv-value">营收 ≥900 亿$ · 调整后 EPS 8.10</div><div class="kv-note">EPS 此前 8.05$；属远期锚，不单独作为交易证据</div></div>
+      </div>
+      <div class="cmp-pair">
+        <div class="dev-title">FCF 实际 vs 市场预期（亿美元）</div>
+        <div class="cmp-line"><span class="cl-k">实际</span><div class="cmp-bar"><i class="actual" style="width:56.5%"></i></div><span class="cl-v">-54.0</span></div>
+        <div class="cmp-line"><span class="cl-k">市场预期</span><div class="cmp-bar"><i class="expect" style="width:100%"></i></div><span class="cl-v">-95.6</span></div>
+      </div>
+      <div class="dev-wrap">
+        <div class="dev-title">ORCL 现价均线偏离</div>
+        <div class="dev-row"><span class="dev-label">50 日均线</span><div class="dev-track"><i class="pos" style="right:0;width:32.5%"></i><div class="dev-axis"></div></div><span class="dev-val pos">+6.9%</span></div>
+        <div class="dev-row"><span class="dev-label">200 日均线</span><div class="dev-track"><i class="neg" style="left:0;width:50%"></i><div class="dev-axis"></div></div><span class="dev-val neg">-10.6%</span></div>
+      </div>
+
+      <div class="lbl">判断与下一步</div>
+      <div class="verdict-box"><span class="vb-t">判断</span>未来 1—2 个月 ORCL <b>看涨（低置信）</b>，方向维持看好、置信度较上期增强。低置信的原因：backlog 能否按当前节奏转化为近期收入尚未验证。</div>
+      <div class="counter-box">
+        <div class="ct-item ct-red"><span class="ct-t">出现什么就推翻</span>下季 backlog 增速显著回落，或 FCF 再度转差，或 AI 云收入增速持续低于 capex 增速。</div>
+        <div class="ct-item ct-blue"><span class="ct-t">接下来看什么</span>ORCL 下季财报（日期待核验）；FOMC 决议（日期待核验）构成板块级宏观催化。</div>
+      </div>
+
+      <details class="fold">
+        <summary>口径澄清 · 替代解释 · 适用边界</summary>
+        <div class="fold-body">
+          <span class="fl-t">口径澄清</span>
+          300 亿美元是<b>单季新签合同</b>（≠当期收入）；6640 亿美元 backlog 是<b>未交付订单总量</b>（含多年期合同选项与非 AI 业务）；FCF 仍为 <b>-54 亿</b>，只是亏损幅度小于预期。三者口径不一致，<b>不能加总</b>，也不能外推未来 1—2 个季度收入。
+          <span class="fl-t">替代解释</span>
+          backlog 增速异常高，可能包含低价长期合同或非 AI 业务；FCF 改善可能由大额预付款一次性贡献，不能线性外推。若预付款下季明显回落而 capex 维持激进，FCF 缺口将重新扩大。
+          <span class="fl-t">适用边界</span>
+          甲骨文是板块内 AI 云合同扩张最激进、回报验证最领先的<b>个例</b>，其 capex 结构、客户预付款覆盖率均与微软/亚马逊/谷歌不完全可比，不能直接外推。三家本周<b>未捕捉到新增直接证据</b>，需待各自财报验证；对 capex 更多投向自研算力的厂商，预付款逻辑需单独确认。
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- ===== 4.2 先进封装/HBM ===== -->
+  <div class="bk-card">
+    <div class="bk-head">
+      <div class="bk-top"><div class="bk-no">4.2</div><div class="bk-name">先进封装/HBM</div></div>
+      <div class="bk-tags"><span class="stance-pill pill-bull">看好</span><span class="conf-tag conf-warn">短期受扰 · 长期维持</span><span class="conf-tag">代表标的 TSM</span></div>
+    </div>
+    <div class="bk-body">
+
+      <div class="judge-card">HBM/先进封装景气<b>未现订单转弱</b>，但短期定价进入「模型效率优化是否降低存储需求」的分歧。本周增量仅是情绪面扰动，<b>不足以下调板块判断</b>；未来 2—8 周需等待 HBM 供应商订单/出货指引。</div>
+
+      <div class="lbl">关键证据</div>
+      <div class="pt-list">
+        <div class="pt"><span>DeepSeek 最新模型声称大幅降低内存与带宽占用、可减少 HBM 需求，当日<b>三星电子与 SK 海力士跌超 3%</b>——属情绪面信号，不是需求转弱的经营验证。</span></div>
+        <div class="pt warn"><span><b>本周无任何 HBM 供应商的新订单/出货指引</b>，不具备反向读数，因此维持「短期受扰、长期不变」，不触发降级。</span></div>
+        <div class="pt gray"><span>TSM 本周无公司层面 HBM 订单或收入信息；新增素材均为地缘与长期制程背景，传导链过长，不作个股证据。</span></div>
+      </div>
+      <div class="dev-wrap">
+        <div class="dev-title">TSM 现价均线偏离</div>
+        <div class="dev-row"><span class="dev-label">50 日均线</span><div class="dev-track"><i class="pos" style="right:0;width:11.2%"></i><div class="dev-axis"></div></div><span class="dev-val pos">+3.4%</span></div>
+        <div class="dev-row"><span class="dev-label">200 日均线</span><div class="dev-track"><i class="pos" style="right:0;width:50%"></i><div class="dev-axis"></div></div><span class="dev-val pos">+15.2%</span></div>
+      </div>
+
+      <div class="lbl">判断与下一步</div>
+      <div class="verdict-box"><span class="vb-t">判断</span>TSM <b>仅产业判断</b>，方向维持看好；短期置信度受效率预期扰动削弱，长期维持。因缺直接经营证据，<b>不给予股价层面的看涨或看跌</b>。</div>
+      <div class="counter-box">
+        <div class="ct-item ct-red"><span class="ct-t">出现什么就推翻</span>若未来 1—2 个月 HBM 报价/订单继续上行，或三星、SK 海力士、美光财报维持 HBM 需求指引，则效率担忧被证伪，板块短期置信度修复。</div>
+        <div class="ct-item ct-blue"><span class="ct-t">接下来看什么</span>美光财报/三星指引（日期待核验）；2026-11-03 AMD 财报（间接验证 GPU/HBM 需求）。</div>
+      </div>
+
+      <details class="fold">
+        <summary>口径澄清 · 适用边界</summary>
+        <div class="fold-body">
+          <span class="fl-t">口径澄清</span>
+          DeepSeek「降低 HBM 需求」的主张<b>缺量化基准与第三方验证</b>；彭博原文同时点明当日下跌「叠加美国加息预期」，<b>不能全部归因于 DeepSeek</b>。模型层 API 降价对 HBM 需求的传导需经「低价→推理用量→单位 token 内存消耗→HBM 采购」三步以上，仅作背景提示不作核心论证。
+          <span class="fl-t">适用边界</span>
+          本周素材直接覆盖三星、SK 海力士（股价反应）及 TSM（地缘/制程背景）；<b>未捕捉到美光（MU）新增信息，不等于无变化</b>。有 HBM 收入暴露的公司需待其自身财报验证需求强度，不能从股价反应直接推导基本面方向。下一次校准窗口：AMD 2026-11-03（已确认）；美光财报日期待核验，不列作既定催化。
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- ===== 4.3 AI资本开支/融资/估值周期 ===== -->
+  <div class="bk-card bk-risk">
+    <div class="bk-head">
+      <div class="bk-top"><div class="bk-no">4.3</div><div class="bk-name">AI资本开支/融资/估值周期</div></div>
+      <div class="bk-tags"><span class="stance-pill pill-risk">风险升高</span><span class="conf-tag conf-up">置信度增强</span><span class="conf-tag">本周无个股判断</span></div>
+    </div>
+    <div class="bk-body">
+
+      <div class="judge-card">板块处于「从需求确认向回报与估值验证过渡」阶段。本周结构性变化是 <b>FOMC 前隐含加息概率升至约 70%、10 年期美债收益率逼近 5%</b>，高久期 AI 估值面临贴现率与盈利兑现的双重检验。关键变量是 FOMC 决议与收益率走向，而非 AI 需求本身。</div>
+
+      <div class="lbl">关键证据</div>
+      <div class="pt-list">
+        <div class="pt"><span>收益率曲线维持正斜率 <b>约 +0.39pp</b>，意味着当前定价<b>并非系统性流动性收缩，而是短端利率预期驱动的温和重估</b>。</span></div>
+        <div class="pt warn"><span>一级市场与债务融资活跃（戴尔拟发债约 <b>50 亿美元</b>获约 <b>5 倍超额认购</b>）属<b>风险偏好信号</b>，不能与「客户预付款已到位」的现金流证据等权并列。</span></div>
+        <div class="pt gray"><span>巴克莱上调标普 500 年底目标至 <b>7950 点</b>、2026 年 EPS 由 337 上调至 <b>365 美元</b>，其盈利上修隐含了利率上行对估值倍数的反向抵消，不构成独立利好。</span></div>
+      </div>
+      <div class="kv-grid">
+        <div class="kv-item"><div class="kv-label">FOMC 加息概率（隐含）</div><div class="kv-value amber">约 70%</div><div class="kv-note">9 月 15—16 日会议加息 25bp</div></div>
+        <div class="kv-item"><div class="kv-label">10 年期美债收益率</div><div class="kv-value neg">4.95%</div><div class="kv-note">逼近 5%，上行将抬升高成长股贴现率</div></div>
+        <div class="kv-item"><div class="kv-label">2 年期美债收益率</div><div class="kv-value">4.56%</div><div class="kv-note">同一时点读数（截至 9 月 10 日）</div></div>
+        <div class="kv-item"><div class="kv-label">收益率曲线（10Y-2Y）</div><div class="kv-value">+0.39pp</div><div class="kv-note">维持正斜率 → 非系统性流动性收缩</div></div>
+      </div>
+      <div class="dev-wrap">
+        <div class="dev-title">价格位置：现价相对 50 日均线偏离</div>
+        <div class="dev-row"><span class="dev-label">QQQ</span><div class="dev-track"><i class="pos" style="right:0;width:50%"></i><div class="dev-axis"></div></div><span class="dev-val pos">+0.6%</span></div>
+        <div class="dev-row"><span class="dev-label">标普500期货</span><div class="dev-track"><i class="pos" style="right:0;width:25%"></i><div class="dev-axis"></div></div><span class="dev-val pos">+0.3%</span></div>
+      </div>
+      <div class="pt-list" style="margin-top:9px"><div class="pt gray"><span>指数均位于近期趋势附近；个股分化明显——ORCL 偏离 200 日均线 -10.6%，MRVL 偏离 200 日均线 <b>+52.5%</b>。这约束个股叙述，但不产生板块整体判断。</span></div></div>
+
+      <div class="lbl">判断与下一步</div>
+      <div class="verdict-box"><span class="vb-t">判断</span>方向维持<b>「风险升高」</b>，置信度因加息预期与收益率水平强化而增强；个股层面仍<b>「暂无个股判断」</b>——没有一门标的的盈利预期修正与估值位置可以独立支撑 20/40 个交易日的涨跌结论。若鹰派落地且收益率有效上穿 5%，定价重心将从 AI 订单兑现进一步转向<b>久期与现金流覆盖能力的折现</b>。</div>
+      <div class="counter-box">
+        <div class="ct-item ct-red"><span class="ct-t">出现什么就推翻</span>FOMC 按兵不动或点阵图偏鸽、10 年期收益率回落 → 贴现率压力缓和，风险升高的置信度应同步下调。</div>
+        <div class="ct-item ct-blue"><span class="ct-t">接下来看什么</span>2026-09-15/16 FOMC 决议与点阵图（首要）；ORCL 下季财报（待核验）；2026-11-03 AMD、2026-11-04 QCOM 财报；10 年期收益率路径持续跟踪。</div>
+      </div>
+
+      <details class="fold">
+        <summary>补充说明 · 适用边界</summary>
+        <div class="fold-body">
+          <span class="fl-t">补充说明</span>
+          VIX 约 <b>15.84</b>、处长期中位数下方，对冲成本偏低；但期权隐含波动低<b>不能推知</b>市场已为利率冲击充分计价——<b>市场计价程度无法判断</b>。
+          <span class="fl-t">适用边界</span>
+          本周覆盖利率端（FOMC 预期、国债收益率）、云环节现金流验证与一级/债务融资活跃度；<b>未覆盖</b> AI 资本开支的资金来源结构（经营性现金流 vs 债务 vs 股权）拆分，故无法判断此轮开支的融资脆弱度。下一次校准窗口：FOMC 2026-09-15/16。
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- ===== 4.4 ASIC/推理加速 ===== -->
+  <div class="bk-card bk-cautious">
+    <div class="bk-head">
+      <div class="bk-top"><div class="bk-no">4.4</div><div class="bk-name">ASIC/推理加速</div></div>
+      <div class="bk-tags"><span class="stance-pill pill-cautious">谨慎看好</span><span class="conf-tag conf-up">长期置信度增强</span><span class="conf-tag">代表标的 QCOM · MRVL</span></div>
+    </div>
+    <div class="bk-body">
+
+      <div class="judge-card">长期确定性增强，<b>但短期盈利预期未变</b>。本周两条同向长期信号均停留在远期承诺或未审计口径，<b>未触发上调条件</b>，维持谨慎看好。核心验证变量：定制芯片采购框架能否在 2026 年 11 月财报季前进入近期收入或正式指引。</div>
+
+      <div class="lbl">关键证据</div>
+      <div class="pt-list">
+        <div class="pt"><span>高通-亚马逊长期采购框架与 Marvell 管理层数据中心增速口径方向一致，指向定制 AI 芯片长期需求，<b>但均不构成近期收入验证</b>。</span></div>
+        <div class="pt gray"><span>AMD 的 2030 年 TAM 目标属远期前瞻，不参与同向累积论证；三者证据层级与兑现时间不同，不能累计为强证据。</span></div>
+        <div class="pt warn"><span><b>本周唯一边际变化：</b>长期产业空间被反复确认，但短期盈利兑现证据仍然空白。</span></div>
+      </div>
+
+      <div class="lbl">QCOM 关键数据</div>
+      <div class="kv-grid">
+        <div class="kv-item"><div class="kv-label">AWS 采购框架（上限）</div><div class="kv-value">约 600 亿$</div><div class="kv-note">采购上限，实际执行可能显著低于该值</div></div>
+        <div class="kv-item"><div class="kv-label">认股权证</div><div class="kv-value">40 亿$</div><div class="kv-note">行权价 161.26 美元，随采购分批归属，不构成当期收入</div></div>
+        <div class="kv-item"><div class="kv-label">2029 年数据中心芯片目标</div><div class="kv-value">约 150 亿$</div><div class="kv-note">与前述框架属不同口径，不可拼接为近期推理</div></div>
+        <div class="kv-item"><div class="kv-label">合作聚焦</div><div class="kv-value" style="font-size:14px">推理芯片 · 1.6Tbps 光连接</div><div class="kv-note">重要产业佐证，口径必须厘清</div></div>
+      </div>
+      <div class="dev-wrap">
+        <div class="dev-title">QCOM 现价均线偏离</div>
+        <div class="dev-row"><span class="dev-label">50 日均线</span><div class="dev-track"><i class="pos" style="right:0;width:48.2%"></i><div class="dev-axis"></div></div><span class="dev-val pos">+7.9%</span></div>
+        <div class="dev-row"><span class="dev-label">200 日均线</span><div class="dev-track"><i class="pos" style="right:0;width:50%"></i><div class="dev-axis"></div></div><span class="dev-val pos">+8.2%</span></div>
+      </div>
+      <div class="pt-list" style="margin-top:9px"><div class="pt"><span><b>判断：中性（低置信）</b>——仅长期框架、无直接经营证据，不满足上调条件。现价 181.97 美元，处年内区间中高区域。</span></div></div>
+
+      <div class="lbl">MRVL 关键数据</div>
+      <div class="kv-grid">
+        <div class="kv-item"><div class="kv-label">管理层数据中心收入指引</div><div class="kv-value pos">FY27 +60%</div><div class="kv-note">CNBC 访谈口径，未经正式财报验证</div></div>
+        <div class="kv-item"><div class="kv-label">管理层数据中心收入指引</div><div class="kv-value pos">FY28 +61%</div><div class="kv-note">与 QCOM 框架形成同向长期验证</div></div>
+        <div class="kv-item"><div class="kv-label">美银 XPU attach 空间</div><div class="kv-value">300 亿$</div><div class="kv-note">卖方预测，仅作辅助佐证</div></div>
+        <div class="kv-item"><div class="kv-label">美银配套 TAM</div><div class="kv-value">600—650 亿$</div><div class="kv-note">卖方预测</div></div>
+      </div>
+      <div class="dev-wrap">
+        <div class="dev-title">MRVL 现价均线偏离</div>
+        <div class="dev-row"><span class="dev-label">50 日均线</span><div class="dev-track"><i class="pos" style="right:0;width:8.5%"></i><div class="dev-axis"></div></div><span class="dev-val pos">+8.9%</span></div>
+        <div class="dev-row"><span class="dev-label">200 日均线</span><div class="dev-track"><i class="pos" style="right:0;width:50%"></i><div class="dev-axis"></div></div><span class="dev-val pos">+52.5%</span></div>
+      </div>
+      <div class="pt-list" style="margin-top:9px"><div class="pt"><span><b>判断：中性（低置信）</b>——管理层指引未经正式财报验证。现价 236.1 美元，位于年内较高位置。</span></div></div>
+
+      <div class="lbl">出现什么就推翻 · 接下来看什么</div>
+      <div class="counter-box">
+        <div class="ct-item ct-red"><span class="ct-t">出现什么就推翻</span>QCOM 财报若未上调数据中心收入、或明确 AWS 框架仍为远期；MRVL 正式财报若数据中心增速显著低于 60%/61%。</div>
+        <div class="ct-item ct-blue"><span class="ct-t">接下来看什么</span>QCOM 2026-11-04 财报（已确认，市场预期 EPS 2.18）；MRVL 财报日期待核验，未核实日期不列作既定催化。</div>
+      </div>
+
+      <details class="fold">
+        <summary>替代解释 · 适用边界</summary>
+        <div class="fold-body">
+          <span class="fl-t">替代解释</span>
+          苹果 A20 Pro 自研 C2 基带替代高通，属手机基带业务的长期结构压力，与 ASIC 板块逻辑关联有限，仅作替代解释收录；Marvell 管理层指引为访谈口径、非审计数据，存在<b>管理层乐观偏差</b>。
+          <span class="fl-t">适用边界</span>
+          本周素材直接覆盖 QCOM、MRVL；AMD 仅有长期 TAM 目标、未覆盖正式财报；NVDA 本周无新增信息，<b>不存在向未直接覆盖标的的近期传导判断</b>。AWS 资本开支/定制芯片部署若披露具体型号、采购节奏或单价，将改变短期兑现窗口判断。
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== 05 非共识线索 ========== -->
+<div class="section" id="s5">
+  <div class="sec-head"><span class="sec-no">05</span><span class="sec-title">值得追查的非共识线索</span></div>
+  <p class="p-lead" style="font-size:13.5px;color:var(--text3);margin-bottom:13px">以下两条均处<b>假设阶段</b>，证据不足以进入方向判断，价值在于后续验证路径而非当前交易依据。</p>
+
+  <div class="clue-card">
+    <h4>线索一：企业 AI 合同是否开始「单列」评估、路由与网关支出</h4>
+    <p>值得追查的不是 DeepSeek 是否引发价格战，而是企业后续合同是否开始<b>单列 AI 评估/路由/网关支出</b>，作为可验证 ROI 的先行采购科目。若该迁移真实发生，采购会出现结构性拆分。</p>
+    <div class="pt-list" style="margin-top:11px">
+      <div class="pt gray"><span><b>当前证据不足：</b>报道为定性行业观察，无 ARR、客户数或合同金额；相关产品的收入是否单独披露仍缺财报验证。</span></div>
+      <div class="pt"><span><b>验证路径：</b>跟踪 Databricks 下次财报是否单独列示 AI Gateway 收入或企业合同中的路由/评估支出占比；若出现，该线索从假设升级为可跟踪证据。</span></div>
+    </div>
+  </div>
+
+  <div class="clue-card">
+    <h4>线索二：若美国对非美产芯片征税落地，亚利桑那本土设备材料订单是否获上修</h4>
+    <p>值得追查的不是台海局势本身，而是<b>关税落地后亚利桑那本土制造/设备材料环节的订单上修幅度</b>。台积电亚利桑那投资达 2650 亿美元，同时美国商务部官员暗示可能对非美国本土生产的芯片征收半导体关税。</p>
+    <div class="pt-list" style="margin-top:11px">
+      <div class="pt gray"><span><b>当前证据不足：</b>关税仅为官员暗示口径，无正式文件；台积电法说会未披露亚利桑那产能的具体客户与订单承诺；设备/材料采购的本地化比例尚未拆解。</span></div>
+      <div class="pt"><span><b>验证路径：</b>正式关税文件出台，或台积电下季法说会披露亚利桑那客户承诺细节；若两者之一出现，该线索可进入可跟踪状态。</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 06 研究前沿 ========== -->
+<div class="section" id="s6">
+  <div class="sec-head"><span class="sec-no">06</span><span class="sec-title">AI 研究前沿</span></div>
+
+  <div class="research-card">
+    <span class="rc-no">M29 · arXiv</span>
+    <h4>稀疏 MoE 在数据重复下泛化退化更快</h4>
+    <p>预印本（未经同行评审）报告，跨 80M 至 1B 激活参数实验中，稀疏 MoE 在<b>训练数据重复 4 倍时即开始退化，32 倍后低于稠密模型</b>，且稀疏度越高越明显；引入强掩码正则化可缓解但追平不了全唯一数据。<b>值得关注：</b>在高质量数据日渐稀缺的背景下，指向「主流稀疏架构」与「数据吃紧」之间的张力。</p>
+  </div>
+
+  <div class="research-card">
+    <span class="rc-no">M54 · arXiv</span>
+    <h4>LLM 找代码缺陷的能力是编码 Agent 主要瓶颈</h4>
+    <p>预印本（未经同行评审）提出 IdeaAMBIG 基准，660 个实例评测模型能否判断「任务可不可做、缺陷在哪」。13 个模型中最佳者<b>宏观缺陷恢复率仅 9.6%</b>；给出缺陷标注后升至 <b>80.6%</b>。<b>值得关注：</b>把编码 Agent 的瓶颈从「生成能力」重新定位到「缺陷定位」，对产品改进方向与评测标准有指向性。</p>
+  </div>
+</div>
+
+<!-- ========== 07 验证日历 ========== -->
+<div class="section" id="s7">
+  <div class="sec-head"><span class="sec-no">07</span><span class="sec-title">未来两个月，优先看什么</span></div>
+  <div class="timeline">
+    <div class="tl-node">
+      <div class="tl-head"><span class="tl-date">2026-09-15/16 FOMC</span><span class="st-tag st-new">新增</span></div>
+      <div class="tl-body"><span class="q">核心问题：</span>是否加息 25bp、点阵图与收益率路径<span class="impact">鹰派则高久期 AI 估值承压，盈利兑现可能被贴现率压力部分抵消；鸽派则风险缓和</span></div>
+    </div>
+    <div class="tl-node watch">
+      <div class="tl-head"><span class="tl-date">ORCL 下季财报（日期待核验）</span><span class="st-tag st-watch">观察变量</span></div>
+      <div class="tl-body"><span class="q">核心问题：</span>AI 云 backlog 转化与 FCF 改善能否延续<span class="impact">若 FCF 延续改善且 backlog 转化加速，云订单回报逻辑维持；反之承压</span></div>
+    </div>
+    <div class="tl-node">
+      <div class="tl-head"><span class="tl-date">2026-11-03 AMD 财报</span><span class="st-tag st-new">新增</span></div>
+      <div class="tl-body"><span class="q">核心问题：</span>数据中心收入/GPU 需求指引<span class="impact">若指引强劲，可缓解 DeepSeek 低内存触发的 HBM 效率担忧；若弱则强化该担忧</span></div>
+    </div>
+    <div class="tl-node">
+      <div class="tl-head"><span class="tl-date">2026-11-04 QCOM 财报</span><span class="st-tag st-new">新增</span></div>
+      <div class="tl-body"><span class="q">核心问题：</span>AWS 框架是否进入近期收入/正式指引<span class="impact">若纳入近期收入，ASIC 短期维持谨慎；若明确仍为远期框架，同样维持谨慎</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 08 方法与边界（折叠） ========== -->
+<div class="section" id="s8">
+  <details class="fold" style="margin-top:0">
+    <summary>方法论与覆盖声明</summary>
+    <div class="fold-body">
+      <span class="fl-t">方法论</span>
+      本报告由本地流水线生成。行情数据来自 FMP（抓取时点见运行记录）；股价看涨／看跌按未来 20、40 个交易日的绝对涨跌验证；产业受益不等于股票必涨，暂无明确判断不等于回避。
+      <span class="fl-t">覆盖声明</span>
+      本报告基于信息池本周捕捉到的素材生成；未提及标的的含义是「本周无被捕捉的新增证据」，而非「确认无变化」。
+    </div>
+  </details>
+</div>
+
+
+  <div class="footer">
+    <div class="f-title">A+版周报 · AI 行业研究</div>
+    <div>2026-09-13</div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<script>
+var toTop=document.getElementById('toTop');
+window.addEventListener('scroll',function(){
+  if(window.scrollY>600){toTop.classList.add('show')}else{toTop.classList.remove('show')}
+},{passive:true});
+</script>
+</body>
+</html>
