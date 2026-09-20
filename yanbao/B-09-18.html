@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美股AI赛道周报 · 2026-09-18</title>
+<style>
+
+
+:root{--bg:#0b0f14;--bg2:#10161f;--card:#141c28;--card2:#182232;--line:#223046;--line2:#2b3d58;--txt:#dbe4f0;--txt2:#8fa3bd;--txt3:#5c7089;--acc:#4da3ff;--acc2:#7cc4ff;--up:#2fbf8f;--down:#e05c6a;--warn:#e8a94c;--purple:#9d8cff;--r:16px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt);line-height:1.75;font-size:16px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:0 14px 40px}
+b{font-weight:700}
+.pos{color:var(--up)}.neg{color:var(--down)}.neu{color:var(--warn)}
+
+/* 进度条 */
+#prog{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));z-index:99}
+
+/* Hero */
+.hero{background:radial-gradient(120% 130% at 80% -20%,rgba(77,163,255,.16),transparent 55%),radial-gradient(100% 120% at 10% 110%,rgba(232,169,76,.08),transparent 50%),var(--bg2);border-bottom:1px solid var(--line);padding:34px 0 28px}
+.hero .tag{font-size:12px;letter-spacing:.24em;color:var(--acc2);font-weight:700}
+.hero h1{font-size:26px;font-weight:800;margin:7px 0 8px;letter-spacing:.5px}
+.hero .sub{font-size:14px;color:var(--txt3);line-height:1.7;margin-bottom:22px}
+.stance{border-radius:14px;padding:15px 17px;margin-bottom:14px;border:1px solid}
+.stance .sv{font-size:18px;font-weight:800;margin-bottom:4px}
+.stance .sd{font-size:13px;line-height:1.7;color:var(--txt2)}
+.stance.neutral{background:rgba(77,163,255,.07);border-color:rgba(77,163,255,.35)}
+.stance.neutral .sv{color:var(--acc2)}
+.signals{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sig{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 13px}
+.sig .k{font-size:13px;color:var(--txt3);margin-bottom:5px;line-height:1.45}
+.sig .v{font-size:19px;font-weight:800;line-height:1.25}
+.sig .d{font-size:13px;color:var(--txt2);margin-top:3px;line-height:1.5}
+
+/* Section 通用 */
+section{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 17px;margin-top:14px}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:15px}
+.sec-no{font-size:12px;color:var(--acc);font-weight:700;letter-spacing:.1em}
+.sec-head h2{font-size:19px;font-weight:800;letter-spacing:.3px}
+.note{font-size:14px;color:var(--txt2);line-height:1.75;background:var(--bg2);border-radius:10px;padding:10px 12px;margin-bottom:14px;border-left:3px solid var(--line2)}
+.note b{color:var(--txt)}
+/* 05 节分化速览面板 */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.dash-cell{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;min-width:0;overflow:hidden}
+.dash-cell .dl{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--txt2);margin-bottom:7px;gap:6px;min-width:0}
+.dash-cell .dl .lt{min-width:0;line-height:1.45}
+.dash-cell .dl .vl{font-size:14px;font-weight:800;white-space:nowrap;flex-shrink:0}
+.dash-cell .dl .vl.pos{color:var(--up)}
+.dash-cell .dl .vl.neg{color:var(--down)}
+.dash-bar{height:7px;border-radius:4px;background:var(--card2);overflow:hidden}
+.dash-bar i{display:block;height:100%;border-radius:4px}
+.dash-bar i.pos{background:var(--up)}
+.dash-bar i.neg{background:var(--down)}
+.dash-bar i.acc{background:var(--acc)}
+.dash-bar i.warn{background:var(--warn)}
+.dash-cell .dm{font-size:11.5px;color:var(--txt3);margin-top:6px;line-height:1.55}
+/* 对比条（两端值 + 中间 0 轴） */
+.cmp{display:flex;align-items:center;gap:6px;height:auto;min-height:24px;margin-top:4px;min-width:0}
+.cmp .lb{flex-shrink:1;min-width:0;font-size:12px;font-weight:800;line-height:1.4;text-align:left;max-width:48%}
+.cmp .lb.pos{color:var(--up)}
+.cmp .lb.neg{color:var(--down)}
+.cmp .track{flex:1 1 auto;height:10px;min-width:40px;border-radius:5px;background:var(--card2);position:relative;overflow:hidden;flex-shrink:0}
+.cmp .track i{position:absolute;top:0;height:100%}
+.cmp .track i.pos{background:var(--up);border-radius:5px 0 0 5px}
+.cmp .track i.neg{background:var(--down);border-radius:0 5px 5px 0}
+.cmp .axis{position:absolute;top:-3px;bottom:-3px;width:1.5px;background:var(--txt3);left:50%}
+.cmp .name{flex-shrink:0;max-width:96px;font-size:11px;color:var(--txt3);line-height:1.4}
+.card{background:var(--bg2);border-radius:13px;padding:15px}
+.card h3{font-size:14.5px;font-weight:800;margin-bottom:10px;margin-top:20px}
+.card h3:first-child{margin-top:0}
+.body{font-size:15.5px;color:var(--txt2);line-height:1.85}
+.body + .body{margin-top:16px}
+.body + .gap-chips,.gap-chips + .body{margin-top:16px}
+.gap-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:2px}
+.gap-chip{font-size:13px;font-weight:700;padding:4px 11px;border-radius:999px;background:var(--card2);border:1px solid var(--line);color:var(--txt2)}
+.gap-chip b{color:var(--down)}
+.gap-chip.hl{background:rgba(77,163,255,.12);border-color:rgba(77,163,255,.4)}
+.gap-chip.hl b{color:var(--acc2)}
+
+/* 板块地图 */
+.sector{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:11px}
+.sector:last-child{margin-bottom:0}
+.sector .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.sector .name{font-size:16px;font-weight:800}
+.sec-badge{font-size:12.5px;font-weight:700;padding:3px 11px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.b-up{background:rgba(47,191,143,.15);color:var(--up);border:1px solid rgba(47,191,143,.4)}
+.b-wait{background:rgba(77,163,255,.13);color:var(--acc2);border:1px solid rgba(77,163,255,.38)}
+.b-down{background:rgba(224,92,106,.14);color:var(--down);border:1px solid rgba(224,92,106,.4)}
+.b-none{background:rgba(143,163,189,.12);color:var(--txt2);border:1px solid rgba(143,163,189,.32)}
+.dur{font-size:10px;font-weight:700;opacity:.75;margin-left:4px}
+.kpis{display:flex;gap:10px;margin-bottom:9px}
+.kpi{flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.kpi .kl{font-size:12px;color:var(--txt3);margin-bottom:2px}
+.kpi .kv{font-size:18px;font-weight:800}
+.kpi .ks{font-size:12.5px;color:var(--txt3);line-height:1.4;margin-top:1px}
+.sharebar{height:6px;background:var(--card);border-radius:3px;overflow:hidden;margin-bottom:9px}
+.sharebar i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--acc));border-radius:3px}
+.meta{font-size:13.5px;color:var(--txt2);line-height:1.7;margin-bottom:8px}
+.meta b{color:var(--txt)}
+.ev{font-size:13px;color:var(--txt3);line-height:1.65;border-top:1px dashed var(--line);padding-top:8px}
+
+/* 个股卡 */
+.stock{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:11px}
+.stock:last-child{margin-bottom:0}
+.stock .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stk{font-size:16px;font-weight:800}
+.ssec{font-size:12.5px;color:var(--txt3);margin-left:6px;font-weight:400}
+.sret{font-size:19px;font-weight:800}
+.hist{font-size:12.5px;color:var(--txt3);margin-top:1px}
+.cells{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.cell{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 7px}
+.cell .cl{font-size:11.5px;color:var(--txt3);margin-bottom:2px;line-height:1.3}
+.cell .cv{font-size:13.5px;font-weight:700;line-height:1.4}
+.verdict{font-size:13.5px;padding:9px 12px;border-radius:9px;background:var(--card);border:1px solid var(--line);color:var(--txt2);line-height:1.7}
+.verdict b{color:var(--txt)}
+.verdict.v-up{border-left:3px solid var(--up)}
+.verdict.v-down{border-left:3px solid var(--down)}
+.verdict.v-mix{border-left:3px solid var(--warn)}
+.verdict.v-flat{border-left:3px solid var(--acc)}
+
+/* 主叙事 */
+.thesis{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:15px;margin-bottom:12px}
+.thesis:last-child{margin-bottom:0}
+.thesis .head{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.thesis .title-row{display:flex;align-items:flex-start;gap:10px}
+.tno{flex-shrink:0;font-size:12px;font-weight:800;color:var(--acc2);background:rgba(77,163,255,.12);border:1px solid rgba(77,163,255,.35);padding:3px 10px;border-radius:7px;letter-spacing:.05em;margin-top:2px}
+.thesis h3{font-size:16px;font-weight:800;flex:1;line-height:1.5}
+.badges{display:flex;flex-direction:row;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.badge{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;text-align:center}
+.badge.medium{background:rgba(77,163,255,.13);color:var(--acc2);border:1px solid rgba(77,163,255,.35)}
+.badge.low{background:rgba(232,169,76,.13);color:var(--warn);border:1px solid rgba(232,169,76,.35)}
+.badge.span{background:rgba(157,140,255,.12);color:var(--purple);border:1px solid rgba(157,140,255,.35)}
+.blk{border-radius:10px;padding:10px 12px;margin-bottom:9px;background:var(--card);border:1px solid var(--line);border-left:3px solid}
+.blk:last-child{margin-bottom:0}
+.blk .bt{font-size:12.5px;font-weight:800;display:block;margin-bottom:5px;color:var(--txt2)}
+.blk p{font-size:14.5px;color:var(--txt2);line-height:1.75}
+.blk ul{list-style:none}
+.blk li{font-size:14px;color:var(--txt2);line-height:1.7;padding:3px 0 3px 14px;position:relative}
+.blk li::before{content:"";position:absolute;left:0;top:12px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.6}
+.blk li a{color:var(--acc2);text-decoration:none;border-bottom:1px dotted rgba(124,196,255,.4)}
+.blk.hypo{border-left-color:var(--acc)}
+.blk.data{border-left-color:var(--purple)}
+.blk.ev{border-left-color:var(--up)}
+.blk.trans{border-left-color:var(--warn)}
+.verify{font-size:13px;color:var(--txt3);background:rgba(47,191,143,.07);border:1px dashed rgba(47,191,143,.3);border-radius:9px;padding:9px 12px;margin-top:10px;line-height:1.7}
+
+/* 机制卡 */
+.mech{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:11px}
+.mech:last-child{margin-bottom:0}
+.mech .mt{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.mn{font-size:14.5px;font-weight:800}
+.rows{display:flex;flex-direction:column;gap:6px}
+.rows>div{font-size:14px;color:var(--txt2);line-height:1.7;background:var(--card);border-radius:8px;padding:8px 10px}
+.rk{display:inline-block;font-size:11.5px;font-weight:800;color:var(--txt3);background:var(--card2);border:1px solid var(--line);padding:1px 7px;border-radius:5px;margin-right:6px;letter-spacing:.03em}
+.can,.cannot{border-radius:10px;padding:11px 13px;margin-bottom:9px;background:var(--card);border:1px solid var(--line);border-left:3px solid}
+.can{border-left-color:var(--up)}
+.cannot{border-left-color:var(--down)}
+.can .ct,.cannot .ct{font-size:13px;font-weight:700;margin-bottom:6px;display:block}
+.can .ct{color:var(--up)} .cannot .ct{color:var(--down)}
+.can li,.cannot li{list-style:none;position:relative;padding:3px 0 3px 15px;font-size:13.5px;color:var(--txt2);line-height:1.75}
+.can li::before,.cannot li::before{content:"";position:absolute;left:2px;top:12px;width:5px;height:5px;border-radius:50%}
+.can li::before{background:var(--up)} .cannot li::before{background:var(--down)}
+.unres{display:flex;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:14px;color:var(--txt2);line-height:1.65}
+.unres:last-child{border-bottom:none}
+.unres::before{content:"";flex-shrink:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--warn);margin-top:5px}
+
+/* 情景 */
+.scen{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:11px;border-left:3px solid}
+.scen:last-child{margin-bottom:0}
+.scen.base{border-left-color:var(--acc)}
+.scen.up{border-left-color:var(--up)}
+.scen.risk{border-left-color:var(--down)}
+.scen .sn{font-size:16px;font-weight:800;margin-bottom:9px}
+.scen .row{font-size:14px;color:var(--txt2);line-height:1.7;margin-bottom:6px}
+.flow{margin-top:4px}
+.fi{font-size:13px;color:var(--txt2);line-height:1.7;padding:7px 0 7px 18px;position:relative;border-bottom:1px dashed var(--line)}
+.fi:last-child{border-bottom:none}
+.fi::before{content:"→";position:absolute;left:0;color:var(--acc);font-weight:700}
+
+/* 验证 */
+.cal{display:flex;flex-direction:column}
+.cal-item{display:flex;gap:12px;position:relative;padding-bottom:16px}
+.cal-item:last-child{padding-bottom:0}
+.cal-item::before{content:"";position:absolute;left:6px;top:18px;bottom:2px;width:2px;background:linear-gradient(180deg,var(--acc),rgba(77,163,255,.05))}
+.cal-item:last-child::before{display:none}
+.cal-item::after{content:"";position:absolute;left:1px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--bg2);border:3px solid var(--acc)}
+.cal-body{flex:1;padding-left:20px}
+.dt{font-size:15px;font-weight:800;margin-bottom:3px}
+.ev{font-size:13.5px;color:var(--txt2);line-height:1.7}
+.impact{font-size:13px;color:var(--txt3);line-height:1.65;background:var(--card);border-radius:8px;padding:7px 10px;margin-top:6px}
+
+/* 支持数据 */
+.bench{border-radius:10px;overflow:hidden;border:1px solid var(--line);margin-bottom:15px}
+.bench-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;font-size:14.5px;color:var(--txt2);background:var(--card);border-bottom:1px solid var(--line)}
+.bench-row:last-child{border-bottom:none}
+.bench-row .bk{font-weight:600}
+.bench-row .bv{font-weight:800;font-size:14px}
+.bench-row.hero-row{background:rgba(47,191,143,.08)}
+.bench-row.hero-row .bk{color:var(--up);font-weight:800}
+.bench-row.hero-row .bv{color:var(--up)}
+.rank-block{margin-bottom:16px}
+.rank-block h3{font-size:15.5px;font-weight:800;margin-bottom:5px}
+.rank-desc{font-size:13px;color:var(--txt3);line-height:1.6;margin-bottom:8px}
+.rank-row{display:flex;align-items:center;gap:9px;padding:7px 2px;border-bottom:1px solid var(--line)}
+.rank-row:last-child{border-bottom:none}
+.rank-no{flex-shrink:0;width:22px;text-align:center;font-size:12px;font-weight:700;color:var(--txt3)}
+.rank-no.gold{color:#f5c84c}
+.rank-no.top{color:var(--warn)}
+.tk{flex-shrink:0;width:46px;font-size:14px;font-weight:800}
+.co{flex:1;min-width:0;font-size:12.5px;color:var(--txt3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-wrap{flex-shrink:0;width:34%;height:6px;background:var(--card2);border-radius:3px;overflow:hidden}
+.bar-wrap i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.rank-row .val{flex-shrink:0;width:74px;text-align:right;font-size:14px;font-weight:800}
+.rank-note{font-size:13px;color:var(--txt3);line-height:1.65;background:var(--bg2);border-radius:9px;padding:9px 12px;margin-top:8px}
+
+/* 页脚 */
+footer{text-align:center;font-size:13px;color:var(--txt3);padding:24px 14px 0;line-height:1.8}
+.top-btn{position:fixed;right:16px;bottom:24px;width:40px;height:40px;border-radius:50%;background:var(--card2);border:1px solid var(--line2);color:var(--acc2);font-size:17px;display:flex;align-items:center;justify-content:center;text-decoration:none;opacity:0;pointer-events:none;transition:opacity .3s;z-index:50}
+.top-btn.show{opacity:1;pointer-events:auto}
+
+
+.dash-cell .dl{align-items:flex-start}
+.dash-cell .dl .lt{font-size:12px}
+.dash-cell .dl .vl{font-size:12.5px;white-space:normal;line-height:1.4;text-align:right;flex-shrink:1;min-width:0}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<!-- ====== HEADER ====== -->
+<header class="hero">
+  <div class="wrap">
+    <span class="tag">US AI WEEKLY</span>
+    <h1>美股AI赛道周报</h1>
+    <div class="sub">市场窗口 <b>2026-09-14 ~ 2026-09-18</b>（5 个交易日）· 上周 2026-09-04 ~ 2026-09-11 · 近期常态 2026-08-14 ~ 2026-09-11 四窗口中位数<br>
+    新闻窗口 <b>2026-09-11 16:00 ~ 2026-09-18 23:59（美东时间）</b> · 数据截止 <b>2026-09-18</b><br>
+    50 只核心统计样本纳入全部统计与比较，另有 20 只观察样本仅用于跟踪，不纳入汇总计算。本版叠加外部补充证据层：外部行业估值与财报数据进入第五节；分析师快照已积累 9 期，本期起纳入修订判断。</div>
+    <div class="stance neutral">
+      <div class="sv">中性观察</div>
+      <div class="sd">多空信号大体均衡，尚不足以形成明确方向；这是交易与证据状态描述，不代表清仓、买入或任何仓位建议。</div>
+    </div>
+    <div class="signals">
+      <div class="sig"><div class="k">AI 核心样本等权收益</div><div class="v neg">-0.1%</div><div class="d">较 SPY 低 0.1pct · 较 QQQ 低 1.1pct · 较 SMH 低 0.9pct</div></div>
+      <div class="sig"><div class="k">估算周成交总额环比</div><div class="v pos">+9.6%</div><div class="d">上行且成交显著放大 · 高度分化</div></div>
+      <div class="sig"><div class="k">优先观察板块</div><div class="v" style="font-size:15px">网络、HBM</div><div class="d">网络分档由价格行为驱动，尚无窗口内证据支撑</div></div>
+      <div class="sig"><div class="k">边际动态（50 只全样本）</div><div class="v" style="font-size:15px">活跃 9 · 承压 7</div><div class="d">活跃度显著增强 9 只 · 压力显著增强 7 只 · 活跃度回落 9 只 · 波动收敛 2 只 · 其余 23 只无显著变化</div></div>
+    </div>
+  </div>
+</header>
+<main>
+<!-- ====== 01 本周核心结论 ====== -->
+<section>
+  <div class="sec-head"><span class="sec-no">01</span><h2>本周核心结论</h2></div>
+  <div class="card">
+    <p class="body">本周总体风险姿态为<b class="neu">中性观察</b>：多空信号大体均衡，尚不足以形成明确方向；这是交易与证据状态描述，不代表清仓、买入或任何仓位建议。市场上，AI 核心统计样本等权收益 <b class="neg">-0.1%</b>，较 SPY 低 0.1 个百分点、较 QQQ 低 1.1 个百分点、较 SMH 低 0.9 个百分点；核心统计样本估算周成交总额环比 <b class="pos">+9.6%</b>，上行且成交显著放大、高度分化。</p>
+    <div class="gap-chips">
+      <span class="gap-chip">SPY <b>低 0.1pct</b></span>
+      <span class="gap-chip">QQQ <b>低 1.1pct</b></span>
+      <span class="gap-chip">SMH <b>低 0.9pct</b></span>
+      <span class="gap-chip hl">AI 核心 <b>-0.1%</b></span>
+    </div>
+    <h3>核心矛盾</h3>
+    <p class="body">4/8 个子板块等权收益为负，但云平台、AI芯片基本面与价格方向相左；边际动态（全样本 50 只，同重点标的节）：交易活跃度显著增强 9 只、本周交易压力显著增强 7 只、交易活跃度回落 9 只、波动自高位收敛 2 只（未计入前列）、其余 23 只无显著边际变化；另有 1 只波动自高位收敛已计入前列各项，不另计数；成交份额方面，HBM、机器人回落，AI芯片、数据中心电力、网络上升。</p>
+    <h3>方向与外部交叉验证</h3>
+    <p class="body">当前方向上，优先观察<b>网络、HBM</b>（其中网络分档由价格行为驱动，尚无窗口内证据支撑）。外部行业估值回升（半导体较上周 <b>+3.7%</b>），估值压缩机制的外部佐证减弱；外部行业价格多数上涨（数值见第二节），广泛风险偏好下降的证据等级下调；窗口内无池内公司财报，盈利预期证据等级不变；获利了结与仓位调整仍不可验证（详见第五节）。</p>
+    <h3>与上期对照</h3>
+    <p class="body">总体姿态<b>维持中性观察</b>；分档上调：企业数据与AI软件（降低优先级 → 等待确认）；分档下调：AI芯片、云平台（提高关注 → 等待确认）、数据中心电力（提高关注 → 降低优先级）。</p>
+  </div>
+</section>
+<!-- ====== 02 本周综合板块地图 ====== -->
+<section>
+  <div class="sec-head"><span class="sec-no">02</span><h2>本周综合板块地图</h2></div>
+  <p class="note">同一框架下并读等权收益率、成交份额、扩散与龙头集中度。<br>分档依据为本表同行信号组合，括号内为连续期数；「暂不分类」表示本周未形成可判断的信号组合，而非无法判断。各档改变条件：「提高关注」等权收益转负、上涨比例跌破一半或高置信反向证据时下调；「等待确认」价格、成交与证据方向一致确认后解除；「降低优先级」窗口内高置信支持证据，或上涨比例回升过半后解除。</p>
+  <div class="sectors">
+    <div class="sector">
+      <div class="top"><span class="name">AI芯片</span><span class="sec-badge b-wait">等待确认</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="kl">等权收益</div><div class="kv pos">+0.2%</div></div>
+        <div class="kpi"><div class="kl">成交份额</div><div class="kv" style="color:#c2b6ff">33.3%</div></div>
+        <div class="kpi"><div class="kl">上涨比例</div><div class="kv">42%</div><div class="ks">中位38% 改善</div></div>
+      </div>
+      <div class="sharebar"><i style="width:100.0%"></i></div>
+      <div class="meta">上周等权收益率 <b>+3.4%</b> · 中位 <b>-0.9%</b> · 份额环比 <b class="pos">+1.07 pct</b> · 成交活跃度高于近期常态；上涨比例较近4周中位（38%）改善 · 龙头 <b>NVDA</b> 占 <b>35%</b>（中，与上周基本持平）</div>
+      <div class="ev">基本面披露强劲，但与价格表现冲突</div>
+    </div>
+    <div class="sector">
+      <div class="top"><span class="name">云平台</span><span class="sec-badge b-wait">等待确认</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="kl">等权收益</div><div class="kv neg">-1.7%</div></div>
+        <div class="kpi"><div class="kl">成交份额</div><div class="kv" style="color:#c2b6ff">24.7%</div></div>
+        <div class="kpi"><div class="kl">上涨比例</div><div class="kv">29%</div><div class="ks">中位50% 恶化</div></div>
+      </div>
+      <div class="sharebar"><i style="width:74.2%"></i></div>
+      <div class="meta">上周等权收益率 <b>+1.1%</b> · 中位 <b>+1.0%</b> · 份额环比 <b class="pos">+0.32 pct</b> · 成交活跃度高于近期常态；上涨比例较近4周中位（50%）恶化 · 龙头 <b>META</b> 占 <b>25%</b>（低，较上周下降）</div>
+      <div class="ev">基本面披露强劲，但与价格表现冲突</div>
+    </div>
+    <div class="sector">
+      <div class="top"><span class="name">HBM</span><span class="sec-badge b-up">提高关注<span class="dur">连续 2 期</span></span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="kl">等权收益</div><div class="kv pos">+2.1%</div></div>
+        <div class="kpi"><div class="kl">成交份额</div><div class="kv" style="color:#c2b6ff">14.3%</div></div>
+        <div class="kpi"><div class="kl">上涨比例</div><div class="kv">67%</div><div class="ks">中位33% 改善</div></div>
+      </div>
+      <div class="sharebar"><i style="width:42.9%"></i></div>
+      <div class="meta">上周等权收益率 <b>+2.3%</b> · 中位 <b>-2.3%</b> · 份额环比 <b class="neg">-1.78 pct</b> · 成交活跃度高于近期常态；上涨比例较近4周中位（33%）改善 · 龙头 <b>MU</b> 占 <b>76%</b>（高，较上周下降）</div>
+      <div class="ev">公司级信号，尚未形成行业验证</div>
+    </div>
+    <div class="sector">
+      <div class="top"><span class="name">网络</span><span class="sec-badge b-up">提高关注<span class="dur">连续 2 期 · 价格行为驱动</span></span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="kl">等权收益</div><div class="kv pos">+1.3%</div></div>
+        <div class="kpi"><div class="kl">成交份额</div><div class="kv" style="color:#c2b6ff">9.9%</div></div>
+        <div class="kpi"><div class="kl">上涨比例</div><div class="kv">56%</div><div class="ks">持平</div></div>
+      </div>
+      <div class="sharebar"><i style="width:29.7%"></i></div>
+      <div class="meta">上周等权收益率 <b>+7.9%</b> · 中位 <b>-1.7%</b> · 份额环比 <b class="pos">+0.71 pct</b> · 成交活跃度高于近期常态；上涨比例较近4周中位（—）持平 · 龙头 <b>DELL</b> 占 <b>27%</b>（中，与上周基本持平）</div>
+      <div class="ev">暂无可靠窗口内催化</div>
+    </div>
+    <div class="sector">
+      <div class="top"><span class="name">机器人</span><span class="sec-badge b-down">降低优先级<span class="dur">连续 2 期</span></span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="kl">等权收益</div><div class="kv neg">-1.2%</div></div>
+        <div class="kpi"><div class="kl">成交份额</div><div class="kv" style="color:#c2b6ff">6.2%</div></div>
+        <div class="kpi"><div class="kl">上涨比例</div><div class="kv">0%</div><div class="ks">中位33% 恶化</div></div>
+      </div>
+      <div class="sharebar"><i style="width:18.6%"></i></div>
+      <div class="meta">上周等权收益率 <b>-0.8%</b> · 中位 <b>-0.1%</b> · 份额环比 <b class="neg">-1.38 pct</b> · 成交活跃度高于近期常态；上涨比例较近4周中位（33%）恶化 · 龙头 <b>TSLA</b> 占 <b>99%</b>（高，与上周基本持平）</div>
+      <div class="ev">暂无可靠窗口内催化</div>
+    </div>
+    <div class="sector">
+      <div class="top"><span class="name">企业数据与AI软件</span><span class="sec-badge b-wait">等待确认</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="kl">等权收益</div><div class="kv pos">+2.6%</div></div>
+        <div class="kpi"><div class="kl">成交份额</div><div class="kv" style="color:#c2b6ff">6.1%</div></div>
+        <div class="kpi"><div class="kl">上涨比例</div><div class="kv">83%</div><div class="ks">中位42% 改善</div></div>
+      </div>
+      <div class="sharebar"><i style="width:18.3%"></i></div>
+      <div class="meta">上周等权收益率 <b>-5.7%</b> · 中位 <b>-2.5%</b> · 份额环比 <b class="pos">+0.27 pct</b> · 成交活跃度接近近期常态；上涨比例较近4周中位（42%）改善 · 龙头 <b>PLTR</b> 占 <b>38%</b>（中，较上周上升）</div>
+      <div class="ev">公司级信号，尚未形成行业验证</div>
+    </div>
+    <div class="sector">
+      <div class="top"><span class="name">数据中心电力</span><span class="sec-badge b-down">降低优先级</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="kl">等权收益</div><div class="kv neg">-3.8%</div></div>
+        <div class="kpi"><div class="kl">成交份额</div><div class="kv" style="color:#c2b6ff">3.7%</div></div>
+        <div class="kpi"><div class="kl">上涨比例</div><div class="kv">0%</div><div class="ks">中位50% 恶化</div></div>
+      </div>
+      <div class="sharebar"><i style="width:11.1%"></i></div>
+      <div class="meta">上周等权收益率 <b>+2.0%</b> · 中位 <b>-0.3%</b> · 份额环比 <b class="pos">+0.84 pct</b> · 成交活跃度高于近期常态；上涨比例较近4周中位（50%）恶化 · 龙头 <b>GEV</b> 占 <b>37%</b>（中，较上周上升）</div>
+      <div class="ev">仅有间接证据，未形成直接验证</div>
+    </div>
+    <div class="sector">
+      <div class="top"><span class="name">AI应用</span><span class="sec-badge b-down">降低优先级<span class="dur">连续 2 期</span></span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="kl">等权收益</div><div class="kv neg">-1.5%</div></div>
+        <div class="kpi"><div class="kl">成交份额</div><div class="kv" style="color:#c2b6ff">1.8%</div></div>
+        <div class="kpi"><div class="kl">上涨比例</div><div class="kv">25%</div><div class="ks">中位62% 恶化</div></div>
+      </div>
+      <div class="sharebar"><i style="width:5.4%"></i></div>
+      <div class="meta">上周等权收益率 <b>-5.7%</b> · 中位 <b>+1.5%</b> · 份额环比 <b class="neg">-0.06 pct</b> · 成交活跃度高于近期常态；上涨比例较近4周中位（62%）恶化 · 龙头 <b>APP</b> 占 <b>49%</b>（中，与上周基本持平）</div>
+      <div class="ev">公司级信号，尚未形成行业验证</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>板块之间的分化与传导</h3>
+    <p class="body">本周成交份额从 HBM、机器人等板块移向 AI芯片、数据中心电力等板块。这种迁移是交易活跃度的相对变化，不能解读为净买入或净卖出。数据中心电力、机器人板块纳入统计的核心样本没有一只上涨；而 HBM、机器人的读数主要由单一龙头决定。</p>
+    <p class="body">外部行业数据显示，本期价格弱势主要集中于软件应用（<b class="neg">-0.4%</b>），半导体价格（<b class="pos">+0.9%</b>）与计算机硬件价格（<b class="pos">+8.5%</b>）上涨；外部分类含大量非 AI 公司，仅作交叉验证。</p>
+  </div>
+</section>
+<!-- ====== 03 重点标的动态信号 ====== -->
+<section>
+  <div class="sec-head"><span class="sec-no">03</span><h2>重点标的动态信号</h2></div>
+  <p class="note">阅读说明：环比为本周与上周比较；近期常态为近四周（四个互不重叠 5 日窗口）中位数；估算周换手率为流通股本快照估算值。</p>
+  <div class="stocks">
+    <div class="stock">
+      <div class="top">
+        <div><span class="stk">CRWV</span><span class="ssec">云平台 · 跨榜单高活跃</span></div>
+        <div style="text-align:right"><div class="sret neg">-8.6%</div><div class="hist">上周 +5.2% · 近4周中位 -2.9%</div></div>
+      </div>
+      <div class="cells">
+        <div class="cell"><div class="cl">成交金额环比</div><div class="cv pos">+29%</div></div>
+        <div class="cell"><div class="cl">换手率</div><div class="cv">41.1%→60.9%</div></div>
+        <div class="cell"><div class="cl">20日波动率</div><div class="cv">76%→70%</div></div>
+        <div class="cell"><div class="cl">金额为4周中位</div><div class="cv">1.6 倍</div></div>
+        <div class="cell"><div class="cl">板块内占比</div><div class="cv">6%（上周5%）</div></div>
+        <div class="cell"><div class="cl">板块份额环比</div><div class="cv pos">+0.32pct</div></div>
+      </div>
+      <div class="verdict v-mix"><b>判断：</b>波动收敛但压力仍在：成交金额增加，换手率提高，波动收敛。</div>
+    </div>
+    <div class="stock">
+      <div class="top">
+        <div><span class="stk">CRDO</span><span class="ssec">网络 · 跨榜单高活跃</span></div>
+        <div style="text-align:right"><div class="sret pos">+7.9%</div><div class="hist">上周 -0.7% · 近4周中位 -6.9%</div></div>
+      </div>
+      <div class="cells">
+        <div class="cell"><div class="cl">成交金额环比</div><div class="cv pos">+15%</div></div>
+        <div class="cell"><div class="cl">换手率</div><div class="cv">24.4%→28.8%</div></div>
+        <div class="cell"><div class="cl">20日波动率</div><div class="cv">101%→97%</div></div>
+        <div class="cell"><div class="cl">金额为4周中位</div><div class="cv">1.2 倍</div></div>
+        <div class="cell"><div class="cl">板块内占比</div><div class="cv">7%（上周7%）</div></div>
+        <div class="cell"><div class="cl">板块份额环比</div><div class="cv pos">+0.71pct</div></div>
+      </div>
+      <div class="verdict v-up"><b>判断：</b>交易活跃度小幅增强：成交金额增加，换手率提高。</div>
+    </div>
+    <div class="stock">
+      <div class="top">
+        <div><span class="stk">MU</span><span class="ssec">HBM · 所属板块交易中心</span></div>
+        <div style="text-align:right"><div class="sret pos">+4.2%</div><div class="hist">上周 +1.8% · 近4周中位 +2.1%</div></div>
+      </div>
+      <div class="cells">
+        <div class="cell"><div class="cl">成交金额环比</div><div class="cv neg">-10%</div></div>
+        <div class="cell"><div class="cl">换手率</div><div class="cv">11.9%→11.2%</div></div>
+        <div class="cell"><div class="cl">20日波动率</div><div class="cv">54%→52%</div></div>
+        <div class="cell"><div class="cl">金额为4周中位</div><div class="cv">1.0 倍</div></div>
+        <div class="cell"><div class="cl">板块内占比</div><div class="cv">76%（上周83%）</div></div>
+        <div class="cell"><div class="cl">板块份额环比</div><div class="cv neg">-1.78pct</div></div>
+      </div>
+      <div class="verdict v-mix"><b>判断：</b>交易活跃度回落：成交金额减少。</div>
+    </div>
+    <div class="stock">
+      <div class="top">
+        <div><span class="stk">DELL</span><span class="ssec">网络 · 高成交规模</span></div>
+        <div style="text-align:right"><div class="sret pos">+0.1%</div><div class="hist">上周 +9.9% · 近4周中位 +9.0%</div></div>
+      </div>
+      <div class="cells">
+        <div class="cell"><div class="cl">成交金额环比</div><div class="cv pos">+24%</div></div>
+        <div class="cell"><div class="cl">换手率</div><div class="cv">7.5%→8.8%</div></div>
+        <div class="cell"><div class="cl">20日波动率</div><div class="cv">88%→88%</div></div>
+        <div class="cell"><div class="cl">金额为4周中位</div><div class="cv">1.7 倍</div></div>
+        <div class="cell"><div class="cl">板块内占比</div><div class="cv">27%（上周26%）</div></div>
+        <div class="cell"><div class="cl">板块份额环比</div><div class="cv pos">+0.71pct</div></div>
+      </div>
+      <div class="verdict v-up"><b>判断：</b>交易活跃度小幅增强：成交金额增加，换手率提高，波动维持高位。</div>
+    </div>
+    <div class="stock">
+      <div class="top">
+        <div><span class="stk">GEV</span><span class="ssec">数据中心电力 · 公司事件代表</span></div>
+        <div style="text-align:right"><div class="sret neg">-1.8%</div><div class="hist">上周 +1.6% · 近4周中位 -1.3%</div></div>
+      </div>
+      <div class="cells">
+        <div class="cell"><div class="cl">成交金额环比</div><div class="cv pos">+122%</div></div>
+        <div class="cell"><div class="cl">换手率</div><div class="cv">2.7%→6.1%</div></div>
+        <div class="cell"><div class="cl">20日波动率</div><div class="cv">43%→49%</div></div>
+        <div class="cell"><div class="cl">金额为4周中位</div><div class="cv">1.5 倍</div></div>
+        <div class="cell"><div class="cl">板块内占比</div><div class="cv">37%（上周23%）</div></div>
+        <div class="cell"><div class="cl">板块份额环比</div><div class="cv pos">+0.84pct</div></div>
+      </div>
+      <div class="verdict v-down"><b>判断：</b>本周交易压力显著增强：成交金额增加，换手率提高，波动扩大。</div>
+    </div>
+    <div class="stock">
+      <div class="top">
+        <div><span class="stk">CEG</span><span class="ssec">数据中心电力 · 板块背离验证</span></div>
+        <div style="text-align:right"><div class="sret neg">-10.5%</div><div class="hist">上周 -0.1% · 近4周中位 +0.4%</div></div>
+      </div>
+      <div class="cells">
+        <div class="cell"><div class="cl">成交金额环比</div><div class="cv pos">+33%</div></div>
+        <div class="cell"><div class="cl">换手率</div><div class="cv">3.9%→5.7%</div></div>
+        <div class="cell"><div class="cl">20日波动率</div><div class="cv">34%→41%</div></div>
+        <div class="cell"><div class="cl">金额为4周中位</div><div class="cv">1.4 倍</div></div>
+        <div class="cell"><div class="cl">板块内占比</div><div class="cv">12%（上周13%）</div></div>
+        <div class="cell"><div class="cl">板块份额环比</div><div class="cv pos">+0.84pct</div></div>
+      </div>
+      <div class="verdict v-down"><b>判断：</b>本周交易压力显著增强：成交金额增加，换手率提高，波动扩大。</div>
+    </div>
+    <div class="stock">
+      <div class="top">
+        <div><span class="stk">SYM</span><span class="ssec">机器人 · 跨榜单高活跃</span></div>
+        <div style="text-align:right"><div class="sret neg">-0.6%</div><div class="hist">上周 +1.3% · 近4周中位 +0.2%</div></div>
+      </div>
+      <div class="cells">
+        <div class="cell"><div class="cl">成交金额环比</div><div class="cv pos">+49%</div></div>
+        <div class="cell"><div class="cl">换手率</div><div class="cv">15.1%→22.2%</div></div>
+        <div class="cell"><div class="cl">20日波动率</div><div class="cv">46%→48%</div></div>
+        <div class="cell"><div class="cl">金额为4周中位</div><div class="cv">1.5 倍</div></div>
+        <div class="cell"><div class="cl">板块内占比</div><div class="cv">&lt;1%（上周&lt;1%）</div></div>
+        <div class="cell"><div class="cl">板块份额环比</div><div class="cv neg">-1.38pct</div></div>
+      </div>
+      <div class="verdict v-up"><b>判断：</b>交易活跃度显著增强：成交金额增加，换手率提高，波动扩大。</div>
+    </div>
+    <div class="stock">
+      <div class="top">
+        <div><span class="stk">AMD</span><span class="ssec">AI芯片 · 高成交规模</span></div>
+        <div style="text-align:right"><div class="sret pos">+8.5%</div><div class="hist">上周 +13.1% · 近4周中位 -0.6%</div></div>
+      </div>
+      <div class="cells">
+        <div class="cell"><div class="cl">成交金额环比</div><div class="cv pos">+24%</div></div>
+        <div class="cell"><div class="cl">换手率</div><div class="cv">6.5%→7.7%</div></div>
+        <div class="cell"><div class="cl">20日波动率</div><div class="cv">53%→50%</div></div>
+        <div class="cell"><div class="cl">金额为4周中位</div><div class="cv">1.5 倍</div></div>
+        <div class="cell"><div class="cl">板块内占比</div><div class="cv">18%（上周16%）</div></div>
+        <div class="cell"><div class="cl">板块份额环比</div><div class="cv pos">+1.07pct</div></div>
+      </div>
+      <div class="verdict v-up"><b>判断：</b>交易活跃度小幅增强：成交金额增加，换手率提高。</div>
+    </div>
+  </div>
+</section>
+<!-- ====== 04 本周市场主叙事 ====== -->
+<section>
+  <div class="sec-head"><span class="sec-no">04</span><h2>本周市场主叙事</h2></div>
+  <div class="theses">
+    <div class="thesis">
+      <div class="head">
+        <div class="title-row"><span class="tno">叙事 N1</span><h3>利率主导分化：高负债利率敏感板块承压、现金流自足者抗跌</h3></div>
+        <div class="badges"><span class="badge medium">置信度 中</span><span class="badge span">时间跨度 中期 4—8 周</span></div>
+      </div>
+      <div class="bd">
+        <div class="blk hypo"><span class="bt">核心判断</span><p>本期 FOMC 加息 25bp 符合预期（事前定价约 93%），但点阵图鹰派上移（2026 年底中位数 4.1%）推升 10 年期美债收益率至 5.01%（周 +5bp）。定价沿利率敏感度分化：电力板块等权收益 -3.79%、CEG 周收益 -10.55% 最深，高杠杆 CRWV 融资下跌；而 QQQ +0.92%、GOOGL 周收益 +3.26% 等现金流自足者抗跌。市场可能正按「更高更久」利率路径重估折现率与融资成本敏感度，但窗口短、电力折现归因为类比外推，尚待验证。</p></div>
+        <div class="blk data"><span class="bt">市场数据</span><ul><li>数据中心电力板块等权 -3.8%（上周 +2.0%、中位 -0.3%），份额环比上升 0.84 个百分点，上涨比例 0%</li><li>CEG 本周收益率 -10.5%（上周 -0.1%、近4周中位 +0.4%）；估算周成交金额环比增加 33%，为近4周中位数的 1.4 倍；估算周换手率由 3.9% 升至 5.7%；本周交易压力显著增强</li><li>中心与扩散：板块交易中心 GEV（占板块成交金额 37%）本周 -1.8%；当前纳入统计的 6 只核心样本全部下跌，弱势已在样本内部扩散（不代表所有上市公司）；扩散状态未较近期常态改善</li></ul></div>
+        <div class="blk ev"><span class="bt">关键新闻证据</span><ul><li>9月16日，美联储季度经济预测点阵图全面上移：2026 年底利率中位数 4.1%、长期 3.2%。（<a href="https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm" target="_blank" rel="noopener">Federal Reserve（季度经济预测 SEP）</a>）</li><li>背景：9月15日，公用事业 ETF XLU 创 52 周新低，CNBC 归因 10 年期收益率破 5% 削弱股息吸引力。（<a href="https://www.cnbc.com/2026/09/14/stock-market-today-live-updates.html" target="_blank" rel="noopener">CNBC（市场综述）</a>）</li></ul></div>
+        <div class="blk trans"><span class="bt">涉及板块与传导</span><p>信号起点：数据中心电力；可能影响：云平台；机制：成本传导；验证：10 年期收益率站稳 5% 上方且电力板块连续第二期跑输、公用事业资产续创新低，则加强；不能确认：因果链条。</p></div>
+      </div>
+      <div class="verify">已确认：上述交易状态变化；验证见第七部分。</div>
+    </div>
+    <div class="thesis">
+      <div class="head">
+        <div class="title-row"><span class="tno">叙事 N2</span><h3>NeoCloud 融资事件主导定价，需求与定价权信号未证伪</h3></div>
+        <div class="badges"><span class="badge medium">置信度 中</span><span class="badge span">时间跨度 中期 4—8 周</span></div>
+      </div>
+      <div class="bd">
+        <div class="blk hypo"><span class="bt">核心判断</span><p>本期云平台板块等权收益 -1.65%：CRWV 周收益 -8.57%（相对成交量 1.48x 为最异常），窗口内连发融资公告（3500 万股 ATM、可转债上调至 37 亿美元）；NBIS（观察样本）周收益 -0.45%。但同期 CoreWeave 披露更高价签约、Q3 初以来新增超 250 亿美元净客户承诺，Nebius 三个月内第二次涨价 17%—21%，Oracle 约 180 亿美元项目贷款二级报价跌至 89—91 美分。本周 NeoCloud 定价可能由融资与信用事件主导而非需求证伪，但短约口径与项目贷款传导范围有限，尚待验证。</p></div>
+        <div class="blk data"><span class="bt">市场数据</span><ul><li>云平台板块等权 -1.7%（上周 +1.1%、中位 +1.0%），份额环比上升 0.32 个百分点，上涨比例 29%</li><li>CRWV 本周收益率 -8.6%（上周 +5.2%、近4周中位 -2.9%）；估算周成交金额环比增加 29%，为近4周中位数的 1.6 倍；估算周换手率由 41.1% 升至 60.9%；价格明显下跌，成交与换手同步提高，但波动率回落</li><li>中心与扩散：板块交易中心 META（占板块成交金额 25%）本周 +2.7%；核心样本上涨比例仅 29%，变化集中在少数股票；扩散状态未较近期常态改善</li></ul></div>
+        <div class="blk ev"><span class="bt">关键新闻证据</span><ul><li>9月17日，CoreWeave 同日宣布 ATM 计划：可市价增发至多 3500 万股 A 类股。（<a href="https://investors.coreweave.com/news/news-details/2026/CoreWeave-Announces-At-the-Market-Offering-Program/default.aspx" target="_blank" rel="noopener">CoreWeave IR</a>）</li><li>9月18日，CoreWeave 可转债定价上调至 37 亿美元：票息 2.875%、初始转股价 97.85 美元（较 09-17 收盘溢价约 22.5%）。（<a href="https://investors.coreweave.com/news/news-details/2026/CoreWeave-Prices-Upsized-3-7-Billion-Convertible-Senior-Notes-Offering/default.aspx" target="_blank" rel="noopener">CoreWeave IR</a>）</li><li>9月18日，FT 报道 Oracle 新墨西哥数据中心约 180 亿美元项目贷款二级报价跌至 89—91 美分，分销停滞。（<a href="https://www.reuters.com/business/finance/oracles-18-billion-data-center-debt-under-pressure-ft-reports-2026-09-18/" target="_blank" rel="noopener">FT/Reuters（转载）</a>）</li></ul></div>
+        <div class="blk trans"><span class="bt">涉及板块与传导</span><p>目前只确认单板块或公司级信号（云平台），不强行展开跨产业链传导；不能确认的部分：因果链条。</p></div>
+      </div>
+      <div class="verify">已确认：上述交易状态变化；验证见第七部分。</div>
+    </div>
+    <div class="thesis">
+      <div class="head">
+        <div class="title-row"><span class="tno">叙事 N3</span><h3>AI 安全议题方向不确定：脉冲式轮动后周内降温</h3></div>
+        <div class="badges"><span class="badge low">置信度 低</span><span class="badge span">时间跨度 短期 1—2 周</span></div>
+      </div>
+      <div class="bd">
+        <div class="blk hypo"><span class="bt">核心判断</span><p>本周一 AI 安全议题首次以板块轮动形式进入盘面定价（硬件普跌、软件与安全股大涨），黄仁勋反驳与监管否决后周内降温，硬件修复、企业软件板块全周等权收益 +2.59%。现有证据仅确认脉冲式轮动本身：轮动由单篇文章引发（间接证据），降温由管理层反驳解释（背景证据），均无公司级直接证据。安全议题是持续定价变量还是一次性情绪冲击，现有证据不足以形成单向结论。</p></div>
+        <div class="blk data"><span class="bt">市场数据</span><ul><li>AI芯片板块等权 +0.2%（上周 +3.4%、中位 -0.9%），份额环比上升 1.07 个百分点，上涨比例 42%</li><li>NVDA 本周收益率 +1.8%（上周 -4.3%、近4周中位 -1.8%）；估算周成交金额环比增加 7%，为近4周中位数的 0.9 倍；估算周换手率由 2.3% 升至 2.6%；绝对成交规模仍大，但边际活跃度未高于近期常态</li><li>中心与扩散：板块交易中心 NVDA（占板块成交金额 35%）本周 +1.8%；核心样本上涨比例仅 42%，变化集中在少数股票</li></ul></div>
+        <div class="blk ev"><span class="bt">关键新闻证据</span><ul><li>9月14日，Anthropic CEO Amodei 周末发文呼吁放缓 AI 前沿并获附和，硬件股普跌（NVDA 盘中约 -3.5%）而软件与安全股大涨（CRWD 约 +14%）。（<a href="https://www.investopedia.com/market-update-ai-trade-stumbles-as-ceos-talk-model-slowdown-nvda-mrvl-amd-intc-panw-crwd-crm-adbe-spcx-12120488" target="_blank" rel="noopener">Investopedia（市场综述）</a>）</li><li>背景：9月15日，黄仁勋在 Dreamforce 接受 CNBC 采访，称 Anthropic 提出的 AI 安全反垄断豁免提议「完全没必要」（<a href="https://www.cnbc.com/2026/09/15/nvidia-huang-ai-slowdown-antitrust.html" target="_blank" rel="noopener">CNBC</a>）</li></ul></div>
+        <div class="blk trans"><span class="bt">涉及板块与传导</span><p>信号起点：AI芯片；可能影响：企业数据与AI软件；机制：订单与预期传导；验证：AI 安全或监管议题再次引发跨板块轮动、或出现立法/行政令等落地事件，则加强；不能确认：何种力量主导后续价格路径。</p></div>
+      </div>
+      <div class="verify">已确认：上述交易状态变化；验证见第七部分。</div>
+    </div>
+  </div>
+</section>
+<!-- ====== 05 整体回调：原因框架与证据评估 ====== -->
+<section>
+  <div class="sec-head"><span class="sec-no">05</span><h2>市场分化：原因框架与证据评估</h2></div>
+  <div class="dash-grid">
+      <div class="dash-cell">
+        <div class="dl"><span class="lt">板块等权收益分化</span><span class="vl">+2.6% / -3.8%</span></div>
+        <div class="cmp">
+          <span class="lb pos">+2.6%</span>
+          <div class="track"><i class="pos" style="left:0;width:40.6%"></i><i class="neg" style="right:0;width:59.4%"></i><div class="axis"></div></div>
+          <span class="lb neg">-3.8%</span>
+        </div>
+        <div class="dm">企业数据与AI软件 最高、数据中心电力 最低；相差 6.4 个百分点 · 4/8 个子板块为负</div>
+      </div>
+      <div class="dash-cell">
+        <div class="dl"><span class="lt">核心样本上涨家数</span><span class="vl ">20/50 只</span></div>
+        <div class="dash-bar"><i class="acc" style="width:40.0%"></i></div>
+        <div class="dm">50 只核心统计样本中 20 只上涨</div>
+      </div>
+      <div class="dash-cell">
+        <div class="dl"><span class="lt">成交份额上升最大</span><span class="vl pos">AI芯片 +1.07pct</span></div>
+        <div class="dash-bar"><i class="pos" style="width:60.1%"></i></div>
+        <div class="dm">份额环比升幅居 8 板块之首</div>
+      </div>
+      <div class="dash-cell">
+        <div class="dl"><span class="lt">成交份额下降最大</span><span class="vl neg">HBM -1.78pct</span></div>
+        <div class="dash-bar"><i class="neg" style="width:100.0%"></i></div>
+        <div class="dm">份额环比降幅居 8 板块之首</div>
+      </div>
+      <div class="dash-cell">
+        <div class="dl"><span class="lt">成交总额环比</span><span class="vl pos">+9.6%</span></div>
+        <div class="dash-bar"><i class="pos" style="width:100.0%"></i></div>
+        <div class="dm">上行且成交显著放大</div>
+      </div>
+      <div class="dash-cell">
+        <div class="dl"><span class="lt">外部行业价格</span><span class="vl" style="font-size:12px;white-space:normal;line-height:1.5;text-align:right">硬件 +8.5% · 半导体 +0.9% · 软件 -0.4%</span></div>
+        <div class="dm">外部分类含大量非 AI 公司，仅作交叉验证</div>
+      </div>
+  </div>
+  <div class="mechs">
+    <div class="mech">
+      <div class="mt"><span class="mn">产业基本面改善</span><span class="sec-badge b-up">部分支持</span></div>
+      <div class="rows">
+        <div><span class="rk">内部证据</span>CoreWeave 更高价签约、Q3 初以来新增超 250 亿美元净客户承诺；Nebius 三个月内第二次涨价 17%—21%</div>
+        <div><span class="rk">外部参照</span>本期窗口内池内公司无财报（财报真空周），不作财报兑现核验</div>
+        <div><span class="rk">反向证据/限制</span>需求侧为公司单方披露，短约口径不可外推；窗口内无池内财报</div>
+        <div><span class="rk">仍缺数据</span>第三方订单流、公司财报</div>
+      </div>
+    </div>
+    <div class="mech">
+      <div class="mt"><span class="mn">盈利或资本开支预期调整</span><span class="sec-badge b-wait">未验证</span></div>
+      <div class="rows">
+        <div><span class="rk">内部证据</span>Salesforce 给出 FY2030 目标超 630 亿美元但被卖出；分析师快照 8 只锚点周度预期持平（阈值 ±1%）</div>
+        <div><span class="rk">外部参照</span>当期财报收入不及预期：不适用（本期无窗口内财报）；未来预期修订：周度共识基本持平（8/8 只锚点，阈值 ±1%）</div>
+        <div><span class="rk">反向证据/限制</span>远期目标未转化为正反馈；窗口内无财报指引</div>
+        <div><span class="rk">仍缺数据</span>更长历史序列（修订判断仅基于 9 期）</div>
+      </div>
+    </div>
+    <div class="mech">
+      <div class="mt"><span class="mn">存储长约定价重估</span><span class="sec-badge b-up">部分支持</span></div>
+      <div class="rows">
+        <div><span class="rk">内部证据</span>HBM 板块连续第二周走强（+2.10%）；Intel CEO 称内存价已涨 5—7 倍；SK 海力士洽谈赴美生产内存</div>
+        <div><span class="rk">外部参照</span>快照：MU 未来财年共识周度 EPS +0.6%、营收 +0.4%（阈值 ±1% 内持平）</div>
+        <div><span class="rk">反向证据/限制</span>无新长约披露；涨价言论为同业高管表态而非合约价；美光台湾劳资谈判扰动</div>
+        <div><span class="rk">仍缺数据</span>长约条款、内存合约价</div>
+      </div>
+    </div>
+    <div class="mech">
+      <div class="mt"><span class="mn">估值压缩或盈利基数上修</span><span class="sec-badge b-wait">未验证</span></div>
+      <div class="rows">
+        <div><span class="rk">内部证据</span>外部半导体与计算机硬件估值周升 2.5%—3.7%；软件应用外部估值周降约 29%（疑样本构成）；点阵图鹰派上移推高折现率</div>
+        <div><span class="rk">外部参照</span>半导体估值较上周 +3.7%、较中位 +4.1%；软件应用估值较上周 -28.9%、较中位 -36.1%</div>
+        <div><span class="rk">反向证据/限制</span>外部分类不等于项目子板块；软件估值降幅疑为样本构成，不作佐证</div>
+        <div><span class="rk">仍缺数据</span>个股历史估值序列</div>
+      </div>
+    </div>
+    <div class="mech">
+      <div class="mt"><span class="mn">算力需求外溢</span><span class="sec-badge b-up">部分支持</span></div>
+      <div class="rows">
+        <div><span class="rk">内部证据</span>Generac 获 Amazon 首批约 24 亿美元备用发电机订单（累计最高 80 亿）；GEV 泰国燃机订单；CoreWeave 签约供电增至约 4.2GW</div>
+        <div><span class="rk">外部参照</span>（无对应外部数据）</div>
+        <div><span class="rk">反向证据/限制</span>电力板块全跌由利率敏感主导，外溢标的被系统性压制而非需求证伪</div>
+        <div><span class="rk">仍缺数据</span>融资条款、积压转化节奏</div>
+      </div>
+    </div>
+    <div class="mech">
+      <div class="mt"><span class="mn">获利了结或仓位调整</span><span class="sec-badge b-wait">未验证</span></div>
+      <div class="rows">
+        <div><span class="rk">内部证据</span>成交份额从 HBM 与企业软件移向网络、AI芯片；CRWV 稀释引发套利性抛压（推断）；CRM 远期目标超预期反跌</div>
+        <div><span class="rk">外部参照</span>外部数据服务 无资金流与订单流接口</div>
+        <div><span class="rk">反向证据/限制</span>份额变化不等于净买卖；09-18 四巫日成交含技术性因素、效力降权；无资金流数据</div>
+        <div><span class="rk">仍缺数据</span>周度资金流与持仓数据</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>初步结论</h3>
+    <div class="can"><span class="badge ok">可以确认</span><ul><li>本周加息落地且点阵图鹰派上移，指数浅跌但板块沿利率敏感度剧烈分化（电力全跌、企业软件反弹）（等权收益最高 +2.6%、最低 -3.8%，相差 6.4 个百分点；核心样本 20/50 只上涨）；</li><li>NeoCloud 定价由融资与信用事件主导：CRWV 融资三连击大跌，但更高价签约与 NBIS 涨价显示需求未证伪；</li><li>AI 安全议题本周首次成为盘面定价变量，脉冲后周内降温，持续性无法确认；</li><li>存储链连续第二周走强：涨价言论与 SK 海力士赴美为信号，但无长约披露。</li></ul></div>
+    <div class="cannot"><span class="badge no">不能确认</span><ul><li>无法确认主导机制与各机制比重（利率、融资事件与情绪共振难分离）；</li><li>无法分离电力板块下跌中折现压缩与融资成本两路径的权重；</li><li>无法确认 AI 安全议题是持续定价变量还是一次性情绪冲击。</li></ul></div>
+    <h3>仍属未知的变化 <small style="font-size:11px;color:var(--txt3)">保持未知</small></h3>
+<div class="unres"><div>AMD 周收益 +8.46%（核心统计样本第一）：未核到公司级催化，推断为利好惯性与半导体领涨共振</div></div>
+<div class="unres"><div>SNPS 周收益 -3.12%、LRCX 周收益 -3.39%、MBLY 周收益 -2.79%：未核到公司级事件，板块联动或惯性推断</div></div>
+<div class="unres"><div>OKLO（观察样本）周收益 +4.91%：电力板块全跌中逆势上涨，窗口内无新事件</div></div>
+<div class="unres"><div>CRDO 周收益 +7.94%（相对成交量 1.35x）、IREN（观察样本）+6.50%：窗口内未检索到公司级归因</div></div>
+<div class="unres"><div>CEG 周收益 -10.55% 与 VST -5.20% 的板块内分化：方向可由利率敏感解释，个券差异无公司级解释</div></div>
+<div class="unres"><div>TEM（观察样本）周收益 +31.91% 全样本第一：二线单源（会议 + 上调展望），无一线核实</div></div>
+<div class="unres"><div>SNDK（观察样本）周收益 +9.70%：周一急跌后随存储涨价叙事修复，无一线归因</div></div>
+  </div>
+</section>
+<!-- ====== 06 未来 1—2 周情景推演 ====== -->
+<section>
+  <div class="sec-head"><span class="sec-no">06</span><h2>未来 1—2 周情景推演</h2></div>
+  <div class="scens">
+    <div class="scen base">
+      <div class="sn">基准情景</div>
+      <div class="row"><span class="rk">触发条件</span>下周披露大体符合预期、无普遍指引下修；各板块成交与波动维持当前水平</div>
+      <div class="row"><span class="rk">可能领先</span>AI芯片、企业数据与AI软件、网络</div>
+      <div class="row"><span class="rk">可能承压</span>数据中心电力、AI应用</div>
+      <div class="row"><span class="rk">对判断的影响</span>维持当前方向判断与各板块分档不变</div>
+    </div>
+    <div class="scen up">
+      <div class="sn">上行确认情景</div>
+      <div class="row"><span class="rk">触发条件</span>关键财报或指引确认需求与资本开支延续；板块成交缩窄止跌，上涨扩散回到前四周中位以上</div>
+      <div class="row"><span class="rk">可能领先</span>云平台、AI芯片</div>
+      <div class="row"><span class="rk">可能承压</span>—</div>
+      <div class="row"><span class="rk">对判断的影响</span>上述板块或由等待确认上调为提高关注，总体姿态或转向偏进攻</div>
+    </div>
+    <div class="scen risk">
+      <div class="sn">风险继续释放情景</div>
+      <div class="row"><span class="rk">触发条件</span>更多公司下修指引或披露砍单；板块成交放大并续创阶段新低，上涨扩散进一步恶化</div>
+      <div class="row"><span class="rk">可能领先</span>—</div>
+      <div class="row"><span class="rk">可能承压</span>数据中心电力、AI应用</div>
+      <div class="row"><span class="rk">对判断的影响</span>上述板块或继续承压或由等待确认下调，降低优先级档可能扩大</div>
+    </div>
+  </div>
+</section>
+<!-- ====== 07 下周关键验证事项 ====== -->
+<section>
+  <div class="sec-head"><span class="sec-no">07</span><h2>下周关键验证事项</h2></div>
+  <div class="cal">
+    <div class="cal-item">
+      <div class="cal-body">
+        <div class="dt">再加息定价、CRWV 转债交割后走势、XLU 是否续创新低</div>
+        <div class="ev">10 年期收益率站稳 5% 上方且电力板块连续第二期跑输、公用事业资产续创新低</div>
+        <div class="impact">满足则加强（N1）；10 年期收益率回落至 4.8% 下方、电力板块收复跌幅、CRWV 转债交割后企稳，则证伪</div>
+      </div>
+    </div>
+    <div class="cal-item">
+      <div class="cal-body">
+        <div class="dt">CRWV 转债 09-22 交割、NBIS 涨价生效、ORCL 贷款分销</div>
+        <div class="ev">CRWV 转债交割后企稳、NBIS 涨价后利用率维持高位、Q3 财报积压订单与毛利率兑现</div>
+        <div class="impact">满足则加强（N2）；NeoCloud 客户砍单或违约、短约价格快速回落、项目贷款折价扩散至投资级公司债，则证伪</div>
+      </div>
+    </div>
+    <div class="cal-item">
+      <div class="cal-body">
+        <div class="dt">AI 安全监管动作、软件反弹持续性</div>
+        <div class="ev">AI 安全或监管议题再次引发跨板块轮动、或出现立法/行政令等落地事件</div>
+        <div class="impact">满足则加强（N3）；议题完全退出盘面（软硬件相对走势回归基本面驱动）、连续数周无安全叙事归因报道，则证伪弱化</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ====== 08 支持数据 ====== -->
+<section>
+  <div class="sec-head"><span class="sec-no">08</span><h2>支持数据</h2></div>
+  <p class="note">下列榜单基于核心统计样本（50 只）；所有数值基于估算口径，具体见方法与边界。</p>
+  <div class="ranks">
+  <div class="rank-block">
+    <h3>估算周成交金额 Top 10</h3>
+    <div class="rank-desc">单位：亿美元；估算口径，用于比较成交规模量级。</div>
+    <div class="card">
+      <div class="rank-row"><span class="rank-no gold">1</span><span class="tk">NVDA</span><span class="co">AI芯片、半导体制造、设备与EDA</span><span class="bar-wrap"><i style="width:100.0%"></i></span><span class="val">1,297.7</span></div>
+      <div class="rank-row"><span class="rank-no top">2</span><span class="tk">MU</span><span class="co">HBM、内存与存储</span><span class="bar-wrap"><i style="width:92.2%"></i></span><span class="val">1,197.1</span></div>
+      <div class="rank-row"><span class="rank-no top">3</span><span class="tk">TSLA</span><span class="co">机器人、自动驾驶与物理AI</span><span class="bar-wrap"><i style="width:52.0%"></i></span><span class="val">674.2</span></div>
+      <div class="rank-row"><span class="rank-no">4</span><span class="tk">META</span><span class="co">云平台、基础模型与开发平台</span><span class="bar-wrap"><i style="width:51.5%"></i></span><span class="val">668.7</span></div>
+      <div class="rank-row"><span class="rank-no">5</span><span class="tk">AMD</span><span class="co">AI芯片、半导体制造、设备与EDA</span><span class="bar-wrap"><i style="width:50.3%"></i></span><span class="val">652.5</span></div>
+      <div class="rank-row"><span class="rank-no">6</span><span class="tk">MSFT</span><span class="co">云平台、基础模型与开发平台</span><span class="bar-wrap"><i style="width:44.0%"></i></span><span class="val">571.4</span></div>
+      <div class="rank-row"><span class="rank-no">7</span><span class="tk">AVGO</span><span class="co">AI芯片、半导体制造、设备与EDA</span><span class="bar-wrap"><i style="width:39.9%"></i></span><span class="val">518.4</span></div>
+      <div class="rank-row"><span class="rank-no">8</span><span class="tk">GOOGL</span><span class="co">云平台、基础模型与开发平台</span><span class="bar-wrap"><i style="width:38.6%"></i></span><span class="val">500.6</span></div>
+      <div class="rank-row"><span class="rank-no">9</span><span class="tk">AMZN</span><span class="co">云平台、基础模型与开发平台</span><span class="bar-wrap"><i style="width:36.1%"></i></span><span class="val">469.1</span></div>
+      <div class="rank-row"><span class="rank-no">10</span><span class="tk">DELL</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:23.0%"></i></span><span class="val">299.0</span></div>
+    </div>
+    <div class="rank-note">交叉解读：其中 MU、AMD、DELL 为本周重点标的。</div>
+  </div>
+  <div class="rank-block">
+    <h3>相对成交量 Top 10（5日 vs 60日）</h3>
+    <div class="rank-desc">相对成交量＝5 日均量 ÷ 此前 60 日均量，反映活跃程度，不代表净买入或净卖出。</div>
+    <div class="card">
+      <div class="rank-row"><span class="rank-no gold">1</span><span class="tk">CRWV</span><span class="co">云平台、基础模型与开发平台</span><span class="bar-wrap"><i style="width:100.0%"></i></span><span class="val">1.48x</span></div>
+      <div class="rank-row"><span class="rank-no top">2</span><span class="tk">CIEN</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:98.0%"></i></span><span class="val">1.45x</span></div>
+      <div class="rank-row"><span class="rank-no top">3</span><span class="tk">DELL</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:93.9%"></i></span><span class="val">1.39x</span></div>
+      <div class="rank-row"><span class="rank-no">4</span><span class="tk">ETN</span><span class="co">数据中心电力、散热与基础设施</span><span class="bar-wrap"><i style="width:92.6%"></i></span><span class="val">1.37x</span></div>
+      <div class="rank-row"><span class="rank-no">5</span><span class="tk">CRDO</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:91.2%"></i></span><span class="val">1.35x</span></div>
+      <div class="rank-row"><span class="rank-no">6</span><span class="tk">CEG</span><span class="co">数据中心电力、散热与基础设施</span><span class="bar-wrap"><i style="width:87.8%"></i></span><span class="val">1.30x</span></div>
+      <div class="rank-row"><span class="rank-no">7</span><span class="tk">SYM</span><span class="co">机器人、自动驾驶与物理AI</span><span class="bar-wrap"><i style="width:87.2%"></i></span><span class="val">1.29x</span></div>
+      <div class="rank-row"><span class="rank-no">8</span><span class="tk">COHR</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:85.8%"></i></span><span class="val">1.27x</span></div>
+      <div class="rank-row"><span class="rank-no">9</span><span class="tk">GEV</span><span class="co">数据中心电力、散热与基础设施</span><span class="bar-wrap"><i style="width:85.8%"></i></span><span class="val">1.27x</span></div>
+      <div class="rank-row"><span class="rank-no">10</span><span class="tk">AVGO</span><span class="co">AI芯片、半导体制造、设备与EDA</span><span class="bar-wrap"><i style="width:85.8%"></i></span><span class="val">1.27x</span></div>
+    </div>
+    <div class="rank-note">交叉解读：其中 CRWV、DELL、CRDO、CEG、SYM、GEV 为本周重点标的。</div>
+  </div>
+  <div class="rank-block">
+    <h3>估算周换手率 Top 10</h3>
+    <div class="rank-desc">估算口径（流通股本快照），换手率高低反映交易活跃度。</div>
+    <div class="card">
+      <div class="rank-row"><span class="rank-no gold">1</span><span class="tk">CRWV</span><span class="co">云平台、基础模型与开发平台</span><span class="bar-wrap"><i style="width:100.0%"></i></span><span class="val">60.89%</span></div>
+      <div class="rank-row"><span class="rank-no top">2</span><span class="tk">LITE</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:65.7%"></i></span><span class="val">40.02%</span></div>
+      <div class="rank-row"><span class="rank-no top">3</span><span class="tk">SMCI</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:60.8%"></i></span><span class="val">37.03%</span></div>
+      <div class="rank-row"><span class="rank-no">4</span><span class="tk">CRDO</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:47.3%"></i></span><span class="val">28.83%</span></div>
+      <div class="rank-row"><span class="rank-no">5</span><span class="tk">SYM</span><span class="co">机器人、自动驾驶与物理AI</span><span class="bar-wrap"><i style="width:36.5%"></i></span><span class="val">22.21%</span></div>
+      <div class="rank-row"><span class="rank-no">6</span><span class="tk">COHR</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:33.9%"></i></span><span class="val">20.62%</span></div>
+      <div class="rank-row"><span class="rank-no">7</span><span class="tk">ALAB</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:28.5%"></i></span><span class="val">17.35%</span></div>
+      <div class="rank-row"><span class="rank-no">8</span><span class="tk">DUOL</span><span class="co">AI应用</span><span class="bar-wrap"><i style="width:25.3%"></i></span><span class="val">15.38%</span></div>
+      <div class="rank-row"><span class="rank-no">9</span><span class="tk">WDC</span><span class="co">HBM、内存与存储</span><span class="bar-wrap"><i style="width:20.9%"></i></span><span class="val">12.73%</span></div>
+      <div class="rank-row"><span class="rank-no">10</span><span class="tk">CIEN</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:20.5%"></i></span><span class="val">12.50%</span></div>
+    </div>
+    <div class="rank-note">交叉解读：其中 CRWV、CRDO、SYM 为本周重点标的。</div>
+  </div>
+  <div class="rank-block">
+    <h3>20日年化实现波动率 Top 10</h3>
+    <div class="rank-desc">20 日年化实现波动率描述过去 20 个交易日的价格起伏，不代表未来涨跌幅。</div>
+    <div class="card">
+      <div class="rank-row"><span class="rank-no gold">1</span><span class="tk">CRDO</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:100.0%"></i></span><span class="val">97.40%</span></div>
+      <div class="rank-row"><span class="rank-no top">2</span><span class="tk">ALAB</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:90.7%"></i></span><span class="val">88.39%</span></div>
+      <div class="rank-row"><span class="rank-no top">3</span><span class="tk">DELL</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:90.3%"></i></span><span class="val">87.93%</span></div>
+      <div class="rank-row"><span class="rank-no">4</span><span class="tk">CRM</span><span class="co">企业数据与AI软件</span><span class="bar-wrap"><i style="width:90.1%"></i></span><span class="val">87.72%</span></div>
+      <div class="rank-row"><span class="rank-no">5</span><span class="tk">LITE</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:88.7%"></i></span><span class="val">86.43%</span></div>
+      <div class="rank-row"><span class="rank-no">6</span><span class="tk">HPE</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:86.9%"></i></span><span class="val">84.65%</span></div>
+      <div class="rank-row"><span class="rank-no">7</span><span class="tk">COHR</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:81.4%"></i></span><span class="val">79.30%</span></div>
+      <div class="rank-row"><span class="rank-no">8</span><span class="tk">SMCI</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:79.3%"></i></span><span class="val">77.24%</span></div>
+      <div class="rank-row"><span class="rank-no">9</span><span class="tk">MDB</span><span class="co">企业数据与AI软件</span><span class="bar-wrap"><i style="width:79.0%"></i></span><span class="val">76.99%</span></div>
+      <div class="rank-row"><span class="rank-no">10</span><span class="tk">CIEN</span><span class="co">网络、光互联、服务器与系统</span><span class="bar-wrap"><i style="width:75.5%"></i></span><span class="val">73.53%</span></div>
+    </div>
+    <div class="rank-note">交叉解读：其中 CRDO、DELL 为本周重点标的。</div>
+  </div>
+  </div>
+  <div class="card">
+    <h3>周度市场基准</h3>
+    <div class="bench">
+      <div class="bench-row"><span class="bk">SPY（标普500 ETF）</span><span class="bv neg">-0.09%</span></div>
+      <div class="bench-row"><span class="bk">QQQ（纳斯达克100 ETF）</span><span class="bv pos">+0.92%</span></div>
+      <div class="bench-row"><span class="bk">SMH（半导体 ETF）</span><span class="bv pos">+0.79%</span></div>
+      <div class="bench-row hero-row"><span class="bk">AI 核心统计样本等权（50 只）</span><span class="bv neg">-0.15%</span></div>
+    </div>
+  </div>
+</section>
+<!-- ====== 09 方法与边界 ====== -->
+<section>
+  <div class="sec-head"><span class="sec-no">09</span><h2>方法与边界</h2></div>
+  <div class="card">
+    <p class="body">本报告由 <code>scripts/generate_weekly_report_v7</code> 自动生成：指标口径见 <code>docs/metric_definitions.md</code>（历史换手率为流通股本快照估算值）；交互与重点标的规则见 <code>scripts/dynamic_signals</code>。成交与换手变化不能直接解读为净买入或净卖出；交易状态只确认交易行为变化，不确认价格原因；新闻与披露只提供可能机制。</p>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <b>美股AI赛道周报 · 2026-09-18</b><br>
+  生成时间 2026-09-19
+</footer>
+<script>
+var p=document.getElementById('prog');
+addEventListener('scroll',function(){var h=document.documentElement;
+var m=h.scrollHeight-h.clientHeight;
+p.style.width=(m>0?(h.scrollTop/m*100):0)+'%';},{passive:true});
+</script>
+</body>
+</html>
